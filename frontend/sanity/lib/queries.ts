@@ -27,6 +27,54 @@ const linkFields = /* groq */ `
       }
 `
 
+// Rich text content with resolved links
+const richTextFields = /* groq */ `
+  content[]{
+    ...,
+    markDefs[]{
+      ...,
+      ${linkReference}
+    }
+  }
+`
+
+// Content blocks inside columns
+const contentBlockFields = /* groq */ `
+  content[]{
+    ...,
+    _type == "buttonBlock" => {
+      ${linkFields}
+    },
+    _type == "richTextBlock" => {
+      ${richTextFields}
+    }
+  }
+`
+
+// Column fields with content blocks
+const columnFields = /* groq */ `
+  columns[]{
+    ...,
+    ${contentBlockFields}
+  }
+`
+
+// Row fields with columns
+const rowFields = /* groq */ `
+  rows[]{
+    ...,
+    ${columnFields}
+  }
+`
+
+// Section block projection
+const sectionFields = /* groq */ `
+  _type == "section" => {
+    ...,
+    ${rowFields}
+  }
+`
+
 export const getPageQuery = defineQuery(`
   *[_type == 'page' && slug.current == $slug][0]{
     _id,
@@ -49,6 +97,7 @@ export const getPageQuery = defineQuery(`
           }
         }
       },
+      ${sectionFields}
     },
   }
 `)
