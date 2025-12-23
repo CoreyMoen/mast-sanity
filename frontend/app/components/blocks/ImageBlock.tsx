@@ -1,0 +1,96 @@
+import Image from 'next/image'
+import {urlForImage} from '@/sanity/lib/utils'
+
+interface ImageBlockProps {
+  block: {
+    _key: string
+    _type: string
+    image?: any
+    alt?: string
+    caption?: string
+    size?: 'full' | 'lg' | 'md' | 'sm' | 'thumb'
+    aspectRatio?: 'original' | '16/9' | '4/3' | '1/1' | '3/4' | '9/16'
+    rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full'
+    shadow?: boolean
+  }
+  index: number
+}
+
+// Size mapping
+const sizeClasses: Record<string, string> = {
+  full: 'w-full',
+  lg: 'max-w-4xl',
+  md: 'max-w-2xl',
+  sm: 'max-w-md',
+  thumb: 'max-w-xs',
+}
+
+// Aspect ratio CSS values
+const aspectRatioStyles: Record<string, string | undefined> = {
+  original: undefined,
+  '16/9': '16/9',
+  '4/3': '4/3',
+  '1/1': '1/1',
+  '3/4': '3/4',
+  '9/16': '9/16',
+}
+
+// Rounded corners
+const roundedClasses: Record<string, string> = {
+  none: 'rounded-none',
+  sm: 'rounded',
+  md: 'rounded-lg',
+  lg: 'rounded-2xl',
+  full: 'rounded-full',
+}
+
+export default function ImageBlock({block}: ImageBlockProps) {
+  const {
+    image,
+    alt = '',
+    caption,
+    size = 'full',
+    aspectRatio = 'original',
+    rounded = 'none',
+    shadow = false,
+  } = block
+
+  const imageUrl = urlForImage(image)?.url()
+
+  if (!imageUrl) {
+    return (
+      <div className="w-full bg-gray-100 text-center text-gray-500 p-8 rounded my-2">
+        No image selected
+      </div>
+    )
+  }
+
+  const sizeClass = sizeClasses[size] || sizeClasses.full
+  const roundedClass = roundedClasses[rounded] || roundedClasses.none
+  const shadowClass = shadow ? 'shadow-lg' : ''
+  const aspectStyle = aspectRatioStyles[aspectRatio]
+
+  return (
+    <figure className={`${sizeClass} mb-4`}>
+      <div
+        className={`relative overflow-hidden ${roundedClass} ${shadowClass}`}
+        style={aspectStyle ? {aspectRatio: aspectStyle} : undefined}
+      >
+        <Image
+          src={imageUrl}
+          alt={alt}
+          fill={!!aspectStyle}
+          width={aspectStyle ? undefined : 1200}
+          height={aspectStyle ? undefined : 800}
+          className={`${aspectStyle ? 'object-cover' : 'w-full h-auto'} ${roundedClass}`}
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+        />
+      </div>
+      {caption && (
+        <figcaption className="mt-2 text-sm text-gray-500 text-center">
+          {caption}
+        </figcaption>
+      )}
+    </figure>
+  )
+}
