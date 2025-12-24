@@ -1,12 +1,14 @@
 import {createElement} from 'react'
 import {stegaClean} from 'next-sanity'
 
+type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+
 interface HeadingBlockProps {
   block: {
     _key: string
     _type: string
     text?: string
-    level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+    level?: HeadingLevel
     size?: 'xl' | 'lg' | 'md' | 'sm' | 'xs'
     align?: 'left' | 'center' | 'right'
     color?: 'default' | 'gray' | 'white' | 'brand' | 'blue'
@@ -52,7 +54,7 @@ export default function HeadingBlock({block}: HeadingBlockProps) {
   const cleanSize = stegaClean(size)
   const cleanAlign = stegaClean(align)
   const cleanColor = stegaClean(color)
-  const cleanLevel = stegaClean(level) as keyof JSX.IntrinsicElements
+  const cleanLevel = stegaClean(level) as HeadingLevel
 
   const sizeClass = sizeClasses[cleanSize] || sizeClasses.lg
   const alignClass = alignClasses[cleanAlign] || alignClasses.left
