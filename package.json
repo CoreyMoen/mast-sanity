@@ -24,12 +24,15 @@
     "format": "prettier --cache --write .",
     "import-sample-data": "cd studio && sanity dataset import sample-data.tar.gz --replace",
     "lint": "npm run lint --workspace=frontend",
+    "seed-layouts": "npx tsx scripts/seed-layout-pages.ts",
     "type-check": "npm run type-check --workspaces"
   },
   "prettier": "@sanity/prettier-config",
   "devDependencies": {
+    "@sanity/client": "^7.13.2",
     "@sanity/prettier-config": "^2.0.2",
     "npm-run-all2": "^5.0.2",
-    "prettier": "^3.7.3"
+    "prettier": "^3.7.3",
+    "tsx": "^4.21.0"
   }
 }
