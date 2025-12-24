@@ -1,3 +1,4 @@
+import {stegaClean} from 'next-sanity'
 import Image from 'next/image'
 import {urlForImage} from '@/sanity/lib/utils'
 
@@ -65,10 +66,15 @@ export default function ImageBlock({block}: ImageBlockProps) {
     )
   }
 
-  const sizeClass = sizeClasses[size] || sizeClasses.full
-  const roundedClass = roundedClasses[rounded] || roundedClasses.none
+  // Clean stega encoding from values before using as lookup keys
+  const cleanSize = stegaClean(size)
+  const cleanRounded = stegaClean(rounded)
+  const cleanAspectRatio = stegaClean(aspectRatio)
+
+  const sizeClass = sizeClasses[cleanSize] || sizeClasses.full
+  const roundedClass = roundedClasses[cleanRounded] || roundedClasses.none
   const shadowClass = shadow ? 'shadow-lg' : ''
-  const aspectStyle = aspectRatioStyles[aspectRatio]
+  const aspectStyle = aspectRatioStyles[cleanAspectRatio]
 
   return (
     <figure className={`${sizeClass} mb-4`}>

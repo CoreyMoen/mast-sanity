@@ -1,4 +1,5 @@
 import {createElement} from 'react'
+import {stegaClean} from 'next-sanity'
 
 interface HeadingBlockProps {
   block: {
@@ -47,10 +48,15 @@ export default function HeadingBlock({block}: HeadingBlockProps) {
     color = 'default',
   } = block
 
-  const sizeClass = sizeClasses[size] || sizeClasses.lg
-  const alignClass = alignClasses[align] || alignClasses.left
-  const colorClass = colorClasses[color] || colorClasses.default
-  const className = `${sizeClass} ${alignClass} ${colorClass} mb-4`
+  // Clean stega encoding from values before using as lookup keys
+  const cleanSize = stegaClean(size)
+  const cleanAlign = stegaClean(align)
+  const cleanColor = stegaClean(color)
+  const cleanLevel = stegaClean(level) as keyof JSX.IntrinsicElements
 
-  return createElement(level, {className}, text)
+  const sizeClass = sizeClasses[cleanSize] || sizeClasses.lg
+  const alignClass = alignClasses[cleanAlign] || alignClasses.left
+  const colorClass = colorClasses[cleanColor] || colorClasses.default
+  const className = `${sizeClass} ${alignClass} ${colorClass} mb-4`
+  return createElement(cleanLevel, {className}, text)
 }

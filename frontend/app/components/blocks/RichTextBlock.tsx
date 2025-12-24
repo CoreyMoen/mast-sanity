@@ -1,4 +1,4 @@
-import {type PortableTextBlock} from 'next-sanity'
+import {type PortableTextBlock, stegaClean} from 'next-sanity'
 import PortableText from '@/app/components/PortableText'
 
 interface RichTextBlockProps {
@@ -38,8 +38,12 @@ export default function RichTextBlock({block}: RichTextBlockProps) {
     return null
   }
 
-  const alignClass = alignClasses[align] || alignClasses.left
-  const maxWidthClass = maxWidthClasses[maxWidth] || ''
+  // Clean stega encoding from values before using as lookup keys
+  const cleanAlign = stegaClean(align)
+  const cleanMaxWidth = stegaClean(maxWidth)
+
+  const alignClass = alignClasses[cleanAlign] || alignClasses.left
+  const maxWidthClass = maxWidthClasses[cleanMaxWidth] || ''
 
   return (
     <div className={`${alignClass} ${maxWidthClass} mb-4`}>

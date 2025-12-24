@@ -1,3 +1,4 @@
+import {stegaClean} from 'next-sanity'
 import {dataAttr} from '@/sanity/lib/utils'
 import Row from './Row'
 
@@ -77,14 +78,21 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
     paddingX = '6',
   } = block
 
-  const bgClass = bgColorClasses[backgroundColor] || ''
-  const maxWidthClass = maxWidthClasses[maxWidth] || maxWidthClasses.container
-  const ptClass = paddingTopClasses[paddingTop] || paddingTopClasses['12']
-  const pbClass = paddingBottomClasses[paddingBottom] || paddingBottomClasses['12']
-  const pxClass = paddingXClasses[paddingX] || paddingXClasses['6']
+  // Clean stega encoding from values before using as lookup keys
+  const cleanBgColor = stegaClean(backgroundColor)
+  const cleanMaxWidth = stegaClean(maxWidth)
+  const cleanPaddingTop = stegaClean(paddingTop)
+  const cleanPaddingBottom = stegaClean(paddingBottom)
+  const cleanPaddingX = stegaClean(paddingX)
+
+  const bgClass = bgColorClasses[cleanBgColor] || ''
+  const maxWidthClass = maxWidthClasses[cleanMaxWidth] || maxWidthClasses.container
+  const ptClass = paddingTopClasses[cleanPaddingTop] || paddingTopClasses['12']
+  const pbClass = paddingBottomClasses[cleanPaddingBottom] || paddingBottomClasses['12']
+  const pxClass = paddingXClasses[cleanPaddingX] || paddingXClasses['6']
 
   // Determine if text should be light on dark backgrounds
-  const isDarkBg = ['gray-800', 'black', 'brand', 'blue'].includes(backgroundColor)
+  const isDarkBg = ['gray-800', 'black', 'brand', 'blue'].includes(cleanBgColor)
 
   return (
     <section

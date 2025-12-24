@@ -1,3 +1,5 @@
+import {stegaClean} from 'next-sanity'
+
 interface SpacerBlockProps {
   block: {
     _key: string
@@ -33,10 +35,14 @@ const mobileSizeClasses: Record<string, string> = {
 export default function SpacerBlock({block}: SpacerBlockProps) {
   const {sizeDesktop = '8', sizeMobile = 'inherit'} = block
 
-  // Calculate effective mobile size
-  const effectiveMobileSize = sizeMobile === 'inherit' ? sizeDesktop : sizeMobile
+  // Clean stega encoding from values before using as lookup keys
+  const cleanSizeDesktop = stegaClean(sizeDesktop)
+  const cleanSizeMobile = stegaClean(sizeMobile)
 
-  const desktopClass = desktopSizeClasses[sizeDesktop] || desktopSizeClasses['8']
+  // Calculate effective mobile size
+  const effectiveMobileSize = cleanSizeMobile === 'inherit' ? cleanSizeDesktop : cleanSizeMobile
+
+  const desktopClass = desktopSizeClasses[cleanSizeDesktop] || desktopSizeClasses['8']
   const mobileClass = mobileSizeClasses[effectiveMobileSize] || mobileSizeClasses['8']
 
   return <div className={`${mobileClass} ${desktopClass}`} aria-hidden="true" />

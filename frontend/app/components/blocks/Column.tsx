@@ -1,3 +1,4 @@
+import {stegaClean} from 'next-sanity'
 import {dataAttr} from '@/sanity/lib/utils'
 import ContentBlockRenderer from './ContentBlockRenderer'
 
@@ -99,16 +100,23 @@ export default function Column({block, index, pageId, pageType, sectionKey, rowK
     padding = '0',
   } = block
 
-  // Calculate effective tablet width (inherit means use desktop value)
-  const effectiveTabletWidth = widthTablet === 'inherit' ? widthDesktop : widthTablet
-  // Calculate effective mobile width (inherit means use tablet value)
-  const effectiveMobileWidth = widthMobile === 'inherit' ? effectiveTabletWidth : widthMobile
+  // Clean stega encoding from values before using as lookup keys
+  const cleanWidthDesktop = stegaClean(widthDesktop)
+  const cleanWidthTablet = stegaClean(widthTablet)
+  const cleanWidthMobile = stegaClean(widthMobile)
+  const cleanVerticalAlign = stegaClean(verticalAlign)
+  const cleanPadding = stegaClean(padding)
 
-  const desktopClass = desktopWidthClasses[widthDesktop] || desktopWidthClasses.fill
+  // Calculate effective tablet width (inherit means use desktop value)
+  const effectiveTabletWidth = cleanWidthTablet === 'inherit' ? cleanWidthDesktop : cleanWidthTablet
+  // Calculate effective mobile width (inherit means use tablet value)
+  const effectiveMobileWidth = cleanWidthMobile === 'inherit' ? effectiveTabletWidth : cleanWidthMobile
+
+  const desktopClass = desktopWidthClasses[cleanWidthDesktop] || desktopWidthClasses.fill
   const tabletClass = tabletWidthClasses[effectiveTabletWidth] || ''
   const mobileClass = mobileWidthClasses[effectiveMobileWidth] || mobileWidthClasses['12']
-  const alignClass = verticalAlignClasses[verticalAlign] || verticalAlignClasses.start
-  const paddingClass = paddingClasses[padding] || paddingClasses['0']
+  const alignClass = verticalAlignClasses[cleanVerticalAlign] || verticalAlignClasses.start
+  const paddingClass = paddingClasses[cleanPadding] || paddingClasses['0']
 
   // Build the path for nested content blocks
   const basePath = `pageBuilder[_key=="${sectionKey}"].rows[_key=="${rowKey}"].columns[_key=="${block._key}"]`
@@ -116,6 +124,11 @@ export default function Column({block, index, pageId, pageType, sectionKey, rowK
   return (
     <div
       className={`flex flex-col ${alignClass} ${mobileClass} ${tabletClass} ${desktopClass} ${paddingClass}`}
+      data-sanity={dataAttr({
+        id: pageId,
+        type: pageType,
+        path: `pageBuilder[_key=="${sectionKey}"].rows[_key=="${rowKey}"].columns[_key=="${block._key}"]`,
+      }).toString()}
     >
       {content.map((contentBlock, contentIndex) => (
         <ContentBlockRenderer

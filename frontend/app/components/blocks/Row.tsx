@@ -1,4 +1,4 @@
-import {dataAttr} from '@/sanity/lib/utils'
+import {stegaClean} from 'next-sanity'
 import Column from './Column'
 
 interface RowProps {
@@ -57,9 +57,14 @@ export default function Row({block, index, pageId, pageType, sectionKey}: RowPro
     reverseOnMobile = false,
   } = block
 
-  const justifyClass = horizontalAlignClasses[horizontalAlign] || horizontalAlignClasses.start
-  const alignClass = verticalAlignClasses[verticalAlign] || verticalAlignClasses.stretch
-  const gapClass = gapClasses[gap] || gapClasses['6']
+  // Clean stega encoding from values before using as lookup keys
+  const cleanHorizontalAlign = stegaClean(horizontalAlign)
+  const cleanVerticalAlign = stegaClean(verticalAlign)
+  const cleanGap = stegaClean(gap)
+
+  const justifyClass = horizontalAlignClasses[cleanHorizontalAlign] || horizontalAlignClasses.start
+  const alignClass = verticalAlignClasses[cleanVerticalAlign] || verticalAlignClasses.stretch
+  const gapClass = gapClasses[cleanGap] || gapClasses['6']
   const wrapClass = wrap ? 'flex-wrap' : 'flex-nowrap'
   const reverseClass = reverseOnMobile ? 'flex-col-reverse md:flex-row' : 'flex-col md:flex-row'
 
@@ -68,23 +73,15 @@ export default function Row({block, index, pageId, pageType, sectionKey}: RowPro
       className={`flex ${reverseClass} ${wrapClass} ${justifyClass} ${alignClass} ${gapClass}`}
     >
       {columns.map((column, colIndex) => (
-        <div
+        <Column
           key={column._key}
-          data-sanity={dataAttr({
-            id: pageId,
-            type: pageType,
-            path: `pageBuilder[_key=="${sectionKey}"].rows[_key=="${block._key}"].columns[_key=="${column._key}"]`,
-          }).toString()}
-        >
-          <Column
-            block={column}
-            index={colIndex}
-            pageId={pageId}
-            pageType={pageType}
-            sectionKey={sectionKey}
-            rowKey={block._key}
-          />
-        </div>
+          block={column}
+          index={colIndex}
+          pageId={pageId}
+          pageType={pageType}
+          sectionKey={sectionKey}
+          rowKey={block._key}
+        />
       ))}
     </div>
   )

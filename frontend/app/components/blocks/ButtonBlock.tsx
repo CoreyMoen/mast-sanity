@@ -1,3 +1,4 @@
+import {stegaClean} from 'next-sanity'
 import ResolvedLink from '@/app/components/ResolvedLink'
 
 interface ButtonBlockProps {
@@ -111,11 +112,18 @@ export default function ButtonBlock({block}: ButtonBlockProps) {
     icon = 'none',
   } = block
 
-  const variantColors = variantColorClasses[variant] || variantColorClasses.primary
-  const colorClass = variantColors[color] || variantColors.black
-  const sizeClass = sizeClasses[size] || sizeClasses.md
-  const alignClass = alignClasses[align] || alignClasses.left
-  const fullWidthClass = align === 'full' ? 'w-full justify-center' : ''
+  // Clean stega encoding from values before using as lookup keys
+  const cleanVariant = stegaClean(variant)
+  const cleanColor = stegaClean(color)
+  const cleanSize = stegaClean(size)
+  const cleanAlign = stegaClean(align)
+  const cleanIcon = stegaClean(icon)
+
+  const variantColors = variantColorClasses[cleanVariant] || variantColorClasses.primary
+  const colorClass = variantColors[cleanColor] || variantColors.black
+  const sizeClass = sizeClasses[cleanSize] || sizeClasses.md
+  const alignClass = alignClasses[cleanAlign] || alignClasses.left
+  const fullWidthClass = cleanAlign === 'full' ? 'w-full justify-center' : ''
 
   const buttonClasses = `
     inline-flex items-center rounded-full font-medium
@@ -129,7 +137,7 @@ export default function ButtonBlock({block}: ButtonBlockProps) {
     <div className={`${alignClass} mb-4`}>
       <ResolvedLink link={link} className={buttonClasses}>
         {text}
-        {icons[icon]}
+        {icons[cleanIcon]}
       </ResolvedLink>
     </div>
   )
