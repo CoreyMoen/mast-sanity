@@ -1,5 +1,8 @@
 import {stegaClean} from 'next-sanity'
+import {ArrowRight, Download, ExternalLink} from 'lucide-react'
 import ResolvedLink from '@/app/components/ResolvedLink'
+import {Button} from '@/app/components/ui/button'
+import {cn} from '@/lib/utils'
 
 interface ButtonBlockProps {
   block: {
@@ -16,35 +19,6 @@ interface ButtonBlockProps {
   index: number
 }
 
-// Variant + Color combinations
-const variantColorClasses: Record<string, Record<string, string>> = {
-  primary: {
-    black: 'bg-black text-white hover:bg-gray-800',
-    brand: 'bg-brand text-white hover:bg-orange-600',
-    blue: 'bg-blue text-white hover:bg-blue-700',
-    white: 'bg-white text-black hover:bg-gray-100',
-  },
-  secondary: {
-    black: 'border-2 border-black text-black hover:bg-black hover:text-white',
-    brand: 'border-2 border-brand text-brand hover:bg-brand hover:text-white',
-    blue: 'border-2 border-blue text-blue hover:bg-blue hover:text-white',
-    white: 'border-2 border-white text-white hover:bg-white hover:text-black',
-  },
-  ghost: {
-    black: 'text-black hover:bg-black/10',
-    brand: 'text-brand hover:bg-brand/10',
-    blue: 'text-blue hover:bg-blue/10',
-    white: 'text-white hover:bg-white/10',
-  },
-}
-
-// Size classes
-const sizeClasses: Record<string, string> = {
-  sm: 'py-2 px-4 text-sm',
-  md: 'py-3 px-6 text-base',
-  lg: 'py-4 px-8 text-lg',
-}
-
 // Alignment wrapper classes
 const alignClasses: Record<string, string> = {
   left: 'flex justify-start',
@@ -53,52 +27,12 @@ const alignClasses: Record<string, string> = {
   full: 'flex',
 }
 
-// Icons
+// Icon components using Lucide (shadcn's icon library)
 const icons: Record<string, React.ReactNode> = {
   none: null,
-  'arrow-right': (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-4 w-4 ml-2"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-    </svg>
-  ),
-  external: (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-4 w-4 ml-2"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-      />
-    </svg>
-  ),
-  download: (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-4 w-4 ml-2"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth={2}
-        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-      />
-    </svg>
-  ),
+  'arrow-right': <ArrowRight className="h-4 w-4 ml-2" />,
+  external: <ExternalLink className="h-4 w-4 ml-2" />,
+  download: <Download className="h-4 w-4 ml-2" />,
 }
 
 export default function ButtonBlock({block}: ButtonBlockProps) {
@@ -113,32 +47,30 @@ export default function ButtonBlock({block}: ButtonBlockProps) {
   } = block
 
   // Clean stega encoding from values before using as lookup keys
-  const cleanVariant = stegaClean(variant)
-  const cleanColor = stegaClean(color)
-  const cleanSize = stegaClean(size)
+  const cleanVariant = stegaClean(variant) as 'primary' | 'secondary' | 'ghost'
+  const cleanColor = stegaClean(color) as 'black' | 'brand' | 'blue' | 'white'
+  const cleanSize = stegaClean(size) as 'sm' | 'md' | 'lg'
   const cleanAlign = stegaClean(align)
   const cleanIcon = stegaClean(icon)
 
-  const variantColors = variantColorClasses[cleanVariant] || variantColorClasses.primary
-  const colorClass = variantColors[cleanColor] || variantColors.black
-  const sizeClass = sizeClasses[cleanSize] || sizeClasses.md
   const alignClass = alignClasses[cleanAlign] || alignClasses.left
-  const fullWidthClass = cleanAlign === 'full' ? 'w-full justify-center' : ''
-
-  const buttonClasses = `
-    inline-flex items-center rounded-full font-medium
-    transition-colors duration-200
-    ${colorClass}
-    ${sizeClass}
-    ${fullWidthClass}
-  `.trim()
+  const fullWidthClass = cleanAlign === 'full' ? 'w-full' : ''
 
   return (
-    <div className={`${alignClass} mb-4`}>
-      <ResolvedLink link={link} className={buttonClasses}>
-        {text}
-        {icons[cleanIcon]}
-      </ResolvedLink>
+    <div className={cn(alignClass, 'mb-4')}>
+      <Button
+        variant={cleanVariant}
+        colorScheme={cleanColor}
+        size={cleanSize}
+        rounded="full"
+        className={fullWidthClass}
+        asChild
+      >
+        <ResolvedLink link={link}>
+          {text}
+          {icons[cleanIcon]}
+        </ResolvedLink>
+      </Button>
     </div>
   )
 }
