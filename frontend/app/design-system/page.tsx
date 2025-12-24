@@ -40,9 +40,9 @@ function Section({
   dark?: boolean
 }) {
   return (
-    <section className={`py-12 px-8 ${dark ? 'bg-gray-900 text-white' : ''}`}>
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-2xl font-bold mb-8 pb-4 border-b border-gray-200">{title}</h2>
+    <section className={`py-12 ${dark ? 'bg-gray-900 text-white' : ''}`}>
+      <div className="container">
+        <h2 className="text-h3 mb-8 pb-4 border-b border-gray-200">{title}</h2>
         {children}
       </div>
     </section>
@@ -78,58 +78,75 @@ export default function DesignSystemPage() {
     <div className="min-h-screen">
       {/* Header */}
       <div className="bg-gray-50 py-16 px-8">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">Design System</h1>
-          <p className="text-xl text-gray-600 max-w-2xl">
+        <div className="container">
+          <h1 className="text-h1 mb-4">Design System</h1>
+          <p className="text-p-xl text-gray-600 max-w-2xl">
             A comprehensive overview of typography, colors, and components used throughout the
-            project.
+            project. Features fluid typography using CSS clamp() and a max-width container with responsive gutters.
           </p>
         </div>
       </div>
 
-      {/* Typography */}
-      <Section title="Typography">
+      {/* Typography - Headings */}
+      <Section title="Typography - Headings (Fluid)">
+        <p className="text-p-lg text-gray-600 mb-8">
+          All typography uses CSS clamp() for fluid scaling between viewport widths 320px - 1440px.
+        </p>
         <div className="space-y-8">
           <div>
-            <span className="text-sm text-gray-500 mb-2 block">XL - Display</span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight">
-              The quick brown fox jumps
-            </h1>
+            <span className="text-p-sm text-gray-500 mb-2 block">H1 — clamp(2.8rem → 5.5rem) / 44-88px</span>
+            <h1 className="text-h1">The quick brown fox jumps</h1>
           </div>
           <div>
-            <span className="text-sm text-gray-500 mb-2 block">LG - Heading 1</span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
-              The quick brown fox jumps over
-            </h2>
+            <span className="text-p-sm text-gray-500 mb-2 block">H2 — clamp(2rem → 3.8rem) / 32-61px</span>
+            <h2 className="text-h2">The quick brown fox jumps over</h2>
           </div>
           <div>
-            <span className="text-sm text-gray-500 mb-2 block">MD - Heading 2</span>
-            <h3 className="text-2xl md:text-3xl font-bold">
-              The quick brown fox jumps over the lazy dog
-            </h3>
+            <span className="text-p-sm text-gray-500 mb-2 block">H3 — clamp(1.5rem → 2.3rem) / 24-37px</span>
+            <h3 className="text-h3">The quick brown fox jumps over the lazy dog</h3>
           </div>
           <div>
-            <span className="text-sm text-gray-500 mb-2 block">SM - Heading 3</span>
-            <h4 className="text-xl md:text-2xl font-semibold">
-              The quick brown fox jumps over the lazy dog
-            </h4>
+            <span className="text-p-sm text-gray-500 mb-2 block">H4 — clamp(1.3rem → 1.5rem) / 21-24px</span>
+            <h4 className="text-h4">The quick brown fox jumps over the lazy dog</h4>
           </div>
           <div>
-            <span className="text-sm text-gray-500 mb-2 block">XS - Heading 4</span>
-            <h5 className="text-lg md:text-xl font-semibold">
-              The quick brown fox jumps over the lazy dog
-            </h5>
+            <span className="text-p-sm text-gray-500 mb-2 block">H5 — clamp(1.1rem → 1.2rem) / 18-19px</span>
+            <h5 className="text-h5">The quick brown fox jumps over the lazy dog</h5>
           </div>
           <div>
-            <span className="text-sm text-gray-500 mb-2 block">Body - Base</span>
-            <p className="text-base">
+            <span className="text-p-sm text-gray-500 mb-2 block">H6 — clamp(0.9rem → 1rem) / 14-16px</span>
+            <h6 className="text-h6">The quick brown fox jumps over the lazy dog</h6>
+          </div>
+        </div>
+      </Section>
+
+      {/* Typography - Paragraphs */}
+      <Section title="Typography - Paragraphs (Fluid)">
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-2 block">Paragraph XL — clamp(1.2rem → 1.5rem) / 19-24px</span>
+            <p className="text-p-xl">
               The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.
               How vexingly quick daft zebras jump!
             </p>
           </div>
           <div>
-            <span className="text-sm text-gray-500 mb-2 block">Body - Small</span>
-            <p className="text-sm">
+            <span className="text-p-sm text-gray-500 mb-2 block">Paragraph LG — clamp(1.1rem → 1.25rem) / 18-20px</span>
+            <p className="text-p-lg">
+              The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.
+              How vexingly quick daft zebras jump!
+            </p>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-2 block">Body (Default) — clamp(0.9rem → 1rem) / 14-16px</span>
+            <p className="text-body">
+              The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.
+              How vexingly quick daft zebras jump!
+            </p>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-2 block">Paragraph SM — clamp(0.8rem → 0.9rem) / 13-14px</span>
+            <p className="text-p-sm">
               The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.
               How vexingly quick daft zebras jump!
             </p>

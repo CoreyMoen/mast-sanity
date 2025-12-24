@@ -2,9 +2,94 @@
 
 @plugin "@tailwindcss/typography";
 
+/* ==========================================================================
+   CONTAINER SYSTEM (Mast-style)
+   Max-width: 90rem (1440px) with 6vw gutters, fluid below max
+   ========================================================================== */
 @utility container {
-  margin: 0 auto;
-  padding: 0 2rem;
+  width: 100%;
+  max-width: 90rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 6vw;
+  padding-right: 6vw;
+}
+
+/* ==========================================================================
+   FLUID TYPOGRAPHY SYSTEM (Mast-style)
+   Uses CSS clamp() for smooth scaling between viewport widths 20rem - 90rem
+   ========================================================================== */
+
+/* Heading utilities */
+@utility text-h1 {
+  font-size: clamp(2.8rem, calc(2.03rem + 3.86vw), 5.5rem);
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+@utility text-h2 {
+  font-size: clamp(2rem, calc(1.49rem + 2.57vw), 3.8rem);
+  line-height: 1.1;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+@utility text-h3 {
+  font-size: clamp(1.5rem, calc(1.27rem + 1.14vw), 2.3rem);
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+@utility text-h4 {
+  font-size: clamp(1.3rem, calc(1.24rem + 0.29vw), 1.5rem);
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+@utility text-h5 {
+  font-size: clamp(1.1rem, calc(1.07rem + 0.14vw), 1.2rem);
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+@utility text-h6 {
+  font-size: clamp(0.9rem, calc(0.87rem + 0.14vw), 1rem);
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+/* Paragraph utilities */
+@utility text-p-xl {
+  font-size: clamp(1.2rem, calc(1.11rem + 0.43vw), 1.5rem);
+  line-height: 1.4;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+@utility text-p-lg {
+  font-size: clamp(1.1rem, calc(1.06rem + 0.21vw), 1.25rem);
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+@utility text-body {
+  font-size: clamp(0.9rem, calc(0.87rem + 0.14vw), 1rem);
+  line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+@utility text-p-sm {
+  font-size: clamp(0.8rem, calc(0.77rem + 0.14vw), 0.9rem);
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: 0;
 }
 
 @theme {
