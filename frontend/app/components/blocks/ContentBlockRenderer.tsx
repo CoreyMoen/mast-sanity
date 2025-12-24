@@ -7,6 +7,9 @@ import ButtonBlock from './ButtonBlock'
 import SpacerBlock from './SpacerBlock'
 import DividerBlock from './DividerBlock'
 import CardBlock from './CardBlock'
+import EyebrowBlock from './EyebrowBlock'
+import BreadcrumbBlock from './BreadcrumbBlock'
+import TableBlock from './TableBlock'
 
 type ContentBlocksType = {
   [key: string]: React.FC<any>
@@ -29,6 +32,9 @@ const ContentBlocks: ContentBlocksType = {
   spacerBlock: SpacerBlock,
   dividerBlock: DividerBlock,
   cardBlock: CardBlock,
+  eyebrowBlock: EyebrowBlock,
+  breadcrumbBlock: BreadcrumbBlock,
+  tableBlock: TableBlock,
 }
 
 export default function ContentBlockRenderer({

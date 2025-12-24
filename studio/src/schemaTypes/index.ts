@@ -20,6 +20,9 @@ import {buttonBlock} from './objects/buttonBlock'
 import {spacerBlock} from './objects/spacerBlock'
 import {dividerBlock} from './objects/dividerBlock'
 import {cardBlock} from './objects/cardBlock'
+import {eyebrowBlock} from './objects/eyebrowBlock'
+import {breadcrumbBlock} from './objects/breadcrumbBlock'
+import {tableBlock} from './objects/tableBlock'
 
 // Export an array of all the schema types.  This is used in the Sanity Studio configuration. https://www.sanity.io/docs/schema-types
 
@@ -45,6 +48,9 @@ export const schemaTypes = [
   spacerBlock,
   dividerBlock,
   cardBlock,
+  eyebrowBlock,
+  breadcrumbBlock,
+  tableBlock,
   column,
   row,
   section,

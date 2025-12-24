@@ -3,6 +3,9 @@ import {Icon} from '@/app/components/ui/icon'
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '@/app/components/ui/accordion'
 import {Divider} from '@/app/components/ui/divider'
 import {Card} from '@/app/components/ui/card'
+import {Eyebrow} from '@/app/components/ui/eyebrow'
+import {Breadcrumb} from '@/app/components/ui/breadcrumb'
+import {Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableCaption} from '@/app/components/ui/table'
 import {
   ArrowRight,
   ArrowUpRight,
@@ -592,6 +595,199 @@ export default function DesignSystemPage() {
         </div>
       </Section>
 
+      {/* Eyebrow */}
+      <Section title="Eyebrow">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Small uppercase text typically used above headings. Three style variants available.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Variants</span>
+            <div className="grid md:grid-cols-3 gap-8">
+              <div>
+                <Eyebrow variant="text">Text Only</Eyebrow>
+                <p className="mt-2 text-p-sm text-gray-500">Simple uppercase text</p>
+              </div>
+              <div>
+                <Eyebrow variant="overline">Overline Style</Eyebrow>
+                <p className="mt-2 text-p-sm text-gray-500">With border line above</p>
+              </div>
+              <div>
+                <Eyebrow variant="pill">Pill Badge</Eyebrow>
+                <p className="mt-2 text-p-sm text-gray-500">In a pill/badge shape</p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Colors</span>
+            <div className="flex flex-wrap gap-4">
+              <Eyebrow variant="pill" color="default">Default</Eyebrow>
+              <Eyebrow variant="pill" color="brand">Brand</Eyebrow>
+              <Eyebrow variant="pill" color="blue">Blue</Eyebrow>
+              <Eyebrow variant="pill" color="muted">Muted</Eyebrow>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Combined with Heading</span>
+            <div className="max-w-xl">
+              <Eyebrow variant="overline" color="brand">Featured Article</Eyebrow>
+              <h3 className="text-h3 mt-2">The Art of Typography in Web Design</h3>
+              <p className="text-p-lg text-gray-600 mt-2">
+                Exploring how thoughtful typography choices enhance user experience.
+              </p>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* Breadcrumb */}
+      <Section title="Breadcrumb">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Navigation breadcrumbs with eyebrow-style typography. Supports chevron or slash separators.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Chevron Separator (Default)</span>
+            <Breadcrumb
+              items={[
+                {label: 'Home', href: '/'},
+                {label: 'Products', href: '/products'},
+                {label: 'Electronics', href: '/products/electronics'},
+                {label: 'Smartphones'},
+              ]}
+              separator="chevron"
+            />
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Slash Separator</span>
+            <Breadcrumb
+              items={[
+                {label: 'Home', href: '/'},
+                {label: 'Blog', href: '/blog'},
+                {label: 'Design Tips'},
+              ]}
+              separator="slash"
+            />
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">With External Link</span>
+            <Breadcrumb
+              items={[
+                {label: 'Home', href: '/'},
+                {label: 'Documentation', href: 'https://example.com/docs'},
+                {label: 'Getting Started'},
+              ]}
+            />
+          </div>
+        </div>
+      </Section>
+
+      {/* Table */}
+      <Section title="Table">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Data tables with multiple style variants. Responsive with horizontal scrolling on small screens.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Default Style</span>
+            <Table>
+              <TableHeader>
+                <TableRow isHeader>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead align="right">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell>Alice Johnson</TableCell>
+                  <TableCell>Designer</TableCell>
+                  <TableCell align="right">Active</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Bob Smith</TableCell>
+                  <TableCell>Developer</TableCell>
+                  <TableCell align="right">Active</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Carol White</TableCell>
+                  <TableCell>Manager</TableCell>
+                  <TableCell align="right">Away</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Striped Variant</span>
+            <Table variant="striped">
+              <TableHeader>
+                <TableRow isHeader>
+                  <TableHead>Product</TableHead>
+                  <TableHead align="center">Quantity</TableHead>
+                  <TableHead align="right">Price</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell>Widget A</TableCell>
+                  <TableCell align="center">25</TableCell>
+                  <TableCell align="right">$19.99</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Widget B</TableCell>
+                  <TableCell align="center">12</TableCell>
+                  <TableCell align="right">$29.99</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Widget C</TableCell>
+                  <TableCell align="center">8</TableCell>
+                  <TableCell align="right">$49.99</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Widget D</TableCell>
+                  <TableCell align="center">50</TableCell>
+                  <TableCell align="right">$9.99</TableCell>
+                </TableRow>
+              </TableBody>
+              <TableCaption>Product inventory as of today</TableCaption>
+            </Table>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Bordered Variant</span>
+            <Table variant="bordered">
+              <TableHeader>
+                <TableRow isHeader>
+                  <TableHead>Feature</TableHead>
+                  <TableHead align="center">Basic</TableHead>
+                  <TableHead align="center">Pro</TableHead>
+                  <TableHead align="center">Enterprise</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell>Users</TableCell>
+                  <TableCell align="center">1</TableCell>
+                  <TableCell align="center">5</TableCell>
+                  <TableCell align="center">Unlimited</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Storage</TableCell>
+                  <TableCell align="center">5 GB</TableCell>
+                  <TableCell align="center">50 GB</TableCell>
+                  <TableCell align="center">500 GB</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Support</TableCell>
+                  <TableCell align="center">Email</TableCell>
+                  <TableCell align="center">Priority</TableCell>
+                  <TableCell align="center">24/7</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      </Section>
+
       {/* Card */}
       <Section title="Card">
         <p className="text-p-lg text-gray-600 mb-8">
@@ -799,6 +995,21 @@ export default function DesignSystemPage() {
                 name: 'CardBlock',
                 description: 'Flexible container for other blocks with responsive padding and optional link',
                 props: ['variant', 'paddingDesktop', 'paddingMobile', 'href', 'hoverEffect'],
+              },
+              {
+                name: 'EyebrowBlock',
+                description: 'Small uppercase text with text, overline, or pill variants',
+                props: ['text', 'variant', 'color', 'align'],
+              },
+              {
+                name: 'BreadcrumbBlock',
+                description: 'Navigation breadcrumbs with customizable separator style',
+                props: ['items', 'separator', 'align'],
+              },
+              {
+                name: 'TableBlock',
+                description: 'Data table with columns, rows, and style variants',
+                props: ['columns', 'rows', 'variant', 'showHeader', 'caption'],
               },
             ].map((component) => (
               <div key={component.name} className="border border-gray-200 rounded-lg p-6">
