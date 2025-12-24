@@ -2,34 +2,137 @@
 
 @plugin "@tailwindcss/typography";
 
+/* ==========================================================================
+   CONTAINER SYSTEM (Mast-style)
+   Max-width: 90rem (1440px) with 6vw gutters, fluid below max
+   ========================================================================== */
 @utility container {
-  margin: 0 auto;
-  padding: 0 2rem;
+  width: 100%;
+  max-width: 90rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 6vw;
+  padding-right: 6vw;
+}
+
+/* ==========================================================================
+   FLUID TYPOGRAPHY SYSTEM (Mast-style)
+   Uses CSS clamp() for smooth scaling between viewport widths 20rem - 90rem
+   ========================================================================== */
+
+/* Heading utilities */
+@utility text-h1 {
+  font-size: clamp(2.8rem, calc(2.03rem + 3.86vw), 5.5rem);
+  line-height: 1;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+@utility text-h2 {
+  font-size: clamp(2rem, calc(1.49rem + 2.57vw), 3.8rem);
+  line-height: 1.1;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+@utility text-h3 {
+  font-size: clamp(1.5rem, calc(1.27rem + 1.14vw), 2.3rem);
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+@utility text-h4 {
+  font-size: clamp(1.3rem, calc(1.24rem + 0.29vw), 1.5rem);
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+@utility text-h5 {
+  font-size: clamp(1.1rem, calc(1.07rem + 0.14vw), 1.2rem);
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+@utility text-h6 {
+  font-size: clamp(0.9rem, calc(0.87rem + 0.14vw), 1rem);
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+/* Paragraph utilities */
+@utility text-p-xl {
+  font-size: clamp(1.2rem, calc(1.11rem + 0.43vw), 1.5rem);
+  line-height: 1.4;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+@utility text-p-lg {
+  font-size: clamp(1.1rem, calc(1.06rem + 0.21vw), 1.25rem);
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+@utility text-body {
+  font-size: clamp(0.9rem, calc(0.87rem + 0.14vw), 1rem);
+  line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+@utility text-p-sm {
+  font-size: clamp(0.8rem, calc(0.77rem + 0.14vw), 0.9rem);
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: 0;
 }
 
 @theme {
   --shadow-layer: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
 
-  --color-framework: #000;
-  --color-black: #0b0b0b;
-  --color-white: #fff;
-  --color-brand: #f50;
-  --color-blue: #0052ff;
-  --color-yellow: #cdea19;
-  --color-gray-50: #f6f6f8;
-  --color-gray-100: #eeeef1;
-  --color-gray-200: #e3e4e8;
-  --color-gray-300: #bbbdc9;
-  --color-gray-400: #9499ad;
-  --color-gray-500: #727892;
-  --color-gray-600: #515870;
-  --color-gray-700: #383d51;
-  --color-gray-800: #252837;
-  --color-gray-900: #1b1d27;
-  --color-gray-950: #13141b;
+  /* ==========================================================================
+     MAST COLOR PALETTE
+     ========================================================================== */
 
-  --font-display: 'Inter', 'sans-serif';
-  --font-sans: 'Inter', 'sans-serif';
+  /* Neutral colors */
+  --color-white: #ffffff;
+  --color-black: #1d1c1a;
+  --color-dark-gray: #292825;
+  --color-light-gray: #f0eee6;
+  --color-mid-gray-1: #cccabf;
+  --color-mid-gray-2: #474641;
+
+  /* Primary colors */
+  --color-brand: #d14424;
+  --color-brand-dark: #9c331b;
+
+  /* Secondary colors */
+  --color-yellow: #f8d47a;
+  --color-blue: #0073e6;
+
+  /* Gray scale (mapped for compatibility) */
+  --color-gray-50: #f0eee6;
+  --color-gray-100: #e5e3db;
+  --color-gray-200: #d4d2c8;
+  --color-gray-300: #cccabf;
+  --color-gray-400: #9a9890;
+  --color-gray-500: #6b6961;
+  --color-gray-600: #474641;
+  --color-gray-700: #353430;
+  --color-gray-800: #292825;
+  --color-gray-900: #1d1c1a;
+  --color-gray-950: #141311;
+
+  /* ==========================================================================
+     TYPOGRAPHY
+     ========================================================================== */
+  --font-display: var(--font-general-sans), 'General Sans', Arial, sans-serif;
+  --font-sans: var(--font-general-sans), 'General Sans', Arial, sans-serif;
 
   --default-transition-duration: 250ms;
 

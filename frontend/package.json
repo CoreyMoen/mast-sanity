@@ -12,7 +12,12 @@
     "typegen": "sanity typegen generate"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
+    "@radix-ui/react-accordion": "^1.2.12",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-navigation-menu": "^1.2.14",
     "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-tabs": "^1.1.13",
     "@sanity/client": "^7.13.1",
     "@sanity/image-url": "^1.2.0",
     "@sanity/uuid": "^3.0.2",
@@ -23,6 +28,8 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "embla-carousel-autoplay": "^8.6.0",
+    "embla-carousel-react": "^8.6.0",
     "lucide-react": "^0.562.0",
     "next": "15.5.9",
     "next-sanity": "^10.1.4",

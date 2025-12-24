@@ -1,32 +1,62 @@
 import {Button} from '@/app/components/ui/button'
-import {ArrowRight, Download, ExternalLink} from 'lucide-react'
+import {Icon} from '@/app/components/ui/icon'
+import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '@/app/components/ui/accordion'
+import {Divider} from '@/app/components/ui/divider'
+import {Card} from '@/app/components/ui/card'
+import {Eyebrow} from '@/app/components/ui/eyebrow'
+import {Breadcrumb} from '@/app/components/ui/breadcrumb'
+import {Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableCaption} from '@/app/components/ui/table'
+import {Slider, SliderSlide} from '@/app/components/ui/slider'
+import {Tabs, TabsList, TabsTrigger, TabsContent} from '@/app/components/ui/tabs'
+import {Modal, ModalTrigger, ModalContent, ModalHeader, ModalTitle, ModalBody, ModalFooter, VideoModalContent} from '@/app/components/ui/modal'
+import {
+  ArrowRight,
+  ArrowUpRight,
+  CheckCircle,
+  Download,
+  Heart,
+  Lightning,
+  MoonStars,
+  Star,
+  Sun,
+  Target,
+  Trophy,
+  User,
+} from '@phosphor-icons/react/dist/ssr'
 
 export const metadata = {
   title: 'Design System',
   description: 'Visual overview of all design system components, colors, and typography',
 }
 
-// Color definitions from the theme
+// Color definitions from the Mast theme
 const colors = {
   primary: [
-    {name: 'Black', value: '#0b0b0b', textClass: 'text-white'},
-    {name: 'White', value: '#fff', textClass: 'text-black', border: true},
-    {name: 'Brand', value: '#f50', textClass: 'text-white'},
-    {name: 'Blue', value: '#0052ff', textClass: 'text-white'},
-    {name: 'Yellow', value: '#cdea19', textClass: 'text-black'},
+    {name: 'Black', value: '#1d1c1a', textClass: 'text-white'},
+    {name: 'White', value: '#ffffff', textClass: 'text-black', border: true},
+    {name: 'Brand', value: '#d14424', textClass: 'text-white'},
+    {name: 'Brand Dark', value: '#9c331b', textClass: 'text-white'},
+    {name: 'Blue', value: '#0073e6', textClass: 'text-white'},
+    {name: 'Yellow', value: '#f8d47a', textClass: 'text-black'},
+  ],
+  neutral: [
+    {name: 'Light Gray', value: '#f0eee6', textClass: 'text-black'},
+    {name: 'Mid Gray 1', value: '#cccabf', textClass: 'text-black'},
+    {name: 'Mid Gray 2', value: '#474641', textClass: 'text-white'},
+    {name: 'Dark Gray', value: '#292825', textClass: 'text-white'},
   ],
   gray: [
-    {name: 'Gray 50', value: '#f6f6f8', textClass: 'text-black'},
-    {name: 'Gray 100', value: '#eeeef1', textClass: 'text-black'},
-    {name: 'Gray 200', value: '#e3e4e8', textClass: 'text-black'},
-    {name: 'Gray 300', value: '#bbbdc9', textClass: 'text-black'},
-    {name: 'Gray 400', value: '#9499ad', textClass: 'text-black'},
-    {name: 'Gray 500', value: '#727892', textClass: 'text-white'},
-    {name: 'Gray 600', value: '#515870', textClass: 'text-white'},
-    {name: 'Gray 700', value: '#383d51', textClass: 'text-white'},
-    {name: 'Gray 800', value: '#252837', textClass: 'text-white'},
-    {name: 'Gray 900', value: '#1b1d27', textClass: 'text-white'},
-    {name: 'Gray 950', value: '#13141b', textClass: 'text-white'},
+    {name: 'Gray 50', value: '#f0eee6', textClass: 'text-black'},
+    {name: 'Gray 100', value: '#e5e3db', textClass: 'text-black'},
+    {name: 'Gray 200', value: '#d4d2c8', textClass: 'text-black'},
+    {name: 'Gray 300', value: '#cccabf', textClass: 'text-black'},
+    {name: 'Gray 400', value: '#9a9890', textClass: 'text-black'},
+    {name: 'Gray 500', value: '#6b6961', textClass: 'text-white'},
+    {name: 'Gray 600', value: '#474641', textClass: 'text-white'},
+    {name: 'Gray 700', value: '#353430', textClass: 'text-white'},
+    {name: 'Gray 800', value: '#292825', textClass: 'text-white'},
+    {name: 'Gray 900', value: '#1d1c1a', textClass: 'text-white'},
+    {name: 'Gray 950', value: '#141311', textClass: 'text-white'},
   ],
 }
 
@@ -40,9 +70,9 @@ function Section({
   dark?: boolean
 }) {
   return (
-    <section className={`py-12 px-8 ${dark ? 'bg-gray-900 text-white' : ''}`}>
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-2xl font-bold mb-8 pb-4 border-b border-gray-200">{title}</h2>
+    <section className={`py-12 ${dark ? 'bg-gray-900 text-white' : ''}`}>
+      <div className="container">
+        <h2 className="text-h3 mb-8 pb-4 border-b border-gray-200">{title}</h2>
         {children}
       </div>
     </section>
@@ -77,59 +107,96 @@ export default function DesignSystemPage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-gray-50 py-16 px-8">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">Design System</h1>
-          <p className="text-xl text-gray-600 max-w-2xl">
-            A comprehensive overview of typography, colors, and components used throughout the
-            project.
+      <div className="bg-gray-50 py-16">
+        <div className="container">
+          <h1 className="text-h1 mb-4">Design System</h1>
+          <p className="text-p-xl text-gray-600 max-w-3xl">
+            Based on the Mast framework. Features General Sans typography, fluid sizing with CSS clamp(),
+            Phosphor icons, and a max-width container (90rem) with 6vw responsive gutters.
           </p>
         </div>
       </div>
 
-      {/* Typography */}
-      <Section title="Typography">
+      {/* Font Info */}
+      <Section title="Typography - Font">
+        <div className="flex flex-wrap gap-8 items-center">
+          <div className="flex-1 min-w-[200px]">
+            <p className="text-p-sm text-gray-500 mb-2">Primary Font</p>
+            <p className="text-h2">General Sans</p>
+          </div>
+          <div className="flex gap-12">
+            <div>
+              <p className="text-p-sm text-gray-500 mb-2">Regular (400)</p>
+              <p className="text-h4 font-normal">Aa Bb Cc 123</p>
+            </div>
+            <div>
+              <p className="text-p-sm text-gray-500 mb-2">Medium (500)</p>
+              <p className="text-h4 font-medium">Aa Bb Cc 123</p>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* Typography - Headings */}
+      <Section title="Typography - Headings (Fluid)">
+        <p className="text-p-lg text-gray-600 mb-8">
+          All typography uses CSS clamp() for fluid scaling between viewport widths 320px - 1440px.
+        </p>
         <div className="space-y-8">
           <div>
-            <span className="text-sm text-gray-500 mb-2 block">XL - Display</span>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight">
-              The quick brown fox jumps
-            </h1>
+            <span className="text-p-sm text-gray-500 mb-2 block">H1 — clamp(2.8rem → 5.5rem) / 44-88px</span>
+            <h1 className="text-h1">The quick brown fox jumps</h1>
           </div>
           <div>
-            <span className="text-sm text-gray-500 mb-2 block">LG - Heading 1</span>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
-              The quick brown fox jumps over
-            </h2>
+            <span className="text-p-sm text-gray-500 mb-2 block">H2 — clamp(2rem → 3.8rem) / 32-61px</span>
+            <h2 className="text-h2">The quick brown fox jumps over</h2>
           </div>
           <div>
-            <span className="text-sm text-gray-500 mb-2 block">MD - Heading 2</span>
-            <h3 className="text-2xl md:text-3xl font-bold">
-              The quick brown fox jumps over the lazy dog
-            </h3>
+            <span className="text-p-sm text-gray-500 mb-2 block">H3 — clamp(1.5rem → 2.3rem) / 24-37px</span>
+            <h3 className="text-h3">The quick brown fox jumps over the lazy dog</h3>
           </div>
           <div>
-            <span className="text-sm text-gray-500 mb-2 block">SM - Heading 3</span>
-            <h4 className="text-xl md:text-2xl font-semibold">
-              The quick brown fox jumps over the lazy dog
-            </h4>
+            <span className="text-p-sm text-gray-500 mb-2 block">H4 — clamp(1.3rem → 1.5rem) / 21-24px</span>
+            <h4 className="text-h4">The quick brown fox jumps over the lazy dog</h4>
           </div>
           <div>
-            <span className="text-sm text-gray-500 mb-2 block">XS - Heading 4</span>
-            <h5 className="text-lg md:text-xl font-semibold">
-              The quick brown fox jumps over the lazy dog
-            </h5>
+            <span className="text-p-sm text-gray-500 mb-2 block">H5 — clamp(1.1rem → 1.2rem) / 18-19px</span>
+            <h5 className="text-h5">The quick brown fox jumps over the lazy dog</h5>
           </div>
           <div>
-            <span className="text-sm text-gray-500 mb-2 block">Body - Base</span>
-            <p className="text-base">
+            <span className="text-p-sm text-gray-500 mb-2 block">H6 — clamp(0.9rem → 1rem) / 14-16px</span>
+            <h6 className="text-h6">The quick brown fox jumps over the lazy dog</h6>
+          </div>
+        </div>
+      </Section>
+
+      {/* Typography - Paragraphs */}
+      <Section title="Typography - Paragraphs (Fluid)">
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-2 block">Paragraph XL — clamp(1.2rem → 1.5rem) / 19-24px</span>
+            <p className="text-p-xl">
               The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.
               How vexingly quick daft zebras jump!
             </p>
           </div>
           <div>
-            <span className="text-sm text-gray-500 mb-2 block">Body - Small</span>
-            <p className="text-sm">
+            <span className="text-p-sm text-gray-500 mb-2 block">Paragraph LG — clamp(1.1rem → 1.25rem) / 18-20px</span>
+            <p className="text-p-lg">
+              The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.
+              How vexingly quick daft zebras jump!
+            </p>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-2 block">Body (Default) — clamp(0.9rem → 1rem) / 14-16px</span>
+            <p className="text-body">
+              The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.
+              How vexingly quick daft zebras jump!
+            </p>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-2 block">Paragraph SM — clamp(0.8rem → 0.9rem) / 13-14px</span>
+            <p className="text-p-sm">
               The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.
               How vexingly quick daft zebras jump!
             </p>
@@ -138,9 +205,17 @@ export default function DesignSystemPage() {
       </Section>
 
       {/* Colors */}
-      <Section title="Colors - Primary">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+      <Section title="Colors - Primary & Secondary">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
           {colors.primary.map((color) => (
+            <ColorSwatch key={color.name} {...color} />
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Colors - Neutral">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {colors.neutral.map((color) => (
             <ColorSwatch key={color.name} {...color} />
           ))}
         </div>
@@ -192,13 +267,13 @@ export default function DesignSystemPage() {
             <span className="text-sm text-gray-500 mb-4 block">With Icons</span>
             <div className="flex flex-wrap gap-4">
               <Button variant="primary" colorScheme="black">
-                Continue <ArrowRight className="h-4 w-4 ml-2" />
+                Continue <ArrowRight className="h-4 w-4 ml-2" weight="bold" />
               </Button>
               <Button variant="primary" colorScheme="brand">
-                External <ExternalLink className="h-4 w-4 ml-2" />
+                External <ArrowUpRight className="h-4 w-4 ml-2" weight="bold" />
               </Button>
               <Button variant="primary" colorScheme="blue">
-                Download <Download className="h-4 w-4 ml-2" />
+                Download <Download className="h-4 w-4 ml-2" weight="bold" />
               </Button>
             </div>
           </div>
@@ -281,7 +356,7 @@ export default function DesignSystemPage() {
                 White Button
               </Button>
               <Button variant="primary" colorScheme="white">
-                With Icon <ArrowRight className="h-4 w-4 ml-2" />
+                With Icon <ArrowRight className="h-4 w-4 ml-2" weight="bold" />
               </Button>
             </div>
           </div>
@@ -299,6 +374,692 @@ export default function DesignSystemPage() {
               <Button variant="ghost" colorScheme="white">
                 White Ghost
               </Button>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* Icons */}
+      <Section title="Icons (Phosphor)">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Uses the Phosphor icon library. Icons support multiple sizes and colors.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Sizes</span>
+            <div className="flex flex-wrap items-end gap-8">
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Star} size="xs" />
+                <span className="text-p-sm text-gray-500">XS (16px)</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Star} size="sm" />
+                <span className="text-p-sm text-gray-500">SM (24px)</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Star} size="md" />
+                <span className="text-p-sm text-gray-500">MD (32px)</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Star} size="lg" />
+                <span className="text-p-sm text-gray-500">LG (48px)</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Star} size="xl" />
+                <span className="text-p-sm text-gray-500">XL (64px)</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Colors</span>
+            <div className="flex flex-wrap items-center gap-6">
+              <Icon icon={Heart} size="lg" color="brand" />
+              <Icon icon={Lightning} size="lg" color="blue" />
+              <Icon icon={Star} size="lg" color="yellow" />
+              <Icon icon={CheckCircle} size="lg" color="black" />
+              <span className="bg-gray-900 p-2 rounded-lg">
+                <Icon icon={Sun} size="lg" color="white" />
+              </span>
+              <Icon icon={Target} size="lg" color="gray" />
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Weights</span>
+            <div className="flex flex-wrap items-center gap-6">
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Heart} size="lg" weight="thin" />
+                <span className="text-p-sm text-gray-500">Thin</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Heart} size="lg" weight="light" />
+                <span className="text-p-sm text-gray-500">Light</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Heart} size="lg" weight="regular" />
+                <span className="text-p-sm text-gray-500">Regular</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Heart} size="lg" weight="bold" />
+                <span className="text-p-sm text-gray-500">Bold</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Heart} size="lg" weight="fill" />
+                <span className="text-p-sm text-gray-500">Fill</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Heart} size="lg" weight="duotone" />
+                <span className="text-p-sm text-gray-500">Duotone</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Sample Icons</span>
+            <div className="flex flex-wrap items-center gap-4">
+              <Icon icon={CheckCircle} size="md" color="brand" />
+              <Icon icon={Target} size="md" color="brand" />
+              <Icon icon={Star} size="md" color="brand" />
+              <Icon icon={Trophy} size="md" color="brand" />
+              <Icon icon={Heart} size="md" color="brand" />
+              <Icon icon={Lightning} size="md" color="brand" />
+              <Icon icon={User} size="md" color="brand" />
+              <Icon icon={ArrowRight} size="md" color="brand" />
+              <Icon icon={ArrowUpRight} size="md" color="brand" />
+              <Icon icon={Download} size="md" color="brand" />
+              <Icon icon={Sun} size="md" color="brand" />
+              <Icon icon={MoonStars} size="md" color="brand" />
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* Accordion */}
+      <Section title="Accordion">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Collapsible content sections. Supports single or multiple open items, and can start with items open.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Single (collapsible)</span>
+            <Accordion type="single" collapsible className="w-full max-w-xl">
+              <AccordionItem value="item-1">
+                <AccordionTrigger>What is fluid typography?</AccordionTrigger>
+                <AccordionContent>
+                  Fluid typography uses CSS clamp() to smoothly scale font sizes between a minimum and maximum
+                  value based on the viewport width, eliminating abrupt size changes at breakpoints.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-2">
+                <AccordionTrigger>How does the container work?</AccordionTrigger>
+                <AccordionContent>
+                  The container has a max-width of 90rem (1440px) with 6vw responsive gutters on each side.
+                  Below the max-width, it fills 100% of the viewport minus the gutters.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-3">
+                <AccordionTrigger>What icon library is used?</AccordionTrigger>
+                <AccordionContent>
+                  We use Phosphor Icons, a flexible icon family with multiple weights (thin, light, regular,
+                  bold, fill, duotone) and consistent sizing.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">With default open item</span>
+            <Accordion type="single" collapsible defaultValue="open-item" className="w-full max-w-xl">
+              <AccordionItem value="open-item">
+                <AccordionTrigger>This starts open</AccordionTrigger>
+                <AccordionContent>
+                  Use the defaultValue prop to specify which item should be open by default.
+                  This is useful for FAQ sections where you want to highlight the first answer.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="closed-item">
+                <AccordionTrigger>This starts closed</AccordionTrigger>
+                <AccordionContent>
+                  Other items remain closed until clicked.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Multiple open at once</span>
+            <Accordion type="multiple" className="w-full max-w-xl">
+              <AccordionItem value="multi-1">
+                <AccordionTrigger>First section</AccordionTrigger>
+                <AccordionContent>
+                  With type=&quot;multiple&quot;, multiple sections can be open simultaneously.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="multi-2">
+                <AccordionTrigger>Second section</AccordionTrigger>
+                <AccordionContent>
+                  Click to open this while keeping the first one open.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        </div>
+      </Section>
+
+      {/* Divider */}
+      <Section title="Divider">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Horizontal rule with configurable spacing and colors using the project&apos;s spacing scale.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Default</span>
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <p className="text-body">Content above the divider</p>
+              <Divider />
+              <p className="text-body">Content below the divider</p>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Colors</span>
+            <div className="bg-gray-50 p-6 rounded-lg space-y-1">
+              <div className="flex items-center gap-4">
+                <span className="text-p-sm w-20">Default</span>
+                <div className="flex-1"><Divider marginTop="2" marginBottom="2" /></div>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-p-sm w-20">Light</span>
+                <div className="flex-1"><Divider marginTop="2" marginBottom="2" color="light" /></div>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-p-sm w-20">Dark</span>
+                <div className="flex-1"><Divider marginTop="2" marginBottom="2" color="dark" /></div>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-p-sm w-20">Brand</span>
+                <div className="flex-1"><Divider marginTop="2" marginBottom="2" color="brand" /></div>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-p-sm w-20">Blue</span>
+                <div className="flex-1"><Divider marginTop="2" marginBottom="2" color="blue" /></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Spacing variations</span>
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <p className="text-p-sm text-gray-500">marginTop=&quot;0&quot; marginBottom=&quot;0&quot;</p>
+              <Divider marginTop="0" marginBottom="0" />
+              <p className="text-p-sm text-gray-500">marginTop=&quot;4&quot; marginBottom=&quot;4&quot;</p>
+              <Divider marginTop="4" marginBottom="4" />
+              <p className="text-p-sm text-gray-500">marginTop=&quot;8&quot; marginBottom=&quot;8&quot; (default)</p>
+              <Divider marginTop="8" marginBottom="8" />
+              <p className="text-p-sm text-gray-500">marginTop=&quot;16&quot; marginBottom=&quot;16&quot;</p>
+              <Divider marginTop="16" marginBottom="16" />
+              <p className="text-p-sm text-gray-500">End of examples</p>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* Eyebrow */}
+      <Section title="Eyebrow">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Small uppercase text typically used above headings. Three style variants available.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Variants</span>
+            <div className="grid md:grid-cols-3 gap-8">
+              <div>
+                <Eyebrow variant="text">Text Only</Eyebrow>
+                <p className="mt-2 text-p-sm text-gray-500">Simple uppercase text</p>
+              </div>
+              <div>
+                <Eyebrow variant="overline">Overline Style</Eyebrow>
+                <p className="mt-2 text-p-sm text-gray-500">With border line above</p>
+              </div>
+              <div>
+                <Eyebrow variant="pill">Pill Badge</Eyebrow>
+                <p className="mt-2 text-p-sm text-gray-500">In a pill/badge shape</p>
+              </div>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Colors</span>
+            <div className="flex flex-wrap gap-4">
+              <Eyebrow variant="pill" color="default">Default</Eyebrow>
+              <Eyebrow variant="pill" color="brand">Brand</Eyebrow>
+              <Eyebrow variant="pill" color="blue">Blue</Eyebrow>
+              <Eyebrow variant="pill" color="muted">Muted</Eyebrow>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Combined with Heading</span>
+            <div className="max-w-xl">
+              <Eyebrow variant="overline" color="brand">Featured Article</Eyebrow>
+              <h3 className="text-h3 mt-2">The Art of Typography in Web Design</h3>
+              <p className="text-p-lg text-gray-600 mt-2">
+                Exploring how thoughtful typography choices enhance user experience.
+              </p>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* Breadcrumb */}
+      <Section title="Breadcrumb">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Navigation breadcrumbs with eyebrow-style typography. Supports chevron or slash separators.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Chevron Separator (Default)</span>
+            <Breadcrumb
+              items={[
+                {label: 'Home', href: '/'},
+                {label: 'Products', href: '/products'},
+                {label: 'Electronics', href: '/products/electronics'},
+                {label: 'Smartphones'},
+              ]}
+              separator="chevron"
+            />
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Slash Separator</span>
+            <Breadcrumb
+              items={[
+                {label: 'Home', href: '/'},
+                {label: 'Blog', href: '/blog'},
+                {label: 'Design Tips'},
+              ]}
+              separator="slash"
+            />
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">With External Link</span>
+            <Breadcrumb
+              items={[
+                {label: 'Home', href: '/'},
+                {label: 'Documentation', href: 'https://example.com/docs'},
+                {label: 'Getting Started'},
+              ]}
+            />
+          </div>
+        </div>
+      </Section>
+
+      {/* Table */}
+      <Section title="Table">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Data tables with multiple style variants. Responsive with horizontal scrolling on small screens.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Default Style</span>
+            <Table>
+              <TableHeader>
+                <TableRow isHeader>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead align="right">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell>Alice Johnson</TableCell>
+                  <TableCell>Designer</TableCell>
+                  <TableCell align="right">Active</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Bob Smith</TableCell>
+                  <TableCell>Developer</TableCell>
+                  <TableCell align="right">Active</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Carol White</TableCell>
+                  <TableCell>Manager</TableCell>
+                  <TableCell align="right">Away</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Striped Variant</span>
+            <Table variant="striped">
+              <TableHeader>
+                <TableRow isHeader>
+                  <TableHead>Product</TableHead>
+                  <TableHead align="center">Quantity</TableHead>
+                  <TableHead align="right">Price</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell>Widget A</TableCell>
+                  <TableCell align="center">25</TableCell>
+                  <TableCell align="right">$19.99</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Widget B</TableCell>
+                  <TableCell align="center">12</TableCell>
+                  <TableCell align="right">$29.99</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Widget C</TableCell>
+                  <TableCell align="center">8</TableCell>
+                  <TableCell align="right">$49.99</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Widget D</TableCell>
+                  <TableCell align="center">50</TableCell>
+                  <TableCell align="right">$9.99</TableCell>
+                </TableRow>
+              </TableBody>
+              <TableCaption>Product inventory as of today</TableCaption>
+            </Table>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Bordered Variant</span>
+            <Table variant="bordered">
+              <TableHeader>
+                <TableRow isHeader>
+                  <TableHead>Feature</TableHead>
+                  <TableHead align="center">Basic</TableHead>
+                  <TableHead align="center">Pro</TableHead>
+                  <TableHead align="center">Enterprise</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow>
+                  <TableCell>Users</TableCell>
+                  <TableCell align="center">1</TableCell>
+                  <TableCell align="center">5</TableCell>
+                  <TableCell align="center">Unlimited</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Storage</TableCell>
+                  <TableCell align="center">5 GB</TableCell>
+                  <TableCell align="center">50 GB</TableCell>
+                  <TableCell align="center">500 GB</TableCell>
+                </TableRow>
+                <TableRow>
+                  <TableCell>Support</TableCell>
+                  <TableCell align="center">Email</TableCell>
+                  <TableCell align="center">Priority</TableCell>
+                  <TableCell align="center">24/7</TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+      </Section>
+
+      {/* Slider */}
+      <Section title="Slider / Carousel">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Responsive carousel with customizable slides per view, gap, and autoplay options.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Default (3 slides desktop, 2 tablet, 1 mobile)</span>
+            <Slider slidesPerViewDesktop={3} slidesPerViewTablet={2} slidesPerViewMobile={1} gap="4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <SliderSlide key={i}>
+                  <Card variant="filled" className="h-full">
+                    <h4 className="text-h4 mb-2">Slide {i}</h4>
+                    <p className="text-body text-gray-600">This is content inside slide {i}</p>
+                  </Card>
+                </SliderSlide>
+              ))}
+            </Slider>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">With Autoplay and Loop</span>
+            <Slider slidesPerViewDesktop={2} slidesPerViewMobile={1} gap="6" autoplay autoplayDelay={3000} loop>
+              {[1, 2, 3, 4].map((i) => (
+                <SliderSlide key={i}>
+                  <div className="bg-brand/10 border border-brand/20 rounded-lg p-6">
+                    <Icon icon={Star} size="lg" color="brand" className="mb-4" />
+                    <h4 className="text-h5 mb-2">Feature {i}</h4>
+                    <p className="text-body text-gray-600">Autoplay enabled with 3 second delay</p>
+                  </div>
+                </SliderSlide>
+              ))}
+            </Slider>
+          </div>
+        </div>
+      </Section>
+
+      {/* Tabs */}
+      <Section title="Tabs">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Tab navigation with horizontal/vertical orientation and optional autoplay.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Horizontal Tabs</span>
+            <Tabs defaultValue="tab1">
+              <TabsList>
+                <TabsTrigger value="tab1">Overview</TabsTrigger>
+                <TabsTrigger value="tab2">Features</TabsTrigger>
+                <TabsTrigger value="tab3">Pricing</TabsTrigger>
+              </TabsList>
+              <TabsContent value="tab1">
+                <Card variant="outline">
+                  <h4 className="text-h4 mb-2">Overview Content</h4>
+                  <p className="text-body text-gray-600">
+                    This is the overview tab content. Tabs support any content blocks inside.
+                  </p>
+                </Card>
+              </TabsContent>
+              <TabsContent value="tab2">
+                <Card variant="outline">
+                  <h4 className="text-h4 mb-2">Features Content</h4>
+                  <p className="text-body text-gray-600">
+                    This is the features tab content with different information.
+                  </p>
+                </Card>
+              </TabsContent>
+              <TabsContent value="tab3">
+                <Card variant="outline">
+                  <h4 className="text-h4 mb-2">Pricing Content</h4>
+                  <p className="text-body text-gray-600">
+                    Pricing information would go here in the third tab.
+                  </p>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Vertical Tabs with Autoplay</span>
+            <Tabs defaultValue="v1" orientation="vertical" autoplay autoplayDuration={4000}>
+              <TabsList>
+                <TabsTrigger value="v1">Step 1</TabsTrigger>
+                <TabsTrigger value="v2">Step 2</TabsTrigger>
+                <TabsTrigger value="v3">Step 3</TabsTrigger>
+              </TabsList>
+              <TabsContent value="v1">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <Eyebrow variant="pill" color="brand">Step 1</Eyebrow>
+                  <h4 className="text-h4 mt-4 mb-2">Getting Started</h4>
+                  <p className="text-body text-gray-600">
+                    Begin your journey with our comprehensive onboarding process.
+                  </p>
+                </div>
+              </TabsContent>
+              <TabsContent value="v2">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <Eyebrow variant="pill" color="brand">Step 2</Eyebrow>
+                  <h4 className="text-h4 mt-4 mb-2">Configuration</h4>
+                  <p className="text-body text-gray-600">
+                    Customize your settings to match your workflow.
+                  </p>
+                </div>
+              </TabsContent>
+              <TabsContent value="v3">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <Eyebrow variant="pill" color="brand">Step 3</Eyebrow>
+                  <h4 className="text-h4 mt-4 mb-2">Launch</h4>
+                  <p className="text-body text-gray-600">
+                    Go live and start seeing results immediately.
+                  </p>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </Section>
+
+      {/* Modal */}
+      <Section title="Modal">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Dialog overlays for content or video lightbox. Can be triggered by button or URL parameter.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Content Modal</span>
+            <div className="flex flex-wrap gap-4">
+              <Modal>
+                <ModalTrigger asChild>
+                  <Button variant="primary" colorScheme="brand">Open Modal</Button>
+                </ModalTrigger>
+                <ModalContent size="md">
+                  <ModalHeader>
+                    <ModalTitle>Example Modal</ModalTitle>
+                  </ModalHeader>
+                  <ModalBody>
+                    <p className="text-body text-gray-600 mb-4">
+                      Modals can contain any content including headings, text, images, forms, and more.
+                    </p>
+                    <Card variant="filled">
+                      <p className="text-p-sm">Even cards and other components work inside modals!</p>
+                    </Card>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button variant="secondary" colorScheme="black">Cancel</Button>
+                    <Button variant="primary" colorScheme="brand">Confirm</Button>
+                  </ModalFooter>
+                </ModalContent>
+              </Modal>
+
+              <Modal>
+                <ModalTrigger asChild>
+                  <Button variant="secondary" colorScheme="black">Large Modal</Button>
+                </ModalTrigger>
+                <ModalContent size="lg">
+                  <ModalHeader>
+                    <ModalTitle>Large Size Modal</ModalTitle>
+                  </ModalHeader>
+                  <ModalBody>
+                    <p className="text-body text-gray-600">
+                      Modal sizes available: sm, md, lg, xl, full
+                    </p>
+                  </ModalBody>
+                </ModalContent>
+              </Modal>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Video Lightbox</span>
+            <Modal>
+              <ModalTrigger asChild>
+                <Button variant="primary" colorScheme="black">
+                  Play Video <ArrowRight className="h-4 w-4 ml-2" weight="bold" />
+                </Button>
+              </ModalTrigger>
+              <VideoModalContent videoId="dQw4w9WgXcQ" title="Example Video" size="xl" />
+            </Modal>
+            <p className="text-p-sm text-gray-500 mt-2">
+              YouTube videos automatically play when opened and stop when closed.
+            </p>
+          </div>
+        </div>
+      </Section>
+
+      {/* Card */}
+      <Section title="Card">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Flexible card container that can hold any content. Supports multiple style variants,
+          responsive padding, and optional link functionality.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Style Variants</span>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card variant="default">
+                <h4 className="text-h4 mb-2">Default</h4>
+                <p className="text-body text-gray-600">White background with border</p>
+              </Card>
+              <Card variant="outline">
+                <h4 className="text-h4 mb-2">Outline</h4>
+                <p className="text-body text-gray-600">Transparent with border</p>
+              </Card>
+              <Card variant="filled">
+                <h4 className="text-h4 mb-2">Filled</h4>
+                <p className="text-body text-gray-600">Gray background</p>
+              </Card>
+              <Card variant="ghost">
+                <h4 className="text-h4 mb-2">Ghost</h4>
+                <p className="text-body text-gray-600">No background or border</p>
+              </Card>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Padding Options (Desktop / Mobile)</span>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card paddingDesktop="4" paddingMobile="4">
+                <h4 className="text-h5 mb-2">Small Padding</h4>
+                <p className="text-p-sm text-gray-600">paddingDesktop=&quot;4&quot; paddingMobile=&quot;4&quot;</p>
+              </Card>
+              <Card paddingDesktop="6" paddingMobile="4">
+                <h4 className="text-h5 mb-2">Medium Padding (Default)</h4>
+                <p className="text-p-sm text-gray-600">paddingDesktop=&quot;6&quot; paddingMobile=&quot;4&quot;</p>
+              </Card>
+              <Card paddingDesktop="12" paddingMobile="8">
+                <h4 className="text-h5 mb-2">Large Padding</h4>
+                <p className="text-p-sm text-gray-600">paddingDesktop=&quot;12&quot; paddingMobile=&quot;8&quot;</p>
+              </Card>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Clickable Cards (with hover effect)</span>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card href="/design-system" hoverEffect>
+                <h4 className="text-h5 mb-2">Internal Link</h4>
+                <p className="text-p-sm text-gray-600">Navigates within the app using Next.js Link</p>
+              </Card>
+              <Card href="https://example.com" openInNewTab hoverEffect>
+                <h4 className="text-h5 mb-2">External Link</h4>
+                <p className="text-p-sm text-gray-600">Opens in new tab with proper security attributes</p>
+              </Card>
+              <Card variant="filled" href="/design-system" hoverEffect>
+                <h4 className="text-h5 mb-2">Filled + Linked</h4>
+                <p className="text-p-sm text-gray-600">Combines variant with link functionality</p>
+              </Card>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Cards with Mixed Content</span>
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card>
+                <Icon icon={Star} size="lg" color="brand" className="mb-4" />
+                <h4 className="text-h4 mb-2">Feature Card</h4>
+                <p className="text-body text-gray-600 mb-4">
+                  Cards can contain any combination of icons, headings, text, buttons, and more.
+                </p>
+                <Button variant="primary" colorScheme="brand" size="sm">
+                  Learn More <ArrowRight className="h-4 w-4 ml-2" weight="bold" />
+                </Button>
+              </Card>
+              <Card variant="filled" paddingDesktop="8" paddingMobile="6">
+                <div className="flex items-start gap-4">
+                  <Icon icon={CheckCircle} size="md" color="brand" />
+                  <div>
+                    <h4 className="text-h5 mb-1">Testimonial Card</h4>
+                    <p className="text-body text-gray-600 mb-2">
+                      &quot;This design system has made our workflow so much more efficient.&quot;
+                    </p>
+                    <p className="text-p-sm text-gray-500">— Happy Customer</p>
+                  </div>
+                </div>
+              </Card>
             </div>
           </div>
         </div>
@@ -409,6 +1170,51 @@ export default function DesignSystemPage() {
                 name: 'SpacerBlock',
                 description: 'Vertical spacing with responsive desktop/mobile sizes',
                 props: ['sizeDesktop', 'sizeMobile'],
+              },
+              {
+                name: 'DividerBlock',
+                description: 'Horizontal rule with configurable top/bottom spacing and colors',
+                props: ['marginTop', 'marginBottom', 'color'],
+              },
+              {
+                name: 'CardBlock',
+                description: 'Flexible container for other blocks with responsive padding and optional link',
+                props: ['variant', 'paddingDesktop', 'paddingMobile', 'href', 'hoverEffect'],
+              },
+              {
+                name: 'EyebrowBlock',
+                description: 'Small uppercase text with text, overline, or pill variants',
+                props: ['text', 'variant', 'color', 'align'],
+              },
+              {
+                name: 'BreadcrumbBlock',
+                description: 'Navigation breadcrumbs with customizable separator style',
+                props: ['items', 'separator', 'align'],
+              },
+              {
+                name: 'TableBlock',
+                description: 'Data table with columns, rows, and style variants',
+                props: ['columns', 'rows', 'variant', 'showHeader', 'caption'],
+              },
+              {
+                name: 'SliderBlock',
+                description: 'Responsive carousel with customizable slides per view and autoplay',
+                props: ['slides', 'slidesPerView', 'gap', 'autoplay', 'loop', 'showNavigation'],
+              },
+              {
+                name: 'TabsBlock',
+                description: 'Tab navigation with horizontal/vertical orientation and autoplay',
+                props: ['tabs', 'orientation', 'defaultTab', 'autoplay', 'autoplayDuration'],
+              },
+              {
+                name: 'ModalBlock',
+                description: 'Dialog overlay for content or YouTube video lightbox',
+                props: ['triggerLabel', 'triggerVariant', 'contentType', 'modalSize', 'modalId'],
+              },
+              {
+                name: 'InlineVideoBlock',
+                description: 'Embedded video with lazy loading and autoplay on scroll',
+                props: ['videoFile', 'videoUrl', 'poster', 'aspectRatio', 'autoplayOnScroll'],
               },
             ].map((component) => (
               <div key={component.name} className="border border-gray-200 rounded-lg p-6">

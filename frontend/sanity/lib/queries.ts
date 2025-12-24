@@ -2,6 +2,74 @@ import {defineQuery} from 'next-sanity'
 
 export const settingsQuery = defineQuery(`*[_type == "settings"][0]`)
 
+// Navigation query with resolved link references
+export const navigationQuery = defineQuery(`*[_type == "navigation"][0]{
+  logoText,
+  logoImage,
+  items[]{
+    _key,
+    label,
+    type,
+    link{
+      linkType,
+      href,
+      openInNewTab,
+      "page": page->slug.current,
+      "post": post->slug.current
+    },
+    dropdownLinks[]{
+      _key,
+      label,
+      link{
+        linkType,
+        href,
+        openInNewTab,
+        "page": page->slug.current,
+        "post": post->slug.current
+      }
+    }
+  },
+  showCta,
+  ctaLabel,
+  ctaLink{
+    linkType,
+    href,
+    openInNewTab,
+    "page": page->slug.current,
+    "post": post->slug.current
+  },
+  ctaStyle
+}`)
+
+// Footer query with resolved link references
+export const footerQuery = defineQuery(`*[_type == "footer"][0]{
+  showLogo,
+  logoText,
+  logoImage,
+  linkColumns[]{
+    _key,
+    title,
+    links[]{
+      _key,
+      label,
+      link{
+        linkType,
+        href,
+        openInNewTab,
+        "page": page->slug.current,
+        "post": post->slug.current
+      }
+    }
+  },
+  socialLinks[]{
+    _key,
+    platform,
+    url
+  },
+  companyName,
+  showThemeToggle
+}`)
+
 const postFields = /* groq */ `
   _id,
   "status": select(_originalId in path("drafts.**") => "draft", "published"),

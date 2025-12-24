@@ -9,20 +9,21 @@ interface HeadingBlockProps {
     _type: string
     text?: string
     level?: HeadingLevel
-    size?: 'xl' | 'lg' | 'md' | 'sm' | 'xs'
+    size?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
     align?: 'left' | 'center' | 'right'
     color?: 'default' | 'gray' | 'white' | 'brand' | 'blue'
   }
   index: number
 }
 
-// Size mapping for visual appearance
+// Size mapping for visual appearance using fluid typography (Mast-style)
 const sizeClasses: Record<string, string> = {
-  xl: 'text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight',
-  lg: 'text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight',
-  md: 'text-2xl md:text-3xl font-bold',
-  sm: 'text-xl md:text-2xl font-semibold',
-  xs: 'text-lg md:text-xl font-semibold',
+  h1: 'text-h1',
+  h2: 'text-h2',
+  h3: 'text-h3',
+  h4: 'text-h4',
+  h5: 'text-h5',
+  h6: 'text-h6',
 }
 
 // Text alignment
@@ -45,7 +46,7 @@ export default function HeadingBlock({block}: HeadingBlockProps) {
   const {
     text = '',
     level = 'h2',
-    size = 'lg',
+    size = 'h2',
     align = 'left',
     color = 'default',
   } = block
@@ -56,7 +57,7 @@ export default function HeadingBlock({block}: HeadingBlockProps) {
   const cleanColor = stegaClean(color)
   const cleanLevel = stegaClean(level) as HeadingLevel
 
-  const sizeClass = sizeClasses[cleanSize] || sizeClasses.lg
+  const sizeClass = sizeClasses[cleanSize] || sizeClasses.h2
   const alignClass = alignClasses[cleanAlign] || alignClasses.left
   const colorClass = colorClasses[cleanColor] || colorClasses.default
   const className = `${sizeClass} ${alignClass} ${colorClass} mb-4`

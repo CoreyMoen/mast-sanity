@@ -5,6 +5,15 @@ import RichTextBlock from './RichTextBlock'
 import ImageBlock from './ImageBlock'
 import ButtonBlock from './ButtonBlock'
 import SpacerBlock from './SpacerBlock'
+import DividerBlock from './DividerBlock'
+import CardBlock from './CardBlock'
+import EyebrowBlock from './EyebrowBlock'
+import BreadcrumbBlock from './BreadcrumbBlock'
+import TableBlock from './TableBlock'
+import SliderBlock from './SliderBlock'
+import TabsBlock from './TabsBlock'
+import ModalBlock from './ModalBlock'
+import InlineVideoBlock from './InlineVideoBlock'
 
 type ContentBlocksType = {
   [key: string]: React.FC<any>
@@ -25,6 +34,15 @@ const ContentBlocks: ContentBlocksType = {
   imageBlock: ImageBlock,
   buttonBlock: ButtonBlock,
   spacerBlock: SpacerBlock,
+  dividerBlock: DividerBlock,
+  cardBlock: CardBlock,
+  eyebrowBlock: EyebrowBlock,
+  breadcrumbBlock: BreadcrumbBlock,
+  tableBlock: TableBlock,
+  sliderBlock: SliderBlock,
+  tabsBlock: TabsBlock,
+  modalBlock: ModalBlock,
+  inlineVideoBlock: InlineVideoBlock,
 }
 
 export default function ContentBlockRenderer({
