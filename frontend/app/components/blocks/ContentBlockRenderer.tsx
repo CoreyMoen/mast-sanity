@@ -10,6 +10,10 @@ import CardBlock from './CardBlock'
 import EyebrowBlock from './EyebrowBlock'
 import BreadcrumbBlock from './BreadcrumbBlock'
 import TableBlock from './TableBlock'
+import SliderBlock from './SliderBlock'
+import TabsBlock from './TabsBlock'
+import ModalBlock from './ModalBlock'
+import InlineVideoBlock from './InlineVideoBlock'
 
 type ContentBlocksType = {
   [key: string]: React.FC<any>
@@ -35,6 +39,10 @@ const ContentBlocks: ContentBlocksType = {
   eyebrowBlock: EyebrowBlock,
   breadcrumbBlock: BreadcrumbBlock,
   tableBlock: TableBlock,
+  sliderBlock: SliderBlock,
+  tabsBlock: TabsBlock,
+  modalBlock: ModalBlock,
+  inlineVideoBlock: InlineVideoBlock,
 }
 
 export default function ContentBlockRenderer({

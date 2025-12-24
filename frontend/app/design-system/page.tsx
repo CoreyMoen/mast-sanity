@@ -6,6 +6,9 @@ import {Card} from '@/app/components/ui/card'
 import {Eyebrow} from '@/app/components/ui/eyebrow'
 import {Breadcrumb} from '@/app/components/ui/breadcrumb'
 import {Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableCaption} from '@/app/components/ui/table'
+import {Slider, SliderSlide} from '@/app/components/ui/slider'
+import {Tabs, TabsList, TabsTrigger, TabsContent} from '@/app/components/ui/tabs'
+import {Modal, ModalTrigger, ModalContent, ModalHeader, ModalTitle, ModalBody, ModalFooter, VideoModalContent} from '@/app/components/ui/modal'
 import {
   ArrowRight,
   ArrowUpRight,
@@ -788,6 +791,188 @@ export default function DesignSystemPage() {
         </div>
       </Section>
 
+      {/* Slider */}
+      <Section title="Slider / Carousel">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Responsive carousel with customizable slides per view, gap, and autoplay options.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Default (3 slides desktop, 2 tablet, 1 mobile)</span>
+            <Slider slidesPerViewDesktop={3} slidesPerViewTablet={2} slidesPerViewMobile={1} gap="4">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <SliderSlide key={i}>
+                  <Card variant="filled" className="h-full">
+                    <h4 className="text-h4 mb-2">Slide {i}</h4>
+                    <p className="text-body text-gray-600">This is content inside slide {i}</p>
+                  </Card>
+                </SliderSlide>
+              ))}
+            </Slider>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">With Autoplay and Loop</span>
+            <Slider slidesPerViewDesktop={2} slidesPerViewMobile={1} gap="6" autoplay autoplayDelay={3000} loop>
+              {[1, 2, 3, 4].map((i) => (
+                <SliderSlide key={i}>
+                  <div className="bg-brand/10 border border-brand/20 rounded-lg p-6">
+                    <Icon icon={Star} size="lg" color="brand" className="mb-4" />
+                    <h4 className="text-h5 mb-2">Feature {i}</h4>
+                    <p className="text-body text-gray-600">Autoplay enabled with 3 second delay</p>
+                  </div>
+                </SliderSlide>
+              ))}
+            </Slider>
+          </div>
+        </div>
+      </Section>
+
+      {/* Tabs */}
+      <Section title="Tabs">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Tab navigation with horizontal/vertical orientation and optional autoplay.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Horizontal Tabs</span>
+            <Tabs defaultValue="tab1">
+              <TabsList>
+                <TabsTrigger value="tab1">Overview</TabsTrigger>
+                <TabsTrigger value="tab2">Features</TabsTrigger>
+                <TabsTrigger value="tab3">Pricing</TabsTrigger>
+              </TabsList>
+              <TabsContent value="tab1">
+                <Card variant="outline">
+                  <h4 className="text-h4 mb-2">Overview Content</h4>
+                  <p className="text-body text-gray-600">
+                    This is the overview tab content. Tabs support any content blocks inside.
+                  </p>
+                </Card>
+              </TabsContent>
+              <TabsContent value="tab2">
+                <Card variant="outline">
+                  <h4 className="text-h4 mb-2">Features Content</h4>
+                  <p className="text-body text-gray-600">
+                    This is the features tab content with different information.
+                  </p>
+                </Card>
+              </TabsContent>
+              <TabsContent value="tab3">
+                <Card variant="outline">
+                  <h4 className="text-h4 mb-2">Pricing Content</h4>
+                  <p className="text-body text-gray-600">
+                    Pricing information would go here in the third tab.
+                  </p>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Vertical Tabs with Autoplay</span>
+            <Tabs defaultValue="v1" orientation="vertical" autoplay autoplayDuration={4000}>
+              <TabsList>
+                <TabsTrigger value="v1">Step 1</TabsTrigger>
+                <TabsTrigger value="v2">Step 2</TabsTrigger>
+                <TabsTrigger value="v3">Step 3</TabsTrigger>
+              </TabsList>
+              <TabsContent value="v1">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <Eyebrow variant="pill" color="brand">Step 1</Eyebrow>
+                  <h4 className="text-h4 mt-4 mb-2">Getting Started</h4>
+                  <p className="text-body text-gray-600">
+                    Begin your journey with our comprehensive onboarding process.
+                  </p>
+                </div>
+              </TabsContent>
+              <TabsContent value="v2">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <Eyebrow variant="pill" color="brand">Step 2</Eyebrow>
+                  <h4 className="text-h4 mt-4 mb-2">Configuration</h4>
+                  <p className="text-body text-gray-600">
+                    Customize your settings to match your workflow.
+                  </p>
+                </div>
+              </TabsContent>
+              <TabsContent value="v3">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <Eyebrow variant="pill" color="brand">Step 3</Eyebrow>
+                  <h4 className="text-h4 mt-4 mb-2">Launch</h4>
+                  <p className="text-body text-gray-600">
+                    Go live and start seeing results immediately.
+                  </p>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </Section>
+
+      {/* Modal */}
+      <Section title="Modal">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Dialog overlays for content or video lightbox. Can be triggered by button or URL parameter.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Content Modal</span>
+            <div className="flex flex-wrap gap-4">
+              <Modal>
+                <ModalTrigger asChild>
+                  <Button variant="primary" colorScheme="brand">Open Modal</Button>
+                </ModalTrigger>
+                <ModalContent size="md">
+                  <ModalHeader>
+                    <ModalTitle>Example Modal</ModalTitle>
+                  </ModalHeader>
+                  <ModalBody>
+                    <p className="text-body text-gray-600 mb-4">
+                      Modals can contain any content including headings, text, images, forms, and more.
+                    </p>
+                    <Card variant="filled">
+                      <p className="text-p-sm">Even cards and other components work inside modals!</p>
+                    </Card>
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button variant="secondary" colorScheme="black">Cancel</Button>
+                    <Button variant="primary" colorScheme="brand">Confirm</Button>
+                  </ModalFooter>
+                </ModalContent>
+              </Modal>
+
+              <Modal>
+                <ModalTrigger asChild>
+                  <Button variant="secondary" colorScheme="black">Large Modal</Button>
+                </ModalTrigger>
+                <ModalContent size="lg">
+                  <ModalHeader>
+                    <ModalTitle>Large Size Modal</ModalTitle>
+                  </ModalHeader>
+                  <ModalBody>
+                    <p className="text-body text-gray-600">
+                      Modal sizes available: sm, md, lg, xl, full
+                    </p>
+                  </ModalBody>
+                </ModalContent>
+              </Modal>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Video Lightbox</span>
+            <Modal>
+              <ModalTrigger asChild>
+                <Button variant="primary" colorScheme="black">
+                  Play Video <ArrowRight className="h-4 w-4 ml-2" weight="bold" />
+                </Button>
+              </ModalTrigger>
+              <VideoModalContent videoId="dQw4w9WgXcQ" title="Example Video" size="xl" />
+            </Modal>
+            <p className="text-p-sm text-gray-500 mt-2">
+              YouTube videos automatically play when opened and stop when closed.
+            </p>
+          </div>
+        </div>
+      </Section>
+
       {/* Card */}
       <Section title="Card">
         <p className="text-p-lg text-gray-600 mb-8">
@@ -1010,6 +1195,26 @@ export default function DesignSystemPage() {
                 name: 'TableBlock',
                 description: 'Data table with columns, rows, and style variants',
                 props: ['columns', 'rows', 'variant', 'showHeader', 'caption'],
+              },
+              {
+                name: 'SliderBlock',
+                description: 'Responsive carousel with customizable slides per view and autoplay',
+                props: ['slides', 'slidesPerView', 'gap', 'autoplay', 'loop', 'showNavigation'],
+              },
+              {
+                name: 'TabsBlock',
+                description: 'Tab navigation with horizontal/vertical orientation and autoplay',
+                props: ['tabs', 'orientation', 'defaultTab', 'autoplay', 'autoplayDuration'],
+              },
+              {
+                name: 'ModalBlock',
+                description: 'Dialog overlay for content or YouTube video lightbox',
+                props: ['triggerLabel', 'triggerVariant', 'contentType', 'modalSize', 'modalId'],
+              },
+              {
+                name: 'InlineVideoBlock',
+                description: 'Embedded video with lazy loading and autoplay on scroll',
+                props: ['videoFile', 'videoUrl', 'poster', 'aspectRatio', 'autoplayOnScroll'],
               },
             ].map((component) => (
               <div key={component.name} className="border border-gray-200 rounded-lg p-6">

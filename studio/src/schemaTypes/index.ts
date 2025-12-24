@@ -23,6 +23,11 @@ import {cardBlock} from './objects/cardBlock'
 import {eyebrowBlock} from './objects/eyebrowBlock'
 import {breadcrumbBlock} from './objects/breadcrumbBlock'
 import {tableBlock} from './objects/tableBlock'
+// Interactive blocks
+import {sliderBlock} from './objects/sliderBlock'
+import {tabsBlock} from './objects/tabsBlock'
+import {modalBlock} from './objects/modalBlock'
+import {inlineVideoBlock} from './objects/inlineVideoBlock'
 
 // Export an array of all the schema types.  This is used in the Sanity Studio configuration. https://www.sanity.io/docs/schema-types
 
@@ -51,6 +56,10 @@ export const schemaTypes = [
   eyebrowBlock,
   breadcrumbBlock,
   tableBlock,
+  sliderBlock,
+  tabsBlock,
+  modalBlock,
+  inlineVideoBlock,
   column,
   row,
   section,
