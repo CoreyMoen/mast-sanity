@@ -8,12 +8,12 @@ import {toPlainText} from 'next-sanity'
 import {Toaster} from 'sonner'
 
 import DraftModeToast from '@/app/components/DraftModeToast'
-import Footer from '@/app/components/Footer'
-import Header from '@/app/components/Header'
+import Navigation from '@/app/components/Navigation'
+import FooterNew from '@/app/components/FooterNew'
 import VisualEditingWithPlugins from '@/app/components/overlays/VisualEditingWithPlugins'
 import * as demo from '@/sanity/lib/demo'
 import {sanityFetch, SanityLive} from '@/sanity/lib/live'
-import {settingsQuery} from '@/sanity/lib/queries'
+import {settingsQuery, navigationQuery, footerQuery} from '@/sanity/lib/queries'
 import {resolveOpenGraphImage} from '@/sanity/lib/utils'
 import {handleError} from './client-utils'
 
@@ -76,25 +76,32 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({children}: {children: React.ReactNode}) {
   const {isEnabled: isDraftMode} = await draftMode()
 
+  // Fetch navigation and footer data
+  const [{data: settings}, {data: navigation}, {data: footer}] = await Promise.all([
+    sanityFetch({query: settingsQuery, stega: false}),
+    sanityFetch({query: navigationQuery}),
+    sanityFetch({query: footerQuery}),
+  ])
+
+  const siteTitle = settings?.title || demo.title
+
   return (
     <html lang="en" className={`${generalSans.variable} bg-white text-black`}>
-      <body>
-        <section className="min-h-screen pt-24">
-          {/* The <Toaster> component is responsible for rendering toast notifications used in /app/client-utils.ts and /app/components/DraftModeToast.tsx */}
-          <Toaster />
-          {isDraftMode && (
-            <>
-              <DraftModeToast />
-              {/*  Enable Visual Editing, only to be rendered when Draft Mode is enabled */}
-              <VisualEditingWithPlugins />
-            </>
-          )}
-          {/* The <SanityLive> component is responsible for making all sanityFetch calls in your application live, so should always be rendered. */}
-          <SanityLive onError={handleError} />
-          <Header />
-          <main className="">{children}</main>
-          <Footer />
-        </section>
+      <body className="flex min-h-screen flex-col">
+        {/* The <Toaster> component is responsible for rendering toast notifications used in /app/client-utils.ts and /app/components/DraftModeToast.tsx */}
+        <Toaster />
+        {isDraftMode && (
+          <>
+            <DraftModeToast />
+            {/*  Enable Visual Editing, only to be rendered when Draft Mode is enabled */}
+            <VisualEditingWithPlugins />
+          </>
+        )}
+        {/* The <SanityLive> component is responsible for making all sanityFetch calls in your application live, so should always be rendered. */}
+        <SanityLive onError={handleError} />
+        <Navigation data={navigation} siteTitle={siteTitle} />
+        <main id="main" className="flex-1 pt-16 md:pt-20">{children}</main>
+        <FooterNew data={footer} siteTitle={siteTitle} />
         <SpeedInsights />
       </body>
     </html>

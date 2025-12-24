@@ -4,6 +4,8 @@ import {post} from './documents/post'
 import {callToAction} from './objects/callToAction'
 import {infoSection} from './objects/infoSection'
 import {settings} from './singletons/settings'
+import {navigation} from './singletons/navigation'
+import {footer} from './singletons/footer'
 import {link} from './objects/link'
 import {blockContent} from './objects/blockContent'
 // Layout blocks
@@ -24,6 +26,8 @@ import {cardBlock} from './objects/cardBlock'
 export const schemaTypes = [
   // Singletons
   settings,
+  navigation,
+  footer,
   // Documents
   page,
   post,
