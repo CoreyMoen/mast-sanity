@@ -26,7 +26,7 @@ export const section = defineType({
       name: 'rows',
       title: 'Rows',
       type: 'array',
-      of: [{type: 'row'}],
+      of: [{type: 'row', options: {modal: {type: 'dialog', width: 'auto'}}}],
       group: 'content',
     }),
     // Settings Group

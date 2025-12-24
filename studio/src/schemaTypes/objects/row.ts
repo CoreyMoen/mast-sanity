@@ -19,7 +19,7 @@ export const row = defineType({
       name: 'columns',
       title: 'Columns',
       type: 'array',
-      of: [{type: 'column'}],
+      of: [{type: 'column', options: {modal: {type: 'dialog', width: 'auto'}}}],
       group: 'content',
     }),
     // Settings Group

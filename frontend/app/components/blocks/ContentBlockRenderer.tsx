@@ -1,5 +1,4 @@
 import React from 'react'
-import {dataAttr} from '@/sanity/lib/utils'
 
 import HeadingBlock from './HeadingBlock'
 import RichTextBlock from './RichTextBlock'
@@ -18,9 +17,6 @@ interface ContentBlockProps {
     [key: string]: any
   }
   index: number
-  pageId: string
-  pageType: string
-  basePath: string
 }
 
 const ContentBlocks: ContentBlocksType = {
@@ -34,24 +30,11 @@ const ContentBlocks: ContentBlocksType = {
 export default function ContentBlockRenderer({
   block,
   index,
-  pageId,
-  pageType,
-  basePath,
 }: ContentBlockProps) {
   const Component = ContentBlocks[block._type]
 
   if (Component) {
-    return (
-      <div
-        data-sanity={dataAttr({
-          id: pageId,
-          type: pageType,
-          path: `${basePath}.content[_key=="${block._key}"]`,
-        }).toString()}
-      >
-        <Component block={block} index={index} />
-      </div>
-    )
+    return <Component block={block} index={index} />
   }
 
   // Fallback for unknown block types

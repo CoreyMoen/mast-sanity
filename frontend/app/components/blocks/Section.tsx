@@ -70,13 +70,16 @@ const paddingXClasses: Record<string, string> = {
 
 export default function Section({block, index, pageId, pageType}: SectionProps) {
   const {
-    rows = [],
+    rows,
     backgroundColor = 'none',
     maxWidth = 'container',
     paddingTop = '12',
     paddingBottom = '12',
     paddingX = '6',
   } = block
+
+  // Ensure rows is always an array (handles null from Sanity when adding new items)
+  const rowItems = rows ?? []
 
   // Clean stega encoding from values before using as lookup keys
   const cleanBgColor = stegaClean(backgroundColor)
@@ -100,17 +103,17 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
       data-sanity={dataAttr({
         id: pageId,
         type: pageType,
-        path: `pageBuilder[_key=="${block._key}"]`,
+        path: `pageBuilder:${block._key}`,
       }).toString()}
     >
       <div className={`${maxWidthClass} ${ptClass} ${pbClass} ${pxClass}`}>
-        {rows.map((row, rowIndex) => (
+        {rowItems.map((row, rowIndex) => (
           <div
             key={row._key}
             data-sanity={dataAttr({
               id: pageId,
               type: pageType,
-              path: `pageBuilder[_key=="${block._key}"].rows[_key=="${row._key}"]`,
+              path: `pageBuilder:${block._key}.rows:${row._key}`,
             }).toString()}
           >
             <Row

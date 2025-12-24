@@ -1,6 +1,7 @@
 import {stegaClean} from 'next-sanity'
 import {dataAttr} from '@/sanity/lib/utils'
 import ContentBlockRenderer from './ContentBlockRenderer'
+import ContentBlockOverlay from '@/app/components/overlays/ContentBlockOverlay'
 
 interface ColumnProps {
   block: {
@@ -18,9 +19,10 @@ interface ColumnProps {
   pageType: string
   sectionKey: string
   rowKey: string
+  gap: string // Gap value from Row for Bootstrap-style gutters
 }
 
-// Desktop width classes (lg breakpoint)
+// Desktop width classes (lg breakpoint) - percentage based
 const desktopWidthClasses: Record<string, string> = {
   auto: 'lg:w-auto lg:flex-none',
   fill: 'lg:flex-1',
@@ -56,7 +58,7 @@ const tabletWidthClasses: Record<string, string> = {
   '12': 'md:w-full',
 }
 
-// Mobile width classes (base)
+// Mobile width classes (base) - on mobile, columns stack full width by default
 const mobileWidthClasses: Record<string, string> = {
   auto: 'w-auto flex-none',
   fill: 'flex-1',
@@ -74,6 +76,16 @@ const mobileWidthClasses: Record<string, string> = {
   '12': 'w-full',
 }
 
+// Column horizontal padding (half of gap on each side) - Bootstrap gutter style
+const columnGutterClasses: Record<string, string> = {
+  '0': '',
+  '2': 'px-1',    // 4px each side (8px total gap)
+  '4': 'px-2',    // 8px each side (16px total gap)
+  '6': 'px-3',    // 12px each side (24px total gap)
+  '8': 'px-4',    // 16px each side (32px total gap)
+  '12': 'px-6',   // 24px each side (48px total gap)
+}
+
 // Vertical alignment for column content
 const verticalAlignClasses: Record<string, string> = {
   start: 'justify-start',
@@ -81,24 +93,27 @@ const verticalAlignClasses: Record<string, string> = {
   end: 'justify-end',
 }
 
-// Padding classes
-const paddingClasses: Record<string, string> = {
-  '0': 'p-0',
+// Inner padding classes (user-configurable padding inside the column)
+const innerPaddingClasses: Record<string, string> = {
+  '0': '',
   '2': 'p-2',
   '4': 'p-4',
   '6': 'p-6',
   '8': 'p-8',
 }
 
-export default function Column({block, index, pageId, pageType, sectionKey, rowKey}: ColumnProps) {
+export default function Column({block, index, pageId, pageType, sectionKey, rowKey, gap}: ColumnProps) {
   const {
-    content = [],
+    content,
     widthDesktop = 'fill',
     widthTablet = 'inherit',
     widthMobile = '12',
     verticalAlign = 'start',
     padding = '0',
   } = block
+
+  // Ensure content is always an array (handles null from Sanity when adding new items)
+  const contentBlocks = content ?? []
 
   // Clean stega encoding from values before using as lookup keys
   const cleanWidthDesktop = stegaClean(widthDesktop)
@@ -112,33 +127,46 @@ export default function Column({block, index, pageId, pageType, sectionKey, rowK
   // Calculate effective mobile width (inherit means use tablet value)
   const effectiveMobileWidth = cleanWidthMobile === 'inherit' ? effectiveTabletWidth : cleanWidthMobile
 
-  const desktopClass = desktopWidthClasses[cleanWidthDesktop] || desktopWidthClasses.fill
+  // Use percentage width classes for Flexbox
+  const desktopClass = desktopWidthClasses[cleanWidthDesktop] || desktopWidthClasses['12']
   const tabletClass = tabletWidthClasses[effectiveTabletWidth] || ''
   const mobileClass = mobileWidthClasses[effectiveMobileWidth] || mobileWidthClasses['12']
   const alignClass = verticalAlignClasses[cleanVerticalAlign] || verticalAlignClasses.start
-  const paddingClass = paddingClasses[cleanPadding] || paddingClasses['0']
+  const innerPaddingClass = innerPaddingClasses[cleanPadding] || ''
 
-  // Build the path for nested content blocks
-  const basePath = `pageBuilder[_key=="${sectionKey}"].rows[_key=="${rowKey}"].columns[_key=="${block._key}"]`
+  // Bootstrap-style gutters: horizontal padding based on row gap
+  const gutterClass = columnGutterClasses[gap] || columnGutterClasses['6']
+
+  // Build the path for nested content blocks using shorthand format (field:key)
+  // This format may help Sanity resolve types in polymorphic arrays
+  const basePath = `pageBuilder:${sectionKey}.rows:${rowKey}.columns:${block._key}`
 
   return (
     <div
-      className={`flex flex-col ${alignClass} ${mobileClass} ${tabletClass} ${desktopClass} ${paddingClass}`}
+      className={`flex flex-col ${alignClass} w-full md:w-auto ${tabletClass} ${desktopClass} ${gutterClass} ${innerPaddingClass}`}
       data-sanity={dataAttr({
         id: pageId,
         type: pageType,
-        path: `pageBuilder[_key=="${sectionKey}"].rows[_key=="${rowKey}"].columns[_key=="${block._key}"]`,
+        path: `pageBuilder:${sectionKey}.rows:${rowKey}.columns:${block._key}`,
       }).toString()}
     >
-      {content.map((contentBlock, contentIndex) => (
-        <ContentBlockRenderer
+      {contentBlocks.map((contentBlock, contentIndex) => (
+        <div
           key={contentBlock._key}
-          block={contentBlock}
-          index={contentIndex}
-          pageId={pageId}
-          pageType={pageType}
-          basePath={basePath}
-        />
+          data-sanity={dataAttr({
+            id: pageId,
+            type: pageType,
+            path: `${basePath}.content:${contentBlock._key}`,
+          }).toString()}
+          data-block-type={contentBlock._type}
+        >
+          <ContentBlockOverlay blockType={contentBlock._type}>
+            <ContentBlockRenderer
+              block={contentBlock}
+              index={contentIndex}
+            />
+          </ContentBlockOverlay>
+        </div>
       ))}
     </div>
   )

@@ -45,9 +45,9 @@ export const page = defineType({
       title: 'Page builder',
       type: 'array',
       of: [
-        {type: 'section'},
-        {type: 'callToAction'},
-        {type: 'infoSection'},
+        {type: 'section', options: {modal: {type: 'dialog', width: 'auto'}}},
+        {type: 'callToAction', options: {modal: {type: 'dialog', width: 'auto'}}},
+        {type: 'infoSection', options: {modal: {type: 'dialog', width: 'auto'}}},
       ],
       options: {
         insertMenu: {

@@ -37,25 +37,39 @@ const verticalAlignClasses: Record<string, string> = {
   baseline: 'items-baseline',
 }
 
-// Gap mapping
-const gapClasses: Record<string, string> = {
-  '0': 'gap-0',
-  '2': 'gap-2',
-  '4': 'gap-4',
-  '6': 'gap-6',
-  '8': 'gap-8',
-  '12': 'gap-12',
+// Row negative margin (half of gap on each side)
+// This cancels out the column padding on the outer edges
+const rowNegativeMarginClasses: Record<string, string> = {
+  '0': '',
+  '2': '-mx-1',    // 4px each side (8px total gap)
+  '4': '-mx-2',    // 8px each side (16px total gap)
+  '6': '-mx-3',    // 12px each side (24px total gap)
+  '8': '-mx-4',    // 16px each side (32px total gap)
+  '12': '-mx-6',   // 24px each side (48px total gap)
+}
+
+// Vertical gap for stacked mobile columns
+const verticalGapClasses: Record<string, string> = {
+  '0': 'gap-y-0',
+  '2': 'gap-y-2',
+  '4': 'gap-y-4',
+  '6': 'gap-y-6',
+  '8': 'gap-y-8',
+  '12': 'gap-y-12',
 }
 
 export default function Row({block, index, pageId, pageType, sectionKey}: RowProps) {
   const {
-    columns = [],
+    columns,
     horizontalAlign = 'start',
     verticalAlign = 'stretch',
     gap = '6',
     wrap = true,
     reverseOnMobile = false,
   } = block
+
+  // Ensure columns is always an array (handles null from Sanity when adding new items)
+  const columnItems = columns ?? []
 
   // Clean stega encoding from values before using as lookup keys
   const cleanHorizontalAlign = stegaClean(horizontalAlign)
@@ -64,15 +78,19 @@ export default function Row({block, index, pageId, pageType, sectionKey}: RowPro
 
   const justifyClass = horizontalAlignClasses[cleanHorizontalAlign] || horizontalAlignClasses.start
   const alignClass = verticalAlignClasses[cleanVerticalAlign] || verticalAlignClasses.stretch
-  const gapClass = gapClasses[cleanGap] || gapClasses['6']
+  const negativeMarginClass = rowNegativeMarginClasses[cleanGap] || rowNegativeMarginClasses['6']
+  const verticalGapClass = verticalGapClasses[cleanGap] || verticalGapClasses['6']
   const wrapClass = wrap ? 'flex-wrap' : 'flex-nowrap'
-  const reverseClass = reverseOnMobile ? 'flex-col-reverse md:flex-row' : 'flex-col md:flex-row'
+
+  // Flexbox with negative margins (Bootstrap-style gutter system)
+  // On mobile, stack columns vertically with gap
+  const mobileClass = reverseOnMobile ? 'flex-col-reverse' : 'flex-col'
 
   return (
     <div
-      className={`flex ${reverseClass} ${wrapClass} ${justifyClass} ${alignClass} ${gapClass}`}
+      className={`flex ${mobileClass} md:flex-row ${wrapClass} ${justifyClass} ${alignClass} ${negativeMarginClass} ${verticalGapClass}`}
     >
-      {columns.map((column, colIndex) => (
+      {columnItems.map((column, colIndex) => (
         <Column
           key={column._key}
           block={column}
@@ -81,6 +99,7 @@ export default function Row({block, index, pageId, pageType, sectionKey}: RowPro
           pageType={pageType}
           sectionKey={sectionKey}
           rowKey={block._key}
+          gap={cleanGap}
         />
       ))}
     </div>
