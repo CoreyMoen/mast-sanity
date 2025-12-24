@@ -1,5 +1,7 @@
 import {Button} from '@/app/components/ui/button'
 import {Icon} from '@/app/components/ui/icon'
+import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '@/app/components/ui/accordion'
+import {Divider} from '@/app/components/ui/divider'
 import {
   ArrowRight,
   ArrowUpRight,
@@ -463,6 +465,132 @@ export default function DesignSystemPage() {
         </div>
       </Section>
 
+      {/* Accordion */}
+      <Section title="Accordion">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Collapsible content sections. Supports single or multiple open items, and can start with items open.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Single (collapsible)</span>
+            <Accordion type="single" collapsible className="w-full max-w-xl">
+              <AccordionItem value="item-1">
+                <AccordionTrigger>What is fluid typography?</AccordionTrigger>
+                <AccordionContent>
+                  Fluid typography uses CSS clamp() to smoothly scale font sizes between a minimum and maximum
+                  value based on the viewport width, eliminating abrupt size changes at breakpoints.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-2">
+                <AccordionTrigger>How does the container work?</AccordionTrigger>
+                <AccordionContent>
+                  The container has a max-width of 90rem (1440px) with 6vw responsive gutters on each side.
+                  Below the max-width, it fills 100% of the viewport minus the gutters.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="item-3">
+                <AccordionTrigger>What icon library is used?</AccordionTrigger>
+                <AccordionContent>
+                  We use Phosphor Icons, a flexible icon family with multiple weights (thin, light, regular,
+                  bold, fill, duotone) and consistent sizing.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">With default open item</span>
+            <Accordion type="single" collapsible defaultValue="open-item" className="w-full max-w-xl">
+              <AccordionItem value="open-item">
+                <AccordionTrigger>This starts open</AccordionTrigger>
+                <AccordionContent>
+                  Use the defaultValue prop to specify which item should be open by default.
+                  This is useful for FAQ sections where you want to highlight the first answer.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="closed-item">
+                <AccordionTrigger>This starts closed</AccordionTrigger>
+                <AccordionContent>
+                  Other items remain closed until clicked.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Multiple open at once</span>
+            <Accordion type="multiple" className="w-full max-w-xl">
+              <AccordionItem value="multi-1">
+                <AccordionTrigger>First section</AccordionTrigger>
+                <AccordionContent>
+                  With type=&quot;multiple&quot;, multiple sections can be open simultaneously.
+                </AccordionContent>
+              </AccordionItem>
+              <AccordionItem value="multi-2">
+                <AccordionTrigger>Second section</AccordionTrigger>
+                <AccordionContent>
+                  Click to open this while keeping the first one open.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
+          </div>
+        </div>
+      </Section>
+
+      {/* Divider */}
+      <Section title="Divider">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Horizontal rule with configurable spacing and colors using the project&apos;s spacing scale.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Default</span>
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <p className="text-body">Content above the divider</p>
+              <Divider />
+              <p className="text-body">Content below the divider</p>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Colors</span>
+            <div className="bg-gray-50 p-6 rounded-lg space-y-1">
+              <div className="flex items-center gap-4">
+                <span className="text-p-sm w-20">Default</span>
+                <div className="flex-1"><Divider marginTop="2" marginBottom="2" /></div>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-p-sm w-20">Light</span>
+                <div className="flex-1"><Divider marginTop="2" marginBottom="2" color="light" /></div>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-p-sm w-20">Dark</span>
+                <div className="flex-1"><Divider marginTop="2" marginBottom="2" color="dark" /></div>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-p-sm w-20">Brand</span>
+                <div className="flex-1"><Divider marginTop="2" marginBottom="2" color="brand" /></div>
+              </div>
+              <div className="flex items-center gap-4">
+                <span className="text-p-sm w-20">Blue</span>
+                <div className="flex-1"><Divider marginTop="2" marginBottom="2" color="blue" /></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Spacing variations</span>
+            <div className="bg-gray-50 p-6 rounded-lg">
+              <p className="text-p-sm text-gray-500">marginTop=&quot;0&quot; marginBottom=&quot;0&quot;</p>
+              <Divider marginTop="0" marginBottom="0" />
+              <p className="text-p-sm text-gray-500">marginTop=&quot;4&quot; marginBottom=&quot;4&quot;</p>
+              <Divider marginTop="4" marginBottom="4" />
+              <p className="text-p-sm text-gray-500">marginTop=&quot;8&quot; marginBottom=&quot;8&quot; (default)</p>
+              <Divider marginTop="8" marginBottom="8" />
+              <p className="text-p-sm text-gray-500">marginTop=&quot;16&quot; marginBottom=&quot;16&quot;</p>
+              <Divider marginTop="16" marginBottom="16" />
+              <p className="text-p-sm text-gray-500">End of examples</p>
+            </div>
+          </div>
+        </div>
+      </Section>
+
       {/* Spacing */}
       <Section title="Spacing Scale">
         <div className="space-y-4">
@@ -568,6 +696,11 @@ export default function DesignSystemPage() {
                 name: 'SpacerBlock',
                 description: 'Vertical spacing with responsive desktop/mobile sizes',
                 props: ['sizeDesktop', 'sizeMobile'],
+              },
+              {
+                name: 'DividerBlock',
+                description: 'Horizontal rule with configurable top/bottom spacing and colors',
+                props: ['marginTop', 'marginBottom', 'color'],
               },
             ].map((component) => (
               <div key={component.name} className="border border-gray-200 rounded-lg p-6">

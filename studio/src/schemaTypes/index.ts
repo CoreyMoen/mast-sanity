@@ -16,6 +16,7 @@ import {richTextBlock} from './objects/richTextBlock'
 import {imageBlock} from './objects/imageBlock'
 import {buttonBlock} from './objects/buttonBlock'
 import {spacerBlock} from './objects/spacerBlock'
+import {dividerBlock} from './objects/dividerBlock'
 
 // Export an array of all the schema types.  This is used in the Sanity Studio configuration. https://www.sanity.io/docs/schema-types
 
@@ -37,6 +38,7 @@ export const schemaTypes = [
   imageBlock,
   buttonBlock,
   spacerBlock,
+  dividerBlock,
   column,
   row,
   section,
