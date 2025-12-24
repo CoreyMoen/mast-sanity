@@ -2,6 +2,7 @@ import {Button} from '@/app/components/ui/button'
 import {Icon} from '@/app/components/ui/icon'
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '@/app/components/ui/accordion'
 import {Divider} from '@/app/components/ui/divider'
+import {Card} from '@/app/components/ui/card'
 import {
   ArrowRight,
   ArrowUpRight,
@@ -591,6 +592,98 @@ export default function DesignSystemPage() {
         </div>
       </Section>
 
+      {/* Card */}
+      <Section title="Card">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Flexible card container that can hold any content. Supports multiple style variants,
+          responsive padding, and optional link functionality.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Style Variants</span>
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Card variant="default">
+                <h4 className="text-h4 mb-2">Default</h4>
+                <p className="text-body text-gray-600">White background with border</p>
+              </Card>
+              <Card variant="outline">
+                <h4 className="text-h4 mb-2">Outline</h4>
+                <p className="text-body text-gray-600">Transparent with border</p>
+              </Card>
+              <Card variant="filled">
+                <h4 className="text-h4 mb-2">Filled</h4>
+                <p className="text-body text-gray-600">Gray background</p>
+              </Card>
+              <Card variant="ghost">
+                <h4 className="text-h4 mb-2">Ghost</h4>
+                <p className="text-body text-gray-600">No background or border</p>
+              </Card>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Padding Options (Desktop / Mobile)</span>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card paddingDesktop="4" paddingMobile="4">
+                <h4 className="text-h5 mb-2">Small Padding</h4>
+                <p className="text-p-sm text-gray-600">paddingDesktop=&quot;4&quot; paddingMobile=&quot;4&quot;</p>
+              </Card>
+              <Card paddingDesktop="6" paddingMobile="4">
+                <h4 className="text-h5 mb-2">Medium Padding (Default)</h4>
+                <p className="text-p-sm text-gray-600">paddingDesktop=&quot;6&quot; paddingMobile=&quot;4&quot;</p>
+              </Card>
+              <Card paddingDesktop="12" paddingMobile="8">
+                <h4 className="text-h5 mb-2">Large Padding</h4>
+                <p className="text-p-sm text-gray-600">paddingDesktop=&quot;12&quot; paddingMobile=&quot;8&quot;</p>
+              </Card>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Clickable Cards (with hover effect)</span>
+            <div className="grid md:grid-cols-3 gap-6">
+              <Card href="/design-system" hoverEffect>
+                <h4 className="text-h5 mb-2">Internal Link</h4>
+                <p className="text-p-sm text-gray-600">Navigates within the app using Next.js Link</p>
+              </Card>
+              <Card href="https://example.com" openInNewTab hoverEffect>
+                <h4 className="text-h5 mb-2">External Link</h4>
+                <p className="text-p-sm text-gray-600">Opens in new tab with proper security attributes</p>
+              </Card>
+              <Card variant="filled" href="/design-system" hoverEffect>
+                <h4 className="text-h5 mb-2">Filled + Linked</h4>
+                <p className="text-p-sm text-gray-600">Combines variant with link functionality</p>
+              </Card>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Cards with Mixed Content</span>
+            <div className="grid md:grid-cols-2 gap-6">
+              <Card>
+                <Icon icon={Star} size="lg" color="brand" className="mb-4" />
+                <h4 className="text-h4 mb-2">Feature Card</h4>
+                <p className="text-body text-gray-600 mb-4">
+                  Cards can contain any combination of icons, headings, text, buttons, and more.
+                </p>
+                <Button variant="primary" colorScheme="brand" size="sm">
+                  Learn More <ArrowRight className="h-4 w-4 ml-2" weight="bold" />
+                </Button>
+              </Card>
+              <Card variant="filled" paddingDesktop="8" paddingMobile="6">
+                <div className="flex items-start gap-4">
+                  <Icon icon={CheckCircle} size="md" color="brand" />
+                  <div>
+                    <h4 className="text-h5 mb-1">Testimonial Card</h4>
+                    <p className="text-body text-gray-600 mb-2">
+                      &quot;This design system has made our workflow so much more efficient.&quot;
+                    </p>
+                    <p className="text-p-sm text-gray-500">— Happy Customer</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </Section>
+
       {/* Spacing */}
       <Section title="Spacing Scale">
         <div className="space-y-4">
@@ -701,6 +794,11 @@ export default function DesignSystemPage() {
                 name: 'DividerBlock',
                 description: 'Horizontal rule with configurable top/bottom spacing and colors',
                 props: ['marginTop', 'marginBottom', 'color'],
+              },
+              {
+                name: 'CardBlock',
+                description: 'Flexible container for other blocks with responsive padding and optional link',
+                props: ['variant', 'paddingDesktop', 'paddingMobile', 'href', 'hoverEffect'],
               },
             ].map((component) => (
               <div key={component.name} className="border border-gray-200 rounded-lg p-6">

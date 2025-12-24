@@ -6,6 +6,7 @@ import ImageBlock from './ImageBlock'
 import ButtonBlock from './ButtonBlock'
 import SpacerBlock from './SpacerBlock'
 import DividerBlock from './DividerBlock'
+import CardBlock from './CardBlock'
 
 type ContentBlocksType = {
   [key: string]: React.FC<any>
@@ -27,6 +28,7 @@ const ContentBlocks: ContentBlocksType = {
   buttonBlock: ButtonBlock,
   spacerBlock: SpacerBlock,
   dividerBlock: DividerBlock,
+  cardBlock: CardBlock,
 }
 
 export default function ContentBlockRenderer({

@@ -27,6 +27,7 @@ export const column = defineType({
         {type: 'buttonBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
         {type: 'spacerBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
         {type: 'dividerBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
+        {type: 'cardBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
       ],
       group: 'content',
     }),
