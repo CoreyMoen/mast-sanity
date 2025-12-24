@@ -95,26 +95,44 @@
 @theme {
   --shadow-layer: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
 
-  --color-framework: #000;
-  --color-black: #0b0b0b;
-  --color-white: #fff;
-  --color-brand: #f50;
-  --color-blue: #0052ff;
-  --color-yellow: #cdea19;
-  --color-gray-50: #f6f6f8;
-  --color-gray-100: #eeeef1;
-  --color-gray-200: #e3e4e8;
-  --color-gray-300: #bbbdc9;
-  --color-gray-400: #9499ad;
-  --color-gray-500: #727892;
-  --color-gray-600: #515870;
-  --color-gray-700: #383d51;
-  --color-gray-800: #252837;
-  --color-gray-900: #1b1d27;
-  --color-gray-950: #13141b;
+  /* ==========================================================================
+     MAST COLOR PALETTE
+     ========================================================================== */
 
-  --font-display: 'Inter', 'sans-serif';
-  --font-sans: 'Inter', 'sans-serif';
+  /* Neutral colors */
+  --color-white: #ffffff;
+  --color-black: #1d1c1a;
+  --color-dark-gray: #292825;
+  --color-light-gray: #f0eee6;
+  --color-mid-gray-1: #cccabf;
+  --color-mid-gray-2: #474641;
+
+  /* Primary colors */
+  --color-brand: #d14424;
+  --color-brand-dark: #9c331b;
+
+  /* Secondary colors */
+  --color-yellow: #f8d47a;
+  --color-blue: #0073e6;
+
+  /* Gray scale (mapped for compatibility) */
+  --color-gray-50: #f0eee6;
+  --color-gray-100: #e5e3db;
+  --color-gray-200: #d4d2c8;
+  --color-gray-300: #cccabf;
+  --color-gray-400: #9a9890;
+  --color-gray-500: #6b6961;
+  --color-gray-600: #474641;
+  --color-gray-700: #353430;
+  --color-gray-800: #292825;
+  --color-gray-900: #1d1c1a;
+  --color-gray-950: #141311;
+
+  /* ==========================================================================
+     TYPOGRAPHY
+     ========================================================================== */
+  --font-display: var(--font-general-sans), 'General Sans', Arial, sans-serif;
+  --font-sans: var(--font-general-sans), 'General Sans', Arial, sans-serif;
 
   --default-transition-duration: 250ms;
 

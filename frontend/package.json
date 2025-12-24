@@ -12,6 +12,7 @@
     "typegen": "sanity typegen generate"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "@radix-ui/react-slot": "^1.2.4",
     "@sanity/client": "^7.13.1",
     "@sanity/image-url": "^1.2.0",

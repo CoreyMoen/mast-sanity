@@ -2,7 +2,7 @@ import './globals.css'
 
 import {SpeedInsights} from '@vercel/speed-insights/next'
 import type {Metadata} from 'next'
-import {Inter} from 'next/font/google'
+import localFont from 'next/font/local'
 import {draftMode} from 'next/headers'
 import {toPlainText} from 'next-sanity'
 import {Toaster} from 'sonner'
@@ -16,6 +16,27 @@ import {sanityFetch, SanityLive} from '@/sanity/lib/live'
 import {settingsQuery} from '@/sanity/lib/queries'
 import {resolveOpenGraphImage} from '@/sanity/lib/utils'
 import {handleError} from './client-utils'
+
+/**
+ * General Sans font - Mast design system primary font
+ * Includes Regular (400) and Medium (500) weights
+ */
+const generalSans = localFont({
+  src: [
+    {
+      path: '../public/fonts/GeneralSans-Regular.woff2',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../public/fonts/GeneralSans-Medium.woff2',
+      weight: '500',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-general-sans',
+  display: 'swap',
+})
 
 /**
  * Generate metadata for the page.
@@ -52,17 +73,11 @@ export async function generateMetadata(): Promise<Metadata> {
   }
 }
 
-const inter = Inter({
-  variable: '--font-inter',
-  subsets: ['latin'],
-  display: 'swap',
-})
-
 export default async function RootLayout({children}: {children: React.ReactNode}) {
   const {isEnabled: isDraftMode} = await draftMode()
 
   return (
-    <html lang="en" className={`${inter.variable} bg-white text-black`}>
+    <html lang="en" className={`${generalSans.variable} bg-white text-black`}>
       <body>
         <section className="min-h-screen pt-24">
           {/* The <Toaster> component is responsible for rendering toast notifications used in /app/client-utils.ts and /app/components/DraftModeToast.tsx */}

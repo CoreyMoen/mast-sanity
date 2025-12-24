@@ -1,32 +1,53 @@
 import {Button} from '@/app/components/ui/button'
-import {ArrowRight, Download, ExternalLink} from 'lucide-react'
+import {Icon} from '@/app/components/ui/icon'
+import {
+  ArrowRight,
+  ArrowUpRight,
+  CheckCircle,
+  Download,
+  Heart,
+  Lightning,
+  MoonStars,
+  Star,
+  Sun,
+  Target,
+  Trophy,
+  User,
+} from '@phosphor-icons/react/dist/ssr'
 
 export const metadata = {
   title: 'Design System',
   description: 'Visual overview of all design system components, colors, and typography',
 }
 
-// Color definitions from the theme
+// Color definitions from the Mast theme
 const colors = {
   primary: [
-    {name: 'Black', value: '#0b0b0b', textClass: 'text-white'},
-    {name: 'White', value: '#fff', textClass: 'text-black', border: true},
-    {name: 'Brand', value: '#f50', textClass: 'text-white'},
-    {name: 'Blue', value: '#0052ff', textClass: 'text-white'},
-    {name: 'Yellow', value: '#cdea19', textClass: 'text-black'},
+    {name: 'Black', value: '#1d1c1a', textClass: 'text-white'},
+    {name: 'White', value: '#ffffff', textClass: 'text-black', border: true},
+    {name: 'Brand', value: '#d14424', textClass: 'text-white'},
+    {name: 'Brand Dark', value: '#9c331b', textClass: 'text-white'},
+    {name: 'Blue', value: '#0073e6', textClass: 'text-white'},
+    {name: 'Yellow', value: '#f8d47a', textClass: 'text-black'},
+  ],
+  neutral: [
+    {name: 'Light Gray', value: '#f0eee6', textClass: 'text-black'},
+    {name: 'Mid Gray 1', value: '#cccabf', textClass: 'text-black'},
+    {name: 'Mid Gray 2', value: '#474641', textClass: 'text-white'},
+    {name: 'Dark Gray', value: '#292825', textClass: 'text-white'},
   ],
   gray: [
-    {name: 'Gray 50', value: '#f6f6f8', textClass: 'text-black'},
-    {name: 'Gray 100', value: '#eeeef1', textClass: 'text-black'},
-    {name: 'Gray 200', value: '#e3e4e8', textClass: 'text-black'},
-    {name: 'Gray 300', value: '#bbbdc9', textClass: 'text-black'},
-    {name: 'Gray 400', value: '#9499ad', textClass: 'text-black'},
-    {name: 'Gray 500', value: '#727892', textClass: 'text-white'},
-    {name: 'Gray 600', value: '#515870', textClass: 'text-white'},
-    {name: 'Gray 700', value: '#383d51', textClass: 'text-white'},
-    {name: 'Gray 800', value: '#252837', textClass: 'text-white'},
-    {name: 'Gray 900', value: '#1b1d27', textClass: 'text-white'},
-    {name: 'Gray 950', value: '#13141b', textClass: 'text-white'},
+    {name: 'Gray 50', value: '#f0eee6', textClass: 'text-black'},
+    {name: 'Gray 100', value: '#e5e3db', textClass: 'text-black'},
+    {name: 'Gray 200', value: '#d4d2c8', textClass: 'text-black'},
+    {name: 'Gray 300', value: '#cccabf', textClass: 'text-black'},
+    {name: 'Gray 400', value: '#9a9890', textClass: 'text-black'},
+    {name: 'Gray 500', value: '#6b6961', textClass: 'text-white'},
+    {name: 'Gray 600', value: '#474641', textClass: 'text-white'},
+    {name: 'Gray 700', value: '#353430', textClass: 'text-white'},
+    {name: 'Gray 800', value: '#292825', textClass: 'text-white'},
+    {name: 'Gray 900', value: '#1d1c1a', textClass: 'text-white'},
+    {name: 'Gray 950', value: '#141311', textClass: 'text-white'},
   ],
 }
 
@@ -77,15 +98,35 @@ export default function DesignSystemPage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-gray-50 py-16 px-8">
+      <div className="bg-gray-50 py-16">
         <div className="container">
           <h1 className="text-h1 mb-4">Design System</h1>
-          <p className="text-p-xl text-gray-600 max-w-2xl">
-            A comprehensive overview of typography, colors, and components used throughout the
-            project. Features fluid typography using CSS clamp() and a max-width container with responsive gutters.
+          <p className="text-p-xl text-gray-600 max-w-3xl">
+            Based on the Mast framework. Features General Sans typography, fluid sizing with CSS clamp(),
+            Phosphor icons, and a max-width container (90rem) with 6vw responsive gutters.
           </p>
         </div>
       </div>
+
+      {/* Font Info */}
+      <Section title="Typography - Font">
+        <div className="flex flex-wrap gap-8 items-center">
+          <div className="flex-1 min-w-[200px]">
+            <p className="text-p-sm text-gray-500 mb-2">Primary Font</p>
+            <p className="text-h2">General Sans</p>
+          </div>
+          <div className="flex gap-12">
+            <div>
+              <p className="text-p-sm text-gray-500 mb-2">Regular (400)</p>
+              <p className="text-h4 font-normal">Aa Bb Cc 123</p>
+            </div>
+            <div>
+              <p className="text-p-sm text-gray-500 mb-2">Medium (500)</p>
+              <p className="text-h4 font-medium">Aa Bb Cc 123</p>
+            </div>
+          </div>
+        </div>
+      </Section>
 
       {/* Typography - Headings */}
       <Section title="Typography - Headings (Fluid)">
@@ -155,9 +196,17 @@ export default function DesignSystemPage() {
       </Section>
 
       {/* Colors */}
-      <Section title="Colors - Primary">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+      <Section title="Colors - Primary & Secondary">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
           {colors.primary.map((color) => (
+            <ColorSwatch key={color.name} {...color} />
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Colors - Neutral">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {colors.neutral.map((color) => (
             <ColorSwatch key={color.name} {...color} />
           ))}
         </div>
@@ -209,13 +258,13 @@ export default function DesignSystemPage() {
             <span className="text-sm text-gray-500 mb-4 block">With Icons</span>
             <div className="flex flex-wrap gap-4">
               <Button variant="primary" colorScheme="black">
-                Continue <ArrowRight className="h-4 w-4 ml-2" />
+                Continue <ArrowRight className="h-4 w-4 ml-2" weight="bold" />
               </Button>
               <Button variant="primary" colorScheme="brand">
-                External <ExternalLink className="h-4 w-4 ml-2" />
+                External <ArrowUpRight className="h-4 w-4 ml-2" weight="bold" />
               </Button>
               <Button variant="primary" colorScheme="blue">
-                Download <Download className="h-4 w-4 ml-2" />
+                Download <Download className="h-4 w-4 ml-2" weight="bold" />
               </Button>
             </div>
           </div>
@@ -298,7 +347,7 @@ export default function DesignSystemPage() {
                 White Button
               </Button>
               <Button variant="primary" colorScheme="white">
-                With Icon <ArrowRight className="h-4 w-4 ml-2" />
+                With Icon <ArrowRight className="h-4 w-4 ml-2" weight="bold" />
               </Button>
             </div>
           </div>
@@ -316,6 +365,99 @@ export default function DesignSystemPage() {
               <Button variant="ghost" colorScheme="white">
                 White Ghost
               </Button>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* Icons */}
+      <Section title="Icons (Phosphor)">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Uses the Phosphor icon library. Icons support multiple sizes and colors.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Sizes</span>
+            <div className="flex flex-wrap items-end gap-8">
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Star} size="xs" />
+                <span className="text-p-sm text-gray-500">XS (16px)</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Star} size="sm" />
+                <span className="text-p-sm text-gray-500">SM (24px)</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Star} size="md" />
+                <span className="text-p-sm text-gray-500">MD (32px)</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Star} size="lg" />
+                <span className="text-p-sm text-gray-500">LG (48px)</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Star} size="xl" />
+                <span className="text-p-sm text-gray-500">XL (64px)</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Colors</span>
+            <div className="flex flex-wrap items-center gap-6">
+              <Icon icon={Heart} size="lg" color="brand" />
+              <Icon icon={Lightning} size="lg" color="blue" />
+              <Icon icon={Star} size="lg" color="yellow" />
+              <Icon icon={CheckCircle} size="lg" color="black" />
+              <span className="bg-gray-900 p-2 rounded-lg">
+                <Icon icon={Sun} size="lg" color="white" />
+              </span>
+              <Icon icon={Target} size="lg" color="gray" />
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Weights</span>
+            <div className="flex flex-wrap items-center gap-6">
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Heart} size="lg" weight="thin" />
+                <span className="text-p-sm text-gray-500">Thin</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Heart} size="lg" weight="light" />
+                <span className="text-p-sm text-gray-500">Light</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Heart} size="lg" weight="regular" />
+                <span className="text-p-sm text-gray-500">Regular</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Heart} size="lg" weight="bold" />
+                <span className="text-p-sm text-gray-500">Bold</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Heart} size="lg" weight="fill" />
+                <span className="text-p-sm text-gray-500">Fill</span>
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <Icon icon={Heart} size="lg" weight="duotone" />
+                <span className="text-p-sm text-gray-500">Duotone</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Sample Icons</span>
+            <div className="flex flex-wrap items-center gap-4">
+              <Icon icon={CheckCircle} size="md" color="brand" />
+              <Icon icon={Target} size="md" color="brand" />
+              <Icon icon={Star} size="md" color="brand" />
+              <Icon icon={Trophy} size="md" color="brand" />
+              <Icon icon={Heart} size="md" color="brand" />
+              <Icon icon={Lightning} size="md" color="brand" />
+              <Icon icon={User} size="md" color="brand" />
+              <Icon icon={ArrowRight} size="md" color="brand" />
+              <Icon icon={ArrowUpRight} size="md" color="brand" />
+              <Icon icon={Download} size="md" color="brand" />
+              <Icon icon={Sun} size="md" color="brand" />
+              <Icon icon={MoonStars} size="md" color="brand" />
             </div>
           </div>
         </div>
