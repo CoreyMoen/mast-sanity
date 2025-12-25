@@ -1,5 +1,5 @@
 import {defineField, defineType} from 'sanity'
-import {MinusIcon} from '@sanity/icons'
+import {RemoveIcon} from '@sanity/icons'
 
 /**
  * Divider Block schema - Horizontal rule with spacing controls.
@@ -9,7 +9,7 @@ export const dividerBlock = defineType({
   name: 'dividerBlock',
   title: 'Divider',
   type: 'object',
-  icon: MinusIcon,
+  icon: RemoveIcon,
   fields: [
     defineField({
       name: 'marginTop',
