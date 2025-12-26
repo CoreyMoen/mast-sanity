@@ -1162,8 +1162,11 @@ async function main() {
                       },
                     ],
                     orientation: 'horizontal',
+                    menuPosition: 'above',
+                    mobileDropdown: true,
                     autoplay: true,
                     autoplayDuration: 8000,
+                    showProgress: true,
                   },
                 ],
                 '12'

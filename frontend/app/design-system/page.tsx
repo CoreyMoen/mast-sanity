@@ -9,6 +9,7 @@ import {Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableCapt
 import {Slider, SliderSlide} from '@/app/components/ui/slider'
 import {Tabs, TabsList, TabsTrigger, TabsContent} from '@/app/components/ui/tabs'
 import {Modal, ModalTrigger, ModalContent, ModalHeader, ModalTitle, ModalBody, ModalFooter, VideoModalContent} from '@/app/components/ui/modal'
+import {InlineVideo} from '@/app/components/ui/inline-video'
 import {
   ArrowRight,
   ArrowUpRight,
@@ -1194,6 +1195,91 @@ export default function DesignSystemPage() {
         </div>
       </Section>
 
+      {/* Inline Video */}
+      <Section title="Inline Video">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Self-hosted video player with autoplay on scroll, poster image support, and play/pause controls.
+          Videos can be muted by default and loop continuously.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">16:9 Aspect Ratio with Controls</span>
+            <div className="max-w-3xl">
+              <InlineVideo
+                src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+                aspectRatio="16/9"
+                autoplayOnScroll
+                loop
+                muted
+                showControls
+                controlPosition="bottom-right"
+              />
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">21:9 Cinematic with Centered Play Button</span>
+            <InlineVideo
+              src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+              aspectRatio="21/9"
+              autoplayOnScroll={false}
+              loop
+              muted
+              showControls
+              controlPosition="center"
+            />
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Aspect Ratio Options</span>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <InlineVideo
+                  src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+                  aspectRatio="16/9"
+                  autoplayOnScroll
+                  loop
+                  muted
+                  showControls={false}
+                />
+                <p className="text-p-sm text-gray-500 mt-2 text-center">16:9 (Video)</p>
+              </div>
+              <div>
+                <InlineVideo
+                  src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+                  aspectRatio="4/3"
+                  autoplayOnScroll
+                  loop
+                  muted
+                  showControls={false}
+                />
+                <p className="text-p-sm text-gray-500 mt-2 text-center">4:3 (Classic)</p>
+              </div>
+              <div>
+                <InlineVideo
+                  src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
+                  aspectRatio="1/1"
+                  autoplayOnScroll
+                  loop
+                  muted
+                  showControls={false}
+                />
+                <p className="text-p-sm text-gray-500 mt-2 text-center">1:1 (Square)</p>
+              </div>
+              <div>
+                <InlineVideo
+                  src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
+                  aspectRatio="9/16"
+                  autoplayOnScroll
+                  loop
+                  muted
+                  showControls={false}
+                />
+                <p className="text-p-sm text-gray-500 mt-2 text-center">9:16 (Portrait)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Section>
+
       {/* Card */}
       <Section title="Card">
         <p className="text-p-lg text-gray-600 mb-8">
@@ -1388,6 +1474,11 @@ export default function DesignSystemPage() {
                 props: ['size', 'aspectRatio', 'rounded', 'shadow'],
               },
               {
+                name: 'IconBlock',
+                description: 'Phosphor icons with size, color, and weight options',
+                props: ['icon', 'size', 'color', 'weight', 'marginBottom'],
+              },
+              {
                 name: 'SpacerBlock',
                 description: 'Vertical spacing with responsive desktop/mobile sizes',
                 props: ['sizeDesktop', 'sizeMobile'],
@@ -1413,14 +1504,19 @@ export default function DesignSystemPage() {
                 props: ['items', 'separator', 'align'],
               },
               {
+                name: 'AccordionBlock',
+                description: 'Collapsible FAQ sections with native details/summary elements',
+                props: ['items', 'titleStyle', 'showDividers', 'allowMultiple'],
+              },
+              {
                 name: 'TableBlock',
                 description: 'Data table with columns, rows, and style variants',
                 props: ['columns', 'rows', 'variant', 'showHeader', 'caption'],
               },
               {
                 name: 'SliderBlock',
-                description: 'Responsive carousel with customizable slides per view and autoplay',
-                props: ['slides', 'slidesPerView', 'gap', 'autoplay', 'loop', 'showNavigation'],
+                description: 'Responsive carousel with navigation position, effects, and autoplay',
+                props: ['slides', 'slidesPerView', 'gap', 'navigationPosition', 'effect', 'autoplay'],
               },
               {
                 name: 'TabsBlock',
