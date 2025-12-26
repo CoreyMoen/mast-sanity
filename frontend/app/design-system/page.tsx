@@ -892,11 +892,12 @@ export default function DesignSystemPage() {
       {/* Tabs */}
       <Section title="Tabs">
         <p className="text-p-lg text-gray-600 mb-8">
-          Tab navigation with horizontal/vertical orientation and optional autoplay.
+          Tab navigation with flexible menu positioning (above, below, left, right), optional autoplay
+          with progress indicator, and mobile dropdown support. Matches Mast framework tabs capabilities.
         </p>
-        <div className="space-y-8">
+        <div className="space-y-12">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Horizontal Tabs</span>
+            <span className="text-p-sm text-gray-500 mb-4 block">Horizontal Tabs (Menu Above - Default)</span>
             <Tabs defaultValue="tab1">
               <TabsList>
                 <TabsTrigger value="tab1">Overview</TabsTrigger>
@@ -930,23 +931,109 @@ export default function DesignSystemPage() {
             </Tabs>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Vertical Tabs with Autoplay</span>
-            <Tabs defaultValue="v1" orientation="vertical" autoplay autoplayDuration={4000}>
+            <span className="text-p-sm text-gray-500 mb-4 block">Menu Below Content</span>
+            <Tabs defaultValue="b1" menuPosition="below">
               <TabsList>
-                <TabsTrigger value="v1">Step 1</TabsTrigger>
-                <TabsTrigger value="v2">Step 2</TabsTrigger>
-                <TabsTrigger value="v3">Step 3</TabsTrigger>
+                <TabsTrigger value="b1">Tab 1</TabsTrigger>
+                <TabsTrigger value="b2">Tab 2</TabsTrigger>
+                <TabsTrigger value="b3">Tab 3</TabsTrigger>
               </TabsList>
-              <TabsContent value="v1">
+              <TabsContent value="b1">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <h4 className="text-h4 mb-2">Content First</h4>
+                  <p className="text-body text-gray-600">Menu positioned below the content area.</p>
+                </div>
+              </TabsContent>
+              <TabsContent value="b2">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <h4 className="text-h4 mb-2">Tab 2 Content</h4>
+                  <p className="text-body text-gray-600">Useful for bottom navigation patterns.</p>
+                </div>
+              </TabsContent>
+              <TabsContent value="b3">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <h4 className="text-h4 mb-2">Tab 3 Content</h4>
+                  <p className="text-body text-gray-600">Third tab with menu below.</p>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Menu Left of Content (Vertical Layout)</span>
+            <Tabs defaultValue="l1" menuPosition="left" orientation="vertical">
+              <TabsList>
+                <TabsTrigger value="l1">Dashboard</TabsTrigger>
+                <TabsTrigger value="l2">Analytics</TabsTrigger>
+                <TabsTrigger value="l3">Settings</TabsTrigger>
+              </TabsList>
+              <TabsContent value="l1">
+                <Card variant="filled">
+                  <h4 className="text-h4 mb-2">Dashboard</h4>
+                  <p className="text-body text-gray-600">
+                    Sidebar-style navigation with menu on the left, perfect for app-like layouts.
+                  </p>
+                </Card>
+              </TabsContent>
+              <TabsContent value="l2">
+                <Card variant="filled">
+                  <h4 className="text-h4 mb-2">Analytics</h4>
+                  <p className="text-body text-gray-600">View your analytics data here.</p>
+                </Card>
+              </TabsContent>
+              <TabsContent value="l3">
+                <Card variant="filled">
+                  <h4 className="text-h4 mb-2">Settings</h4>
+                  <p className="text-body text-gray-600">Configure your preferences.</p>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Menu Right of Content</span>
+            <Tabs defaultValue="r1" menuPosition="right" orientation="vertical">
+              <TabsList>
+                <TabsTrigger value="r1">Option A</TabsTrigger>
+                <TabsTrigger value="r2">Option B</TabsTrigger>
+                <TabsTrigger value="r3">Option C</TabsTrigger>
+              </TabsList>
+              <TabsContent value="r1">
+                <div className="bg-brand/10 border border-brand/20 rounded-lg p-6">
+                  <h4 className="text-h4 mb-2">Content on Left</h4>
+                  <p className="text-body text-gray-600">Menu positioned to the right of content.</p>
+                </div>
+              </TabsContent>
+              <TabsContent value="r2">
+                <div className="bg-brand/10 border border-brand/20 rounded-lg p-6">
+                  <h4 className="text-h4 mb-2">Option B Selected</h4>
+                  <p className="text-body text-gray-600">Alternative layout option.</p>
+                </div>
+              </TabsContent>
+              <TabsContent value="r3">
+                <div className="bg-brand/10 border border-brand/20 rounded-lg p-6">
+                  <h4 className="text-h4 mb-2">Option C Selected</h4>
+                  <p className="text-body text-gray-600">Third option content.</p>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Autoplay with Progress Indicator</span>
+            <Tabs defaultValue="a1" autoplay autoplayDuration={5000} showProgress>
+              <TabsList>
+                <TabsTrigger value="a1">Step 1</TabsTrigger>
+                <TabsTrigger value="a2">Step 2</TabsTrigger>
+                <TabsTrigger value="a3">Step 3</TabsTrigger>
+              </TabsList>
+              <TabsContent value="a1">
                 <div className="bg-gray-50 rounded-lg p-6">
                   <Eyebrow variant="pill" color="brand">Step 1</Eyebrow>
                   <h4 className="text-h4 mt-4 mb-2">Getting Started</h4>
                   <p className="text-body text-gray-600">
-                    Begin your journey with our comprehensive onboarding process.
+                    Watch the progress bar below the active tab. Autoplay cycles through tabs with a play/pause button.
                   </p>
                 </div>
               </TabsContent>
-              <TabsContent value="v2">
+              <TabsContent value="a2">
                 <div className="bg-gray-50 rounded-lg p-6">
                   <Eyebrow variant="pill" color="brand">Step 2</Eyebrow>
                   <h4 className="text-h4 mt-4 mb-2">Configuration</h4>
@@ -955,7 +1042,7 @@ export default function DesignSystemPage() {
                   </p>
                 </div>
               </TabsContent>
-              <TabsContent value="v3">
+              <TabsContent value="a3">
                 <div className="bg-gray-50 rounded-lg p-6">
                   <Eyebrow variant="pill" color="brand">Step 3</Eyebrow>
                   <h4 className="text-h4 mt-4 mb-2">Launch</h4>
@@ -963,6 +1050,78 @@ export default function DesignSystemPage() {
                     Go live and start seeing results immediately.
                   </p>
                 </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Vertical Tabs with Autoplay and Progress</span>
+            <Tabs defaultValue="v1" orientation="vertical" menuPosition="left" autoplay autoplayDuration={4000} showProgress>
+              <TabsList>
+                <TabsTrigger value="v1">Phase 1</TabsTrigger>
+                <TabsTrigger value="v2">Phase 2</TabsTrigger>
+                <TabsTrigger value="v3">Phase 3</TabsTrigger>
+              </TabsList>
+              <TabsContent value="v1">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <Icon icon={Target} size="lg" color="brand" className="mb-4" />
+                  <h4 className="text-h4 mb-2">Phase 1: Discovery</h4>
+                  <p className="text-body text-gray-600">
+                    Vertical progress indicator on the left side of active tab.
+                  </p>
+                </div>
+              </TabsContent>
+              <TabsContent value="v2">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <Icon icon={Lightning} size="lg" color="brand" className="mb-4" />
+                  <h4 className="text-h4 mb-2">Phase 2: Development</h4>
+                  <p className="text-body text-gray-600">
+                    Build and iterate on your solution.
+                  </p>
+                </div>
+              </TabsContent>
+              <TabsContent value="v3">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <Icon icon={Trophy} size="lg" color="brand" className="mb-4" />
+                  <h4 className="text-h4 mb-2">Phase 3: Launch</h4>
+                  <p className="text-body text-gray-600">
+                    Deploy and celebrate your success!
+                  </p>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Mobile Dropdown (resize to mobile to see)</span>
+            <Tabs defaultValue="m1" mobileDropdown>
+              <TabsList>
+                <TabsTrigger value="m1">First Tab</TabsTrigger>
+                <TabsTrigger value="m2">Second Tab</TabsTrigger>
+                <TabsTrigger value="m3">Third Tab</TabsTrigger>
+              </TabsList>
+              <TabsContent value="m1">
+                <Card variant="outline">
+                  <h4 className="text-h4 mb-2">Mobile Dropdown Mode</h4>
+                  <p className="text-body text-gray-600">
+                    On mobile, tabs collapse into a dropdown menu for better usability.
+                    Resize your browser to see the effect.
+                  </p>
+                </Card>
+              </TabsContent>
+              <TabsContent value="m2">
+                <Card variant="outline">
+                  <h4 className="text-h4 mb-2">Second Tab Content</h4>
+                  <p className="text-body text-gray-600">
+                    Content for the second tab in mobile dropdown mode.
+                  </p>
+                </Card>
+              </TabsContent>
+              <TabsContent value="m3">
+                <Card variant="outline">
+                  <h4 className="text-h4 mb-2">Third Tab Content</h4>
+                  <p className="text-body text-gray-600">
+                    Content for the third tab in mobile dropdown mode.
+                  </p>
+                </Card>
               </TabsContent>
             </Tabs>
           </div>
@@ -1265,8 +1424,8 @@ export default function DesignSystemPage() {
               },
               {
                 name: 'TabsBlock',
-                description: 'Tab navigation with horizontal/vertical orientation and autoplay',
-                props: ['tabs', 'orientation', 'defaultTab', 'autoplay', 'autoplayDuration'],
+                description: 'Tab navigation with menu positioning, autoplay with progress, and mobile dropdown',
+                props: ['tabs', 'orientation', 'menuPosition', 'mobileDropdown', 'autoplay', 'showProgress'],
               },
               {
                 name: 'ModalBlock',
