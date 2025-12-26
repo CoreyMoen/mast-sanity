@@ -10,6 +10,7 @@ import {Slider, SliderSlide} from '@/app/components/ui/slider'
 import {Tabs, TabsList, TabsTrigger, TabsContent} from '@/app/components/ui/tabs'
 import {Modal, ModalTrigger, ModalContent, ModalHeader, ModalTitle, ModalBody, ModalFooter, VideoModalContent} from '@/app/components/ui/modal'
 import {InlineVideo} from '@/app/components/ui/inline-video'
+import {Marquee, MarqueeItem} from '@/app/components/ui/marquee'
 import {
   ArrowRight,
   ArrowUpRight,
@@ -1280,6 +1281,166 @@ export default function DesignSystemPage() {
         </div>
       </Section>
 
+      {/* Marquee */}
+      <Section title="Marquee">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Infinite scrolling content with horizontal or vertical orientation. Supports pause on hover,
+          fade edges, and reverse direction. Based on the Mast framework marquee component.
+        </p>
+        <div className="space-y-12">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Horizontal Marquee (Default)</span>
+            <Marquee pauseOnHover duration={20} gap={32}>
+              <MarqueeItem>
+                <Card variant="filled" className="min-w-[200px]">
+                  <Icon icon={Star} size="md" color="brand" className="mb-2" />
+                  <h4 className="text-h5">Feature One</h4>
+                  <p className="text-p-sm text-gray-600">Seamless scrolling content</p>
+                </Card>
+              </MarqueeItem>
+              <MarqueeItem>
+                <Card variant="filled" className="min-w-[200px]">
+                  <Icon icon={Heart} size="md" color="brand" className="mb-2" />
+                  <h4 className="text-h5">Feature Two</h4>
+                  <p className="text-p-sm text-gray-600">Pause on hover enabled</p>
+                </Card>
+              </MarqueeItem>
+              <MarqueeItem>
+                <Card variant="filled" className="min-w-[200px]">
+                  <Icon icon={Lightning} size="md" color="brand" className="mb-2" />
+                  <h4 className="text-h5">Feature Three</h4>
+                  <p className="text-p-sm text-gray-600">Configurable speed</p>
+                </Card>
+              </MarqueeItem>
+              <MarqueeItem>
+                <Card variant="filled" className="min-w-[200px]">
+                  <Icon icon={Target} size="md" color="brand" className="mb-2" />
+                  <h4 className="text-h5">Feature Four</h4>
+                  <p className="text-p-sm text-gray-600">Adjustable gap spacing</p>
+                </Card>
+              </MarqueeItem>
+              <MarqueeItem>
+                <Card variant="filled" className="min-w-[200px]">
+                  <Icon icon={Trophy} size="md" color="brand" className="mb-2" />
+                  <h4 className="text-h5">Feature Five</h4>
+                  <p className="text-p-sm text-gray-600">Infinite loop animation</p>
+                </Card>
+              </MarqueeItem>
+            </Marquee>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Reverse Direction with Fade Edges</span>
+            <Marquee reverse fadeEdges pauseOnHover duration={25} gap={24}>
+              <MarqueeItem>
+                <div className="bg-gray-900 text-white px-6 py-3 rounded-full">
+                  <span className="text-p-lg font-medium">Brand Message One</span>
+                </div>
+              </MarqueeItem>
+              <MarqueeItem>
+                <div className="bg-brand text-white px-6 py-3 rounded-full">
+                  <span className="text-p-lg font-medium">Brand Message Two</span>
+                </div>
+              </MarqueeItem>
+              <MarqueeItem>
+                <div className="bg-blue text-white px-6 py-3 rounded-full">
+                  <span className="text-p-lg font-medium">Brand Message Three</span>
+                </div>
+              </MarqueeItem>
+              <MarqueeItem>
+                <div className="bg-gray-900 text-white px-6 py-3 rounded-full">
+                  <span className="text-p-lg font-medium">Brand Message Four</span>
+                </div>
+              </MarqueeItem>
+              <MarqueeItem>
+                <div className="bg-brand text-white px-6 py-3 rounded-full">
+                  <span className="text-p-lg font-medium">Brand Message Five</span>
+                </div>
+              </MarqueeItem>
+            </Marquee>
+          </div>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <span className="text-p-sm text-gray-500 mb-4 block">Vertical Marquee (Scrolling Down)</span>
+              <div className="h-[300px] overflow-hidden rounded-lg border border-gray-200">
+                <Marquee orientation="vertical" pauseOnHover duration={15} gap={16}>
+                  <MarqueeItem>
+                    <Card variant="outline" className="w-full">
+                      <div className="flex items-center gap-3">
+                        <Icon icon={CheckCircle} size="sm" color="brand" />
+                        <span className="text-body">Vertical item one</span>
+                      </div>
+                    </Card>
+                  </MarqueeItem>
+                  <MarqueeItem>
+                    <Card variant="outline" className="w-full">
+                      <div className="flex items-center gap-3">
+                        <Icon icon={CheckCircle} size="sm" color="brand" />
+                        <span className="text-body">Vertical item two</span>
+                      </div>
+                    </Card>
+                  </MarqueeItem>
+                  <MarqueeItem>
+                    <Card variant="outline" className="w-full">
+                      <div className="flex items-center gap-3">
+                        <Icon icon={CheckCircle} size="sm" color="brand" />
+                        <span className="text-body">Vertical item three</span>
+                      </div>
+                    </Card>
+                  </MarqueeItem>
+                  <MarqueeItem>
+                    <Card variant="outline" className="w-full">
+                      <div className="flex items-center gap-3">
+                        <Icon icon={CheckCircle} size="sm" color="brand" />
+                        <span className="text-body">Vertical item four</span>
+                      </div>
+                    </Card>
+                  </MarqueeItem>
+                </Marquee>
+              </div>
+            </div>
+            <div>
+              <span className="text-p-sm text-gray-500 mb-4 block">Vertical Reverse (Scrolling Up)</span>
+              <div className="h-[300px] overflow-hidden rounded-lg border border-gray-200">
+                <Marquee orientation="vertical" reverse fadeEdges pauseOnHover duration={15} gap={16}>
+                  <MarqueeItem>
+                    <Card variant="filled" className="w-full">
+                      <div className="flex items-center gap-3">
+                        <Icon icon={Star} size="sm" color="brand" />
+                        <span className="text-body">Reverse item one</span>
+                      </div>
+                    </Card>
+                  </MarqueeItem>
+                  <MarqueeItem>
+                    <Card variant="filled" className="w-full">
+                      <div className="flex items-center gap-3">
+                        <Icon icon={Star} size="sm" color="brand" />
+                        <span className="text-body">Reverse item two</span>
+                      </div>
+                    </Card>
+                  </MarqueeItem>
+                  <MarqueeItem>
+                    <Card variant="filled" className="w-full">
+                      <div className="flex items-center gap-3">
+                        <Icon icon={Star} size="sm" color="brand" />
+                        <span className="text-body">Reverse item three</span>
+                      </div>
+                    </Card>
+                  </MarqueeItem>
+                  <MarqueeItem>
+                    <Card variant="filled" className="w-full">
+                      <div className="flex items-center gap-3">
+                        <Icon icon={Star} size="sm" color="brand" />
+                        <span className="text-body">Reverse item four</span>
+                      </div>
+                    </Card>
+                  </MarqueeItem>
+                </Marquee>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Section>
+
       {/* Card */}
       <Section title="Card">
         <p className="text-p-lg text-gray-600 mb-8">
@@ -1532,6 +1693,11 @@ export default function DesignSystemPage() {
                 name: 'InlineVideoBlock',
                 description: 'Embedded video with lazy loading and autoplay on scroll',
                 props: ['videoFile', 'videoUrl', 'poster', 'aspectRatio', 'autoplayOnScroll'],
+              },
+              {
+                name: 'MarqueeBlock',
+                description: 'Infinite scrolling content with horizontal/vertical orientation',
+                props: ['items', 'orientation', 'reverse', 'pauseOnHover', 'fadeEdges', 'duration', 'gap'],
               },
             ].map((component) => (
               <div key={component.name} className="border border-gray-200 rounded-lg p-6">

@@ -17,6 +17,7 @@ import SliderBlock from './SliderBlock'
 import TabsBlock from './TabsBlock'
 import ModalBlock from './ModalBlock'
 import InlineVideoBlock from './InlineVideoBlock'
+import MarqueeBlock from './MarqueeBlock'
 
 type ContentBlocksType = {
   [key: string]: React.FC<any>
@@ -49,6 +50,7 @@ const ContentBlocks: ContentBlocksType = {
   tabsBlock: TabsBlock,
   modalBlock: ModalBlock,
   inlineVideoBlock: InlineVideoBlock,
+  marqueeBlock: MarqueeBlock,
 }
 
 export default function ContentBlockRenderer({

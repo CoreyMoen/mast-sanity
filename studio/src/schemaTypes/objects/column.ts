@@ -37,6 +37,7 @@ export const column = defineType({
         {type: 'tabsBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
         {type: 'modalBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
         {type: 'inlineVideoBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
+        {type: 'marqueeBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
       ],
       group: 'content',
     }),

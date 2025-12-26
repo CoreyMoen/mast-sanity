@@ -30,6 +30,7 @@ import {sliderBlock} from './objects/sliderBlock'
 import {tabsBlock} from './objects/tabsBlock'
 import {modalBlock} from './objects/modalBlock'
 import {inlineVideoBlock} from './objects/inlineVideoBlock'
+import {marqueeBlock} from './objects/marqueeBlock'
 
 // Export an array of all the schema types.  This is used in the Sanity Studio configuration. https://www.sanity.io/docs/schema-types
 
@@ -64,6 +65,7 @@ export const schemaTypes = [
   tabsBlock,
   modalBlock,
   inlineVideoBlock,
+  marqueeBlock,
   column,
   row,
   section,
