@@ -9,6 +9,7 @@ import DividerBlock from './DividerBlock'
 import CardBlock from './CardBlock'
 import EyebrowBlock from './EyebrowBlock'
 import IconBlock from './IconBlock'
+import AccordionBlock from './AccordionBlock'
 import Row from './Row'
 import BreadcrumbBlock from './BreadcrumbBlock'
 import TableBlock from './TableBlock'
@@ -40,6 +41,7 @@ const ContentBlocks: ContentBlocksType = {
   cardBlock: CardBlock,
   eyebrowBlock: EyebrowBlock,
   iconBlock: IconBlock,
+  accordionBlock: AccordionBlock,
   row: Row,
   breadcrumbBlock: BreadcrumbBlock,
   tableBlock: TableBlock,

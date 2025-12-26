@@ -24,6 +24,7 @@ import {eyebrowBlock} from './objects/eyebrowBlock'
 import {breadcrumbBlock} from './objects/breadcrumbBlock'
 import {tableBlock} from './objects/tableBlock'
 import {iconBlock} from './objects/iconBlock'
+import {accordionBlock} from './objects/accordionBlock'
 // Interactive blocks
 import {sliderBlock} from './objects/sliderBlock'
 import {tabsBlock} from './objects/tabsBlock'
@@ -58,6 +59,7 @@ export const schemaTypes = [
   breadcrumbBlock,
   tableBlock,
   iconBlock,
+  accordionBlock,
   sliderBlock,
   tabsBlock,
   modalBlock,

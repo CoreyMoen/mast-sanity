@@ -1,5 +1,6 @@
 import {stegaClean} from 'next-sanity'
 import {cn} from '@/lib/utils'
+import {Icon, type IconSize, type IconColor} from '@/app/components/ui/icon'
 import {
   CheckCircle,
   Target,
@@ -56,7 +57,7 @@ interface IconBlockProps {
     _type: string
     icon?: string
     size?: 'sm' | 'md' | 'lg' | 'xl'
-    color?: 'primary' | 'muted' | 'accent'
+    color?: 'inherit' | 'brand' | 'blue'
     marginBottom?: '0' | 'sm' | 'md' | 'lg'
   }
   index: number
@@ -112,21 +113,6 @@ const iconMap: Record<string, PhosphorIcon> = {
   boat: Boat,
 }
 
-// Size classes matching Mast framework
-const sizeClasses: Record<string, string> = {
-  sm: 'w-4 h-4',
-  md: 'w-6 h-6',
-  lg: 'w-8 h-8',
-  xl: 'w-12 h-12',
-}
-
-// Color classes
-const colorClasses: Record<string, string> = {
-  primary: 'text-foreground',
-  muted: 'text-muted-foreground',
-  accent: 'text-accent-foreground',
-}
-
 // Margin bottom classes
 const marginClasses: Record<string, string> = {
   '0': 'mb-0',
@@ -136,12 +122,12 @@ const marginClasses: Record<string, string> = {
 }
 
 export default function IconBlock({block}: IconBlockProps) {
-  const {icon = 'check-circle', size = 'md', color = 'primary', marginBottom = 'sm'} = block
+  const {icon = 'check-circle', size = 'md', color = 'inherit', marginBottom = 'sm'} = block
 
   // Clean stega encoding
   const cleanIcon = stegaClean(icon)
-  const cleanSize = stegaClean(size) as 'sm' | 'md' | 'lg' | 'xl'
-  const cleanColor = stegaClean(color) as 'primary' | 'muted' | 'accent'
+  const cleanSize = stegaClean(size) as IconSize
+  const cleanColor = stegaClean(color) as IconColor
   const cleanMargin = stegaClean(marginBottom) as '0' | 'sm' | 'md' | 'lg'
 
   const IconComponent = iconMap[cleanIcon]
@@ -152,13 +138,7 @@ export default function IconBlock({block}: IconBlockProps) {
 
   return (
     <div className={cn(marginClasses[cleanMargin] || marginClasses.sm)}>
-      <IconComponent
-        className={cn(
-          sizeClasses[cleanSize] || sizeClasses.md,
-          colorClasses[cleanColor] || colorClasses.primary
-        )}
-        weight="regular"
-      />
+      <Icon icon={IconComponent} size={cleanSize} color={cleanColor} />
     </div>
   )
 }

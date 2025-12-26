@@ -475,27 +475,28 @@ export default function DesignSystemPage() {
       {/* Accordion */}
       <Section title="Accordion">
         <p className="text-p-lg text-gray-600 mb-8">
-          Collapsible content sections. Supports single or multiple open items, and can start with items open.
+          Collapsible content sections built with native HTML details/summary elements.
+          Features a plus icon that rotates to an X when open, matching the Mast framework.
         </p>
         <div className="space-y-8">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Single (collapsible)</span>
-            <Accordion type="single" collapsible className="w-full max-w-xl">
-              <AccordionItem value="item-1">
+            <span className="text-p-sm text-gray-500 mb-4 block">Single open at a time</span>
+            <Accordion allowMultiple={false} className="w-full max-w-xl">
+              <AccordionItem>
                 <AccordionTrigger>What is fluid typography?</AccordionTrigger>
                 <AccordionContent>
                   Fluid typography uses CSS clamp() to smoothly scale font sizes between a minimum and maximum
                   value based on the viewport width, eliminating abrupt size changes at breakpoints.
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="item-2">
+              <AccordionItem>
                 <AccordionTrigger>How does the container work?</AccordionTrigger>
                 <AccordionContent>
                   The container has a max-width of 90rem (1440px) with 6vw responsive gutters on each side.
                   Below the max-width, it fills 100% of the viewport minus the gutters.
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="item-3">
+              <AccordionItem>
                 <AccordionTrigger>What icon library is used?</AccordionTrigger>
                 <AccordionContent>
                   We use Phosphor Icons, a flexible icon family with multiple weights (thin, light, regular,
@@ -506,15 +507,15 @@ export default function DesignSystemPage() {
           </div>
           <div>
             <span className="text-p-sm text-gray-500 mb-4 block">With default open item</span>
-            <Accordion type="single" collapsible defaultValue="open-item" className="w-full max-w-xl">
-              <AccordionItem value="open-item">
+            <Accordion allowMultiple={false} className="w-full max-w-xl">
+              <AccordionItem defaultOpen>
                 <AccordionTrigger>This starts open</AccordionTrigger>
                 <AccordionContent>
-                  Use the defaultValue prop to specify which item should be open by default.
+                  Use the defaultOpen prop on AccordionItem to specify which item should be open by default.
                   This is useful for FAQ sections where you want to highlight the first answer.
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="closed-item">
+              <AccordionItem>
                 <AccordionTrigger>This starts closed</AccordionTrigger>
                 <AccordionContent>
                   Other items remain closed until clicked.
@@ -524,14 +525,14 @@ export default function DesignSystemPage() {
           </div>
           <div>
             <span className="text-p-sm text-gray-500 mb-4 block">Multiple open at once</span>
-            <Accordion type="multiple" className="w-full max-w-xl">
-              <AccordionItem value="multi-1">
+            <Accordion allowMultiple className="w-full max-w-xl">
+              <AccordionItem>
                 <AccordionTrigger>First section</AccordionTrigger>
                 <AccordionContent>
-                  With type=&quot;multiple&quot;, multiple sections can be open simultaneously.
+                  With allowMultiple=true, multiple sections can be open simultaneously.
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="multi-2">
+              <AccordionItem>
                 <AccordionTrigger>Second section</AccordionTrigger>
                 <AccordionContent>
                   Click to open this while keeping the first one open.

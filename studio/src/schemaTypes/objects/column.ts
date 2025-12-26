@@ -30,6 +30,7 @@ export const column = defineType({
         {type: 'cardBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
         {type: 'eyebrowBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
         {type: 'iconBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
+        {type: 'accordionBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
         {type: 'breadcrumbBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
         {type: 'tableBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
         {type: 'sliderBlock', options: {modal: {type: 'dialog', width: 'auto'}}},

@@ -91,12 +91,14 @@ export const iconBlock = defineType({
       type: 'string',
       options: {
         list: [
-          {title: 'Primary (inherit)', value: 'primary'},
-          {title: 'Muted', value: 'muted'},
-          {title: 'Accent', value: 'accent'},
+          {title: 'Inherit', value: 'inherit'},
+          {title: 'Brand', value: 'brand'},
+          {title: 'Blue', value: 'blue'},
+          {title: 'Black', value: 'black'},
+          {title: 'Gray', value: 'gray'},
         ],
       },
-      initialValue: 'primary',
+      initialValue: 'inherit',
     }),
     defineField({
       name: 'marginBottom',
