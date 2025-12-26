@@ -3,10 +3,13 @@
 import * as React from 'react'
 import useEmblaCarousel from 'embla-carousel-react'
 import Autoplay from 'embla-carousel-autoplay'
+import Fade from 'embla-carousel-fade'
 import {CaretLeft, CaretRight} from '@phosphor-icons/react'
 import {cn} from '@/lib/utils'
 
 type SlidesPerView = 1 | 2 | 3 | 4 | 5 | 6
+type NavigationPosition = 'below' | 'overlay-center' | 'overlay-edges' | 'sides'
+type SlideEffect = 'slide' | 'fade'
 
 interface SliderProps {
   children: React.ReactNode
@@ -18,7 +21,12 @@ interface SliderProps {
   autoplayDelay?: number
   loop?: boolean
   showNavigation?: boolean
+  navigationPosition?: NavigationPosition
   showPagination?: boolean
+  effect?: SlideEffect
+  speed?: number
+  centeredSlides?: boolean
+  overflowVisible?: boolean
   className?: string
 }
 
@@ -40,27 +48,38 @@ export function Slider({
   autoplayDelay = 4000,
   loop = false,
   showNavigation = true,
+  navigationPosition = 'below',
   showPagination = true,
+  effect = 'slide',
+  speed = 500,
+  centeredSlides = false,
+  overflowVisible = false,
   className,
 }: SliderProps) {
   const plugins = React.useMemo(() => {
+    const pluginList = []
     if (autoplay) {
-      return [
+      pluginList.push(
         Autoplay({
           delay: autoplayDelay,
           stopOnInteraction: false,
           stopOnMouseEnter: true,
-        }),
-      ]
+        })
+      )
     }
-    return []
-  }, [autoplay, autoplayDelay])
+    if (effect === 'fade') {
+      pluginList.push(Fade())
+    }
+    return pluginList
+  }, [autoplay, autoplayDelay, effect])
 
   const [emblaRef, emblaApi] = useEmblaCarousel(
     {
       loop,
-      align: 'start',
+      align: centeredSlides ? 'center' : 'start',
       slidesToScroll: 1,
+      duration: speed,
+      containScroll: centeredSlides ? false : 'trimSnaps',
     },
     plugins
   )
@@ -93,14 +112,68 @@ export function Slider({
     }
   }, [emblaApi, onSelect])
 
-  // Calculate slide width based on breakpoint
-  const slideWidthDesktop = `calc(${100 / slidesPerViewDesktop}% - ${gap === '0' ? '0px' : `var(--gap) * ${(slidesPerViewDesktop - 1) / slidesPerViewDesktop}`})`
-  const slideWidthTablet = `calc(${100 / slidesPerViewTablet}% - ${gap === '0' ? '0px' : `var(--gap) * ${(slidesPerViewTablet - 1) / slidesPerViewTablet}`})`
-  const slideWidthMobile = `calc(${100 / slidesPerViewMobile}% - ${gap === '0' ? '0px' : `var(--gap) * ${(slidesPerViewMobile - 1) / slidesPerViewMobile}`})`
+  // Navigation button component
+  const NavButton = ({
+    direction,
+    onClick,
+    disabled,
+  }: {
+    direction: 'prev' | 'next'
+    onClick: () => void
+    disabled: boolean
+  }) => (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={cn(
+        'flex h-10 w-10 items-center justify-center rounded-full border transition-all',
+        navigationPosition.startsWith('overlay')
+          ? 'border-white/30 bg-white/90 backdrop-blur-sm hover:bg-white disabled:bg-white/50'
+          : 'border-gray-200 bg-white hover:border-gray-400 hover:bg-gray-50',
+        'disabled:opacity-40 disabled:cursor-not-allowed'
+      )}
+      aria-label={direction === 'prev' ? 'Previous slide' : 'Next slide'}
+    >
+      {direction === 'prev' ? (
+        <CaretLeft className="h-5 w-5" weight="bold" />
+      ) : (
+        <CaretRight className="h-5 w-5" weight="bold" />
+      )}
+    </button>
+  )
+
+  // Pagination component
+  const Pagination = () => {
+    if (!showPagination || scrollSnaps.length <= 1) return null
+    return (
+      <div className="flex items-center gap-2">
+        {scrollSnaps.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => scrollTo(index)}
+            className={cn(
+              'h-2 w-2 rounded-full transition-all',
+              index === selectedIndex ? 'bg-brand w-4' : 'bg-gray-300 hover:bg-gray-400'
+            )}
+            aria-label={`Go to slide ${index + 1}`}
+            aria-current={index === selectedIndex ? 'true' : 'false'}
+          />
+        ))}
+      </div>
+    )
+  }
+
+  // Determine if navigation is overlay style
+  const isOverlay = navigationPosition.startsWith('overlay')
+  const isSides = navigationPosition === 'sides'
 
   return (
     <div
-      className={cn('relative', className)}
+      className={cn(
+        'relative',
+        isSides && 'px-14', // Add padding for side navigation
+        className
+      )}
       style={
         {
           '--slides-desktop': slidesPerViewDesktop,
@@ -110,7 +183,14 @@ export function Slider({
         } as React.CSSProperties
       }
     >
-      <div className="overflow-hidden" ref={emblaRef}>
+      {/* Side Navigation - Left */}
+      {showNavigation && isSides && (
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10">
+          <NavButton direction="prev" onClick={scrollPrev} disabled={prevBtnDisabled} />
+        </div>
+      )}
+
+      <div className={cn(overflowVisible ? 'overflow-visible' : 'overflow-hidden')} ref={emblaRef}>
         <div className={cn('flex', gapClasses[gap])}>
           {React.Children.map(children, (child, index) => (
             <div
@@ -138,52 +218,54 @@ export function Slider({
         </div>
       </div>
 
-      {/* Navigation Arrows */}
-      {showNavigation && (
-        <div className="flex items-center justify-center gap-2 mt-6">
-          <button
-            onClick={scrollPrev}
-            disabled={prevBtnDisabled}
-            className={cn(
-              'flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white transition-all',
-              'hover:border-gray-400 hover:bg-gray-50',
-              'disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-gray-200 disabled:hover:bg-white'
-            )}
-            aria-label="Previous slide"
-          >
-            <CaretLeft className="h-5 w-5" weight="bold" />
-          </button>
+      {/* Side Navigation - Right */}
+      {showNavigation && isSides && (
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10">
+          <NavButton direction="next" onClick={scrollNext} disabled={nextBtnDisabled} />
+        </div>
+      )}
 
-          {/* Pagination dots */}
-          {showPagination && scrollSnaps.length > 1 && (
-            <div className="flex items-center gap-2 mx-4">
-              {scrollSnaps.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => scrollTo(index)}
-                  className={cn(
-                    'h-2 w-2 rounded-full transition-all',
-                    index === selectedIndex ? 'bg-brand w-4' : 'bg-gray-300 hover:bg-gray-400'
-                  )}
-                  aria-label={`Go to slide ${index + 1}`}
-                  aria-current={index === selectedIndex ? 'true' : 'false'}
-                />
-              ))}
+      {/* Overlay Navigation - Center */}
+      {showNavigation && navigationPosition === 'overlay-center' && (
+        <div className="absolute inset-x-0 bottom-4 flex items-center justify-center gap-4 z-10">
+          <NavButton direction="prev" onClick={scrollPrev} disabled={prevBtnDisabled} />
+          <Pagination />
+          <NavButton direction="next" onClick={scrollNext} disabled={nextBtnDisabled} />
+        </div>
+      )}
+
+      {/* Overlay Navigation - Edges */}
+      {showNavigation && navigationPosition === 'overlay-edges' && (
+        <>
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+            <NavButton direction="prev" onClick={scrollPrev} disabled={prevBtnDisabled} />
+          </div>
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
+            <NavButton direction="next" onClick={scrollNext} disabled={nextBtnDisabled} />
+          </div>
+          {showPagination && (
+            <div className="absolute inset-x-0 bottom-4 flex justify-center z-10">
+              <Pagination />
             </div>
           )}
+        </>
+      )}
 
-          <button
-            onClick={scrollNext}
-            disabled={nextBtnDisabled}
-            className={cn(
-              'flex h-10 w-10 items-center justify-center rounded-full border border-gray-200 bg-white transition-all',
-              'hover:border-gray-400 hover:bg-gray-50',
-              'disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:border-gray-200 disabled:hover:bg-white'
-            )}
-            aria-label="Next slide"
-          >
-            <CaretRight className="h-5 w-5" weight="bold" />
-          </button>
+      {/* Below Navigation (default) */}
+      {showNavigation && navigationPosition === 'below' && (
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <NavButton direction="prev" onClick={scrollPrev} disabled={prevBtnDisabled} />
+          <div className="mx-4">
+            <Pagination />
+          </div>
+          <NavButton direction="next" onClick={scrollNext} disabled={nextBtnDisabled} />
+        </div>
+      )}
+
+      {/* Pagination only (no navigation) */}
+      {!showNavigation && showPagination && (
+        <div className="flex justify-center mt-6">
+          <Pagination />
         </div>
       )}
     </div>

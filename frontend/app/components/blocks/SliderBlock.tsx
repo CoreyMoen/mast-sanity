@@ -15,6 +15,9 @@ interface Slide {
   content?: SlideContent[]
 }
 
+type NavigationPosition = 'below' | 'overlay-center' | 'overlay-edges' | 'sides'
+type SlideEffect = 'slide' | 'fade'
+
 interface SliderBlockProps {
   slides?: Slide[]
   slidesPerViewDesktop?: 1 | 2 | 3 | 4 | 5 | 6
@@ -25,7 +28,12 @@ interface SliderBlockProps {
   autoplayDelay?: number
   loop?: boolean
   showNavigation?: boolean
+  navigationPosition?: NavigationPosition
   showPagination?: boolean
+  effect?: SlideEffect
+  speed?: number
+  centeredSlides?: boolean
+  overflowVisible?: boolean
 }
 
 export default function SliderBlock({
@@ -38,7 +46,12 @@ export default function SliderBlock({
   autoplayDelay = 4000,
   loop = false,
   showNavigation = true,
+  navigationPosition = 'below',
   showPagination = true,
+  effect = 'slide',
+  speed = 500,
+  centeredSlides = false,
+  overflowVisible = false,
 }: SliderBlockProps) {
   if (!slides || slides.length === 0) return null
 
@@ -53,7 +66,12 @@ export default function SliderBlock({
         autoplayDelay={stegaClean(autoplayDelay)}
         loop={stegaClean(loop)}
         showNavigation={stegaClean(showNavigation)}
+        navigationPosition={stegaClean(navigationPosition) as NavigationPosition}
         showPagination={stegaClean(showPagination)}
+        effect={stegaClean(effect) as SlideEffect}
+        speed={stegaClean(speed)}
+        centeredSlides={stegaClean(centeredSlides)}
+        overflowVisible={stegaClean(overflowVisible)}
       >
         {slides.map((slide) => (
           <SliderSlide key={slide._key}>

@@ -795,17 +795,78 @@ export default function DesignSystemPage() {
       {/* Slider */}
       <Section title="Slider / Carousel">
         <p className="text-p-lg text-gray-600 mb-8">
-          Responsive carousel with customizable slides per view, gap, and autoplay options.
+          Responsive carousel with customizable slides per view, gap, navigation position, effects, and autoplay options.
+          Built with Embla Carousel to match Mast/Swiper.js capabilities.
         </p>
-        <div className="space-y-8">
+        <div className="space-y-12">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Default (3 slides desktop, 2 tablet, 1 mobile)</span>
+            <span className="text-p-sm text-gray-500 mb-4 block">Default (3 slides desktop, navigation below)</span>
             <Slider slidesPerViewDesktop={3} slidesPerViewTablet={2} slidesPerViewMobile={1} gap="4">
               {[1, 2, 3, 4, 5].map((i) => (
                 <SliderSlide key={i}>
                   <Card variant="filled" className="h-full">
                     <h4 className="text-h4 mb-2">Slide {i}</h4>
                     <p className="text-body text-gray-600">This is content inside slide {i}</p>
+                  </Card>
+                </SliderSlide>
+              ))}
+            </Slider>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Full-width with Overlay Navigation (Center)</span>
+            <Slider
+              slidesPerViewDesktop={1}
+              slidesPerViewMobile={1}
+              gap="0"
+              autoplay
+              autoplayDelay={4000}
+              loop
+              navigationPosition="overlay-center"
+              effect="fade"
+              speed={1200}
+            >
+              {[1, 2, 3].map((i) => (
+                <SliderSlide key={i}>
+                  <div className="aspect-[16/9] bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
+                    <div className="text-center text-white">
+                      <h3 className="text-h2 mb-2">Full-Width Slide {i}</h3>
+                      <p className="text-p-lg opacity-80">Fade effect with overlay navigation</p>
+                    </div>
+                  </div>
+                </SliderSlide>
+              ))}
+            </Slider>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Overlay Navigation (Edges) with Images</span>
+            <Slider
+              slidesPerViewDesktop={1}
+              slidesPerViewMobile={1}
+              gap="0"
+              loop
+              navigationPosition="overlay-edges"
+            >
+              {[1, 2, 3, 4].map((i) => (
+                <SliderSlide key={i}>
+                  <div className="aspect-[21/9] bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                    <div className="text-center text-white">
+                      <h3 className="text-h3 mb-2">Hero Slide {i}</h3>
+                      <p className="text-body opacity-80">Navigation arrows on left/right edges</p>
+                    </div>
+                  </div>
+                </SliderSlide>
+              ))}
+            </Slider>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Side Navigation (Outside Slider)</span>
+            <Slider slidesPerViewDesktop={2} slidesPerViewMobile={1} gap="6" navigationPosition="sides">
+              {[1, 2, 3, 4].map((i) => (
+                <SliderSlide key={i}>
+                  <Card variant="outline" className="h-full">
+                    <Icon icon={Star} size="lg" color="brand" className="mb-4" />
+                    <h4 className="text-h5 mb-2">Feature {i}</h4>
+                    <p className="text-body text-gray-600">Navigation arrows positioned outside the slider</p>
                   </Card>
                 </SliderSlide>
               ))}
