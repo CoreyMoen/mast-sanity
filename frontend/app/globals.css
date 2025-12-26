@@ -3,6 +3,56 @@
 @plugin "@tailwindcss/typography";
 
 /* ==========================================================================
+   COLOR SCHEME & DARK MODE SUPPORT
+   Uses CSS light-dark() function for automatic OS preference matching
+   ========================================================================== */
+
+html {
+  color-scheme: light dark;
+}
+
+/* Force light mode when data-theme="light" */
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* Force dark mode when data-theme="dark" */
+html[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Semantic color variables using light-dark() */
+:root {
+  /* Primary semantic colors */
+  --primary-background: light-dark(#ffffff, #1d1c1a);
+  --primary-foreground: light-dark(#1d1c1a, #ffffff);
+  --primary-border: light-dark(#cccabf, #474641);
+
+  /* Muted/secondary backgrounds */
+  --muted-background: light-dark(#f0eee6, #292825);
+  --muted-foreground: light-dark(#6b6961, #9a9890);
+
+  /* Card backgrounds */
+  --card-background: light-dark(#ffffff, #292825);
+  --card-foreground: light-dark(#1d1c1a, #ffffff);
+  --card-border: light-dark(#e5e3db, #353430);
+
+  /* Input/form elements */
+  --input-background: light-dark(#ffffff, #292825);
+  --input-border: light-dark(#cccabf, #474641);
+
+  /* Footer specific */
+  --footer-background: light-dark(#ffffff, #1d1c1a);
+  --footer-border: light-dark(#e5e3db, #353430);
+}
+
+/* Apply semantic colors to base elements */
+html {
+  background-color: var(--primary-background);
+  color: var(--primary-foreground);
+}
+
+/* ==========================================================================
    CONTAINER SYSTEM (Mast-style)
    Max-width: 90rem (1440px) with 6vw gutters, fluid below max
    ========================================================================== */

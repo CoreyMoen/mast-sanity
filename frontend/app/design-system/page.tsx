@@ -11,6 +11,7 @@ import {Tabs, TabsList, TabsTrigger, TabsContent} from '@/app/components/ui/tabs
 import {Modal, ModalTrigger, ModalContent, ModalHeader, ModalTitle, ModalBody, ModalFooter, VideoModalContent} from '@/app/components/ui/modal'
 import {InlineVideo} from '@/app/components/ui/inline-video'
 import {Marquee, MarqueeItem} from '@/app/components/ui/marquee'
+import {ThemeToggle, ThemeToggleCompact} from '@/app/components/ui/theme-toggle'
 import {
   ArrowRight,
   ArrowUpRight,
@@ -1192,6 +1193,43 @@ export default function DesignSystemPage() {
             <p className="text-p-sm text-gray-500 mt-2">
               YouTube videos automatically play when opened and stop when closed.
             </p>
+          </div>
+        </div>
+      </Section>
+
+      {/* Theme Toggle */}
+      <Section title="Theme Toggle">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Dark/light mode toggle with automatic OS preference detection and localStorage persistence.
+          Uses CSS light-dark() function for smooth theme transitions.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Switch Toggle with Labels</span>
+            <div className="flex items-center gap-8">
+              <ThemeToggle showLabels />
+              <p className="text-p-sm text-gray-500">
+                Toggle shows sun/moon icons based on current theme
+              </p>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Switch Toggle without Labels</span>
+            <div className="flex items-center gap-8">
+              <ThemeToggle />
+              <p className="text-p-sm text-gray-500">
+                Minimal switch-only variant
+              </p>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Compact Icon Button</span>
+            <div className="flex items-center gap-8">
+              <ThemeToggleCompact />
+              <p className="text-p-sm text-gray-500">
+                Simple icon button that toggles between sun and moon
+              </p>
+            </div>
           </div>
         </div>
       </Section>
