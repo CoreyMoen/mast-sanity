@@ -8,6 +8,8 @@ import SpacerBlock from './SpacerBlock'
 import DividerBlock from './DividerBlock'
 import CardBlock from './CardBlock'
 import EyebrowBlock from './EyebrowBlock'
+import IconBlock from './IconBlock'
+import Row from './Row'
 import BreadcrumbBlock from './BreadcrumbBlock'
 import TableBlock from './TableBlock'
 import SliderBlock from './SliderBlock'
@@ -37,6 +39,8 @@ const ContentBlocks: ContentBlocksType = {
   dividerBlock: DividerBlock,
   cardBlock: CardBlock,
   eyebrowBlock: EyebrowBlock,
+  iconBlock: IconBlock,
+  row: Row,
   breadcrumbBlock: BreadcrumbBlock,
   tableBlock: TableBlock,
   sliderBlock: SliderBlock,

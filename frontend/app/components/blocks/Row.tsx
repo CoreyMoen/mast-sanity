@@ -13,9 +13,9 @@ interface RowProps {
     reverseOnMobile?: boolean
   }
   index: number
-  pageId: string
-  pageType: string
-  sectionKey: string
+  pageId?: string
+  pageType?: string
+  sectionKey?: string
 }
 
 // Horizontal alignment (justify-content)

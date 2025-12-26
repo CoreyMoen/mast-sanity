@@ -25,6 +25,7 @@
     "import-sample-data": "cd studio && sanity dataset import sample-data.tar.gz --replace",
     "lint": "npm run lint --workspace=frontend",
     "seed-layouts": "npx tsx scripts/seed-layout-pages.ts",
+    "seed-with-images": "npx tsx scripts/upload-images-and-seed.ts",
     "type-check": "npm run type-check --workspaces"
   },
   "prettier": "@sanity/prettier-config",

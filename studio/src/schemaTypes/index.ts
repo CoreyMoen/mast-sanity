@@ -23,6 +23,7 @@ import {cardBlock} from './objects/cardBlock'
 import {eyebrowBlock} from './objects/eyebrowBlock'
 import {breadcrumbBlock} from './objects/breadcrumbBlock'
 import {tableBlock} from './objects/tableBlock'
+import {iconBlock} from './objects/iconBlock'
 // Interactive blocks
 import {sliderBlock} from './objects/sliderBlock'
 import {tabsBlock} from './objects/tabsBlock'
@@ -56,6 +57,7 @@ export const schemaTypes = [
   eyebrowBlock,
   breadcrumbBlock,
   tableBlock,
+  iconBlock,
   sliderBlock,
   tabsBlock,
   modalBlock,
