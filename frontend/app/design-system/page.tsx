@@ -9,6 +9,9 @@ import {Table, TableHeader, TableBody, TableRow, TableHead, TableCell, TableCapt
 import {Slider, SliderSlide} from '@/app/components/ui/slider'
 import {Tabs, TabsList, TabsTrigger, TabsContent} from '@/app/components/ui/tabs'
 import {Modal, ModalTrigger, ModalContent, ModalHeader, ModalTitle, ModalBody, ModalFooter, VideoModalContent} from '@/app/components/ui/modal'
+import {InlineVideo} from '@/app/components/ui/inline-video'
+import {Marquee, MarqueeItem} from '@/app/components/ui/marquee'
+import {ThemeToggle, ThemeToggleCompact} from '@/app/components/ui/theme-toggle'
 import {
   ArrowRight,
   ArrowUpRight,
@@ -475,27 +478,28 @@ export default function DesignSystemPage() {
       {/* Accordion */}
       <Section title="Accordion">
         <p className="text-p-lg text-gray-600 mb-8">
-          Collapsible content sections. Supports single or multiple open items, and can start with items open.
+          Collapsible content sections built with native HTML details/summary elements.
+          Features a plus icon that rotates to an X when open, matching the Mast framework.
         </p>
         <div className="space-y-8">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Single (collapsible)</span>
-            <Accordion type="single" collapsible className="w-full max-w-xl">
-              <AccordionItem value="item-1">
+            <span className="text-p-sm text-gray-500 mb-4 block">Single open at a time</span>
+            <Accordion allowMultiple={false} className="w-full max-w-xl">
+              <AccordionItem>
                 <AccordionTrigger>What is fluid typography?</AccordionTrigger>
                 <AccordionContent>
                   Fluid typography uses CSS clamp() to smoothly scale font sizes between a minimum and maximum
                   value based on the viewport width, eliminating abrupt size changes at breakpoints.
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="item-2">
+              <AccordionItem>
                 <AccordionTrigger>How does the container work?</AccordionTrigger>
                 <AccordionContent>
                   The container has a max-width of 90rem (1440px) with 6vw responsive gutters on each side.
                   Below the max-width, it fills 100% of the viewport minus the gutters.
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="item-3">
+              <AccordionItem>
                 <AccordionTrigger>What icon library is used?</AccordionTrigger>
                 <AccordionContent>
                   We use Phosphor Icons, a flexible icon family with multiple weights (thin, light, regular,
@@ -506,15 +510,15 @@ export default function DesignSystemPage() {
           </div>
           <div>
             <span className="text-p-sm text-gray-500 mb-4 block">With default open item</span>
-            <Accordion type="single" collapsible defaultValue="open-item" className="w-full max-w-xl">
-              <AccordionItem value="open-item">
+            <Accordion allowMultiple={false} className="w-full max-w-xl">
+              <AccordionItem defaultOpen>
                 <AccordionTrigger>This starts open</AccordionTrigger>
                 <AccordionContent>
-                  Use the defaultValue prop to specify which item should be open by default.
+                  Use the defaultOpen prop on AccordionItem to specify which item should be open by default.
                   This is useful for FAQ sections where you want to highlight the first answer.
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="closed-item">
+              <AccordionItem>
                 <AccordionTrigger>This starts closed</AccordionTrigger>
                 <AccordionContent>
                   Other items remain closed until clicked.
@@ -524,14 +528,14 @@ export default function DesignSystemPage() {
           </div>
           <div>
             <span className="text-p-sm text-gray-500 mb-4 block">Multiple open at once</span>
-            <Accordion type="multiple" className="w-full max-w-xl">
-              <AccordionItem value="multi-1">
+            <Accordion allowMultiple className="w-full max-w-xl">
+              <AccordionItem>
                 <AccordionTrigger>First section</AccordionTrigger>
                 <AccordionContent>
-                  With type=&quot;multiple&quot;, multiple sections can be open simultaneously.
+                  With allowMultiple=true, multiple sections can be open simultaneously.
                 </AccordionContent>
               </AccordionItem>
-              <AccordionItem value="multi-2">
+              <AccordionItem>
                 <AccordionTrigger>Second section</AccordionTrigger>
                 <AccordionContent>
                   Click to open this while keeping the first one open.
@@ -794,17 +798,78 @@ export default function DesignSystemPage() {
       {/* Slider */}
       <Section title="Slider / Carousel">
         <p className="text-p-lg text-gray-600 mb-8">
-          Responsive carousel with customizable slides per view, gap, and autoplay options.
+          Responsive carousel with customizable slides per view, gap, navigation position, effects, and autoplay options.
+          Built with Embla Carousel to match Mast/Swiper.js capabilities.
         </p>
-        <div className="space-y-8">
+        <div className="space-y-12">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Default (3 slides desktop, 2 tablet, 1 mobile)</span>
+            <span className="text-p-sm text-gray-500 mb-4 block">Default (3 slides desktop, navigation below)</span>
             <Slider slidesPerViewDesktop={3} slidesPerViewTablet={2} slidesPerViewMobile={1} gap="4">
               {[1, 2, 3, 4, 5].map((i) => (
                 <SliderSlide key={i}>
                   <Card variant="filled" className="h-full">
                     <h4 className="text-h4 mb-2">Slide {i}</h4>
                     <p className="text-body text-gray-600">This is content inside slide {i}</p>
+                  </Card>
+                </SliderSlide>
+              ))}
+            </Slider>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Full-width with Overlay Navigation (Center)</span>
+            <Slider
+              slidesPerViewDesktop={1}
+              slidesPerViewMobile={1}
+              gap="0"
+              autoplay
+              autoplayDelay={4000}
+              loop
+              navigationPosition="overlay-center"
+              effect="fade"
+              speed={1200}
+            >
+              {[1, 2, 3].map((i) => (
+                <SliderSlide key={i}>
+                  <div className="aspect-[16/9] bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center">
+                    <div className="text-center text-white">
+                      <h3 className="text-h2 mb-2">Full-Width Slide {i}</h3>
+                      <p className="text-p-lg opacity-80">Fade effect with overlay navigation</p>
+                    </div>
+                  </div>
+                </SliderSlide>
+              ))}
+            </Slider>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Overlay Navigation (Edges) with Images</span>
+            <Slider
+              slidesPerViewDesktop={1}
+              slidesPerViewMobile={1}
+              gap="0"
+              loop
+              navigationPosition="overlay-edges"
+            >
+              {[1, 2, 3, 4].map((i) => (
+                <SliderSlide key={i}>
+                  <div className="aspect-[21/9] bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                    <div className="text-center text-white">
+                      <h3 className="text-h3 mb-2">Hero Slide {i}</h3>
+                      <p className="text-body opacity-80">Navigation arrows on left/right edges</p>
+                    </div>
+                  </div>
+                </SliderSlide>
+              ))}
+            </Slider>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Side Navigation (Outside Slider)</span>
+            <Slider slidesPerViewDesktop={2} slidesPerViewMobile={1} gap="6" navigationPosition="sides">
+              {[1, 2, 3, 4].map((i) => (
+                <SliderSlide key={i}>
+                  <Card variant="outline" className="h-full">
+                    <Icon icon={Star} size="lg" color="brand" className="mb-4" />
+                    <h4 className="text-h5 mb-2">Feature {i}</h4>
+                    <p className="text-body text-gray-600">Navigation arrows positioned outside the slider</p>
                   </Card>
                 </SliderSlide>
               ))}
@@ -830,11 +895,12 @@ export default function DesignSystemPage() {
       {/* Tabs */}
       <Section title="Tabs">
         <p className="text-p-lg text-gray-600 mb-8">
-          Tab navigation with horizontal/vertical orientation and optional autoplay.
+          Tab navigation with flexible menu positioning (above, below, left, right), optional autoplay
+          with progress indicator, and mobile dropdown support. Matches Mast framework tabs capabilities.
         </p>
-        <div className="space-y-8">
+        <div className="space-y-12">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Horizontal Tabs</span>
+            <span className="text-p-sm text-gray-500 mb-4 block">Horizontal Tabs (Menu Above - Default)</span>
             <Tabs defaultValue="tab1">
               <TabsList>
                 <TabsTrigger value="tab1">Overview</TabsTrigger>
@@ -868,23 +934,109 @@ export default function DesignSystemPage() {
             </Tabs>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Vertical Tabs with Autoplay</span>
-            <Tabs defaultValue="v1" orientation="vertical" autoplay autoplayDuration={4000}>
+            <span className="text-p-sm text-gray-500 mb-4 block">Menu Below Content</span>
+            <Tabs defaultValue="b1" menuPosition="below">
               <TabsList>
-                <TabsTrigger value="v1">Step 1</TabsTrigger>
-                <TabsTrigger value="v2">Step 2</TabsTrigger>
-                <TabsTrigger value="v3">Step 3</TabsTrigger>
+                <TabsTrigger value="b1">Tab 1</TabsTrigger>
+                <TabsTrigger value="b2">Tab 2</TabsTrigger>
+                <TabsTrigger value="b3">Tab 3</TabsTrigger>
               </TabsList>
-              <TabsContent value="v1">
+              <TabsContent value="b1">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <h4 className="text-h4 mb-2">Content First</h4>
+                  <p className="text-body text-gray-600">Menu positioned below the content area.</p>
+                </div>
+              </TabsContent>
+              <TabsContent value="b2">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <h4 className="text-h4 mb-2">Tab 2 Content</h4>
+                  <p className="text-body text-gray-600">Useful for bottom navigation patterns.</p>
+                </div>
+              </TabsContent>
+              <TabsContent value="b3">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <h4 className="text-h4 mb-2">Tab 3 Content</h4>
+                  <p className="text-body text-gray-600">Third tab with menu below.</p>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Menu Left of Content (Vertical Layout)</span>
+            <Tabs defaultValue="l1" menuPosition="left" orientation="vertical">
+              <TabsList>
+                <TabsTrigger value="l1">Dashboard</TabsTrigger>
+                <TabsTrigger value="l2">Analytics</TabsTrigger>
+                <TabsTrigger value="l3">Settings</TabsTrigger>
+              </TabsList>
+              <TabsContent value="l1">
+                <Card variant="filled">
+                  <h4 className="text-h4 mb-2">Dashboard</h4>
+                  <p className="text-body text-gray-600">
+                    Sidebar-style navigation with menu on the left, perfect for app-like layouts.
+                  </p>
+                </Card>
+              </TabsContent>
+              <TabsContent value="l2">
+                <Card variant="filled">
+                  <h4 className="text-h4 mb-2">Analytics</h4>
+                  <p className="text-body text-gray-600">View your analytics data here.</p>
+                </Card>
+              </TabsContent>
+              <TabsContent value="l3">
+                <Card variant="filled">
+                  <h4 className="text-h4 mb-2">Settings</h4>
+                  <p className="text-body text-gray-600">Configure your preferences.</p>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Menu Right of Content</span>
+            <Tabs defaultValue="r1" menuPosition="right" orientation="vertical">
+              <TabsList>
+                <TabsTrigger value="r1">Option A</TabsTrigger>
+                <TabsTrigger value="r2">Option B</TabsTrigger>
+                <TabsTrigger value="r3">Option C</TabsTrigger>
+              </TabsList>
+              <TabsContent value="r1">
+                <div className="bg-brand/10 border border-brand/20 rounded-lg p-6">
+                  <h4 className="text-h4 mb-2">Content on Left</h4>
+                  <p className="text-body text-gray-600">Menu positioned to the right of content.</p>
+                </div>
+              </TabsContent>
+              <TabsContent value="r2">
+                <div className="bg-brand/10 border border-brand/20 rounded-lg p-6">
+                  <h4 className="text-h4 mb-2">Option B Selected</h4>
+                  <p className="text-body text-gray-600">Alternative layout option.</p>
+                </div>
+              </TabsContent>
+              <TabsContent value="r3">
+                <div className="bg-brand/10 border border-brand/20 rounded-lg p-6">
+                  <h4 className="text-h4 mb-2">Option C Selected</h4>
+                  <p className="text-body text-gray-600">Third option content.</p>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Autoplay with Progress Indicator</span>
+            <Tabs defaultValue="a1" autoplay autoplayDuration={5000} showProgress>
+              <TabsList>
+                <TabsTrigger value="a1">Step 1</TabsTrigger>
+                <TabsTrigger value="a2">Step 2</TabsTrigger>
+                <TabsTrigger value="a3">Step 3</TabsTrigger>
+              </TabsList>
+              <TabsContent value="a1">
                 <div className="bg-gray-50 rounded-lg p-6">
                   <Eyebrow variant="pill" color="brand">Step 1</Eyebrow>
                   <h4 className="text-h4 mt-4 mb-2">Getting Started</h4>
                   <p className="text-body text-gray-600">
-                    Begin your journey with our comprehensive onboarding process.
+                    Watch the progress bar below the active tab. Autoplay cycles through tabs with a play/pause button.
                   </p>
                 </div>
               </TabsContent>
-              <TabsContent value="v2">
+              <TabsContent value="a2">
                 <div className="bg-gray-50 rounded-lg p-6">
                   <Eyebrow variant="pill" color="brand">Step 2</Eyebrow>
                   <h4 className="text-h4 mt-4 mb-2">Configuration</h4>
@@ -893,7 +1045,7 @@ export default function DesignSystemPage() {
                   </p>
                 </div>
               </TabsContent>
-              <TabsContent value="v3">
+              <TabsContent value="a3">
                 <div className="bg-gray-50 rounded-lg p-6">
                   <Eyebrow variant="pill" color="brand">Step 3</Eyebrow>
                   <h4 className="text-h4 mt-4 mb-2">Launch</h4>
@@ -901,6 +1053,78 @@ export default function DesignSystemPage() {
                     Go live and start seeing results immediately.
                   </p>
                 </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Vertical Tabs with Autoplay and Progress</span>
+            <Tabs defaultValue="v1" orientation="vertical" menuPosition="left" autoplay autoplayDuration={4000} showProgress>
+              <TabsList>
+                <TabsTrigger value="v1">Phase 1</TabsTrigger>
+                <TabsTrigger value="v2">Phase 2</TabsTrigger>
+                <TabsTrigger value="v3">Phase 3</TabsTrigger>
+              </TabsList>
+              <TabsContent value="v1">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <Icon icon={Target} size="lg" color="brand" className="mb-4" />
+                  <h4 className="text-h4 mb-2">Phase 1: Discovery</h4>
+                  <p className="text-body text-gray-600">
+                    Vertical progress indicator on the left side of active tab.
+                  </p>
+                </div>
+              </TabsContent>
+              <TabsContent value="v2">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <Icon icon={Lightning} size="lg" color="brand" className="mb-4" />
+                  <h4 className="text-h4 mb-2">Phase 2: Development</h4>
+                  <p className="text-body text-gray-600">
+                    Build and iterate on your solution.
+                  </p>
+                </div>
+              </TabsContent>
+              <TabsContent value="v3">
+                <div className="bg-gray-50 rounded-lg p-6">
+                  <Icon icon={Trophy} size="lg" color="brand" className="mb-4" />
+                  <h4 className="text-h4 mb-2">Phase 3: Launch</h4>
+                  <p className="text-body text-gray-600">
+                    Deploy and celebrate your success!
+                  </p>
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Mobile Dropdown (resize to mobile to see)</span>
+            <Tabs defaultValue="m1" mobileDropdown>
+              <TabsList>
+                <TabsTrigger value="m1">First Tab</TabsTrigger>
+                <TabsTrigger value="m2">Second Tab</TabsTrigger>
+                <TabsTrigger value="m3">Third Tab</TabsTrigger>
+              </TabsList>
+              <TabsContent value="m1">
+                <Card variant="outline">
+                  <h4 className="text-h4 mb-2">Mobile Dropdown Mode</h4>
+                  <p className="text-body text-gray-600">
+                    On mobile, tabs collapse into a dropdown menu for better usability.
+                    Resize your browser to see the effect.
+                  </p>
+                </Card>
+              </TabsContent>
+              <TabsContent value="m2">
+                <Card variant="outline">
+                  <h4 className="text-h4 mb-2">Second Tab Content</h4>
+                  <p className="text-body text-gray-600">
+                    Content for the second tab in mobile dropdown mode.
+                  </p>
+                </Card>
+              </TabsContent>
+              <TabsContent value="m3">
+                <Card variant="outline">
+                  <h4 className="text-h4 mb-2">Third Tab Content</h4>
+                  <p className="text-body text-gray-600">
+                    Content for the third tab in mobile dropdown mode.
+                  </p>
+                </Card>
               </TabsContent>
             </Tabs>
           </div>
@@ -969,6 +1193,288 @@ export default function DesignSystemPage() {
             <p className="text-p-sm text-gray-500 mt-2">
               YouTube videos automatically play when opened and stop when closed.
             </p>
+          </div>
+        </div>
+      </Section>
+
+      {/* Theme Toggle */}
+      <Section title="Theme Toggle">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Dark/light mode toggle with automatic OS preference detection and localStorage persistence.
+          Uses CSS light-dark() function for smooth theme transitions.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Switch Toggle with Labels</span>
+            <div className="flex items-center gap-8">
+              <ThemeToggle showLabels />
+              <p className="text-p-sm text-gray-500">
+                Toggle shows sun/moon icons based on current theme
+              </p>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Switch Toggle without Labels</span>
+            <div className="flex items-center gap-8">
+              <ThemeToggle />
+              <p className="text-p-sm text-gray-500">
+                Minimal switch-only variant
+              </p>
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Compact Icon Button</span>
+            <div className="flex items-center gap-8">
+              <ThemeToggleCompact />
+              <p className="text-p-sm text-gray-500">
+                Simple icon button that toggles between sun and moon
+              </p>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* Inline Video */}
+      <Section title="Inline Video">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Self-hosted video player with autoplay on scroll, poster image support, and play/pause controls.
+          Videos can be muted by default and loop continuously.
+        </p>
+        <div className="space-y-8">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">16:9 Aspect Ratio with Controls</span>
+            <div className="max-w-3xl">
+              <InlineVideo
+                src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+                aspectRatio="16/9"
+                autoplayOnScroll
+                loop
+                muted
+                showControls
+                controlPosition="bottom-right"
+              />
+            </div>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">21:9 Cinematic with Centered Play Button</span>
+            <InlineVideo
+              src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
+              aspectRatio="21/9"
+              autoplayOnScroll={false}
+              loop
+              muted
+              showControls
+              controlPosition="center"
+            />
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Aspect Ratio Options</span>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <InlineVideo
+                  src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+                  aspectRatio="16/9"
+                  autoplayOnScroll
+                  loop
+                  muted
+                  showControls={false}
+                />
+                <p className="text-p-sm text-gray-500 mt-2 text-center">16:9 (Video)</p>
+              </div>
+              <div>
+                <InlineVideo
+                  src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
+                  aspectRatio="4/3"
+                  autoplayOnScroll
+                  loop
+                  muted
+                  showControls={false}
+                />
+                <p className="text-p-sm text-gray-500 mt-2 text-center">4:3 (Classic)</p>
+              </div>
+              <div>
+                <InlineVideo
+                  src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4"
+                  aspectRatio="1/1"
+                  autoplayOnScroll
+                  loop
+                  muted
+                  showControls={false}
+                />
+                <p className="text-p-sm text-gray-500 mt-2 text-center">1:1 (Square)</p>
+              </div>
+              <div>
+                <InlineVideo
+                  src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4"
+                  aspectRatio="9/16"
+                  autoplayOnScroll
+                  loop
+                  muted
+                  showControls={false}
+                />
+                <p className="text-p-sm text-gray-500 mt-2 text-center">9:16 (Portrait)</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      {/* Marquee */}
+      <Section title="Marquee">
+        <p className="text-p-lg text-gray-600 mb-8">
+          Infinite scrolling content with horizontal or vertical orientation. Supports pause on hover,
+          fade edges, and reverse direction. Based on the Mast framework marquee component.
+        </p>
+        <div className="space-y-12">
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Horizontal Marquee (Default)</span>
+            <Marquee pauseOnHover duration={20} gap={32}>
+              <MarqueeItem>
+                <Card variant="filled" className="min-w-[200px]">
+                  <Icon icon={Star} size="md" color="brand" className="mb-2" />
+                  <h4 className="text-h5">Feature One</h4>
+                  <p className="text-p-sm text-gray-600">Seamless scrolling content</p>
+                </Card>
+              </MarqueeItem>
+              <MarqueeItem>
+                <Card variant="filled" className="min-w-[200px]">
+                  <Icon icon={Heart} size="md" color="brand" className="mb-2" />
+                  <h4 className="text-h5">Feature Two</h4>
+                  <p className="text-p-sm text-gray-600">Pause on hover enabled</p>
+                </Card>
+              </MarqueeItem>
+              <MarqueeItem>
+                <Card variant="filled" className="min-w-[200px]">
+                  <Icon icon={Lightning} size="md" color="brand" className="mb-2" />
+                  <h4 className="text-h5">Feature Three</h4>
+                  <p className="text-p-sm text-gray-600">Configurable speed</p>
+                </Card>
+              </MarqueeItem>
+              <MarqueeItem>
+                <Card variant="filled" className="min-w-[200px]">
+                  <Icon icon={Target} size="md" color="brand" className="mb-2" />
+                  <h4 className="text-h5">Feature Four</h4>
+                  <p className="text-p-sm text-gray-600">Adjustable gap spacing</p>
+                </Card>
+              </MarqueeItem>
+              <MarqueeItem>
+                <Card variant="filled" className="min-w-[200px]">
+                  <Icon icon={Trophy} size="md" color="brand" className="mb-2" />
+                  <h4 className="text-h5">Feature Five</h4>
+                  <p className="text-p-sm text-gray-600">Infinite loop animation</p>
+                </Card>
+              </MarqueeItem>
+            </Marquee>
+          </div>
+          <div>
+            <span className="text-p-sm text-gray-500 mb-4 block">Reverse Direction with Fade Edges</span>
+            <Marquee reverse fadeEdges pauseOnHover duration={25} gap={24}>
+              <MarqueeItem>
+                <div className="bg-gray-900 text-white px-6 py-3 rounded-full">
+                  <span className="text-p-lg font-medium">Brand Message One</span>
+                </div>
+              </MarqueeItem>
+              <MarqueeItem>
+                <div className="bg-brand text-white px-6 py-3 rounded-full">
+                  <span className="text-p-lg font-medium">Brand Message Two</span>
+                </div>
+              </MarqueeItem>
+              <MarqueeItem>
+                <div className="bg-blue text-white px-6 py-3 rounded-full">
+                  <span className="text-p-lg font-medium">Brand Message Three</span>
+                </div>
+              </MarqueeItem>
+              <MarqueeItem>
+                <div className="bg-gray-900 text-white px-6 py-3 rounded-full">
+                  <span className="text-p-lg font-medium">Brand Message Four</span>
+                </div>
+              </MarqueeItem>
+              <MarqueeItem>
+                <div className="bg-brand text-white px-6 py-3 rounded-full">
+                  <span className="text-p-lg font-medium">Brand Message Five</span>
+                </div>
+              </MarqueeItem>
+            </Marquee>
+          </div>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div>
+              <span className="text-p-sm text-gray-500 mb-4 block">Vertical Marquee (Scrolling Down)</span>
+              <div className="h-[300px] overflow-hidden rounded-lg border border-gray-200">
+                <Marquee orientation="vertical" pauseOnHover duration={15} gap={16}>
+                  <MarqueeItem>
+                    <Card variant="outline" className="w-full">
+                      <div className="flex items-center gap-3">
+                        <Icon icon={CheckCircle} size="sm" color="brand" />
+                        <span className="text-body">Vertical item one</span>
+                      </div>
+                    </Card>
+                  </MarqueeItem>
+                  <MarqueeItem>
+                    <Card variant="outline" className="w-full">
+                      <div className="flex items-center gap-3">
+                        <Icon icon={CheckCircle} size="sm" color="brand" />
+                        <span className="text-body">Vertical item two</span>
+                      </div>
+                    </Card>
+                  </MarqueeItem>
+                  <MarqueeItem>
+                    <Card variant="outline" className="w-full">
+                      <div className="flex items-center gap-3">
+                        <Icon icon={CheckCircle} size="sm" color="brand" />
+                        <span className="text-body">Vertical item three</span>
+                      </div>
+                    </Card>
+                  </MarqueeItem>
+                  <MarqueeItem>
+                    <Card variant="outline" className="w-full">
+                      <div className="flex items-center gap-3">
+                        <Icon icon={CheckCircle} size="sm" color="brand" />
+                        <span className="text-body">Vertical item four</span>
+                      </div>
+                    </Card>
+                  </MarqueeItem>
+                </Marquee>
+              </div>
+            </div>
+            <div>
+              <span className="text-p-sm text-gray-500 mb-4 block">Vertical Reverse (Scrolling Up)</span>
+              <div className="h-[300px] overflow-hidden rounded-lg border border-gray-200">
+                <Marquee orientation="vertical" reverse fadeEdges pauseOnHover duration={15} gap={16}>
+                  <MarqueeItem>
+                    <Card variant="filled" className="w-full">
+                      <div className="flex items-center gap-3">
+                        <Icon icon={Star} size="sm" color="brand" />
+                        <span className="text-body">Reverse item one</span>
+                      </div>
+                    </Card>
+                  </MarqueeItem>
+                  <MarqueeItem>
+                    <Card variant="filled" className="w-full">
+                      <div className="flex items-center gap-3">
+                        <Icon icon={Star} size="sm" color="brand" />
+                        <span className="text-body">Reverse item two</span>
+                      </div>
+                    </Card>
+                  </MarqueeItem>
+                  <MarqueeItem>
+                    <Card variant="filled" className="w-full">
+                      <div className="flex items-center gap-3">
+                        <Icon icon={Star} size="sm" color="brand" />
+                        <span className="text-body">Reverse item three</span>
+                      </div>
+                    </Card>
+                  </MarqueeItem>
+                  <MarqueeItem>
+                    <Card variant="filled" className="w-full">
+                      <div className="flex items-center gap-3">
+                        <Icon icon={Star} size="sm" color="brand" />
+                        <span className="text-body">Reverse item four</span>
+                      </div>
+                    </Card>
+                  </MarqueeItem>
+                </Marquee>
+              </div>
+            </div>
           </div>
         </div>
       </Section>
@@ -1167,6 +1673,11 @@ export default function DesignSystemPage() {
                 props: ['size', 'aspectRatio', 'rounded', 'shadow'],
               },
               {
+                name: 'IconBlock',
+                description: 'Phosphor icons with size, color, and weight options',
+                props: ['icon', 'size', 'color', 'weight', 'marginBottom'],
+              },
+              {
                 name: 'SpacerBlock',
                 description: 'Vertical spacing with responsive desktop/mobile sizes',
                 props: ['sizeDesktop', 'sizeMobile'],
@@ -1192,19 +1703,24 @@ export default function DesignSystemPage() {
                 props: ['items', 'separator', 'align'],
               },
               {
+                name: 'AccordionBlock',
+                description: 'Collapsible FAQ sections with native details/summary elements',
+                props: ['items', 'titleStyle', 'showDividers', 'allowMultiple'],
+              },
+              {
                 name: 'TableBlock',
                 description: 'Data table with columns, rows, and style variants',
                 props: ['columns', 'rows', 'variant', 'showHeader', 'caption'],
               },
               {
                 name: 'SliderBlock',
-                description: 'Responsive carousel with customizable slides per view and autoplay',
-                props: ['slides', 'slidesPerView', 'gap', 'autoplay', 'loop', 'showNavigation'],
+                description: 'Responsive carousel with navigation position, effects, and autoplay',
+                props: ['slides', 'slidesPerView', 'gap', 'navigationPosition', 'effect', 'autoplay'],
               },
               {
                 name: 'TabsBlock',
-                description: 'Tab navigation with horizontal/vertical orientation and autoplay',
-                props: ['tabs', 'orientation', 'defaultTab', 'autoplay', 'autoplayDuration'],
+                description: 'Tab navigation with menu positioning, autoplay with progress, and mobile dropdown',
+                props: ['tabs', 'orientation', 'menuPosition', 'mobileDropdown', 'autoplay', 'showProgress'],
               },
               {
                 name: 'ModalBlock',
@@ -1215,6 +1731,11 @@ export default function DesignSystemPage() {
                 name: 'InlineVideoBlock',
                 description: 'Embedded video with lazy loading and autoplay on scroll',
                 props: ['videoFile', 'videoUrl', 'poster', 'aspectRatio', 'autoplayOnScroll'],
+              },
+              {
+                name: 'MarqueeBlock',
+                description: 'Infinite scrolling content with horizontal/vertical orientation',
+                props: ['items', 'orientation', 'reverse', 'pauseOnHover', 'fadeEdges', 'duration', 'gap'],
               },
             ].map((component) => (
               <div key={component.name} className="border border-gray-200 rounded-lg p-6">

@@ -15,11 +15,11 @@ interface ColumnProps {
     padding?: string
   }
   index: number
-  pageId: string
-  pageType: string
-  sectionKey: string
-  rowKey: string
-  gap: string // Gap value from Row for Bootstrap-style gutters
+  pageId?: string
+  pageType?: string
+  sectionKey?: string
+  rowKey?: string
+  gap?: string // Gap value from Row for Bootstrap-style gutters
 }
 
 // Desktop width classes (lg breakpoint) - percentage based
@@ -102,7 +102,7 @@ const innerPaddingClasses: Record<string, string> = {
   '8': 'p-8',
 }
 
-export default function Column({block, index, pageId, pageType, sectionKey, rowKey, gap}: ColumnProps) {
+export default function Column({block, index, pageId, pageType, sectionKey, rowKey, gap = '6'}: ColumnProps) {
   const {
     content,
     widthDesktop = 'fill',
@@ -139,35 +139,48 @@ export default function Column({block, index, pageId, pageType, sectionKey, rowK
 
   // Build the path for nested content blocks using shorthand format (field:key)
   // This format may help Sanity resolve types in polymorphic arrays
-  const basePath = `pageBuilder:${sectionKey}.rows:${rowKey}.columns:${block._key}`
+  const basePath = pageId && sectionKey && rowKey
+    ? `pageBuilder:${sectionKey}.rows:${rowKey}.columns:${block._key}`
+    : null
+
+  // Only include data-sanity attributes when in visual editing context
+  const columnDataSanity = pageId && pageType && basePath
+    ? dataAttr({
+        id: pageId,
+        type: pageType,
+        path: basePath,
+      }).toString()
+    : undefined
 
   return (
     <div
       className={`flex flex-col ${alignClass} w-full md:w-auto ${tabletClass} ${desktopClass} ${gutterClass} ${innerPaddingClass}`}
-      data-sanity={dataAttr({
-        id: pageId,
-        type: pageType,
-        path: `pageBuilder:${sectionKey}.rows:${rowKey}.columns:${block._key}`,
-      }).toString()}
+      data-sanity={columnDataSanity}
     >
-      {contentBlocks.map((contentBlock, contentIndex) => (
-        <div
-          key={contentBlock._key}
-          data-sanity={dataAttr({
-            id: pageId,
-            type: pageType,
-            path: `${basePath}.content:${contentBlock._key}`,
-          }).toString()}
-          data-block-type={contentBlock._type}
-        >
-          <ContentBlockOverlay blockType={contentBlock._type}>
-            <ContentBlockRenderer
-              block={contentBlock}
-              index={contentIndex}
-            />
-          </ContentBlockOverlay>
-        </div>
-      ))}
+      {contentBlocks.map((contentBlock, contentIndex) => {
+        const blockDataSanity = pageId && pageType && basePath
+          ? dataAttr({
+              id: pageId,
+              type: pageType,
+              path: `${basePath}.content:${contentBlock._key}`,
+            }).toString()
+          : undefined
+
+        return (
+          <div
+            key={contentBlock._key}
+            data-sanity={blockDataSanity}
+            data-block-type={contentBlock._type}
+          >
+            <ContentBlockOverlay blockType={contentBlock._type}>
+              <ContentBlockRenderer
+                block={contentBlock}
+                index={contentIndex}
+              />
+            </ContentBlockOverlay>
+          </div>
+        )
+      })}
     </div>
   )
 }

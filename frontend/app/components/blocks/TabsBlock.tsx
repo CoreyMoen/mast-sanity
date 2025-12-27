@@ -19,26 +19,35 @@ interface TabItem {
 interface TabsBlockProps {
   tabs?: TabItem[]
   orientation?: 'horizontal' | 'vertical'
+  menuPosition?: 'above' | 'below' | 'left' | 'right'
+  mobileDropdown?: boolean
   autoplay?: boolean
   autoplayDuration?: number
   pauseOnHover?: boolean
+  showProgress?: boolean
   defaultTab?: string
 }
 
 export default function TabsBlock({
   tabs,
   orientation = 'horizontal',
+  menuPosition = 'above',
+  mobileDropdown = false,
   autoplay = false,
   autoplayDuration = 5000,
   pauseOnHover = true,
+  showProgress = true,
   defaultTab,
 }: TabsBlockProps) {
   if (!tabs || tabs.length === 0) return null
 
   const cleanOrientation = stegaClean(orientation)
+  const cleanMenuPosition = stegaClean(menuPosition)
+  const cleanMobileDropdown = stegaClean(mobileDropdown)
   const cleanAutoplay = stegaClean(autoplay)
   const cleanAutoplayDuration = stegaClean(autoplayDuration)
   const cleanPauseOnHover = stegaClean(pauseOnHover)
+  const cleanShowProgress = stegaClean(showProgress)
 
   // Use first tab as default if not specified
   const defaultValue = defaultTab || tabs[0]?._key
@@ -48,9 +57,12 @@ export default function TabsBlock({
       <Tabs
         defaultValue={defaultValue}
         orientation={cleanOrientation}
+        menuPosition={cleanMenuPosition}
+        mobileDropdown={cleanMobileDropdown}
         autoplay={cleanAutoplay}
         autoplayDuration={cleanAutoplayDuration}
         pauseOnHover={cleanPauseOnHover}
+        showProgress={cleanShowProgress}
       >
         <TabsList>
           {tabs.map((tab) => (
