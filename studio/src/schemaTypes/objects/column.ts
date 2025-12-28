@@ -14,13 +14,20 @@ export const column = defineType({
     {name: 'content', title: 'Content', default: true},
     {name: 'width', title: 'Width Settings'},
     {name: 'spacing', title: 'Spacing'},
+    {name: 'advanced', title: 'Advanced'},
   ],
   fields: [
     defineField({
       name: 'content',
       title: 'Content',
       type: 'array',
+      description: 'Add content blocks or a nested row for additional layout flexibility',
       of: [
+        // Layout - nested row for additional flexibility (one level deep)
+        {type: 'row', options: {modal: {type: 'dialog', width: 'auto'}}},
+        // Content grouping
+        {type: 'contentWrap', options: {modal: {type: 'dialog', width: 'auto'}}},
+        // Content blocks
         {type: 'headingBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
         {type: 'richTextBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
         {type: 'imageBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
@@ -133,6 +140,7 @@ export const column = defineType({
           {title: 'Top', value: 'start'},
           {title: 'Center', value: 'center'},
           {title: 'Bottom', value: 'end'},
+          {title: 'Space Between', value: 'between'},
         ],
         layout: 'radio',
       },
@@ -153,6 +161,15 @@ export const column = defineType({
         ],
       },
       initialValue: '0',
+    }),
+    // Advanced Group
+    defineField({
+      name: 'customStyle',
+      title: 'Custom CSS',
+      type: 'text',
+      group: 'advanced',
+      description: 'Add custom inline CSS styles (e.g., "margin-top: 2rem; opacity: 0.8;")',
+      rows: 3,
     }),
   ],
   preview: {

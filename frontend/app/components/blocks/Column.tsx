@@ -2,6 +2,7 @@ import {stegaClean} from 'next-sanity'
 import {dataAttr} from '@/sanity/lib/utils'
 import ContentBlockRenderer from './ContentBlockRenderer'
 import ContentBlockOverlay from '@/app/components/overlays/ContentBlockOverlay'
+import Row from './Row'
 
 interface ColumnProps {
   block: {
@@ -13,6 +14,7 @@ interface ColumnProps {
     widthMobile?: string
     verticalAlign?: string
     padding?: string
+    customStyle?: string
   }
   index: number
   pageId?: string
@@ -20,6 +22,26 @@ interface ColumnProps {
   sectionKey?: string
   rowKey?: string
   gap?: string // Gap value from Row for Bootstrap-style gutters
+}
+
+// Parse CSS string to React style object
+function parseCustomStyle(cssString?: string): React.CSSProperties | undefined {
+  if (!cssString) return undefined
+  try {
+    return Object.fromEntries(
+      cssString
+        .split(';')
+        .filter((s) => s.trim())
+        .map((s) => {
+          const [key, ...valueParts] = s.split(':')
+          const value = valueParts.join(':').trim()
+          const camelKey = key.trim().replace(/-([a-z])/g, (g) => g[1].toUpperCase())
+          return [camelKey, value]
+        })
+    )
+  } catch {
+    return undefined
+  }
 }
 
 // Desktop width classes (lg breakpoint) - percentage based
@@ -91,6 +113,7 @@ const verticalAlignClasses: Record<string, string> = {
   start: 'justify-start',
   center: 'justify-center',
   end: 'justify-end',
+  between: 'justify-between',
 }
 
 // Inner padding classes (user-configurable padding inside the column)
@@ -110,6 +133,7 @@ export default function Column({block, index, pageId, pageType, sectionKey, rowK
     widthMobile = '12',
     verticalAlign = 'start',
     padding = '0',
+    customStyle,
   } = block
 
   // Ensure content is always an array (handles null from Sanity when adding new items)
@@ -152,10 +176,13 @@ export default function Column({block, index, pageId, pageType, sectionKey, rowK
       }).toString()
     : undefined
 
+  const inlineStyle = parseCustomStyle(customStyle)
+
   return (
     <div
       className={`flex flex-col ${alignClass} w-full md:w-auto ${tabletClass} ${desktopClass} ${gutterClass} ${innerPaddingClass}`}
       data-sanity={columnDataSanity}
+      style={inlineStyle}
     >
       {contentBlocks.map((contentBlock, contentIndex) => {
         const blockDataSanity = pageId && pageType && basePath
@@ -165,6 +192,25 @@ export default function Column({block, index, pageId, pageType, sectionKey, rowK
               path: `${basePath}.content:${contentBlock._key}`,
             }).toString()
           : undefined
+
+        // Handle nested rows
+        if (contentBlock._type === 'row') {
+          return (
+            <div
+              key={contentBlock._key}
+              data-sanity={blockDataSanity}
+              data-block-type={contentBlock._type}
+            >
+              <Row
+                block={contentBlock}
+                index={contentIndex}
+                pageId={pageId}
+                pageType={pageType}
+                sectionKey={basePath ? `${basePath.replace('pageBuilder:', '')}.content:${contentBlock._key}` : undefined}
+              />
+            </div>
+          )
+        }
 
         return (
           <div

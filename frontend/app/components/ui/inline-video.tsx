@@ -121,7 +121,7 @@ export function InlineVideo({
     <div
       ref={containerRef}
       className={cn(
-        'relative overflow-hidden rounded-lg bg-gray-900',
+        'relative overflow-hidden rounded-lg bg-[var(--color-black)]',
         aspectRatioClasses[aspectRatio],
         className
       )}

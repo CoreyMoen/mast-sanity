@@ -76,7 +76,7 @@ export default function Onboarding() {
   return (
     <div className="max-w-2xl mx-auto grid grid-flow-row gap-6 py-12 text-center bg-brand text-white rounded-lg p-8">
       <svg
-        className="mx-auto h-10 w-10 text-gray-400"
+        className="mx-auto h-10 w-10"
         aria-hidden="true"
         width="512"
         height="512"
@@ -120,7 +120,7 @@ export function PageOnboarding() {
   return (
     <div className="max-w-2xl mx-auto grid grid-flow-row gap-6 py-12 text-center bg-brand text-white rounded-lg p-8">
       <svg
-        className="mx-auto h-10 w-10 text-gray-400"
+        className="mx-auto h-10 w-10"
         aria-hidden="true"
         width="512"
         height="512"

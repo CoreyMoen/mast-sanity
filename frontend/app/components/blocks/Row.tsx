@@ -11,11 +11,32 @@ interface RowProps {
     gap?: string
     wrap?: boolean
     reverseOnMobile?: boolean
+    customStyle?: string
   }
   index: number
   pageId?: string
   pageType?: string
   sectionKey?: string
+}
+
+// Parse CSS string to React style object
+function parseCustomStyle(cssString?: string): React.CSSProperties | undefined {
+  if (!cssString) return undefined
+  try {
+    return Object.fromEntries(
+      cssString
+        .split(';')
+        .filter((s) => s.trim())
+        .map((s) => {
+          const [key, ...valueParts] = s.split(':')
+          const value = valueParts.join(':').trim()
+          const camelKey = key.trim().replace(/-([a-z])/g, (g) => g[1].toUpperCase())
+          return [camelKey, value]
+        })
+    )
+  } catch {
+    return undefined
+  }
 }
 
 // Horizontal alignment (justify-content)
@@ -28,13 +49,14 @@ const horizontalAlignClasses: Record<string, string> = {
   evenly: 'justify-evenly',
 }
 
-// Vertical alignment (align-items)
+// Vertical alignment (align-items / align-content for space-between)
 const verticalAlignClasses: Record<string, string> = {
   start: 'items-start',
   center: 'items-center',
   end: 'items-end',
   stretch: 'items-stretch',
   baseline: 'items-baseline',
+  between: 'content-between',
 }
 
 // Row negative margin (half of gap on each side)
@@ -66,6 +88,7 @@ export default function Row({block, index, pageId, pageType, sectionKey}: RowPro
     gap = '6',
     wrap = true,
     reverseOnMobile = false,
+    customStyle,
   } = block
 
   // Ensure columns is always an array (handles null from Sanity when adding new items)
@@ -86,9 +109,12 @@ export default function Row({block, index, pageId, pageType, sectionKey}: RowPro
   // On mobile, stack columns vertically with gap
   const mobileClass = reverseOnMobile ? 'flex-col-reverse' : 'flex-col'
 
+  const inlineStyle = parseCustomStyle(customStyle)
+
   return (
     <div
       className={`flex ${mobileClass} md:flex-row ${wrapClass} ${justifyClass} ${alignClass} ${negativeMarginClass} ${verticalGapClass}`}
+      style={inlineStyle}
     >
       {columnItems.map((column, colIndex) => (
         <Column

@@ -22,7 +22,7 @@ interface BreadcrumbLinkProps {
 
 function BreadcrumbLink({href, children, isExternal}: BreadcrumbLinkProps) {
   const className =
-    'text-p-sm font-medium uppercase tracking-[0.1em] text-gray-600 transition-colors hover:text-black hover:underline'
+    'text-p-sm font-medium uppercase tracking-[0.1em] text-muted-foreground transition-colors hover:text-foreground hover:underline'
 
   if (isExternal) {
     return (
@@ -53,11 +53,11 @@ export function Breadcrumb({items, separator = 'chevron', className}: Breadcrumb
 
   const separatorElement =
     separator === 'slash' ? (
-      <span className="mx-2 text-gray-400" aria-hidden="true">
+      <span className="mx-2 text-muted-foreground" aria-hidden="true">
         /
       </span>
     ) : (
-      <CaretRight className="mx-2 h-3 w-3 text-gray-400" aria-hidden="true" weight="bold" />
+      <CaretRight className="mx-2 h-3 w-3 text-muted-foreground" aria-hidden="true" weight="bold" />
     )
 
   return (
@@ -88,7 +88,7 @@ export function Breadcrumb({items, separator = 'chevron', className}: Breadcrumb
                 </>
               ) : (
                 <span
-                  className="text-p-sm font-medium uppercase tracking-[0.1em] text-gray-400"
+                  className="text-p-sm font-medium uppercase tracking-[0.1em] text-muted-foreground"
                   itemProp="name"
                   aria-current={isLast ? 'page' : undefined}
                 >
@@ -144,9 +144,9 @@ export const BreadcrumbItem = ({
 
 export const BreadcrumbSeparator = ({type = 'chevron'}: {type?: 'slash' | 'chevron'}) =>
   type === 'slash' ? (
-    <span className="mx-2 text-gray-400" aria-hidden="true">
+    <span className="mx-2 text-muted-foreground" aria-hidden="true">
       /
     </span>
   ) : (
-    <CaretRight className="mx-2 h-3 w-3 text-gray-400" aria-hidden="true" weight="bold" />
+    <CaretRight className="mx-2 h-3 w-3 text-muted-foreground" aria-hidden="true" weight="bold" />
   )

@@ -166,6 +166,21 @@ const createImageBlock = (
   rounded,
 })
 
+// Helper to create an image slide (for sliderBlock)
+const createImageSlide = (assetRef: string, alt: string, caption?: string) => ({
+  _type: 'imageSlide',
+  _key: generateKey(),
+  image: {
+    _type: 'image',
+    asset: {
+      _type: 'reference',
+      _ref: assetRef,
+    },
+  },
+  alt,
+  caption,
+})
+
 // Helper to create a column
 const createColumn = (
   content: any[],
@@ -714,7 +729,7 @@ async function main() {
   console.log('   ✓ Basic Layouts page created')
 
   // ============================================================================
-  // INSPIRED LAYOUTS PAGE
+  // INSPIRED LAYOUTS PAGE (Simplified to stay under Sanity's 20-level depth limit)
   // ============================================================================
   console.log('\n📄 Creating Inspired Layouts page...')
 
@@ -753,14 +768,7 @@ async function main() {
           createRow(
             [
               createColumn(
-                [
-                  createRichTextBlock(
-                    [
-                      "Every ship needs its mast—not because it's complex or clever, but because it's essential. It stands quietly at the center, bearing weight, catching wind, enabling movement. While others chase the latest innovations, you understand that true progress comes from getting the fundamentals right.",
-                    ],
-                    'paragraph-lg'
-                  ),
-                ],
+                [createHeadingBlock("Every ship needs its mast—not because it's complex or clever, but because it's essential.", 'h3', 'paragraph-lg')],
                 '6',
                 'inherit',
                 '12'
@@ -782,42 +790,13 @@ async function main() {
                     _type: 'sliderBlock',
                     _key: generateKey(),
                     slides: [
-                      {
-                        _type: 'sliderSlide',
-                        _key: generateKey(),
-                        content: [
-                          createImageBlock(imageAssets['post5'], 'Slide 1', '16/9', 'full', 'none'),
-                        ],
-                      },
-                      {
-                        _type: 'sliderSlide',
-                        _key: generateKey(),
-                        content: [
-                          createImageBlock(imageAssets['post3'], 'Slide 2', '16/9', 'full', 'none'),
-                        ],
-                      },
-                      {
-                        _type: 'sliderSlide',
-                        _key: generateKey(),
-                        content: [
-                          createImageBlock(imageAssets['post2'], 'Slide 3', '16/9', 'full', 'none'),
-                        ],
-                      },
-                      {
-                        _type: 'sliderSlide',
-                        _key: generateKey(),
-                        content: [
-                          createImageBlock(imageAssets['post1'], 'Slide 4', '16/9', 'full', 'none'),
-                        ],
-                      },
-                      {
-                        _type: 'sliderSlide',
-                        _key: generateKey(),
-                        content: [
-                          createImageBlock(imageAssets['post6'], 'Slide 5', '16/9', 'full', 'none'),
-                        ],
-                      },
+                      createImageSlide(imageAssets['post5'], 'Slide 1'),
+                      createImageSlide(imageAssets['post3'], 'Slide 2'),
+                      createImageSlide(imageAssets['post2'], 'Slide 3'),
+                      createImageSlide(imageAssets['post1'], 'Slide 4'),
+                      createImageSlide(imageAssets['post6'], 'Slide 5'),
                     ],
+                    aspectRatio: '16/9',
                     slidesPerViewDesktop: 1,
                     slidesPerViewTablet: 1,
                     slidesPerViewMobile: 1,
@@ -844,16 +823,16 @@ async function main() {
         '0'
       ),
 
-      // Section 2: Problem Statement with icons
+      // Section 2: Image Gallery - showcasing the grid system
       createSection(
-        'Problem - The Weight of Expectations',
+        'Image Gallery',
         [
           createRow(
             [
               createColumn(
                 [
-                  createEyebrowBlock('The Weight of Expectations'),
-                  createHeadingBlock('The burden of building without compass', 'h2', 'inherit', 'center'),
+                  createEyebrowBlock('Gallery'),
+                  createHeadingBlock('A showcase of possibilities', 'h2', 'inherit', 'center'),
                 ],
                 '8',
                 'inherit',
@@ -864,444 +843,72 @@ async function main() {
             'center',
             'center'
           ),
-          createRow([createColumn([createDividerBlock('12', '12')], '12')]),
-          createRow(
-            [
-              createColumn(
-                [
-                  createRichTextBlock(
-                    [
-                      "There's a particular exhaustion that comes from swimming against endless currents of complexity. You know the feeling—when every project feels like starting from scratch, when simple intentions become tangled in unnecessary complications, when you find yourself building the same foundations over and over.",
-                      "It's not about the tools themselves. It's about the mental load, the creative energy spent on mechanics instead of meaning.",
-                    ],
-                    'paragraph-lg'
-                  ),
-                ],
-                '5',
-                'inherit',
-                '12'
-              ),
-              createColumn(
-                [
-                  createIconBlock('shuffle-simple', 'md', 'primary', 'sm'),
-                  createRichTextBlock([
-                    'The fatigue of constantly context-switching between inconsistent approaches.',
-                  ]),
-                ],
-                '3',
-                '6',
-                '12'
-              ),
-              createColumn(
-                [
-                  createIconBlock('lightbulb-filament', 'md', 'primary', 'sm'),
-                  createRichTextBlock([
-                    'The frustration of beautiful ideas compromised by clunky execution.',
-                  ]),
-                ],
-                '3',
-                '6',
-                '12'
-              ),
-            ],
-            'between',
-            'start'
-          ),
-          createRow(
-            [
-              createColumn([], '5', 'inherit', '12'),
-              createColumn(
-                [
-                  createIconBlock('barbell', 'md', 'primary', 'sm'),
-                  createRichTextBlock([
-                    'The weight of maintaining complexity that adds nothing to the final experience.',
-                  ]),
-                ],
-                '3',
-                '6',
-                '12'
-              ),
-              createColumn(
-                [
-                  createIconBlock('feather', 'md', 'primary', 'sm'),
-                  createRichTextBlock(['The nagging sense that there should be a more graceful way.']),
-                ],
-                '3',
-                '6',
-                '12'
-              ),
-            ],
-            'between',
-            'start'
-          ),
-        ],
-        'white'
-      ),
-
-      // Section 3: Full Screen Moment of Clarity
-      createSection(
-        'The Moment of Clarity',
-        [
-          createRow(
-            [
-              createColumn(
-                [createHeadingBlock('The Moment of Clarity', 'h2', 'h1', 'center')],
-                '8',
-                'inherit',
-                '12',
-                'center'
-              ),
-            ],
-            'center',
-            'center'
-          ),
-        ],
-        'gray-800',
-        '24',
-        '24'
-      ),
-
-      // Section 4: Solution Intro with image
-      createSection(
-        'When noise fades, essence emerges',
-        [
-          createRow(
-            [
-              createColumn(
-                [createImageBlock(imageAssets['post4'], 'Featured image', '3/4', 'full', 'md')],
-                '6',
-                'inherit',
-                '12'
-              ),
-              createColumn(
-                [
-                  createHeadingBlock('When noise fades, essence emerges', 'h2'),
-                  createRichTextBlock(
-                    [
-                      'But in those rare moments of clarity—perhaps late at night when the world is quiet, or in the pause before coffee kicks in—you glimpse something different. A way of working that feels like breathing. Where the structure serves the vision instead of constraining it.',
-                      "This isn't about revolutionary technology or groundbreaking innovation. It's about understanding what matters and letting everything else fall away. It's about finding your rhythm and building tools that move with it rather than against it.",
-                    ],
-                    'paragraph-lg'
-                  ),
-                ],
-                '5',
-                'inherit',
-                '12',
-                'end'
-              ),
-            ],
-            'between',
-            'stretch'
-          ),
-        ],
-        'gray-50'
-      ),
-
-      // Section 5: Tabs Section with images
-      createSection(
-        'The Art of Subtraction',
-        [
-          createRow(
-            [
-              createColumn(
-                [
-                  createEyebrowBlock('The Art of Subtraction'),
-                  createHeadingBlock(
-                    "What you don't build is as important as what you do",
-                    'h2',
-                    'inherit',
-                    'center'
-                  ),
-                ],
-                '9',
-                'inherit',
-                '12',
-                'center'
-              ),
-            ],
-            'center',
-            'center'
-          ),
           createRow([createColumn([createSpacerBlock('12', '8')], '12')]),
           createRow(
             [
               createColumn(
-                [
-                  {
-                    _type: 'tabsBlock',
-                    _key: generateKey(),
-                    tabs: [
-                      {
-                        _type: 'tab',
-                        _key: generateKey(),
-                        label: 'Distillation',
-                        content: [
-                          createRow(
-                            [
-                              createColumn(
-                                [createHeadingBlock('Distillation Over Addition', 'h3')],
-                                '3',
-                                '12',
-                                '12'
-                              ),
-                              createColumn(
-                                [
-                                  createImageBlock(
-                                    imageAssets['post9'],
-                                    'Distillation image',
-                                    '1/1',
-                                    'full',
-                                    'md'
-                                  ),
-                                ],
-                                '4',
-                                '12',
-                                '12'
-                              ),
-                              createColumn(
-                                [
-                                  createRichTextBlock([
-                                    "True craft lies not in accumulating features but in distilling to essence. Every line of code, every class, every component earns its place not through cleverness but through necessity. Like a master craftsman who knows which tool to reach for without thinking, you develop an intuition for what belongs and what doesn't.",
-                                  ]),
-                                ],
-                                '3',
-                                '12',
-                                '12'
-                              ),
-                            ],
-                            'between',
-                            'start'
-                          ),
-                        ],
-                      },
-                      {
-                        _type: 'tab',
-                        _key: generateKey(),
-                        label: 'Rhythm',
-                        content: [
-                          createRow(
-                            [
-                              createColumn(
-                                [createHeadingBlock('Rhythm Over Rules', 'h3')],
-                                '3',
-                                '12',
-                                '12'
-                              ),
-                              createColumn(
-                                [
-                                  createImageBlock(
-                                    imageAssets['post8'],
-                                    'Rhythm image',
-                                    '1/1',
-                                    'full',
-                                    'md'
-                                  ),
-                                ],
-                                '4',
-                                '12',
-                                '12'
-                              ),
-                              createColumn(
-                                [
-                                  createRichTextBlock([
-                                    "The best systems don't dictate—they dance. They establish a rhythm that your hands remember, patterns that feel inevitable once learned. Your workflow becomes fluid, your thinking becomes clear, your energy flows toward the work that matters.",
-                                  ]),
-                                ],
-                                '3',
-                                '12',
-                                '12'
-                              ),
-                            ],
-                            'between',
-                            'start'
-                          ),
-                        ],
-                      },
-                      {
-                        _type: 'tab',
-                        _key: generateKey(),
-                        label: 'Foundation',
-                        content: [
-                          createRow(
-                            [
-                              createColumn(
-                                [createHeadingBlock('Foundation Over Fashion', 'h3')],
-                                '3',
-                                '12',
-                                '12'
-                              ),
-                              createColumn(
-                                [
-                                  createImageBlock(
-                                    imageAssets['post10'],
-                                    'Foundation image',
-                                    '1/1',
-                                    'full',
-                                    'md'
-                                  ),
-                                ],
-                                '4',
-                                '12',
-                                '12'
-                              ),
-                              createColumn(
-                                [
-                                  createRichTextBlock([
-                                    'While others chase trends, you build bedrock. You understand that true innovation comes from having a solid base to launch from, not from reinventing the ground beneath your feet with every project.',
-                                  ]),
-                                ],
-                                '3',
-                                '12',
-                                '12'
-                              ),
-                            ],
-                            'between',
-                            'start'
-                          ),
-                        ],
-                      },
-                    ],
-                    orientation: 'horizontal',
-                    menuPosition: 'above',
-                    mobileDropdown: true,
-                    autoplay: true,
-                    autoplayDuration: 8000,
-                    showProgress: true,
-                  },
-                ],
-                '12'
-              ),
-            ],
-            'center',
-            'center'
-          ),
-        ],
-        'white'
-      ),
-
-      // Section 6: Community - The Quiet Confidence
-      createSection(
-        'The Quiet Confidence',
-        [
-          createRow(
-            [
-              createColumn(
-                [
-                  createEyebrowBlock('The Quiet Confidence'),
-                  createHeadingBlock('Those who build with purpose recognize each other', 'h2'),
-                ],
-                '9',
-                'inherit',
-                '12'
-              ),
-            ],
-            'start',
-            'start'
-          ),
-          createRow([createColumn([createSpacerBlock('12', '8')], '12')]),
-          createRow(
-            [
-              createColumn([], '6', 'inherit', '12'),
-              createColumn(
-                [
-                  createHeadingBlock('Community of Practice', 'h4'),
-                  createRichTextBlock(
-                    [
-                      "There's a particular satisfaction that comes from working with tools that understand you. It's the difference between fighting your way through a project and flowing through it. Others notice—the clarity in your work, the speed of your delivery, the calm confidence in your process.",
-                    ],
-                    'paragraph-lg'
-                  ),
-                ],
-                '6',
-                'inherit',
-                '12'
-              ),
-            ],
-            'end',
-            'start'
-          ),
-          createRow([createColumn([createSpacerBlock('12', '8')], '12')]),
-          createRow(
-            [
-              createColumn(
-                [
-                  {
-                    _type: 'cardBlock',
-                    _key: generateKey(),
-                    variant: 'filled',
-                    paddingDesktop: '12',
-                    paddingMobile: '8',
-                    content: [
-                      createRichTextBlock(
-                        [
-                          'The recognition comes not from the complexity you manage, but from the complexity you avoid.',
-                        ],
-                        'inherit',
-                        'center'
-                      ),
-                    ],
-                  },
-                ],
-                '12'
-              ),
-            ],
-            'center',
-            'center'
-          ),
-        ],
-        'gray-50'
-      ),
-
-      // Section 7: Expanding Horizon with images
-      createSection(
-        'The Expanding Horizon',
-        [
-          createRow(
-            [
-              createColumn(
-                [createImageBlock(imageAssets['post12'], 'Large featured image', '3/4', 'full', 'md')],
-                '5',
-                'inherit',
-                '12'
-              ),
-              createColumn(
-                [
-                  createEyebrowBlock('The Expanding Horizon'),
-                  createHeadingBlock('When the foundation is right, anything becomes possible', 'h2'),
-                  createRichTextBlock(
-                    [
-                      "With the mechanics handled, your mind is free to wander into more interesting territory. You're not debugging basic layouts or wrestling with inconsistent patterns. You're exploring ideas, refining experiences, solving problems that matter.",
-                    ],
-                    'paragraph-lg'
-                  ),
-                ],
+                [createImageBlock(imageAssets['post7'], 'Gallery image 1', '1/1', 'full', 'md')],
                 '4',
-                '8',
-                '12',
-                'end'
+                '6',
+                '12'
               ),
               createColumn(
-                [createImageBlock(imageAssets['post5'], 'Small image', '1/1', 'full', 'md')],
-                '2',
-                'inherit',
-                '6'
+                [createImageBlock(imageAssets['post8'], 'Gallery image 2', '1/1', 'full', 'md')],
+                '4',
+                '6',
+                '12'
+              ),
+              createColumn(
+                [createImageBlock(imageAssets['post9'], 'Gallery image 3', '1/1', 'full', 'md')],
+                '4',
+                '12',
+                '12'
               ),
             ],
             'between',
-            'stretch'
+            'start'
+          ),
+          createRow([createColumn([createSpacerBlock('6', '4')], '12')]),
+          createRow(
+            [
+              createColumn(
+                [createImageBlock(imageAssets['post10'], 'Gallery image 4', '1/1', 'full', 'md')],
+                '4',
+                '6',
+                '12'
+              ),
+              createColumn(
+                [createImageBlock(imageAssets['post11'], 'Gallery image 5', '1/1', 'full', 'md')],
+                '4',
+                '6',
+                '12'
+              ),
+              createColumn(
+                [createImageBlock(imageAssets['post12'], 'Gallery image 6', '1/1', 'full', 'md')],
+                '4',
+                '12',
+                '12'
+              ),
+            ],
+            'between',
+            'start'
           ),
         ],
         'white'
       ),
 
-      // Section 8: Full Screen Callout
+      // Section 3: Call to Action
       createSection(
-        'Scale Without Strain',
+        'Get Started',
         [
           createRow(
             [
               createColumn(
-                [createHeadingBlock('Scale Without Strain', 'h2', 'h1', 'center')],
+                [
+                  createHeadingBlock('Ready to build something great?', 'h2', 'h1', 'center'),
+                  createSpacerBlock('6', '4'),
+                  createButtonBlock('Get Started', 'primary', 'black'),
+                ],
                 '8',
                 'inherit',
                 '12',
@@ -1309,105 +916,12 @@ async function main() {
               ),
             ],
             'center',
-            'center'
-          ),
-          createRow([createColumn([createSpacerBlock('8', '6')], '12')]),
-          createRow(
-            [
-              createColumn([], '6', 'inherit', '12'),
-              createColumn(
-                [
-                  createRichTextBlock(
-                    [
-                      "Whether you're crafting something intimate and personal or building at enterprise scale, the principles remain constant. Good structure scales. Clean foundations support growth. What works for one project works for a hundred.",
-                    ],
-                    'paragraph-lg',
-                    'right'
-                  ),
-                ],
-                '6',
-                'inherit',
-                '12'
-              ),
-            ],
-            'end',
             'center'
           ),
         ],
         'gray-800',
         '24',
         '24'
-      ),
-
-      // Section 9: The Practice with center image
-      createSection(
-        'The Practice',
-        [
-          createRow(
-            [
-              createColumn(
-                [
-                  createEyebrowBlock('The Practice'),
-                  createHeadingBlock(
-                    'Mastery lives in the daily discipline of choosing better',
-                    'h2',
-                    'inherit',
-                    'center'
-                  ),
-                  createRichTextBlock(
-                    [
-                      "Every choice to simplify, every decision to embrace constraint, every moment of saying \"no\" to unnecessary complexity—these are the small acts that compound into mastery.",
-                    ],
-                    'paragraph-lg',
-                    'center'
-                  ),
-                ],
-                '9',
-                'inherit',
-                '12',
-                'center'
-              ),
-            ],
-            'center',
-            'center'
-          ),
-          createRow([createColumn([createSpacerBlock('12', '8')], '12')]),
-          createRow(
-            [
-              createColumn(
-                [
-                  createHeadingBlock('The Daily Choice', 'h4'),
-                  createRichTextBlock([
-                    "Each project presents the same fundamental choice: add or subtract? Complicate or clarify? You've learned that the most powerful designs often come from what you remove, not what you add.",
-                  ]),
-                ],
-                '3',
-                '12',
-                '12'
-              ),
-              createColumn(
-                [createImageBlock(imageAssets['post13'], 'Center image', '1/1', 'full', 'md')],
-                '6',
-                '10',
-                '12'
-              ),
-              createColumn(
-                [
-                  createHeadingBlock('The Compound Effect', 'h4'),
-                  createRichTextBlock([
-                    'Small improvements accumulate. Each project builds on the last. Your instincts sharpen. What once required conscious effort becomes second nature. This is the quiet power of working with intention.',
-                  ]),
-                ],
-                '3',
-                '12',
-                '12'
-              ),
-            ],
-            'center',
-            'center'
-          ),
-        ],
-        'gray-50'
       ),
     ],
   }

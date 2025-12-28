@@ -85,8 +85,24 @@ export default async function RootLayout({children}: {children: React.ReactNode}
 
   const siteTitle = settings?.title || demo.title
 
+  // Inline script to prevent theme flash - runs before React hydrates
+  const themeScript = `
+    (function() {
+      try {
+        var stored = localStorage.getItem('theme-preference');
+        if (stored === 'light' || stored === 'dark') {
+          document.documentElement.setAttribute('data-theme', stored);
+        }
+        // If 'system' or no preference, don't set data-theme - let CSS light-dark() use OS preference
+      } catch (e) {}
+    })();
+  `
+
   return (
     <html lang="en" className={generalSans.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="flex min-h-screen flex-col">
         {/* The <Toaster> component is responsible for rendering toast notifications used in /app/client-utils.ts and /app/components/DraftModeToast.tsx */}
         <Toaster />

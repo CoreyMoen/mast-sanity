@@ -12,6 +12,7 @@ import {blockContent} from './objects/blockContent'
 import {section} from './objects/section'
 import {row} from './objects/row'
 import {column} from './objects/column'
+import {contentWrap} from './objects/contentWrap'
 // Content blocks
 import {headingBlock} from './objects/headingBlock'
 import {richTextBlock} from './objects/richTextBlock'
@@ -66,6 +67,7 @@ export const schemaTypes = [
   modalBlock,
   inlineVideoBlock,
   marqueeBlock,
+  contentWrap,
   column,
   row,
   section,

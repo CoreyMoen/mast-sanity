@@ -43,7 +43,7 @@ export default function Avatar({person, date, small = false}: Props) {
             {firstName} {lastName}
           </div>
         )}
-        <div className={`text-gray-500 ${small ? 'text-xs' : 'text-sm'}`}>
+        <div className={`text-muted-foreground ${small ? 'text-xs' : 'text-sm'}`}>
           <DateComponent dateString={date} />
         </div>
       </div>

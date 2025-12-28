@@ -17,33 +17,43 @@ interface TabItem {
 }
 
 interface TabsBlockProps {
-  tabs?: TabItem[]
-  orientation?: 'horizontal' | 'vertical'
-  menuPosition?: 'above' | 'below' | 'left' | 'right'
-  mobileDropdown?: boolean
-  autoplay?: boolean
-  autoplayDuration?: number
-  pauseOnHover?: boolean
-  showProgress?: boolean
-  defaultTab?: string
+  block: {
+    _key: string
+    _type: string
+    tabs?: TabItem[]
+    orientation?: 'horizontal' | 'vertical'
+    menuPosition?: 'above' | 'below' | 'left' | 'right'
+    mobileDropdown?: boolean
+    contentGap?: string
+    autoplay?: boolean
+    autoplayDuration?: number
+    pauseOnHover?: boolean
+    showProgress?: boolean
+    defaultTab?: string
+  }
+  index: number
 }
 
-export default function TabsBlock({
-  tabs,
-  orientation = 'horizontal',
-  menuPosition = 'above',
-  mobileDropdown = false,
-  autoplay = false,
-  autoplayDuration = 5000,
-  pauseOnHover = true,
-  showProgress = true,
-  defaultTab,
-}: TabsBlockProps) {
+export default function TabsBlock({block}: TabsBlockProps) {
+  const {
+    tabs,
+    orientation = 'horizontal',
+    menuPosition = 'above',
+    mobileDropdown = false,
+    contentGap = '4',
+    autoplay = false,
+    autoplayDuration = 5000,
+    pauseOnHover = true,
+    showProgress = true,
+    defaultTab,
+  } = block
+
   if (!tabs || tabs.length === 0) return null
 
   const cleanOrientation = stegaClean(orientation)
   const cleanMenuPosition = stegaClean(menuPosition)
   const cleanMobileDropdown = stegaClean(mobileDropdown)
+  const cleanContentGap = stegaClean(contentGap)
   const cleanAutoplay = stegaClean(autoplay)
   const cleanAutoplayDuration = stegaClean(autoplayDuration)
   const cleanPauseOnHover = stegaClean(pauseOnHover)
@@ -59,6 +69,7 @@ export default function TabsBlock({
         orientation={cleanOrientation}
         menuPosition={cleanMenuPosition}
         mobileDropdown={cleanMobileDropdown}
+        contentGap={cleanContentGap}
         autoplay={cleanAutoplay}
         autoplayDuration={cleanAutoplayDuration}
         pauseOnHover={cleanPauseOnHover}

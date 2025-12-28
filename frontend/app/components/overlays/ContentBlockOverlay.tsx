@@ -10,6 +10,19 @@ const typeLabels: Record<string, string> = {
   imageBlock: 'Image',
   buttonBlock: 'Button',
   spacerBlock: 'Spacer',
+  dividerBlock: 'Divider',
+  sliderBlock: 'Slider',
+  tabsBlock: 'Tabs',
+  row: 'Row',
+  eyebrowBlock: 'Eyebrow',
+  cardBlock: 'Card',
+  iconBlock: 'Icon',
+  accordionBlock: 'Accordion',
+  breadcrumbBlock: 'Breadcrumb',
+  tableBlock: 'Table',
+  modalBlock: 'Modal',
+  inlineVideoBlock: 'Video',
+  marqueeBlock: 'Marquee',
 }
 
 // Map types to icons
@@ -19,6 +32,19 @@ const typeIcons: Record<string, string> = {
   Image: '\uD83D\uDDBC',
   Button: '\u2B1A',
   Spacer: '\u2195',
+  Divider: '\u2500',
+  Slider: '\u25C0\u25B6',
+  Tabs: '\u2630',
+  Row: '\u2261',
+  Eyebrow: '\u2022',
+  Card: '\u25A1',
+  Icon: '\u2605',
+  Accordion: '\u25BC',
+  Breadcrumb: '\u27A1',
+  Table: '\u2630',
+  Modal: '\u25A2',
+  Video: '\u25B6',
+  Marquee: '\u21C4',
 }
 
 interface ContentBlockOverlayProps {

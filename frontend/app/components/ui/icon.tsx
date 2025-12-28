@@ -16,7 +16,7 @@ import {cn} from '@/lib/utils'
  */
 
 export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'inherit'
-export type IconColor = 'inherit' | 'brand' | 'blue' | 'yellow' | 'black' | 'white' | 'gray'
+export type IconColor = 'inherit' | 'foreground' | 'brand' | 'blue' | 'yellow' | 'black' | 'white' | 'gray' | 'muted'
 
 interface IconProps {
   icon: PhosphorIcon
@@ -49,12 +49,14 @@ const sizePixels: Record<IconSize, number | string> = {
 // Color mapping
 const colorClasses: Record<IconColor, string> = {
   inherit: '',
+  foreground: 'text-foreground',
   brand: 'text-brand',
   blue: 'text-blue',
   yellow: 'text-yellow',
   black: 'text-black',
   white: 'text-white',
-  gray: 'text-gray-500',
+  gray: 'text-muted-foreground',
+  muted: 'text-muted-foreground',
 }
 
 export function Icon({

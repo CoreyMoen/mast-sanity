@@ -9,6 +9,7 @@ import {cn} from '@/lib/utils'
 interface TabsContextValue {
   orientation: 'horizontal' | 'vertical'
   menuPosition: 'above' | 'below' | 'left' | 'right'
+  contentGap: string
   autoplay: boolean
   autoplayDuration: number
   showProgress: boolean
@@ -19,6 +20,7 @@ interface TabsContextValue {
 const TabsContext = React.createContext<TabsContextValue>({
   orientation: 'horizontal',
   menuPosition: 'above',
+  contentGap: '4',
   autoplay: false,
   autoplayDuration: 5000,
   showProgress: true,
@@ -30,11 +32,31 @@ const TabsContext = React.createContext<TabsContextValue>({
 interface TabsProps extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root> {
   orientation?: 'horizontal' | 'vertical'
   menuPosition?: 'above' | 'below' | 'left' | 'right'
+  contentGap?: string
   autoplay?: boolean
   autoplayDuration?: number
   pauseOnHover?: boolean
   showProgress?: boolean
   mobileDropdown?: boolean
+}
+
+// Gap classes for spacing between menu and content
+const gapClasses: Record<string, string> = {
+  '0': 'gap-0',
+  '2': 'gap-2',
+  '4': 'gap-4',
+  '6': 'gap-6',
+  '8': 'gap-8',
+  '12': 'gap-12',
+}
+
+const marginTopClasses: Record<string, string> = {
+  '0': 'mt-0',
+  '2': 'mt-2',
+  '4': 'mt-4',
+  '6': 'mt-6',
+  '8': 'mt-8',
+  '12': 'mt-12',
 }
 
 const Tabs = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Root>, TabsProps>(
@@ -43,6 +65,7 @@ const Tabs = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Root>, TabsP
       className,
       orientation = 'horizontal',
       menuPosition = 'above',
+      contentGap = '4',
       autoplay = false,
       autoplayDuration = 5000,
       pauseOnHover = true,
@@ -136,12 +159,14 @@ const Tabs = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Root>, TabsP
     // Determine layout direction based on menu position
     const isVerticalLayout = menuPosition === 'left' || menuPosition === 'right'
     const isReversed = menuPosition === 'below' || menuPosition === 'right'
+    const gapClass = gapClasses[contentGap] || gapClasses['4']
 
     return (
       <TabsContext.Provider
         value={{
           orientation,
           menuPosition,
+          contentGap,
           autoplay,
           autoplayDuration,
           showProgress,
@@ -159,7 +184,7 @@ const Tabs = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Root>, TabsP
           orientation={orientation}
           className={cn(
             'w-full',
-            isVerticalLayout && 'flex gap-6',
+            isVerticalLayout && `flex ${gapClass}`,
             isReversed && isVerticalLayout && 'flex-row-reverse',
             isReversed && !isVerticalLayout && 'flex flex-col-reverse',
             className
@@ -250,7 +275,7 @@ const TabsList = React.forwardRef<React.ElementRef<typeof TabsPrimitive.List>, T
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
             className={cn(
-              'flex w-full items-center justify-between rounded-lg bg-gray-100 px-4 py-3 text-body font-medium md:hidden',
+              'flex w-full items-center justify-between rounded-lg bg-muted-background px-4 py-3 text-body font-medium md:hidden',
               dropdownOpen && 'rounded-b-none'
             )}
           >
@@ -268,7 +293,7 @@ const TabsList = React.forwardRef<React.ElementRef<typeof TabsPrimitive.List>, T
         <TabsPrimitive.List
           ref={ref}
           className={cn(
-            'inline-flex items-center gap-1 rounded-lg bg-gray-100 p-1',
+            'inline-flex items-center gap-1 rounded-lg bg-muted-background p-1',
             orientation === 'vertical' && 'flex-col',
             mobileDropdown && 'hidden md:inline-flex',
             mobileDropdown && dropdownOpen && 'flex flex-col rounded-t-none',
@@ -293,7 +318,7 @@ const TabsList = React.forwardRef<React.ElementRef<typeof TabsPrimitive.List>, T
             <button
               onClick={onTogglePause}
               className={cn(
-                'flex h-9 items-center justify-center px-3 text-gray-500 transition-colors hover:text-black',
+                'flex h-9 items-center justify-center px-3 text-muted-foreground transition-colors hover:text-foreground',
                 orientation === 'vertical' && 'w-full'
               )}
               aria-label={isPaused ? 'Resume autoplay' : 'Pause autoplay'}
@@ -328,11 +353,11 @@ const TabsTrigger = React.forwardRef<
     <TabsPrimitive.Trigger
       ref={ref}
       className={cn(
-        'relative inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-body font-medium transition-all',
-        'text-gray-600 hover:text-black',
+        'relative inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-body font-medium transition-all cursor-pointer',
+        'text-muted-foreground hover:text-foreground',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
         'disabled:pointer-events-none disabled:opacity-50',
-        'data-[state=active]:bg-white data-[state=active]:text-black data-[state=active]:shadow-sm',
+        'data-[state=active]:bg-card-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',
         orientation === 'vertical' && 'w-full justify-start',
         className
       )}
@@ -358,22 +383,23 @@ const TabsTrigger = React.forwardRef<
 })
 TabsTrigger.displayName = 'TabsTrigger'
 
-// Tab content
+// Tab content with fade animation
 const TabsContent = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
 >(({className, ...props}, ref) => {
-  const {menuPosition} = React.useContext(TabsContext)
+  const {menuPosition, contentGap} = React.useContext(TabsContext)
   const isVerticalLayout = menuPosition === 'left' || menuPosition === 'right'
+  const marginClass = marginTopClasses[contentGap] || marginTopClasses['4']
 
   return (
     <TabsPrimitive.Content
       ref={ref}
       className={cn(
-        'mt-4 ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
+        'ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
         'data-[state=inactive]:hidden',
-        'animate-in fade-in-0 duration-300',
-        isVerticalLayout && 'mt-0 flex-1',
+        'data-[state=active]:animate-in data-[state=active]:fade-in-50 data-[state=active]:duration-200',
+        isVerticalLayout ? 'mt-0 flex-1' : marginClass,
         className
       )}
       {...props}

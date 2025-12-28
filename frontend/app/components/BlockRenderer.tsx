@@ -75,7 +75,7 @@ export default function BlockRenderer({block, index, pageId, pageType}: BlockPro
   // Block doesn't exist yet
   return React.createElement(
     () => (
-      <div className="w-full bg-gray-100 text-center text-gray-500 p-20 rounded">
+      <div className="w-full bg-muted-background text-center text-muted-foreground p-20 rounded">
         A &ldquo;{block._type}&rdquo; block hasn&apos;t been created
       </div>
     ),

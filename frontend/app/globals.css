@@ -21,29 +21,82 @@ html[data-theme="dark"] {
   color-scheme: dark;
 }
 
-/* Semantic color variables using light-dark() */
+/* Semantic color variables - Light mode defaults */
 :root {
+  /* Layout variables */
+  --container-gutter: 6vw;
+  --container-max-width: 90rem;
+
   /* Primary semantic colors */
-  --primary-background: light-dark(#ffffff, #1d1c1a);
-  --primary-foreground: light-dark(#1d1c1a, #ffffff);
-  --primary-border: light-dark(#cccabf, #474641);
+  --primary-background: #ffffff;
+  --primary-foreground: #1d1c1a;
+  --primary-border: #cccabf;
+
+  /* Secondary background (Light Gray in Mast) */
+  --secondary-background: #f0eee6;
 
   /* Muted/secondary backgrounds */
-  --muted-background: light-dark(#f0eee6, #292825);
-  --muted-foreground: light-dark(#6b6961, #9a9890);
+  --muted-background: #f0eee6;
+  --muted-foreground: #6b6961;
 
   /* Card backgrounds */
-  --card-background: light-dark(#ffffff, #292825);
-  --card-foreground: light-dark(#1d1c1a, #ffffff);
-  --card-border: light-dark(#e5e3db, #353430);
+  --card-background: #ffffff;
+  --card-foreground: #1d1c1a;
+  --card-border: #e5e3db;
 
   /* Input/form elements */
-  --input-background: light-dark(#ffffff, #292825);
-  --input-border: light-dark(#cccabf, #474641);
+  --input-background: #ffffff;
+  --input-border: #cccabf;
 
   /* Footer specific */
-  --footer-background: light-dark(#ffffff, #1d1c1a);
-  --footer-border: light-dark(#e5e3db, #353430);
+  --footer-background: #ffffff;
+  --footer-border: #e5e3db;
+}
+
+/* Dark mode overrides - matches OS preference */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --primary-background: #1d1c1a;
+    --primary-foreground: #ffffff;
+    --primary-border: #474641;
+
+    --secondary-background: #292825;
+
+    --muted-background: #292825;
+    --muted-foreground: #9a9890;
+
+    --card-background: #292825;
+    --card-foreground: #ffffff;
+    --card-border: #353430;
+
+    --input-background: #292825;
+    --input-border: #474641;
+
+    --footer-background: #1d1c1a;
+    --footer-border: #353430;
+  }
+}
+
+/* Force dark mode when data-theme="dark" */
+html[data-theme="dark"] {
+  --primary-background: #1d1c1a;
+  --primary-foreground: #ffffff;
+  --primary-border: #474641;
+
+  --secondary-background: #292825;
+
+  --muted-background: #292825;
+  --muted-foreground: #9a9890;
+
+  --card-background: #292825;
+  --card-foreground: #ffffff;
+  --card-border: #353430;
+
+  --input-background: #292825;
+  --input-border: #474641;
+
+  --footer-background: #1d1c1a;
+  --footer-border: #353430;
 }
 
 /* Apply semantic colors to base elements */
@@ -53,16 +106,29 @@ html {
 }
 
 /* ==========================================================================
+   PROSE TYPOGRAPHY OVERRIDES
+   Make prose inherit text color from parent for theme compatibility
+   ========================================================================== */
+.prose {
+  --tw-prose-body: inherit;
+  --tw-prose-headings: inherit;
+  --tw-prose-lead: inherit;
+  --tw-prose-bold: inherit;
+  --tw-prose-counters: inherit;
+  --tw-prose-bullets: inherit;
+  color: inherit;
+}
+
+/* ==========================================================================
    CONTAINER SYSTEM (Mast-style)
-   Max-width: 90rem (1440px) with 6vw gutters, fluid below max
+   Uses min() function: container is either max-width OR viewport minus gutters
+   This creates the gutter effect without needing padding
    ========================================================================== */
 @utility container {
   width: 100%;
-  max-width: 90rem;
+  max-width: min(calc(100% - var(--container-gutter) * 2), var(--container-max-width));
   margin-left: auto;
   margin-right: auto;
-  padding-left: 6vw;
-  padding-right: 6vw;
 }
 
 /* ==========================================================================

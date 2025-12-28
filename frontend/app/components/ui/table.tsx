@@ -8,8 +8,8 @@ interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
 
 const variantClasses = {
   default: '',
-  striped: '[&_tbody_tr:nth-child(even)]:bg-gray-50',
-  bordered: 'border border-gray-200 [&_th]:border [&_th]:border-gray-200 [&_td]:border [&_td]:border-gray-200',
+  striped: '[&_tbody_tr:nth-child(even)]:bg-muted-background',
+  bordered: 'border border-border [&_th]:border [&_th]:border-border [&_td]:border [&_td]:border-border',
 }
 
 const Table = React.forwardRef<HTMLTableElement, TableProps>(
@@ -36,7 +36,7 @@ const TableHeader = React.forwardRef<
 >(({className, ...props}, ref) => (
   <thead
     ref={ref}
-    className={cn('border-b border-gray-200 bg-gray-50', className)}
+    className={cn('border-b border-border bg-muted-background', className)}
     {...props}
   />
 ))
@@ -58,7 +58,7 @@ const TableFooter = React.forwardRef<
 >(({className, ...props}, ref) => (
   <tfoot
     ref={ref}
-    className={cn('border-t border-gray-200 bg-gray-50 font-medium', className)}
+    className={cn('border-t border-border bg-muted-background font-medium', className)}
     {...props}
   />
 ))
@@ -74,8 +74,8 @@ const TableRow = React.forwardRef<HTMLTableRowElement, TableRowProps>(
     <tr
       ref={ref}
       className={cn(
-        'border-b border-gray-200 transition-colors',
-        !isHeader && 'hover:bg-gray-50/50',
+        'border-b border-border transition-colors',
+        !isHeader && 'hover:bg-muted-background/50',
         className
       )}
       {...props}
@@ -94,7 +94,7 @@ const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
     <th
       ref={ref}
       className={cn(
-        'h-12 px-4 font-medium text-gray-700',
+        'h-12 px-4 font-medium text-muted-foreground',
         'text-p-sm uppercase tracking-wide',
         align === 'left' && 'text-left',
         align === 'center' && 'text-center',
@@ -136,7 +136,7 @@ const TableCaption = React.forwardRef<
 >(({className, ...props}, ref) => (
   <caption
     ref={ref}
-    className={cn('mt-4 text-p-sm text-gray-500', className)}
+    className={cn('mt-4 text-p-sm text-muted-foreground', className)}
     {...props}
   />
 ))

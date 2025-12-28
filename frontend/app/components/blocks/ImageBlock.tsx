@@ -60,7 +60,7 @@ export default function ImageBlock({block}: ImageBlockProps) {
 
   if (!imageUrl) {
     return (
-      <div className="w-full bg-gray-100 text-center text-gray-500 p-8 rounded my-2">
+      <div className="w-full bg-muted-background text-center text-muted-foreground p-8 rounded my-2">
         No image selected
       </div>
     )
@@ -93,7 +93,7 @@ export default function ImageBlock({block}: ImageBlockProps) {
         />
       </div>
       {caption && (
-        <figcaption className="mt-2 text-sm text-gray-500 text-center">
+        <figcaption className="mt-2 text-sm text-muted-foreground text-center">
           {caption}
         </figcaption>
       )}

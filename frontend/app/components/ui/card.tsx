@@ -71,9 +71,9 @@ const paddingMobileClasses: Record<CardPadding, string> = {
 
 // Variant classes
 const variantClasses: Record<CardVariant, string> = {
-  default: 'bg-white border border-gray-300',
-  outline: 'bg-transparent border border-gray-300',
-  filled: 'bg-gray-50 border border-transparent',
+  default: 'bg-card-background border border-border',
+  outline: 'bg-transparent border border-border',
+  filled: 'bg-muted-background border border-transparent',
   ghost: 'bg-transparent border border-transparent',
 }
 
@@ -93,7 +93,7 @@ export function Card({
     variantClasses[variant],
     paddingMobileClasses[paddingMobile],
     paddingDesktopClasses[paddingDesktop],
-    hoverEffect && 'hover:bg-gray-100 hover:border-gray-400',
+    hoverEffect && 'hover:bg-muted-background hover:border-border',
     href && 'cursor-pointer',
     className,
   )
@@ -159,7 +159,7 @@ interface CardFooterProps {
 }
 
 export function CardFooter({children, className}: CardFooterProps) {
-  return <div className={cn('mt-4 pt-4 border-t border-gray-200', className)}>{children}</div>
+  return <div className={cn('mt-4 pt-4 border-t border-border', className)}>{children}</div>
 }
 
 export default Card

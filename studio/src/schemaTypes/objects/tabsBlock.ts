@@ -110,6 +110,24 @@ export const tabsBlock = defineType({
       initialValue: false,
     }),
     defineField({
+      name: 'contentGap',
+      title: 'Menu/Content Gap',
+      type: 'string',
+      group: 'settings',
+      description: 'Space between the tab menu and content area',
+      options: {
+        list: [
+          {title: 'None', value: '0'},
+          {title: 'Small (8px)', value: '2'},
+          {title: 'Medium (16px)', value: '4'},
+          {title: 'Large (24px)', value: '6'},
+          {title: 'XL (32px)', value: '8'},
+          {title: '2XL (48px)', value: '12'},
+        ],
+      },
+      initialValue: '4',
+    }),
+    defineField({
       name: 'defaultTab',
       title: 'Default Active Tab',
       type: 'string',

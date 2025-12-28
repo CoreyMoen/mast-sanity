@@ -10,17 +10,23 @@ export const headingBlock = defineType({
   title: 'Heading',
   type: 'object',
   icon: TextIcon,
+  groups: [
+    {name: 'content', title: 'Content', default: true},
+    {name: 'advanced', title: 'Advanced'},
+  ],
   fields: [
     defineField({
       name: 'text',
       title: 'Heading Text',
       type: 'string',
+      group: 'content',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'level',
       title: 'Heading Level',
       type: 'string',
+      group: 'content',
       description: 'Semantic HTML heading level (h1-h6)',
       options: {
         list: [
@@ -40,6 +46,7 @@ export const headingBlock = defineType({
       name: 'size',
       title: 'Visual Size',
       type: 'string',
+      group: 'content',
       description: 'Visual size using fluid typography (can differ from semantic level)',
       options: {
         list: [
@@ -57,6 +64,7 @@ export const headingBlock = defineType({
       name: 'align',
       title: 'Text Alignment',
       type: 'string',
+      group: 'content',
       options: {
         list: [
           {title: 'Left', value: 'left'},
@@ -72,6 +80,7 @@ export const headingBlock = defineType({
       name: 'color',
       title: 'Text Color',
       type: 'string',
+      group: 'content',
       options: {
         list: [
           {title: 'Default (Black)', value: 'default'},
@@ -82,6 +91,15 @@ export const headingBlock = defineType({
         ],
       },
       initialValue: 'default',
+    }),
+    // Advanced Group
+    defineField({
+      name: 'customStyle',
+      title: 'Custom CSS',
+      type: 'text',
+      group: 'advanced',
+      description: 'Add custom inline CSS styles (e.g., "margin-top: 2rem; opacity: 0.8;")',
+      rows: 3,
     }),
   ],
   preview: {

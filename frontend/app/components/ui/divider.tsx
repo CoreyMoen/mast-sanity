@@ -47,10 +47,11 @@ const marginBottomClasses: Record<SpacingSize, string> = {
 }
 
 // Border color classes
+// Default uses --primary-border which switches between Mid Gray 1 (light) and Mid Gray 2 (dark)
 const colorClasses: Record<DividerColor, string> = {
-  default: 'border-gray-300',
-  light: 'border-gray-200',
-  dark: 'border-gray-600',
+  default: 'border-[var(--primary-border)]',
+  light: 'border-[var(--primary-border)]/50',
+  dark: 'border-foreground/40',
   brand: 'border-brand',
   blue: 'border-blue',
 }

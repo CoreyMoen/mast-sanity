@@ -68,7 +68,7 @@ function resolveLink(link?: FooterLink): string {
 
 // Social icon component
 function SocialIcon({platform}: {platform: string}) {
-  const iconProps = {size: 24, weight: 'regular' as const}
+  const iconProps = {size: 20, weight: 'regular' as const}
 
   switch (platform) {
     case 'linkedin':
@@ -90,6 +90,37 @@ function SocialIcon({platform}: {platform: string}) {
   }
 }
 
+// Mast-style logo SVG component (same as in Navigation)
+function MastLogo({className}: {className?: string}) {
+  return (
+    <svg
+      viewBox="0 0 101 27"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      role="img"
+      aria-label="Mast Sanity"
+    >
+      <path
+        d="M11.9187 26.6316H16.4157L23.1435 9.59964V26.6316H28.03V1.2076H21.5855L14.1849 20.0454L6.81977 1.2076H0.375244V26.6316H5.26175V9.74128L11.9187 26.6316Z"
+        fill="currentColor"
+      />
+      <path
+        d="M50.2224 26.6316H55.9941L46.5044 1.2076H40.6264L31.0658 26.6316H36.4835L38.431 21.1785H48.3102L50.2224 26.6316ZM43.4237 7.08557L46.823 16.894H39.9536L43.4237 7.08557Z"
+        fill="currentColor"
+      />
+      <path
+        d="M77.9103 18.7353C77.9103 14.9819 75.5025 12.9281 71.0409 12.0429L66.6855 11.1577C64.8442 10.8036 63.2508 10.06 63.2508 8.3249C63.2508 6.55443 64.738 5.06723 67.3583 5.06723C70.0494 5.06723 71.8907 6.87312 72.0678 9.52883H77.5208C77.1667 4.21741 72.9884 0.888916 67.2875 0.888916C61.799 0.888916 57.7978 4.14659 57.7978 8.679C57.7978 12.8927 60.7722 14.9819 64.6318 15.7255L68.8101 16.5399C70.9701 16.9648 72.2094 17.9209 72.2094 19.5143C72.2094 21.568 70.2619 22.772 67.5354 22.772C64.2423 22.772 62.4364 20.9661 62.2948 18.1687H56.8417C57.2312 23.551 61.2325 26.9857 67.6416 26.9857C74.0153 26.9857 77.9103 23.5864 77.9103 18.7353Z"
+        fill="currentColor"
+      />
+      <path
+        d="M92.4503 26.6316V6.0587H100.488V1.2076H79.0656V6.0587H87.0681V26.6316H92.4503Z"
+        fill="currentColor"
+      />
+    </svg>
+  )
+}
+
 // Footer link component
 function FooterLinkItem({
   href,
@@ -102,7 +133,7 @@ function FooterLinkItem({
 }) {
   const isExternal = href.startsWith('http') || href.startsWith('//')
   const className =
-    'text-body text-[var(--muted-foreground)] transition-colors duration-300 hover:text-[var(--primary-foreground)] hover:underline'
+    'text-body transition-colors duration-300 hover:text-brand cursor-pointer'
 
   if (isExternal || openInNewTab) {
     return (
@@ -124,105 +155,144 @@ function FooterLinkItem({
   )
 }
 
-export default function FooterNew({data, siteTitle = 'Site'}: FooterProps) {
+// Default footer link columns (shown when no data from Sanity)
+const defaultLinkColumns: LinkColumn[] = [
+  {
+    _key: 'col1',
+    links: [
+      {_key: '1', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+      {_key: '2', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+      {_key: '3', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+      {_key: '4', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+      {_key: '5', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+    ],
+  },
+  {
+    _key: 'col2',
+    links: [
+      {_key: '1', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+      {_key: '2', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+      {_key: '3', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+      {_key: '4', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+      {_key: '5', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+    ],
+  },
+  {
+    _key: 'col3',
+    links: [
+      {_key: '1', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+      {_key: '2', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+      {_key: '3', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+      {_key: '4', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+      {_key: '5', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+    ],
+  },
+  {
+    _key: 'col4',
+    links: [
+      {_key: '1', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+      {_key: '2', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+      {_key: '3', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+      {_key: '4', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+      {_key: '5', label: 'Footer link', link: {linkType: 'href', href: '#'}},
+    ],
+  },
+]
+
+// Default social links
+const defaultSocialLinks: SocialLink[] = [
+  {_key: 'yt', platform: 'youtube', url: '#'},
+  {_key: 'li', platform: 'linkedin', url: '#'},
+  {_key: 'x', platform: 'x', url: '#'},
+]
+
+export default function FooterNew({data, siteTitle = 'Mast Sanity'}: FooterProps) {
   const currentYear = new Date().getFullYear()
+  const hasLogoImage = data?.logoImage?.asset
+  const linkColumns = data?.linkColumns?.length ? data.linkColumns : defaultLinkColumns
+  const socialLinks = data?.socialLinks?.length ? data.socialLinks : defaultSocialLinks
 
   return (
-    <footer className="border-t border-[var(--footer-border)] bg-[var(--footer-background)] mt-auto">
+    <footer className="border-t border-[var(--primary-border)] bg-[var(--primary-background)] mt-auto">
       <div className="container py-12 md:py-16">
-        {/* Top section: Logo and Link Columns */}
-        <div className="grid gap-8 md:grid-cols-12 md:gap-12">
-          {/* Logo column */}
-          {data?.showLogo !== false && (
-            <div className="md:col-span-3">
-              <Link href="/" className="inline-block">
-                {data?.logoImage?.asset ? (
+        {/* Top section: Logo/Theme Toggle and Link Columns - matching Mast reference */}
+        <div className="flex flex-wrap -mx-3">
+          {/* Logo and Theme Toggle column */}
+          <div className="w-full md:w-3/12 px-3 mb-8 md:mb-0">
+            <div className="flex flex-col h-full">
+              {/* Logo */}
+              <Link href="/" className="inline-block w-20 text-brand transition-opacity duration-300 hover:opacity-80 mb-auto">
+                {hasLogoImage ? (
                   <Image
                     src={urlForImage(data.logoImage)?.width(200).height(50).url() || ''}
-                    alt={data.logoImage.alt || siteTitle}
-                    width={100}
-                    height={40}
-                    className="h-8 w-auto md:h-10"
+                    alt={data.logoImage?.alt || siteTitle}
+                    width={80}
+                    height={32}
+                    className="w-full h-auto"
                   />
                 ) : (
-                  <span className="text-h4 font-medium text-brand">
-                    {data?.logoText || siteTitle}
-                  </span>
+                  <MastLogo className="w-full h-auto" />
                 )}
               </Link>
-            </div>
-          )}
 
-          {/* Link columns */}
-          {data?.linkColumns && data.linkColumns.length > 0 && (
-            <div
-              className={`grid gap-8 sm:grid-cols-2 lg:grid-cols-${Math.min(data.linkColumns.length, 4)} ${
-                data?.showLogo !== false ? 'md:col-span-9' : 'md:col-span-12'
-              }`}
-            >
-              {data.linkColumns.map((column) => (
-                <div key={column._key}>
-                  {column.title && (
-                    <h3 className="text-h6 font-medium uppercase tracking-wider text-[var(--muted-foreground)] mb-4">
-                      {column.title}
-                    </h3>
-                  )}
-                  {column.links && column.links.length > 0 && (
-                    <ul className="space-y-3">
-                      {column.links.map((linkItem) => (
-                        <li key={linkItem._key}>
-                          <FooterLinkItem
-                            href={resolveLink(linkItem.link)}
-                            openInNewTab={linkItem.link?.openInNewTab}
-                          >
-                            {linkItem.label}
-                          </FooterLinkItem>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
+              {/* Theme Toggle - at bottom of column */}
+              {data?.showThemeToggle !== false && (
+                <div className="mt-auto pt-6">
+                  <ThemeToggle showLabels />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Link columns - taking 9/12 on desktop */}
+          <div className="w-full md:w-9/12 px-3">
+            <div className="flex flex-wrap -mx-3">
+              {linkColumns.map((column) => (
+                <div key={column._key} className="w-1/2 md:w-1/4 px-3 mb-6 md:mb-0">
+                  <ul className="space-y-2">
+                    {column.links?.map((linkItem) => (
+                      <li key={linkItem._key}>
+                        <FooterLinkItem
+                          href={resolveLink(linkItem.link)}
+                          openInNewTab={linkItem.link?.openInNewTab}
+                        >
+                          {linkItem.label}
+                        </FooterLinkItem>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               ))}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Divider */}
-        <hr className="my-8 border-[var(--footer-border)] md:my-12" />
+        <hr className="my-8 border-[var(--primary-border)] md:my-10" />
 
-        {/* Bottom section: Copyright, Theme Toggle, and Social links */}
+        {/* Bottom section: Copyright and Social links */}
         <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
           {/* Copyright */}
-          <p className="text-p-sm text-[var(--muted-foreground)]">
-            © {currentYear} {data?.companyName || siteTitle}. All rights reserved.
+          <p className="text-body">
+            © <span>{currentYear}</span> {data?.companyName || 'Company'}
           </p>
 
-          {/* Theme Toggle and Social links */}
-          <div className="flex items-center gap-4">
-            {/* Theme Toggle */}
-            {data?.showThemeToggle !== false && (
-              <ThemeToggle showLabels />
-            )}
-
-            {/* Social links */}
-            {data?.socialLinks && data.socialLinks.length > 0 && (
-              <ul className="flex items-center gap-2">
-                {data.socialLinks.map((social) => (
-                  <li key={social._key}>
-                    <a
-                      href={social.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex h-10 w-10 items-center justify-center text-[var(--muted-foreground)] transition-colors duration-300 hover:text-brand"
-                      aria-label={`Visit our ${social.platform} page`}
-                    >
-                      <SocialIcon platform={social.platform} />
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          {/* Social links */}
+          <ul className="flex items-center gap-1">
+            {socialLinks.map((social) => (
+              <li key={social._key}>
+                <a
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-10 w-10 items-center justify-center transition-colors duration-300 hover:text-brand cursor-pointer"
+                  aria-label={`Visit our ${social.platform} page`}
+                >
+                  <SocialIcon platform={social.platform} />
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </footer>

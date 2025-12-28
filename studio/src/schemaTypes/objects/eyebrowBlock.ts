@@ -65,6 +65,23 @@ export const eyebrowBlock = defineType({
       },
       initialValue: 'left',
     }),
+    defineField({
+      name: 'marginBottom',
+      title: 'Bottom Margin',
+      type: 'string',
+      group: 'style',
+      options: {
+        list: [
+          {title: 'None', value: '0'},
+          {title: 'XS (4px)', value: '1'},
+          {title: 'SM (8px)', value: '2'},
+          {title: 'MD (16px)', value: '4'},
+          {title: 'LG (24px)', value: '6'},
+          {title: 'XL (32px)', value: '8'},
+        ],
+      },
+      initialValue: '4',
+    }),
   ],
   preview: {
     select: {

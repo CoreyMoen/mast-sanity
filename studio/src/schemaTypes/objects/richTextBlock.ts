@@ -10,16 +10,22 @@ export const richTextBlock = defineType({
   title: 'Rich Text',
   type: 'object',
   icon: DocumentTextIcon,
+  groups: [
+    {name: 'content', title: 'Content', default: true},
+    {name: 'advanced', title: 'Advanced'},
+  ],
   fields: [
     defineField({
       name: 'content',
       title: 'Content',
       type: 'blockContent',
+      group: 'content',
     }),
     defineField({
       name: 'align',
       title: 'Text Alignment',
       type: 'string',
+      group: 'content',
       options: {
         list: [
           {title: 'Left', value: 'left'},
@@ -32,9 +38,26 @@ export const richTextBlock = defineType({
       initialValue: 'left',
     }),
     defineField({
+      name: 'size',
+      title: 'Text Size',
+      type: 'string',
+      group: 'content',
+      description: 'Visual size of the paragraph text',
+      options: {
+        list: [
+          {title: 'Extra Large', value: 'xl'},
+          {title: 'Large', value: 'lg'},
+          {title: 'Base', value: 'base'},
+          {title: 'Small', value: 'sm'},
+        ],
+      },
+      initialValue: 'base',
+    }),
+    defineField({
       name: 'maxWidth',
       title: 'Max Width',
       type: 'string',
+      group: 'content',
       description: 'Constrain the width of text for better readability',
       options: {
         list: [
@@ -45,6 +68,31 @@ export const richTextBlock = defineType({
         ],
       },
       initialValue: 'none',
+    }),
+    defineField({
+      name: 'color',
+      title: 'Text Color',
+      type: 'string',
+      group: 'content',
+      options: {
+        list: [
+          {title: 'Default', value: 'default'},
+          {title: 'Gray', value: 'gray'},
+          {title: 'White', value: 'white'},
+          {title: 'Brand', value: 'brand'},
+          {title: 'Blue', value: 'blue'},
+        ],
+      },
+      initialValue: 'default',
+    }),
+    // Advanced Group
+    defineField({
+      name: 'customStyle',
+      title: 'Custom CSS',
+      type: 'text',
+      group: 'advanced',
+      description: 'Add custom inline CSS styles (e.g., "margin-top: 2rem; opacity: 0.8;")',
+      rows: 3,
     }),
   ],
   preview: {

@@ -59,7 +59,7 @@ const ModalContent = React.forwardRef<
       ref={ref}
       className={cn(
         'fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2',
-        'w-[90%] rounded-lg border border-gray-200 bg-white p-6 shadow-xl',
+        'w-[90%] rounded-lg border border-border bg-background p-6 shadow-xl',
         'max-h-[85vh] overflow-y-auto',
         'data-[state=open]:animate-in data-[state=closed]:animate-out',
         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
@@ -77,7 +77,7 @@ const ModalContent = React.forwardRef<
         <DialogPrimitive.Close
           className={cn(
             'absolute right-4 top-4 rounded-full p-2',
-            'text-gray-500 transition-colors hover:bg-gray-100 hover:text-black',
+            'text-muted-foreground transition-colors hover:bg-muted-background hover:text-foreground',
             'focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2'
           )}
           aria-label="Close"
@@ -116,7 +116,7 @@ const ModalDescription = React.forwardRef<
 >(({className, ...props}, ref) => (
   <DialogPrimitive.Description
     ref={ref}
-    className={cn('text-body text-gray-600', className)}
+    className={cn('text-body text-muted-foreground', className)}
     {...props}
   />
 ))
@@ -171,7 +171,7 @@ const VideoModalContent = React.forwardRef<
       <DialogPrimitive.Close
         className={cn(
           'absolute -right-3 -top-3 rounded-full bg-white p-2 shadow-lg',
-          'text-gray-700 transition-colors hover:bg-gray-100 hover:text-black',
+          'text-muted-foreground transition-colors hover:bg-muted-background hover:text-foreground',
           'focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2'
         )}
         aria-label="Close"

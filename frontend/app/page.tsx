@@ -24,7 +24,7 @@ export default async function Page() {
                 <div className="text-md leading-6 prose uppercase py-1 px-3 bg-white font-mono italic">
                   A starter template for
                 </div>
-                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-black">
+                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter text-foreground">
                   <Link
                     className="underline decoration-brand hover:text-brand underline-offset-8 hover:underline-offset-4 transition-all ease-out"
                     href="https://sanity.io/"
@@ -46,13 +46,13 @@ export default async function Page() {
         <div className=" flex flex-col items-center">
           <SideBySideIcons />
           <div className="container relative mx-auto max-w-2xl pb-20 pt-10 space-y-6 lg:max-w-4xl lg:px-12 flex flex-col items-center">
-            <div className="prose sm:prose-lg md:prose-xl xl:prose-2xl text-gray-700 prose-a:text-gray-700 font-light text-center">
+            <div className="prose sm:prose-lg md:prose-xl xl:prose-2xl text-muted-foreground prose-a:text-muted-foreground font-light text-center">
               {settings?.description && <PortableText value={settings.description} />}
               <div className="flex items-center flex-col gap-4">
                 <GetStartedCode />
                 <Link
                   href="https://www.sanity.io/docs"
-                  className="inline-flex text-brand text-xs md:text-sm underline hover:text-gray-900"
+                  className="inline-flex text-brand text-xs md:text-sm underline hover:text-foreground"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
@@ -71,7 +71,7 @@ export default async function Page() {
           </div>
         </div>
       </div>
-      <div className="border-t border-gray-100 bg-gray-50">
+      <div className="border-t border-border bg-muted-background">
         <div className="container">
           <aside className="py-12 sm:py-20">
             <Suspense>{await AllPosts()}</Suspense>

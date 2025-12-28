@@ -13,6 +13,7 @@ export const row = defineType({
   groups: [
     {name: 'content', title: 'Content', default: true},
     {name: 'settings', title: 'Settings'},
+    {name: 'advanced', title: 'Advanced'},
   ],
   fields: [
     defineField({
@@ -53,6 +54,7 @@ export const row = defineType({
           {title: 'Bottom', value: 'end'},
           {title: 'Stretch', value: 'stretch'},
           {title: 'Baseline', value: 'baseline'},
+          {title: 'Space Between', value: 'between'},
         ],
         layout: 'radio',
       },
@@ -90,6 +92,15 @@ export const row = defineType({
       group: 'settings',
       description: 'Reverse the order of columns on mobile devices',
       initialValue: false,
+    }),
+    // Advanced Group
+    defineField({
+      name: 'customStyle',
+      title: 'Custom CSS',
+      type: 'text',
+      group: 'advanced',
+      description: 'Add custom inline CSS styles (e.g., "margin-top: 2rem; opacity: 0.8;")',
+      rows: 3,
     }),
   ],
   preview: {

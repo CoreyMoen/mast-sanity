@@ -18,6 +18,7 @@ import TabsBlock from './TabsBlock'
 import ModalBlock from './ModalBlock'
 import InlineVideoBlock from './InlineVideoBlock'
 import MarqueeBlock from './MarqueeBlock'
+import ContentWrap from './ContentWrap'
 
 type ContentBlocksType = {
   [key: string]: React.FC<any>
@@ -51,6 +52,7 @@ const ContentBlocks: ContentBlocksType = {
   modalBlock: ModalBlock,
   inlineVideoBlock: InlineVideoBlock,
   marqueeBlock: MarqueeBlock,
+  contentWrap: ContentWrap,
 }
 
 export default function ContentBlockRenderer({
@@ -65,7 +67,7 @@ export default function ContentBlockRenderer({
 
   // Fallback for unknown block types
   return (
-    <div className="w-full bg-gray-100 text-center text-gray-500 p-4 rounded my-2">
+    <div className="w-full bg-muted-background text-center text-muted-foreground p-4 rounded my-2">
       A &ldquo;{block._type}&rdquo; content block hasn&apos;t been created
     </div>
   )

@@ -12,8 +12,29 @@ interface HeadingBlockProps {
     size?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
     align?: 'left' | 'center' | 'right'
     color?: 'default' | 'gray' | 'white' | 'brand' | 'blue'
+    customStyle?: string
   }
   index: number
+}
+
+// Parse CSS string to React style object
+function parseCustomStyle(cssString?: string): React.CSSProperties | undefined {
+  if (!cssString) return undefined
+  try {
+    return Object.fromEntries(
+      cssString
+        .split(';')
+        .filter((s) => s.trim())
+        .map((s) => {
+          const [key, ...valueParts] = s.split(':')
+          const value = valueParts.join(':').trim()
+          const camelKey = key.trim().replace(/-([a-z])/g, (g) => g[1].toUpperCase())
+          return [camelKey, value]
+        })
+    )
+  } catch {
+    return undefined
+  }
 }
 
 // Size mapping for visual appearance using fluid typography (Mast-style)
@@ -33,10 +54,10 @@ const alignClasses: Record<string, string> = {
   right: 'text-right',
 }
 
-// Color mapping
+// Color mapping - using semantic colors for theme support
 const colorClasses: Record<string, string> = {
-  default: 'text-gray-900',
-  gray: 'text-gray-600',
+  default: 'text-foreground',
+  gray: 'text-muted-foreground',
   white: 'text-white',
   brand: 'text-brand',
   blue: 'text-blue',
@@ -49,6 +70,7 @@ export default function HeadingBlock({block}: HeadingBlockProps) {
     size = 'h2',
     align = 'left',
     color = 'default',
+    customStyle,
   } = block
 
   // Clean stega encoding from values before using as lookup keys
@@ -61,5 +83,6 @@ export default function HeadingBlock({block}: HeadingBlockProps) {
   const alignClass = alignClasses[cleanAlign] || alignClasses.left
   const colorClass = colorClasses[cleanColor] || colorClasses.default
   const className = `${sizeClass} ${alignClass} ${colorClass} mb-4`
-  return createElement(cleanLevel, {className}, text)
+  const inlineStyle = parseCustomStyle(customStyle)
+  return createElement(cleanLevel, {className, style: inlineStyle}, text)
 }

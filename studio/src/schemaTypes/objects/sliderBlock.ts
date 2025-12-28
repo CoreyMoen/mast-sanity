@@ -1,37 +1,48 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
 import {ImagesIcon} from '@sanity/icons'
 
-// Slide content - can contain other blocks
-const slide = defineArrayMember({
-  name: 'slide',
-  title: 'Slide',
+/**
+ * Image Slide - simplified slide structure with direct image field.
+ * This reduces nesting depth and keeps the slider focused on images.
+ * For other slide types (text, cards, etc.), create separate slider components.
+ */
+const imageSlide = defineArrayMember({
+  name: 'imageSlide',
+  title: 'Image Slide',
   type: 'object',
   fields: [
     defineField({
-      name: 'content',
-      title: 'Slide Content',
-      type: 'array',
-      of: [
-        {type: 'headingBlock'},
-        {type: 'richTextBlock'},
-        {type: 'imageBlock'},
-        {type: 'buttonBlock'},
-        {type: 'cardBlock'},
-        {type: 'eyebrowBlock'},
-      ],
+      name: 'image',
+      title: 'Image',
+      type: 'image',
+      options: {
+        hotspot: true,
+      },
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'alt',
+      title: 'Alt Text',
+      type: 'string',
+      description: 'Describe the image for accessibility',
+    }),
+    defineField({
+      name: 'caption',
+      title: 'Caption',
+      type: 'string',
+      description: 'Optional caption displayed below the image',
     }),
   ],
   preview: {
     select: {
-      content: 'content',
+      media: 'image',
+      alt: 'alt',
+      caption: 'caption',
     },
-    prepare({content}) {
-      const blockCount = content?.length || 0
-      const firstBlock = content?.[0]
-      const title = firstBlock?._type || 'Empty slide'
+    prepare({media, alt, caption}) {
       return {
-        title: `Slide`,
-        subtitle: `${blockCount} block${blockCount !== 1 ? 's' : ''}`,
+        title: alt || caption || 'Image slide',
+        media,
       }
     },
   },
@@ -54,7 +65,7 @@ export const sliderBlock = defineType({
       title: 'Slides',
       type: 'array',
       group: 'slides',
-      of: [slide],
+      of: [imageSlide],
       validation: (rule) => rule.min(1).error('At least one slide is required'),
     }),
 
@@ -119,6 +130,25 @@ export const sliderBlock = defineType({
         ],
       },
       initialValue: '4',
+    }),
+    defineField({
+      name: 'aspectRatio',
+      title: 'Image Aspect Ratio',
+      type: 'string',
+      group: 'layout',
+      description: 'Aspect ratio for all slide images',
+      options: {
+        list: [
+          {title: 'Original', value: 'original'},
+          {title: '16:9 (Widescreen)', value: '16/9'},
+          {title: '4:3 (Standard)', value: '4/3'},
+          {title: '1:1 (Square)', value: '1/1'},
+          {title: '3:4 (Portrait)', value: '3/4'},
+          {title: '9:16 (Vertical)', value: '9/16'},
+        ],
+        layout: 'radio',
+      },
+      initialValue: '16/9',
     }),
 
     // Behavior options

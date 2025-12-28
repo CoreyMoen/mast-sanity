@@ -1,14 +1,22 @@
 import {stegaClean} from 'next-sanity'
-import {dataAttr} from '@/sanity/lib/utils'
+import Image from 'next/image'
+import {dataAttr, urlForImage} from '@/sanity/lib/utils'
 import Row from './Row'
+import ContentBlockRenderer from './ContentBlockRenderer'
+import ContentBlockOverlay from '@/app/components/overlays/ContentBlockOverlay'
 
 interface SectionProps {
   block: {
     _key: string
     _type: string
     label?: string
-    rows?: any[]
+    rows?: any[] // Can contain rows or content blocks
     backgroundColor?: string
+    backgroundImage?: any
+    backgroundOverlay?: number
+    minHeight?: string
+    customMinHeight?: string
+    verticalAlign?: string
     maxWidth?: string
     paddingTop?: string
     paddingBottom?: string
@@ -19,12 +27,15 @@ interface SectionProps {
   pageType: string
 }
 
-// Background color mapping
+// Background color mapping - using semantic CSS variables
 const bgColorClasses: Record<string, string> = {
+  primary: 'bg-[var(--primary-background)]',
+  secondary: 'bg-[var(--secondary-background)]',
+  // Legacy values for backwards compatibility
   none: '',
-  white: 'bg-white',
-  'gray-50': 'bg-gray-50',
-  'gray-100': 'bg-gray-100',
+  white: 'bg-[var(--primary-background)]',
+  'gray-50': 'bg-[var(--secondary-background)]',
+  'gray-100': 'bg-[var(--secondary-background)]',
   'gray-800': 'bg-gray-800',
   black: 'bg-black',
   brand: 'bg-brand',
@@ -34,7 +45,7 @@ const bgColorClasses: Record<string, string> = {
 // Max width mapping
 const maxWidthClasses: Record<string, string> = {
   full: 'w-full',
-  container: 'container mx-auto',
+  container: 'container',
   sm: 'max-w-screen-sm mx-auto',
   md: 'max-w-screen-md mx-auto',
   lg: 'max-w-screen-lg mx-auto',
@@ -68,10 +79,31 @@ const paddingXClasses: Record<string, string> = {
   '8': 'px-8',
 }
 
+// Min height mapping
+const minHeightClasses: Record<string, string> = {
+  auto: '',
+  small: 'min-h-[300px]',
+  medium: 'min-h-[500px]',
+  large: 'min-h-[700px]',
+  screen: 'min-h-screen',
+}
+
+// Vertical alignment for content when min-height is set
+const verticalAlignClasses: Record<string, string> = {
+  start: 'justify-start',
+  center: 'justify-center',
+  end: 'justify-end',
+}
+
 export default function Section({block, index, pageId, pageType}: SectionProps) {
   const {
     rows,
-    backgroundColor = 'none',
+    backgroundColor = 'primary',
+    backgroundImage,
+    backgroundOverlay = 0,
+    minHeight = 'auto',
+    customMinHeight,
+    verticalAlign = 'start',
     maxWidth = 'container',
     paddingTop = '12',
     paddingBottom = '12',
@@ -87,42 +119,89 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
   const cleanPaddingTop = stegaClean(paddingTop)
   const cleanPaddingBottom = stegaClean(paddingBottom)
   const cleanPaddingX = stegaClean(paddingX)
+  const cleanMinHeight = stegaClean(minHeight)
+  const cleanCustomMinHeight = stegaClean(customMinHeight)
+  const cleanVerticalAlign = stegaClean(verticalAlign)
+  const cleanOverlay = stegaClean(backgroundOverlay)
 
   const bgClass = bgColorClasses[cleanBgColor] || ''
   const maxWidthClass = maxWidthClasses[cleanMaxWidth] || maxWidthClasses.container
   const ptClass = paddingTopClasses[cleanPaddingTop] || paddingTopClasses['12']
   const pbClass = paddingBottomClasses[cleanPaddingBottom] || paddingBottomClasses['12']
-  const pxClass = paddingXClasses[cleanPaddingX] || paddingXClasses['6']
+  // Don't apply horizontal padding when using container class (min() function handles gutters)
+  const usesContainer = cleanMaxWidth === 'container' || !cleanMaxWidth
+  const pxClass = usesContainer ? '' : (paddingXClasses[cleanPaddingX] || paddingXClasses['6'])
 
-  // Determine if text should be light on dark backgrounds
-  const isDarkBg = ['gray-800', 'black', 'brand', 'blue'].includes(cleanBgColor)
+  // Handle min-height (preset or custom)
+  const minHeightClass = cleanMinHeight === 'custom' ? '' : (minHeightClasses[cleanMinHeight] || '')
+  const customMinHeightStyle = cleanMinHeight === 'custom' && cleanCustomMinHeight ? {minHeight: cleanCustomMinHeight} : {}
+
+  // Vertical alignment (only applies when min-height is set)
+  const hasMinHeight = cleanMinHeight !== 'auto'
+  const alignClass = hasMinHeight ? verticalAlignClasses[cleanVerticalAlign] || '' : ''
+
+  // Determine if text should be light on dark backgrounds or with background image
+  // Primary/secondary backgrounds use theme-aware colors, so no override needed
+  const backgroundImageUrl = urlForImage(backgroundImage)?.url()
+  const isDarkBg = ['gray-800', 'black', 'brand', 'blue'].includes(cleanBgColor) || (backgroundImageUrl && cleanOverlay >= 40)
 
   return (
     <section
-      className={`${bgClass} ${isDarkBg ? 'text-white' : ''}`}
+      className={`relative ${bgClass} ${isDarkBg ? 'text-white' : 'text-foreground'} ${minHeightClass} ${hasMinHeight ? 'flex flex-col' : ''} ${alignClass}`}
+      style={customMinHeightStyle}
       data-sanity={dataAttr({
         id: pageId,
         type: pageType,
         path: `pageBuilder:${block._key}`,
       }).toString()}
     >
-      <div className={`${maxWidthClass} ${ptClass} ${pbClass} ${pxClass}`}>
-        {rowItems.map((row, rowIndex) => (
+      {/* Background Image */}
+      {backgroundImageUrl && (
+        <>
+          <Image
+            src={backgroundImageUrl}
+            alt=""
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority={index === 0}
+          />
+          {/* Overlay */}
+          {cleanOverlay > 0 && (
+            <div
+              className="absolute inset-0 bg-black"
+              style={{opacity: cleanOverlay / 100}}
+            />
+          )}
+        </>
+      )}
+
+      {/* Content Container */}
+      <div className={`relative z-10 ${maxWidthClass} ${ptClass} ${pbClass} ${pxClass} ${hasMinHeight ? 'flex-1 flex flex-col' : ''} ${alignClass}`}>
+        {rowItems.map((item, itemIndex) => (
           <div
-            key={row._key}
+            key={item._key}
             data-sanity={dataAttr({
               id: pageId,
               type: pageType,
-              path: `pageBuilder:${block._key}.rows:${row._key}`,
+              path: `pageBuilder:${block._key}.rows:${item._key}`,
             }).toString()}
+            data-block-type={item._type}
           >
-            <Row
-              block={row}
-              index={rowIndex}
-              pageId={pageId}
-              pageType={pageType}
-              sectionKey={block._key}
-            />
+            {item._type === 'row' ? (
+              <Row
+                block={item}
+                index={itemIndex}
+                pageId={pageId}
+                pageType={pageType}
+                sectionKey={block._key}
+              />
+            ) : (
+              // Render content blocks directly (not wrapped in row/column)
+              <ContentBlockOverlay blockType={item._type}>
+                <ContentBlockRenderer block={item} index={itemIndex} />
+              </ContentBlockOverlay>
+            )}
           </div>
         ))}
       </div>

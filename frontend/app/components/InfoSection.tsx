@@ -16,7 +16,7 @@ export default function CTA({block}: InfoProps) {
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold">{block.heading}</h2>
         )}
         {block?.subheading && (
-          <span className="block mt-4 mb-8 text-lg uppercase font-light text-gray-900/70">
+          <span className="block mt-4 mb-8 text-lg uppercase font-light text-muted-foreground">
             {block.subheading}
           </span>
         )}

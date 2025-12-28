@@ -4,15 +4,20 @@ import typography from '@tailwindcss/typography'
 export default {
   content: ['./app/**/*.{ts,tsx}', './sanity/**/*.{ts,tsx}'],
   theme: {
-    container: {
-      center: true,
-      padding: '6vw',
-    },
     extend: {
       boxShadow: {
         layer: '0 35px 60px -15px rgba(0, 0, 0, 0.3)',
       },
       colors: {
+        /* Semantic theme colors - these adapt to light/dark mode */
+        foreground: 'var(--primary-foreground)',
+        background: 'var(--primary-background)',
+        border: 'var(--primary-border)',
+        'muted-foreground': 'var(--muted-foreground)',
+        'muted-background': 'var(--muted-background)',
+        'card-background': 'var(--card-background)',
+        'card-foreground': 'var(--card-foreground)',
+
         /* Mast neutral colors */
         black: '#1d1c1a',
         white: '#ffffff',

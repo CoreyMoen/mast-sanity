@@ -19,9 +19,9 @@ const variantClasses: Record<EyebrowVariant, string> = {
 
 const colorClasses: Record<EyebrowColor, Record<EyebrowVariant, string>> = {
   default: {
-    text: 'text-black',
-    overline: 'text-black border-black',
-    pill: 'text-black bg-gray-100',
+    text: 'text-foreground',
+    overline: 'text-foreground border-foreground',
+    pill: 'text-foreground bg-muted-background',
   },
   brand: {
     text: 'text-brand',
@@ -34,9 +34,9 @@ const colorClasses: Record<EyebrowColor, Record<EyebrowVariant, string>> = {
     pill: 'text-white bg-blue',
   },
   muted: {
-    text: 'text-gray-500',
-    overline: 'text-gray-500 border-gray-300',
-    pill: 'text-gray-600 bg-gray-100',
+    text: 'text-muted-foreground',
+    overline: 'text-muted-foreground border-border',
+    pill: 'text-muted-foreground bg-muted-background',
   },
 }
 

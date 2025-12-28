@@ -73,9 +73,9 @@ function Section({
   dark?: boolean
 }) {
   return (
-    <section className={`py-12 ${dark ? 'bg-gray-900 text-white' : ''}`}>
+    <section className={`py-12 ${dark ? 'bg-gray-900 text-white' : 'text-[var(--primary-foreground)]'}`}>
       <div className="container">
-        <h2 className="text-h3 mb-8 pb-4 border-b border-gray-200">{title}</h2>
+        <h2 className={`text-h3 mb-8 pb-4 border-b ${dark ? 'border-gray-700' : 'border-[var(--primary-border)]'}`}>{title}</h2>
         {children}
       </div>
     </section>
@@ -96,7 +96,7 @@ function ColorSwatch({
   return (
     <div className="flex flex-col">
       <div
-        className={`h-16 w-full rounded-lg flex items-end p-2 ${textClass} ${border ? 'border border-gray-200' : ''}`}
+        className={`h-16 w-full rounded-lg flex items-end p-2 ${textClass} ${border ? 'border border-[var(--primary-border)]' : ''}`}
         style={{backgroundColor: value}}
       >
         <span className="text-xs font-medium">{value}</span>
@@ -108,12 +108,12 @@ function ColorSwatch({
 
 export default function DesignSystemPage() {
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen text-[var(--primary-foreground)]">
       {/* Header */}
-      <div className="bg-gray-50 py-16">
+      <div className="bg-[var(--muted-background)] py-16">
         <div className="container">
-          <h1 className="text-h1 mb-4">Design System</h1>
-          <p className="text-p-xl text-gray-600 max-w-3xl">
+          <h1 className="text-h1 mb-4 text-[var(--primary-foreground)]">Design System</h1>
+          <p className="text-p-xl text-[var(--muted-foreground)] max-w-3xl">
             Based on the Mast framework. Features General Sans typography, fluid sizing with CSS clamp(),
             Phosphor icons, and a max-width container (90rem) with 6vw responsive gutters.
           </p>
@@ -124,16 +124,16 @@ export default function DesignSystemPage() {
       <Section title="Typography - Font">
         <div className="flex flex-wrap gap-8 items-center">
           <div className="flex-1 min-w-[200px]">
-            <p className="text-p-sm text-gray-500 mb-2">Primary Font</p>
+            <p className="text-p-sm text-[var(--muted-foreground)] mb-2">Primary Font</p>
             <p className="text-h2">General Sans</p>
           </div>
           <div className="flex gap-12">
             <div>
-              <p className="text-p-sm text-gray-500 mb-2">Regular (400)</p>
+              <p className="text-p-sm text-[var(--muted-foreground)] mb-2">Regular (400)</p>
               <p className="text-h4 font-normal">Aa Bb Cc 123</p>
             </div>
             <div>
-              <p className="text-p-sm text-gray-500 mb-2">Medium (500)</p>
+              <p className="text-p-sm text-[var(--muted-foreground)] mb-2">Medium (500)</p>
               <p className="text-h4 font-medium">Aa Bb Cc 123</p>
             </div>
           </div>
@@ -142,32 +142,32 @@ export default function DesignSystemPage() {
 
       {/* Typography - Headings */}
       <Section title="Typography - Headings (Fluid)">
-        <p className="text-p-lg text-gray-600 mb-8">
+        <p className="text-p-lg text-[var(--muted-foreground)] mb-8">
           All typography uses CSS clamp() for fluid scaling between viewport widths 320px - 1440px.
         </p>
         <div className="space-y-8">
           <div>
-            <span className="text-p-sm text-gray-500 mb-2 block">H1 — clamp(2.8rem → 5.5rem) / 44-88px</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-2 block">H1 — clamp(2.8rem → 5.5rem) / 44-88px</span>
             <h1 className="text-h1">The quick brown fox jumps</h1>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-2 block">H2 — clamp(2rem → 3.8rem) / 32-61px</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-2 block">H2 — clamp(2rem → 3.8rem) / 32-61px</span>
             <h2 className="text-h2">The quick brown fox jumps over</h2>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-2 block">H3 — clamp(1.5rem → 2.3rem) / 24-37px</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-2 block">H3 — clamp(1.5rem → 2.3rem) / 24-37px</span>
             <h3 className="text-h3">The quick brown fox jumps over the lazy dog</h3>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-2 block">H4 — clamp(1.3rem → 1.5rem) / 21-24px</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-2 block">H4 — clamp(1.3rem → 1.5rem) / 21-24px</span>
             <h4 className="text-h4">The quick brown fox jumps over the lazy dog</h4>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-2 block">H5 — clamp(1.1rem → 1.2rem) / 18-19px</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-2 block">H5 — clamp(1.1rem → 1.2rem) / 18-19px</span>
             <h5 className="text-h5">The quick brown fox jumps over the lazy dog</h5>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-2 block">H6 — clamp(0.9rem → 1rem) / 14-16px</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-2 block">H6 — clamp(0.9rem → 1rem) / 14-16px</span>
             <h6 className="text-h6">The quick brown fox jumps over the lazy dog</h6>
           </div>
         </div>
@@ -177,28 +177,28 @@ export default function DesignSystemPage() {
       <Section title="Typography - Paragraphs (Fluid)">
         <div className="space-y-8">
           <div>
-            <span className="text-p-sm text-gray-500 mb-2 block">Paragraph XL — clamp(1.2rem → 1.5rem) / 19-24px</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-2 block">Paragraph XL — clamp(1.2rem → 1.5rem) / 19-24px</span>
             <p className="text-p-xl">
               The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.
               How vexingly quick daft zebras jump!
             </p>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-2 block">Paragraph LG — clamp(1.1rem → 1.25rem) / 18-20px</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-2 block">Paragraph LG — clamp(1.1rem → 1.25rem) / 18-20px</span>
             <p className="text-p-lg">
               The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.
               How vexingly quick daft zebras jump!
             </p>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-2 block">Body (Default) — clamp(0.9rem → 1rem) / 14-16px</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-2 block">Body (Default) — clamp(0.9rem → 1rem) / 14-16px</span>
             <p className="text-body">
               The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.
               How vexingly quick daft zebras jump!
             </p>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-2 block">Paragraph SM — clamp(0.8rem → 0.9rem) / 13-14px</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-2 block">Paragraph SM — clamp(0.8rem → 0.9rem) / 13-14px</span>
             <p className="text-p-sm">
               The quick brown fox jumps over the lazy dog. Pack my box with five dozen liquor jugs.
               How vexingly quick daft zebras jump!
@@ -236,7 +236,7 @@ export default function DesignSystemPage() {
       <Section title="Buttons - Primary Variant">
         <div className="space-y-8">
           <div>
-            <span className="text-sm text-gray-500 mb-4 block">Color Schemes</span>
+            <span className="text-sm text-[var(--muted-foreground)] mb-4 block">Color Schemes</span>
             <div className="flex flex-wrap gap-4">
               <Button variant="primary" colorScheme="black">
                 Black
@@ -247,13 +247,13 @@ export default function DesignSystemPage() {
               <Button variant="primary" colorScheme="blue">
                 Blue
               </Button>
-              <Button variant="primary" colorScheme="white" className="border border-gray-200">
+              <Button variant="primary" colorScheme="white" className="border border-[var(--primary-border)]">
                 White
               </Button>
             </div>
           </div>
           <div>
-            <span className="text-sm text-gray-500 mb-4 block">Sizes</span>
+            <span className="text-sm text-[var(--muted-foreground)] mb-4 block">Sizes</span>
             <div className="flex flex-wrap items-center gap-4">
               <Button variant="primary" colorScheme="black" size="sm">
                 Small
@@ -267,7 +267,7 @@ export default function DesignSystemPage() {
             </div>
           </div>
           <div>
-            <span className="text-sm text-gray-500 mb-4 block">With Icons</span>
+            <span className="text-sm text-[var(--muted-foreground)] mb-4 block">With Icons</span>
             <div className="flex flex-wrap gap-4">
               <Button variant="primary" colorScheme="black">
                 Continue <ArrowRight className="h-4 w-4 ml-2" weight="bold" />
@@ -286,7 +286,7 @@ export default function DesignSystemPage() {
       <Section title="Buttons - Secondary Variant">
         <div className="space-y-8">
           <div>
-            <span className="text-sm text-gray-500 mb-4 block">Color Schemes</span>
+            <span className="text-sm text-[var(--muted-foreground)] mb-4 block">Color Schemes</span>
             <div className="flex flex-wrap gap-4">
               <Button variant="secondary" colorScheme="black">
                 Black
@@ -300,7 +300,7 @@ export default function DesignSystemPage() {
             </div>
           </div>
           <div>
-            <span className="text-sm text-gray-500 mb-4 block">Sizes</span>
+            <span className="text-sm text-[var(--muted-foreground)] mb-4 block">Sizes</span>
             <div className="flex flex-wrap items-center gap-4">
               <Button variant="secondary" colorScheme="black" size="sm">
                 Small
@@ -319,7 +319,7 @@ export default function DesignSystemPage() {
       <Section title="Buttons - Ghost Variant">
         <div className="space-y-8">
           <div>
-            <span className="text-sm text-gray-500 mb-4 block">Color Schemes</span>
+            <span className="text-sm text-[var(--muted-foreground)] mb-4 block">Color Schemes</span>
             <div className="flex flex-wrap gap-4">
               <Button variant="ghost" colorScheme="black">
                 Black
@@ -333,7 +333,7 @@ export default function DesignSystemPage() {
             </div>
           </div>
           <div>
-            <span className="text-sm text-gray-500 mb-4 block">Sizes</span>
+            <span className="text-sm text-[var(--muted-foreground)] mb-4 block">Sizes</span>
             <div className="flex flex-wrap items-center gap-4">
               <Button variant="ghost" colorScheme="black" size="sm">
                 Small
@@ -353,7 +353,7 @@ export default function DesignSystemPage() {
       <Section title="Buttons - On Dark Background" dark>
         <div className="space-y-8">
           <div>
-            <span className="text-sm text-gray-400 mb-4 block">Primary White</span>
+            <span className="text-sm text-gray-300 mb-4 block">Primary White</span>
             <div className="flex flex-wrap gap-4">
               <Button variant="primary" colorScheme="white">
                 White Button
@@ -364,7 +364,7 @@ export default function DesignSystemPage() {
             </div>
           </div>
           <div>
-            <span className="text-sm text-gray-400 mb-4 block">Secondary White</span>
+            <span className="text-sm text-gray-300 mb-4 block">Secondary White</span>
             <div className="flex flex-wrap gap-4">
               <Button variant="secondary" colorScheme="white">
                 White Outline
@@ -372,7 +372,7 @@ export default function DesignSystemPage() {
             </div>
           </div>
           <div>
-            <span className="text-sm text-gray-400 mb-4 block">Ghost White</span>
+            <span className="text-sm text-gray-300 mb-4 block">Ghost White</span>
             <div className="flex flex-wrap gap-4">
               <Button variant="ghost" colorScheme="white">
                 White Ghost
@@ -384,37 +384,37 @@ export default function DesignSystemPage() {
 
       {/* Icons */}
       <Section title="Icons (Phosphor)">
-        <p className="text-p-lg text-gray-600 mb-8">
+        <p className="text-p-lg text-[var(--muted-foreground)] mb-8">
           Uses the Phosphor icon library. Icons support multiple sizes and colors.
         </p>
         <div className="space-y-8">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Sizes</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Sizes</span>
             <div className="flex flex-wrap items-end gap-8">
               <div className="flex flex-col items-center gap-2">
                 <Icon icon={Star} size="xs" />
-                <span className="text-p-sm text-gray-500">XS (16px)</span>
+                <span className="text-p-sm text-[var(--muted-foreground)]">XS (16px)</span>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <Icon icon={Star} size="sm" />
-                <span className="text-p-sm text-gray-500">SM (24px)</span>
+                <span className="text-p-sm text-[var(--muted-foreground)]">SM (24px)</span>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <Icon icon={Star} size="md" />
-                <span className="text-p-sm text-gray-500">MD (32px)</span>
+                <span className="text-p-sm text-[var(--muted-foreground)]">MD (32px)</span>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <Icon icon={Star} size="lg" />
-                <span className="text-p-sm text-gray-500">LG (48px)</span>
+                <span className="text-p-sm text-[var(--muted-foreground)]">LG (48px)</span>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <Icon icon={Star} size="xl" />
-                <span className="text-p-sm text-gray-500">XL (64px)</span>
+                <span className="text-p-sm text-[var(--muted-foreground)]">XL (64px)</span>
               </div>
             </div>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Colors</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Colors</span>
             <div className="flex flex-wrap items-center gap-6">
               <Icon icon={Heart} size="lg" color="brand" />
               <Icon icon={Lightning} size="lg" color="blue" />
@@ -427,36 +427,36 @@ export default function DesignSystemPage() {
             </div>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Weights</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Weights</span>
             <div className="flex flex-wrap items-center gap-6">
               <div className="flex flex-col items-center gap-2">
                 <Icon icon={Heart} size="lg" weight="thin" />
-                <span className="text-p-sm text-gray-500">Thin</span>
+                <span className="text-p-sm text-[var(--muted-foreground)]">Thin</span>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <Icon icon={Heart} size="lg" weight="light" />
-                <span className="text-p-sm text-gray-500">Light</span>
+                <span className="text-p-sm text-[var(--muted-foreground)]">Light</span>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <Icon icon={Heart} size="lg" weight="regular" />
-                <span className="text-p-sm text-gray-500">Regular</span>
+                <span className="text-p-sm text-[var(--muted-foreground)]">Regular</span>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <Icon icon={Heart} size="lg" weight="bold" />
-                <span className="text-p-sm text-gray-500">Bold</span>
+                <span className="text-p-sm text-[var(--muted-foreground)]">Bold</span>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <Icon icon={Heart} size="lg" weight="fill" />
-                <span className="text-p-sm text-gray-500">Fill</span>
+                <span className="text-p-sm text-[var(--muted-foreground)]">Fill</span>
               </div>
               <div className="flex flex-col items-center gap-2">
                 <Icon icon={Heart} size="lg" weight="duotone" />
-                <span className="text-p-sm text-gray-500">Duotone</span>
+                <span className="text-p-sm text-[var(--muted-foreground)]">Duotone</span>
               </div>
             </div>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Sample Icons</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Sample Icons</span>
             <div className="flex flex-wrap items-center gap-4">
               <Icon icon={CheckCircle} size="md" color="brand" />
               <Icon icon={Target} size="md" color="brand" />
@@ -477,13 +477,13 @@ export default function DesignSystemPage() {
 
       {/* Accordion */}
       <Section title="Accordion">
-        <p className="text-p-lg text-gray-600 mb-8">
+        <p className="text-p-lg text-[var(--muted-foreground)] mb-8">
           Collapsible content sections built with native HTML details/summary elements.
           Features a plus icon that rotates to an X when open, matching the Mast framework.
         </p>
         <div className="space-y-8">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Single open at a time</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Single open at a time</span>
             <Accordion allowMultiple={false} className="w-full max-w-xl">
               <AccordionItem>
                 <AccordionTrigger>What is fluid typography?</AccordionTrigger>
@@ -509,7 +509,7 @@ export default function DesignSystemPage() {
             </Accordion>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">With default open item</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">With default open item</span>
             <Accordion allowMultiple={false} className="w-full max-w-xl">
               <AccordionItem defaultOpen>
                 <AccordionTrigger>This starts open</AccordionTrigger>
@@ -527,7 +527,7 @@ export default function DesignSystemPage() {
             </Accordion>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Multiple open at once</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Multiple open at once</span>
             <Accordion allowMultiple className="w-full max-w-xl">
               <AccordionItem>
                 <AccordionTrigger>First section</AccordionTrigger>
@@ -548,21 +548,21 @@ export default function DesignSystemPage() {
 
       {/* Divider */}
       <Section title="Divider">
-        <p className="text-p-lg text-gray-600 mb-8">
+        <p className="text-p-lg text-[var(--muted-foreground)] mb-8">
           Horizontal rule with configurable spacing and colors using the project&apos;s spacing scale.
         </p>
         <div className="space-y-8">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Default</span>
-            <div className="bg-gray-50 p-6 rounded-lg">
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Default</span>
+            <div className="bg-[var(--muted-background)] p-6 rounded-lg">
               <p className="text-body">Content above the divider</p>
               <Divider />
               <p className="text-body">Content below the divider</p>
             </div>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Colors</span>
-            <div className="bg-gray-50 p-6 rounded-lg space-y-1">
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Colors</span>
+            <div className="bg-[var(--muted-background)] p-6 rounded-lg space-y-1">
               <div className="flex items-center gap-4">
                 <span className="text-p-sm w-20">Default</span>
                 <div className="flex-1"><Divider marginTop="2" marginBottom="2" /></div>
@@ -586,17 +586,17 @@ export default function DesignSystemPage() {
             </div>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Spacing variations</span>
-            <div className="bg-gray-50 p-6 rounded-lg">
-              <p className="text-p-sm text-gray-500">marginTop=&quot;0&quot; marginBottom=&quot;0&quot;</p>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Spacing variations</span>
+            <div className="bg-[var(--muted-background)] p-6 rounded-lg">
+              <p className="text-p-sm text-[var(--muted-foreground)]">marginTop=&quot;0&quot; marginBottom=&quot;0&quot;</p>
               <Divider marginTop="0" marginBottom="0" />
-              <p className="text-p-sm text-gray-500">marginTop=&quot;4&quot; marginBottom=&quot;4&quot;</p>
+              <p className="text-p-sm text-[var(--muted-foreground)]">marginTop=&quot;4&quot; marginBottom=&quot;4&quot;</p>
               <Divider marginTop="4" marginBottom="4" />
-              <p className="text-p-sm text-gray-500">marginTop=&quot;8&quot; marginBottom=&quot;8&quot; (default)</p>
+              <p className="text-p-sm text-[var(--muted-foreground)]">marginTop=&quot;8&quot; marginBottom=&quot;8&quot; (default)</p>
               <Divider marginTop="8" marginBottom="8" />
-              <p className="text-p-sm text-gray-500">marginTop=&quot;16&quot; marginBottom=&quot;16&quot;</p>
+              <p className="text-p-sm text-[var(--muted-foreground)]">marginTop=&quot;16&quot; marginBottom=&quot;16&quot;</p>
               <Divider marginTop="16" marginBottom="16" />
-              <p className="text-p-sm text-gray-500">End of examples</p>
+              <p className="text-p-sm text-[var(--muted-foreground)]">End of examples</p>
             </div>
           </div>
         </div>
@@ -604,29 +604,29 @@ export default function DesignSystemPage() {
 
       {/* Eyebrow */}
       <Section title="Eyebrow">
-        <p className="text-p-lg text-gray-600 mb-8">
+        <p className="text-p-lg text-[var(--muted-foreground)] mb-8">
           Small uppercase text typically used above headings. Three style variants available.
         </p>
         <div className="space-y-8">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Variants</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Variants</span>
             <div className="grid md:grid-cols-3 gap-8">
               <div>
                 <Eyebrow variant="text">Text Only</Eyebrow>
-                <p className="mt-2 text-p-sm text-gray-500">Simple uppercase text</p>
+                <p className="mt-2 text-p-sm text-[var(--muted-foreground)]">Simple uppercase text</p>
               </div>
               <div>
                 <Eyebrow variant="overline">Overline Style</Eyebrow>
-                <p className="mt-2 text-p-sm text-gray-500">With border line above</p>
+                <p className="mt-2 text-p-sm text-[var(--muted-foreground)]">With border line above</p>
               </div>
               <div>
                 <Eyebrow variant="pill">Pill Badge</Eyebrow>
-                <p className="mt-2 text-p-sm text-gray-500">In a pill/badge shape</p>
+                <p className="mt-2 text-p-sm text-[var(--muted-foreground)]">In a pill/badge shape</p>
               </div>
             </div>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Colors</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Colors</span>
             <div className="flex flex-wrap gap-4">
               <Eyebrow variant="pill" color="default">Default</Eyebrow>
               <Eyebrow variant="pill" color="brand">Brand</Eyebrow>
@@ -635,11 +635,11 @@ export default function DesignSystemPage() {
             </div>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Combined with Heading</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Combined with Heading</span>
             <div className="max-w-xl">
               <Eyebrow variant="overline" color="brand">Featured Article</Eyebrow>
               <h3 className="text-h3 mt-2">The Art of Typography in Web Design</h3>
-              <p className="text-p-lg text-gray-600 mt-2">
+              <p className="text-p-lg text-[var(--muted-foreground)] mt-2">
                 Exploring how thoughtful typography choices enhance user experience.
               </p>
             </div>
@@ -649,12 +649,12 @@ export default function DesignSystemPage() {
 
       {/* Breadcrumb */}
       <Section title="Breadcrumb">
-        <p className="text-p-lg text-gray-600 mb-8">
+        <p className="text-p-lg text-[var(--muted-foreground)] mb-8">
           Navigation breadcrumbs with eyebrow-style typography. Supports chevron or slash separators.
         </p>
         <div className="space-y-8">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Chevron Separator (Default)</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Chevron Separator (Default)</span>
             <Breadcrumb
               items={[
                 {label: 'Home', href: '/'},
@@ -666,7 +666,7 @@ export default function DesignSystemPage() {
             />
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Slash Separator</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Slash Separator</span>
             <Breadcrumb
               items={[
                 {label: 'Home', href: '/'},
@@ -677,7 +677,7 @@ export default function DesignSystemPage() {
             />
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">With External Link</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">With External Link</span>
             <Breadcrumb
               items={[
                 {label: 'Home', href: '/'},
@@ -691,12 +691,12 @@ export default function DesignSystemPage() {
 
       {/* Table */}
       <Section title="Table">
-        <p className="text-p-lg text-gray-600 mb-8">
+        <p className="text-p-lg text-[var(--muted-foreground)] mb-8">
           Data tables with multiple style variants. Responsive with horizontal scrolling on small screens.
         </p>
         <div className="space-y-8">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Default Style</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Default Style</span>
             <Table>
               <TableHeader>
                 <TableRow isHeader>
@@ -725,7 +725,7 @@ export default function DesignSystemPage() {
             </Table>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Striped Variant</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Striped Variant</span>
             <Table variant="striped">
               <TableHeader>
                 <TableRow isHeader>
@@ -760,7 +760,7 @@ export default function DesignSystemPage() {
             </Table>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Bordered Variant</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Bordered Variant</span>
             <Table variant="bordered">
               <TableHeader>
                 <TableRow isHeader>
@@ -797,26 +797,26 @@ export default function DesignSystemPage() {
 
       {/* Slider */}
       <Section title="Slider / Carousel">
-        <p className="text-p-lg text-gray-600 mb-8">
+        <p className="text-p-lg text-[var(--muted-foreground)] mb-8">
           Responsive carousel with customizable slides per view, gap, navigation position, effects, and autoplay options.
           Built with Embla Carousel to match Mast/Swiper.js capabilities.
         </p>
         <div className="space-y-12">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Default (3 slides desktop, navigation below)</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Default (3 slides desktop, navigation below)</span>
             <Slider slidesPerViewDesktop={3} slidesPerViewTablet={2} slidesPerViewMobile={1} gap="4">
               {[1, 2, 3, 4, 5].map((i) => (
                 <SliderSlide key={i}>
                   <Card variant="filled" className="h-full">
                     <h4 className="text-h4 mb-2">Slide {i}</h4>
-                    <p className="text-body text-gray-600">This is content inside slide {i}</p>
+                    <p className="text-body text-[var(--muted-foreground)]">This is content inside slide {i}</p>
                   </Card>
                 </SliderSlide>
               ))}
             </Slider>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Full-width with Overlay Navigation (Center)</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Full-width with Overlay Navigation (Center)</span>
             <Slider
               slidesPerViewDesktop={1}
               slidesPerViewMobile={1}
@@ -841,7 +841,7 @@ export default function DesignSystemPage() {
             </Slider>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Overlay Navigation (Edges) with Images</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Overlay Navigation (Edges) with Images</span>
             <Slider
               slidesPerViewDesktop={1}
               slidesPerViewMobile={1}
@@ -862,28 +862,28 @@ export default function DesignSystemPage() {
             </Slider>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Side Navigation (Outside Slider)</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Side Navigation (Outside Slider)</span>
             <Slider slidesPerViewDesktop={2} slidesPerViewMobile={1} gap="6" navigationPosition="sides">
               {[1, 2, 3, 4].map((i) => (
                 <SliderSlide key={i}>
                   <Card variant="outline" className="h-full">
                     <Icon icon={Star} size="lg" color="brand" className="mb-4" />
                     <h4 className="text-h5 mb-2">Feature {i}</h4>
-                    <p className="text-body text-gray-600">Navigation arrows positioned outside the slider</p>
+                    <p className="text-body text-[var(--muted-foreground)]">Navigation arrows positioned outside the slider</p>
                   </Card>
                 </SliderSlide>
               ))}
             </Slider>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">With Autoplay and Loop</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">With Autoplay and Loop</span>
             <Slider slidesPerViewDesktop={2} slidesPerViewMobile={1} gap="6" autoplay autoplayDelay={3000} loop>
               {[1, 2, 3, 4].map((i) => (
                 <SliderSlide key={i}>
                   <div className="bg-brand/10 border border-brand/20 rounded-lg p-6">
                     <Icon icon={Star} size="lg" color="brand" className="mb-4" />
                     <h4 className="text-h5 mb-2">Feature {i}</h4>
-                    <p className="text-body text-gray-600">Autoplay enabled with 3 second delay</p>
+                    <p className="text-body text-[var(--muted-foreground)]">Autoplay enabled with 3 second delay</p>
                   </div>
                 </SliderSlide>
               ))}
@@ -894,13 +894,13 @@ export default function DesignSystemPage() {
 
       {/* Tabs */}
       <Section title="Tabs">
-        <p className="text-p-lg text-gray-600 mb-8">
+        <p className="text-p-lg text-[var(--muted-foreground)] mb-8">
           Tab navigation with flexible menu positioning (above, below, left, right), optional autoplay
           with progress indicator, and mobile dropdown support. Matches Mast framework tabs capabilities.
         </p>
         <div className="space-y-12">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Horizontal Tabs (Menu Above - Default)</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Horizontal Tabs (Menu Above - Default)</span>
             <Tabs defaultValue="tab1">
               <TabsList>
                 <TabsTrigger value="tab1">Overview</TabsTrigger>
@@ -910,7 +910,7 @@ export default function DesignSystemPage() {
               <TabsContent value="tab1">
                 <Card variant="outline">
                   <h4 className="text-h4 mb-2">Overview Content</h4>
-                  <p className="text-body text-gray-600">
+                  <p className="text-body text-[var(--muted-foreground)]">
                     This is the overview tab content. Tabs support any content blocks inside.
                   </p>
                 </Card>
@@ -918,7 +918,7 @@ export default function DesignSystemPage() {
               <TabsContent value="tab2">
                 <Card variant="outline">
                   <h4 className="text-h4 mb-2">Features Content</h4>
-                  <p className="text-body text-gray-600">
+                  <p className="text-body text-[var(--muted-foreground)]">
                     This is the features tab content with different information.
                   </p>
                 </Card>
@@ -926,7 +926,7 @@ export default function DesignSystemPage() {
               <TabsContent value="tab3">
                 <Card variant="outline">
                   <h4 className="text-h4 mb-2">Pricing Content</h4>
-                  <p className="text-body text-gray-600">
+                  <p className="text-body text-[var(--muted-foreground)]">
                     Pricing information would go here in the third tab.
                   </p>
                 </Card>
@@ -934,7 +934,7 @@ export default function DesignSystemPage() {
             </Tabs>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Menu Below Content</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Menu Below Content</span>
             <Tabs defaultValue="b1" menuPosition="below">
               <TabsList>
                 <TabsTrigger value="b1">Tab 1</TabsTrigger>
@@ -942,27 +942,27 @@ export default function DesignSystemPage() {
                 <TabsTrigger value="b3">Tab 3</TabsTrigger>
               </TabsList>
               <TabsContent value="b1">
-                <div className="bg-gray-50 rounded-lg p-6">
+                <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <h4 className="text-h4 mb-2">Content First</h4>
-                  <p className="text-body text-gray-600">Menu positioned below the content area.</p>
+                  <p className="text-body text-[var(--muted-foreground)]">Menu positioned below the content area.</p>
                 </div>
               </TabsContent>
               <TabsContent value="b2">
-                <div className="bg-gray-50 rounded-lg p-6">
+                <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <h4 className="text-h4 mb-2">Tab 2 Content</h4>
-                  <p className="text-body text-gray-600">Useful for bottom navigation patterns.</p>
+                  <p className="text-body text-[var(--muted-foreground)]">Useful for bottom navigation patterns.</p>
                 </div>
               </TabsContent>
               <TabsContent value="b3">
-                <div className="bg-gray-50 rounded-lg p-6">
+                <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <h4 className="text-h4 mb-2">Tab 3 Content</h4>
-                  <p className="text-body text-gray-600">Third tab with menu below.</p>
+                  <p className="text-body text-[var(--muted-foreground)]">Third tab with menu below.</p>
                 </div>
               </TabsContent>
             </Tabs>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Menu Left of Content (Vertical Layout)</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Menu Left of Content (Vertical Layout)</span>
             <Tabs defaultValue="l1" menuPosition="left" orientation="vertical">
               <TabsList>
                 <TabsTrigger value="l1">Dashboard</TabsTrigger>
@@ -972,7 +972,7 @@ export default function DesignSystemPage() {
               <TabsContent value="l1">
                 <Card variant="filled">
                   <h4 className="text-h4 mb-2">Dashboard</h4>
-                  <p className="text-body text-gray-600">
+                  <p className="text-body text-[var(--muted-foreground)]">
                     Sidebar-style navigation with menu on the left, perfect for app-like layouts.
                   </p>
                 </Card>
@@ -980,19 +980,19 @@ export default function DesignSystemPage() {
               <TabsContent value="l2">
                 <Card variant="filled">
                   <h4 className="text-h4 mb-2">Analytics</h4>
-                  <p className="text-body text-gray-600">View your analytics data here.</p>
+                  <p className="text-body text-[var(--muted-foreground)]">View your analytics data here.</p>
                 </Card>
               </TabsContent>
               <TabsContent value="l3">
                 <Card variant="filled">
                   <h4 className="text-h4 mb-2">Settings</h4>
-                  <p className="text-body text-gray-600">Configure your preferences.</p>
+                  <p className="text-body text-[var(--muted-foreground)]">Configure your preferences.</p>
                 </Card>
               </TabsContent>
             </Tabs>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Menu Right of Content</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Menu Right of Content</span>
             <Tabs defaultValue="r1" menuPosition="right" orientation="vertical">
               <TabsList>
                 <TabsTrigger value="r1">Option A</TabsTrigger>
@@ -1002,25 +1002,25 @@ export default function DesignSystemPage() {
               <TabsContent value="r1">
                 <div className="bg-brand/10 border border-brand/20 rounded-lg p-6">
                   <h4 className="text-h4 mb-2">Content on Left</h4>
-                  <p className="text-body text-gray-600">Menu positioned to the right of content.</p>
+                  <p className="text-body text-[var(--muted-foreground)]">Menu positioned to the right of content.</p>
                 </div>
               </TabsContent>
               <TabsContent value="r2">
                 <div className="bg-brand/10 border border-brand/20 rounded-lg p-6">
                   <h4 className="text-h4 mb-2">Option B Selected</h4>
-                  <p className="text-body text-gray-600">Alternative layout option.</p>
+                  <p className="text-body text-[var(--muted-foreground)]">Alternative layout option.</p>
                 </div>
               </TabsContent>
               <TabsContent value="r3">
                 <div className="bg-brand/10 border border-brand/20 rounded-lg p-6">
                   <h4 className="text-h4 mb-2">Option C Selected</h4>
-                  <p className="text-body text-gray-600">Third option content.</p>
+                  <p className="text-body text-[var(--muted-foreground)]">Third option content.</p>
                 </div>
               </TabsContent>
             </Tabs>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Autoplay with Progress Indicator</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Autoplay with Progress Indicator</span>
             <Tabs defaultValue="a1" autoplay autoplayDuration={5000} showProgress>
               <TabsList>
                 <TabsTrigger value="a1">Step 1</TabsTrigger>
@@ -1028,28 +1028,28 @@ export default function DesignSystemPage() {
                 <TabsTrigger value="a3">Step 3</TabsTrigger>
               </TabsList>
               <TabsContent value="a1">
-                <div className="bg-gray-50 rounded-lg p-6">
+                <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <Eyebrow variant="pill" color="brand">Step 1</Eyebrow>
                   <h4 className="text-h4 mt-4 mb-2">Getting Started</h4>
-                  <p className="text-body text-gray-600">
+                  <p className="text-body text-[var(--muted-foreground)]">
                     Watch the progress bar below the active tab. Autoplay cycles through tabs with a play/pause button.
                   </p>
                 </div>
               </TabsContent>
               <TabsContent value="a2">
-                <div className="bg-gray-50 rounded-lg p-6">
+                <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <Eyebrow variant="pill" color="brand">Step 2</Eyebrow>
                   <h4 className="text-h4 mt-4 mb-2">Configuration</h4>
-                  <p className="text-body text-gray-600">
+                  <p className="text-body text-[var(--muted-foreground)]">
                     Customize your settings to match your workflow.
                   </p>
                 </div>
               </TabsContent>
               <TabsContent value="a3">
-                <div className="bg-gray-50 rounded-lg p-6">
+                <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <Eyebrow variant="pill" color="brand">Step 3</Eyebrow>
                   <h4 className="text-h4 mt-4 mb-2">Launch</h4>
-                  <p className="text-body text-gray-600">
+                  <p className="text-body text-[var(--muted-foreground)]">
                     Go live and start seeing results immediately.
                   </p>
                 </div>
@@ -1057,7 +1057,7 @@ export default function DesignSystemPage() {
             </Tabs>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Vertical Tabs with Autoplay and Progress</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Vertical Tabs with Autoplay and Progress</span>
             <Tabs defaultValue="v1" orientation="vertical" menuPosition="left" autoplay autoplayDuration={4000} showProgress>
               <TabsList>
                 <TabsTrigger value="v1">Phase 1</TabsTrigger>
@@ -1065,28 +1065,28 @@ export default function DesignSystemPage() {
                 <TabsTrigger value="v3">Phase 3</TabsTrigger>
               </TabsList>
               <TabsContent value="v1">
-                <div className="bg-gray-50 rounded-lg p-6">
+                <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <Icon icon={Target} size="lg" color="brand" className="mb-4" />
                   <h4 className="text-h4 mb-2">Phase 1: Discovery</h4>
-                  <p className="text-body text-gray-600">
+                  <p className="text-body text-[var(--muted-foreground)]">
                     Vertical progress indicator on the left side of active tab.
                   </p>
                 </div>
               </TabsContent>
               <TabsContent value="v2">
-                <div className="bg-gray-50 rounded-lg p-6">
+                <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <Icon icon={Lightning} size="lg" color="brand" className="mb-4" />
                   <h4 className="text-h4 mb-2">Phase 2: Development</h4>
-                  <p className="text-body text-gray-600">
+                  <p className="text-body text-[var(--muted-foreground)]">
                     Build and iterate on your solution.
                   </p>
                 </div>
               </TabsContent>
               <TabsContent value="v3">
-                <div className="bg-gray-50 rounded-lg p-6">
+                <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <Icon icon={Trophy} size="lg" color="brand" className="mb-4" />
                   <h4 className="text-h4 mb-2">Phase 3: Launch</h4>
-                  <p className="text-body text-gray-600">
+                  <p className="text-body text-[var(--muted-foreground)]">
                     Deploy and celebrate your success!
                   </p>
                 </div>
@@ -1094,7 +1094,7 @@ export default function DesignSystemPage() {
             </Tabs>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Mobile Dropdown (resize to mobile to see)</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Mobile Dropdown (resize to mobile to see)</span>
             <Tabs defaultValue="m1" mobileDropdown>
               <TabsList>
                 <TabsTrigger value="m1">First Tab</TabsTrigger>
@@ -1104,7 +1104,7 @@ export default function DesignSystemPage() {
               <TabsContent value="m1">
                 <Card variant="outline">
                   <h4 className="text-h4 mb-2">Mobile Dropdown Mode</h4>
-                  <p className="text-body text-gray-600">
+                  <p className="text-body text-[var(--muted-foreground)]">
                     On mobile, tabs collapse into a dropdown menu for better usability.
                     Resize your browser to see the effect.
                   </p>
@@ -1113,7 +1113,7 @@ export default function DesignSystemPage() {
               <TabsContent value="m2">
                 <Card variant="outline">
                   <h4 className="text-h4 mb-2">Second Tab Content</h4>
-                  <p className="text-body text-gray-600">
+                  <p className="text-body text-[var(--muted-foreground)]">
                     Content for the second tab in mobile dropdown mode.
                   </p>
                 </Card>
@@ -1121,7 +1121,7 @@ export default function DesignSystemPage() {
               <TabsContent value="m3">
                 <Card variant="outline">
                   <h4 className="text-h4 mb-2">Third Tab Content</h4>
-                  <p className="text-body text-gray-600">
+                  <p className="text-body text-[var(--muted-foreground)]">
                     Content for the third tab in mobile dropdown mode.
                   </p>
                 </Card>
@@ -1133,12 +1133,12 @@ export default function DesignSystemPage() {
 
       {/* Modal */}
       <Section title="Modal">
-        <p className="text-p-lg text-gray-600 mb-8">
+        <p className="text-p-lg text-[var(--muted-foreground)] mb-8">
           Dialog overlays for content or video lightbox. Can be triggered by button or URL parameter.
         </p>
         <div className="space-y-8">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Content Modal</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Content Modal</span>
             <div className="flex flex-wrap gap-4">
               <Modal>
                 <ModalTrigger asChild>
@@ -1149,7 +1149,7 @@ export default function DesignSystemPage() {
                     <ModalTitle>Example Modal</ModalTitle>
                   </ModalHeader>
                   <ModalBody>
-                    <p className="text-body text-gray-600 mb-4">
+                    <p className="text-body text-[var(--muted-foreground)] mb-4">
                       Modals can contain any content including headings, text, images, forms, and more.
                     </p>
                     <Card variant="filled">
@@ -1172,7 +1172,7 @@ export default function DesignSystemPage() {
                     <ModalTitle>Large Size Modal</ModalTitle>
                   </ModalHeader>
                   <ModalBody>
-                    <p className="text-body text-gray-600">
+                    <p className="text-body text-[var(--muted-foreground)]">
                       Modal sizes available: sm, md, lg, xl, full
                     </p>
                   </ModalBody>
@@ -1181,7 +1181,7 @@ export default function DesignSystemPage() {
             </div>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Video Lightbox</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Video Lightbox</span>
             <Modal>
               <ModalTrigger asChild>
                 <Button variant="primary" colorScheme="black">
@@ -1190,7 +1190,7 @@ export default function DesignSystemPage() {
               </ModalTrigger>
               <VideoModalContent videoId="dQw4w9WgXcQ" title="Example Video" size="xl" />
             </Modal>
-            <p className="text-p-sm text-gray-500 mt-2">
+            <p className="text-p-sm text-[var(--muted-foreground)] mt-2">
               YouTube videos automatically play when opened and stop when closed.
             </p>
           </div>
@@ -1199,34 +1199,34 @@ export default function DesignSystemPage() {
 
       {/* Theme Toggle */}
       <Section title="Theme Toggle">
-        <p className="text-p-lg text-gray-600 mb-8">
+        <p className="text-p-lg text-[var(--muted-foreground)] mb-8">
           Dark/light mode toggle with automatic OS preference detection and localStorage persistence.
           Uses CSS light-dark() function for smooth theme transitions.
         </p>
         <div className="space-y-8">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Switch Toggle with Labels</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Switch Toggle with Labels</span>
             <div className="flex items-center gap-8">
               <ThemeToggle showLabels />
-              <p className="text-p-sm text-gray-500">
+              <p className="text-p-sm text-[var(--muted-foreground)]">
                 Toggle shows sun/moon icons based on current theme
               </p>
             </div>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Switch Toggle without Labels</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Switch Toggle without Labels</span>
             <div className="flex items-center gap-8">
               <ThemeToggle />
-              <p className="text-p-sm text-gray-500">
+              <p className="text-p-sm text-[var(--muted-foreground)]">
                 Minimal switch-only variant
               </p>
             </div>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Compact Icon Button</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Compact Icon Button</span>
             <div className="flex items-center gap-8">
               <ThemeToggleCompact />
-              <p className="text-p-sm text-gray-500">
+              <p className="text-p-sm text-[var(--muted-foreground)]">
                 Simple icon button that toggles between sun and moon
               </p>
             </div>
@@ -1236,13 +1236,13 @@ export default function DesignSystemPage() {
 
       {/* Inline Video */}
       <Section title="Inline Video">
-        <p className="text-p-lg text-gray-600 mb-8">
+        <p className="text-p-lg text-[var(--muted-foreground)] mb-8">
           Self-hosted video player with autoplay on scroll, poster image support, and play/pause controls.
           Videos can be muted by default and loop continuously.
         </p>
         <div className="space-y-8">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">16:9 Aspect Ratio with Controls</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">16:9 Aspect Ratio with Controls</span>
             <div className="max-w-3xl">
               <InlineVideo
                 src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
@@ -1256,7 +1256,7 @@ export default function DesignSystemPage() {
             </div>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">21:9 Cinematic with Centered Play Button</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">21:9 Cinematic with Centered Play Button</span>
             <InlineVideo
               src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"
               aspectRatio="21/9"
@@ -1268,7 +1268,7 @@ export default function DesignSystemPage() {
             />
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Aspect Ratio Options</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Aspect Ratio Options</span>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div>
                 <InlineVideo
@@ -1279,7 +1279,7 @@ export default function DesignSystemPage() {
                   muted
                   showControls={false}
                 />
-                <p className="text-p-sm text-gray-500 mt-2 text-center">16:9 (Video)</p>
+                <p className="text-p-sm text-[var(--muted-foreground)] mt-2 text-center">16:9 (Video)</p>
               </div>
               <div>
                 <InlineVideo
@@ -1290,7 +1290,7 @@ export default function DesignSystemPage() {
                   muted
                   showControls={false}
                 />
-                <p className="text-p-sm text-gray-500 mt-2 text-center">4:3 (Classic)</p>
+                <p className="text-p-sm text-[var(--muted-foreground)] mt-2 text-center">4:3 (Classic)</p>
               </div>
               <div>
                 <InlineVideo
@@ -1301,7 +1301,7 @@ export default function DesignSystemPage() {
                   muted
                   showControls={false}
                 />
-                <p className="text-p-sm text-gray-500 mt-2 text-center">1:1 (Square)</p>
+                <p className="text-p-sm text-[var(--muted-foreground)] mt-2 text-center">1:1 (Square)</p>
               </div>
               <div>
                 <InlineVideo
@@ -1312,7 +1312,7 @@ export default function DesignSystemPage() {
                   muted
                   showControls={false}
                 />
-                <p className="text-p-sm text-gray-500 mt-2 text-center">9:16 (Portrait)</p>
+                <p className="text-p-sm text-[var(--muted-foreground)] mt-2 text-center">9:16 (Portrait)</p>
               </div>
             </div>
           </div>
@@ -1321,53 +1321,53 @@ export default function DesignSystemPage() {
 
       {/* Marquee */}
       <Section title="Marquee">
-        <p className="text-p-lg text-gray-600 mb-8">
+        <p className="text-p-lg text-[var(--muted-foreground)] mb-8">
           Infinite scrolling content with horizontal or vertical orientation. Supports pause on hover,
           fade edges, and reverse direction. Based on the Mast framework marquee component.
         </p>
         <div className="space-y-12">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Horizontal Marquee (Default)</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Horizontal Marquee (Default)</span>
             <Marquee pauseOnHover duration={20} gap={32}>
               <MarqueeItem>
                 <Card variant="filled" className="min-w-[200px]">
                   <Icon icon={Star} size="md" color="brand" className="mb-2" />
                   <h4 className="text-h5">Feature One</h4>
-                  <p className="text-p-sm text-gray-600">Seamless scrolling content</p>
+                  <p className="text-p-sm text-[var(--muted-foreground)]">Seamless scrolling content</p>
                 </Card>
               </MarqueeItem>
               <MarqueeItem>
                 <Card variant="filled" className="min-w-[200px]">
                   <Icon icon={Heart} size="md" color="brand" className="mb-2" />
                   <h4 className="text-h5">Feature Two</h4>
-                  <p className="text-p-sm text-gray-600">Pause on hover enabled</p>
+                  <p className="text-p-sm text-[var(--muted-foreground)]">Pause on hover enabled</p>
                 </Card>
               </MarqueeItem>
               <MarqueeItem>
                 <Card variant="filled" className="min-w-[200px]">
                   <Icon icon={Lightning} size="md" color="brand" className="mb-2" />
                   <h4 className="text-h5">Feature Three</h4>
-                  <p className="text-p-sm text-gray-600">Configurable speed</p>
+                  <p className="text-p-sm text-[var(--muted-foreground)]">Configurable speed</p>
                 </Card>
               </MarqueeItem>
               <MarqueeItem>
                 <Card variant="filled" className="min-w-[200px]">
                   <Icon icon={Target} size="md" color="brand" className="mb-2" />
                   <h4 className="text-h5">Feature Four</h4>
-                  <p className="text-p-sm text-gray-600">Adjustable gap spacing</p>
+                  <p className="text-p-sm text-[var(--muted-foreground)]">Adjustable gap spacing</p>
                 </Card>
               </MarqueeItem>
               <MarqueeItem>
                 <Card variant="filled" className="min-w-[200px]">
                   <Icon icon={Trophy} size="md" color="brand" className="mb-2" />
                   <h4 className="text-h5">Feature Five</h4>
-                  <p className="text-p-sm text-gray-600">Infinite loop animation</p>
+                  <p className="text-p-sm text-[var(--muted-foreground)]">Infinite loop animation</p>
                 </Card>
               </MarqueeItem>
             </Marquee>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Reverse Direction with Fade Edges</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Reverse Direction with Fade Edges</span>
             <Marquee reverse fadeEdges pauseOnHover duration={25} gap={24}>
               <MarqueeItem>
                 <div className="bg-gray-900 text-white px-6 py-3 rounded-full">
@@ -1398,8 +1398,8 @@ export default function DesignSystemPage() {
           </div>
           <div className="grid md:grid-cols-2 gap-8">
             <div>
-              <span className="text-p-sm text-gray-500 mb-4 block">Vertical Marquee (Scrolling Down)</span>
-              <div className="h-[300px] overflow-hidden rounded-lg border border-gray-200">
+              <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Vertical Marquee (Scrolling Down)</span>
+              <div className="h-[300px] overflow-hidden rounded-lg border border-[var(--primary-border)]">
                 <Marquee orientation="vertical" pauseOnHover duration={15} gap={16}>
                   <MarqueeItem>
                     <Card variant="outline" className="w-full">
@@ -1437,8 +1437,8 @@ export default function DesignSystemPage() {
               </div>
             </div>
             <div>
-              <span className="text-p-sm text-gray-500 mb-4 block">Vertical Reverse (Scrolling Up)</span>
-              <div className="h-[300px] overflow-hidden rounded-lg border border-gray-200">
+              <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Vertical Reverse (Scrolling Up)</span>
+              <div className="h-[300px] overflow-hidden rounded-lg border border-[var(--primary-border)]">
                 <Marquee orientation="vertical" reverse fadeEdges pauseOnHover duration={15} gap={16}>
                   <MarqueeItem>
                     <Card variant="filled" className="w-full">
@@ -1481,73 +1481,73 @@ export default function DesignSystemPage() {
 
       {/* Card */}
       <Section title="Card">
-        <p className="text-p-lg text-gray-600 mb-8">
+        <p className="text-p-lg text-[var(--muted-foreground)] mb-8">
           Flexible card container that can hold any content. Supports multiple style variants,
           responsive padding, and optional link functionality.
         </p>
         <div className="space-y-8">
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Style Variants</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Style Variants</span>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               <Card variant="default">
                 <h4 className="text-h4 mb-2">Default</h4>
-                <p className="text-body text-gray-600">White background with border</p>
+                <p className="text-body text-[var(--muted-foreground)]">White background with border</p>
               </Card>
               <Card variant="outline">
                 <h4 className="text-h4 mb-2">Outline</h4>
-                <p className="text-body text-gray-600">Transparent with border</p>
+                <p className="text-body text-[var(--muted-foreground)]">Transparent with border</p>
               </Card>
               <Card variant="filled">
                 <h4 className="text-h4 mb-2">Filled</h4>
-                <p className="text-body text-gray-600">Gray background</p>
+                <p className="text-body text-[var(--muted-foreground)]">Gray background</p>
               </Card>
               <Card variant="ghost">
                 <h4 className="text-h4 mb-2">Ghost</h4>
-                <p className="text-body text-gray-600">No background or border</p>
+                <p className="text-body text-[var(--muted-foreground)]">No background or border</p>
               </Card>
             </div>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Padding Options (Desktop / Mobile)</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Padding Options (Desktop / Mobile)</span>
             <div className="grid md:grid-cols-3 gap-6">
               <Card paddingDesktop="4" paddingMobile="4">
                 <h4 className="text-h5 mb-2">Small Padding</h4>
-                <p className="text-p-sm text-gray-600">paddingDesktop=&quot;4&quot; paddingMobile=&quot;4&quot;</p>
+                <p className="text-p-sm text-[var(--muted-foreground)]">paddingDesktop=&quot;4&quot; paddingMobile=&quot;4&quot;</p>
               </Card>
               <Card paddingDesktop="6" paddingMobile="4">
                 <h4 className="text-h5 mb-2">Medium Padding (Default)</h4>
-                <p className="text-p-sm text-gray-600">paddingDesktop=&quot;6&quot; paddingMobile=&quot;4&quot;</p>
+                <p className="text-p-sm text-[var(--muted-foreground)]">paddingDesktop=&quot;6&quot; paddingMobile=&quot;4&quot;</p>
               </Card>
               <Card paddingDesktop="12" paddingMobile="8">
                 <h4 className="text-h5 mb-2">Large Padding</h4>
-                <p className="text-p-sm text-gray-600">paddingDesktop=&quot;12&quot; paddingMobile=&quot;8&quot;</p>
+                <p className="text-p-sm text-[var(--muted-foreground)]">paddingDesktop=&quot;12&quot; paddingMobile=&quot;8&quot;</p>
               </Card>
             </div>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Clickable Cards (with hover effect)</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Clickable Cards (with hover effect)</span>
             <div className="grid md:grid-cols-3 gap-6">
               <Card href="/design-system" hoverEffect>
                 <h4 className="text-h5 mb-2">Internal Link</h4>
-                <p className="text-p-sm text-gray-600">Navigates within the app using Next.js Link</p>
+                <p className="text-p-sm text-[var(--muted-foreground)]">Navigates within the app using Next.js Link</p>
               </Card>
               <Card href="https://example.com" openInNewTab hoverEffect>
                 <h4 className="text-h5 mb-2">External Link</h4>
-                <p className="text-p-sm text-gray-600">Opens in new tab with proper security attributes</p>
+                <p className="text-p-sm text-[var(--muted-foreground)]">Opens in new tab with proper security attributes</p>
               </Card>
               <Card variant="filled" href="/design-system" hoverEffect>
                 <h4 className="text-h5 mb-2">Filled + Linked</h4>
-                <p className="text-p-sm text-gray-600">Combines variant with link functionality</p>
+                <p className="text-p-sm text-[var(--muted-foreground)]">Combines variant with link functionality</p>
               </Card>
             </div>
           </div>
           <div>
-            <span className="text-p-sm text-gray-500 mb-4 block">Cards with Mixed Content</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Cards with Mixed Content</span>
             <div className="grid md:grid-cols-2 gap-6">
               <Card>
                 <Icon icon={Star} size="lg" color="brand" className="mb-4" />
                 <h4 className="text-h4 mb-2">Feature Card</h4>
-                <p className="text-body text-gray-600 mb-4">
+                <p className="text-body text-[var(--muted-foreground)] mb-4">
                   Cards can contain any combination of icons, headings, text, buttons, and more.
                 </p>
                 <Button variant="primary" colorScheme="brand" size="sm">
@@ -1559,10 +1559,10 @@ export default function DesignSystemPage() {
                   <Icon icon={CheckCircle} size="md" color="brand" />
                   <div>
                     <h4 className="text-h5 mb-1">Testimonial Card</h4>
-                    <p className="text-body text-gray-600 mb-2">
+                    <p className="text-body text-[var(--muted-foreground)] mb-2">
                       &quot;This design system has made our workflow so much more efficient.&quot;
                     </p>
-                    <p className="text-p-sm text-gray-500">— Happy Customer</p>
+                    <p className="text-p-sm text-[var(--muted-foreground)]">— Happy Customer</p>
                   </div>
                 </div>
               </Card>
@@ -1576,12 +1576,12 @@ export default function DesignSystemPage() {
         <div className="space-y-4">
           {[2, 4, 6, 8, 12, 16, 24].map((size) => (
             <div key={size} className="flex items-center gap-4">
-              <span className="text-sm text-gray-500 w-20">Space {size}</span>
+              <span className="text-sm text-[var(--muted-foreground)] w-20">Space {size}</span>
               <div
                 className="bg-brand"
                 style={{height: `${size * 4}px`, width: `${size * 4}px`}}
               />
-              <span className="text-xs text-gray-400">{size * 4}px</span>
+              <span className="text-xs text-gray-300">{size * 4}px</span>
             </div>
           ))}
         </div>
@@ -1591,23 +1591,23 @@ export default function DesignSystemPage() {
       <Section title="Border Radius">
         <div className="flex flex-wrap gap-8">
           <div className="flex flex-col items-center">
-            <div className="w-24 h-24 bg-gray-200 rounded-none" />
+            <div className="w-24 h-24 bg-[var(--muted-background)] rounded-none" />
             <span className="text-sm mt-2">None</span>
           </div>
           <div className="flex flex-col items-center">
-            <div className="w-24 h-24 bg-gray-200 rounded" />
+            <div className="w-24 h-24 bg-[var(--muted-background)] rounded" />
             <span className="text-sm mt-2">SM (4px)</span>
           </div>
           <div className="flex flex-col items-center">
-            <div className="w-24 h-24 bg-gray-200 rounded-lg" />
+            <div className="w-24 h-24 bg-[var(--muted-background)] rounded-lg" />
             <span className="text-sm mt-2">MD (8px)</span>
           </div>
           <div className="flex flex-col items-center">
-            <div className="w-24 h-24 bg-gray-200 rounded-2xl" />
+            <div className="w-24 h-24 bg-[var(--muted-background)] rounded-2xl" />
             <span className="text-sm mt-2">LG (16px)</span>
           </div>
           <div className="flex flex-col items-center">
-            <div className="w-24 h-24 bg-gray-200 rounded-full" />
+            <div className="w-24 h-24 bg-[var(--muted-background)] rounded-full" />
             <span className="text-sm mt-2">Full</span>
           </div>
         </div>
@@ -1646,7 +1646,7 @@ export default function DesignSystemPage() {
       {/* Component Reference */}
       <Section title="Component Reference">
         <div className="prose max-w-none">
-          <p className="text-gray-600 mb-8">
+          <p className="text-[var(--muted-foreground)] mb-8">
             The following Sanity block components are available for use within Section → Row →
             Column layouts:
           </p>
@@ -1738,14 +1738,14 @@ export default function DesignSystemPage() {
                 props: ['items', 'orientation', 'reverse', 'pauseOnHover', 'fadeEdges', 'duration', 'gap'],
               },
             ].map((component) => (
-              <div key={component.name} className="border border-gray-200 rounded-lg p-6">
+              <div key={component.name} className="border border-[var(--primary-border)] rounded-lg p-6">
                 <h4 className="font-semibold text-lg mb-2">{component.name}</h4>
-                <p className="text-sm text-gray-600 mb-4">{component.description}</p>
+                <p className="text-sm text-[var(--muted-foreground)] mb-4">{component.description}</p>
                 <div className="flex flex-wrap gap-2">
                   {component.props.map((prop) => (
                     <span
                       key={prop}
-                      className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
+                      className="text-xs bg-[var(--muted-background)] text-[var(--primary-foreground)] px-2 py-1 rounded"
                     >
                       {prop}
                     </span>
@@ -1760,7 +1760,7 @@ export default function DesignSystemPage() {
       {/* Layout Components */}
       <Section title="Layout Components">
         <div className="prose max-w-none">
-          <p className="text-gray-600 mb-8">
+          <p className="text-[var(--muted-foreground)] mb-8">
             The page builder uses a hierarchical Section → Row → Column structure for flexible
             layouts:
           </p>
@@ -1785,14 +1785,14 @@ export default function DesignSystemPage() {
                 props: ['widthDesktop', 'widthTablet', 'widthMobile', 'verticalAlign', 'padding'],
               },
             ].map((component) => (
-              <div key={component.name} className="border border-gray-200 rounded-lg p-6">
+              <div key={component.name} className="border border-[var(--primary-border)] rounded-lg p-6">
                 <h4 className="font-semibold text-lg mb-2">{component.name}</h4>
-                <p className="text-sm text-gray-600 mb-4">{component.description}</p>
+                <p className="text-sm text-[var(--muted-foreground)] mb-4">{component.description}</p>
                 <div className="flex flex-wrap gap-2">
                   {component.props.map((prop) => (
                     <span
                       key={prop}
-                      className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded"
+                      className="text-xs bg-[var(--muted-background)] text-[var(--primary-foreground)] px-2 py-1 rounded"
                     >
                       {prop}
                     </span>
