@@ -1,13 +1,50 @@
-# Mast Framework CSS Refactor Plan
+# Tailwind to Vanilla CSS Refactor Spec
 
 This document outlines the plan to refactor the current Tailwind-based styling to a cleaned-up vanilla CSS approach based on the original Mast framework from Webflow.
 
 ## Goals
 
 1. **Consistency** - Align Next.js/Sanity build with the Webflow Mast framework
-2. **Intuitive** - Make styling approachable for designers and AI-assisted development
-3. **Scalable** - Fewer options = more consistency at scale
-4. **Performant** - Simple selectors, organized variables, no build complexity
+2. **Parity** - Frontend styling should be nearly identical across both platforms
+3. **Intuitive** - Make styling approachable for designers and AI-assisted development
+4. **Scalable** - Fewer options = more consistency at scale
+5. **Performant** - Simple selectors, organized variables, no build complexity
+
+---
+
+## Critical Principle: Structure Alignment
+
+> **Before refactoring any component's CSS, the HTML/JSX structure must match the Webflow component structure.**
+
+Style regression is most likely to occur when the Sanity component's DOM structure differs from Webflow's. CSS selectors, spacing relationships, and layout behaviors all depend on consistent nesting and class placement.
+
+### Why This Matters
+
+Mast CSS assumes specific parent-child relationships:
+```html
+<!-- Webflow Mast structure -->
+<section class="section">
+  <div class="container">
+    <div class="row">
+      <div class="col col-lg-6">
+        <div class="slot cc-content-wrap">
+          <!-- Content here -->
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+```
+
+If the Sanity component omits `.slot` or nests differently, selectors like `.slot > *:last-child { margin-bottom: 0; }` won't work, causing visual discrepancies.
+
+### Alignment Process (Required for Each Component)
+
+1. **Export reference HTML** from Webflow for the component
+2. **Compare DOM structure** with the current Sanity TSX component
+3. **Document differences** in nesting, class names, and element types
+4. **Align structure first**, then apply CSS classes
+5. **Visual diff test** against Webflow reference at multiple breakpoints
 
 ---
 
@@ -389,6 +426,111 @@ app/
 /* Project-specific additions follow */
 ```
 
+### 4.3 Component-Specific CSS: Should We Split?
+
+In Webflow, component-specific CSS/JS is embedded at the top of the page body via custom code blocks:
+
+```html
+<!-- Webflow pattern: component code only loads on pages using that component -->
+<div data-custom-code="marquee">
+  <style>/* Marquee keyframes and styles */</style>
+</div>
+<div data-custom-code="accordion">
+  <style>/* Accordion-specific styles */</style>
+</div>
+<div data-custom-code="tabs">
+  <style>/* Tabs-specific styles */</style>
+</div>
+```
+
+**Components with custom CSS/JS in Webflow:**
+- `marquee` - Keyframe animations, pause-on-hover
+- `accordion` - Details/summary animation helpers
+- `modal` - Dialog backdrop, positioning
+- `slider` - Swiper.js integration styles
+- `tabs` - Autoplay progress, mobile dropdown
+- `inline-video` - Play-on-hover behavior
+- `theme-toggle` - Switch styling, state management
+- `form` - Autofill colors, select arrows
+
+#### Option A: Single File (Recommended for Simplicity)
+
+Keep all CSS in `mast-framework.css`. Component-specific styles add ~2-3KB total.
+
+**Pros:**
+- Single HTTP request
+- No conditional loading logic
+- Cached after first page load
+- Simpler mental model
+
+**Cons:**
+- Unused component CSS loads on every page
+
+#### Option B: Component CSS Modules (Maximum Optimization)
+
+Split component-specific CSS into co-located files:
+
+```
+app/
+├── components/
+│   ├── Marquee/
+│   │   ├── Marquee.tsx
+│   │   └── marquee.css        # Imported only when component renders
+│   ├── Accordion/
+│   │   ├── Accordion.tsx
+│   │   └── accordion.css
+│   ├── Tabs/
+│   │   ├── Tabs.tsx
+│   │   └── tabs.css
+│   └── ...
+```
+
+```tsx
+// Marquee.tsx
+import './marquee.css'
+
+export function Marquee({ ... }) {
+  // Component only loads its CSS when rendered
+}
+```
+
+**Pros:**
+- CSS only loads when component is used on page
+- Aligns with Webflow's conditional loading pattern
+- Better for pages that don't use complex components
+
+**Cons:**
+- Multiple small CSS files = more HTTP requests (mitigated by HTTP/2)
+- Slightly more complex file organization
+- Need to ensure no duplicate styles between files
+
+#### Option C: Hybrid Approach (Balanced)
+
+Core framework in one file, complex interactive components split:
+
+```
+app/
+├── styles/
+│   ├── mast-framework.css     # Variables, layout, typography, utilities, simple components
+│   └── components/
+│       ├── marquee.css        # ~0.5KB - Keyframes
+│       ├── slider.css         # ~1KB - Swiper overrides
+│       ├── tabs.css           # ~0.5KB - Autoplay, dropdown
+│       └── modal.css          # ~0.3KB - Dialog styles
+```
+
+Only split components that have:
+1. Significant CSS (>0.3KB)
+2. Keyframe animations
+3. Third-party library overrides
+4. Features not used on most pages
+
+#### Recommendation
+
+**Start with Option A** (single file). The total component CSS is small enough (~3-5KB) that splitting provides marginal benefit. If performance profiling later shows CSS as a bottleneck on specific pages, migrate to Option C selectively.
+
+The Webflow pattern exists because Webflow lacks native CSS bundling—it's a workaround, not necessarily a best practice for a build system like Next.js.
+
 ---
 
 ## Phase 5: Component Migration
@@ -404,7 +546,105 @@ Migrate components in this order (dependencies first):
 5. **Complex components** - Accordion, Tabs, Modal, Slider
 6. **Navigation** - Nav, Dropdown, Breadcrumb
 
-### 5.2 Component Class Migration Example
+### 5.2 Structure Alignment Checklist (Per Component)
+
+**Before writing any CSS, complete this checklist for each component:**
+
+#### Step 1: Extract Webflow Reference
+```bash
+# Location of Webflow HTML exports
+reference/mast-framework.webflow/components.html
+reference/mast-framework.webflow/inspired-layouts.html
+```
+
+Use browser DevTools to copy the rendered HTML for the specific component.
+
+#### Step 2: Document Current Sanity Structure
+```bash
+# Find the component file
+app/components/[ComponentName].tsx
+# or
+app/components/blocks/[ComponentName].tsx
+```
+
+Render the component and copy its HTML output.
+
+#### Step 3: Create Comparison Document
+For each component, create a comparison showing both structures:
+
+```markdown
+## Button Component
+
+### Webflow Structure
+​```html
+<a href="#" class="button">
+  <div class="btn-text">Click me</div>
+  <div class="btn-icon">
+    <div class="icon"><i class="ph ph-arrow-right"></i></div>
+  </div>
+</a>
+​```
+
+### Current Sanity Structure
+​```html
+<button className="inline-flex items-center gap-2 ...">
+  <span>Click me</span>
+  <ArrowRight className="w-4 h-4" />
+</button>
+​```
+
+### Differences
+- [ ] Webflow uses `<a>`, Sanity uses `<button>` - ALIGN based on use case
+- [ ] Missing `.btn-text` wrapper - ADD
+- [ ] Missing `.btn-icon` wrapper - ADD
+- [ ] Icon structure differs - ALIGN to `.icon` class pattern
+```
+
+#### Step 4: Align Before Styling
+Modify the Sanity component JSX to match Webflow's DOM structure:
+
+```tsx
+// BEFORE (Tailwind-styled, different structure)
+<button className="inline-flex items-center gap-2 px-4 py-2 bg-brand">
+  <span>Click me</span>
+  <ArrowRight className="w-4 h-4" />
+</button>
+
+// AFTER (Mast structure, ready for CSS)
+<a href={href} className="button">
+  <div className="btn-text">{children}</div>
+  {icon && (
+    <div className="btn-icon">
+      <div className="icon">{icon}</div>
+    </div>
+  )}
+</a>
+```
+
+#### Step 5: Visual Regression Test
+After applying Mast CSS classes:
+
+1. **Screenshot Webflow** at 1440px, 768px, 375px widths
+2. **Screenshot Sanity** at same widths
+3. **Overlay comparison** - Should be pixel-close (within 1-2px tolerance)
+4. **Test interactions** - Hover, focus, active states
+
+### 5.3 Component Structure Reference
+
+Key structural patterns from Webflow Mast to preserve:
+
+| Component | Required Wrappers | Critical Classes |
+|-----------|-------------------|------------------|
+| Section | `section > container > row > col` | `.section`, `.container`, `.row`, `.col` |
+| Column Content | `col > slot` | `.slot.cc-content-wrap` or `.slot.cc-column` |
+| Button | `button > btn-text + btn-icon > icon` | `.button`, `.btn-text`, `.btn-icon`, `.icon` |
+| Card | `card > slot` | `.card`, `.slot` |
+| Heading | `heading-component > h1-h6` | `.heading-component`, `.h1`-`.h6` |
+| Accordion | `details.accordion-component > summary.accordion-trigger` | `.accordion-component`, `.accordion-trigger`, `.accordion-content` |
+| Tabs | `tabs-component > tabs-menu + tabs-content` | `.tabs-component`, `.tabs-menu`, `.tabs-link`, `.tabs-pane` |
+| Form | `form > input-group > input-label + input` | `.form`, `.input-group`, `.input-label`, `.input` |
+
+### 5.4 Component Class Migration Example
 
 **Before (Tailwind in TSX):**
 ```tsx
@@ -530,7 +770,11 @@ Change these variables to match your brand:
 - [ ] **Phase 2**: Map all `:where()` variants to semantic classes
 - [ ] **Phase 3**: Convert all media queries to rem values
 - [ ] **Phase 4**: Set up file structure and imports
-- [ ] **Phase 5**: Migrate components (layout → typography → interactive → content → complex → nav)
+- [ ] **Phase 5**: Migrate components with structure alignment:
+  - [ ] For each component: Compare Webflow → Sanity DOM structure
+  - [ ] Align JSX structure to match Webflow before applying CSS
+  - [ ] Visual regression test at 1440px, 768px, 375px
+  - [ ] Migration order: layout → typography → interactive → content → complex → nav
 - [ ] **Phase 6**: Remove Tailwind dependencies
 - [ ] **Phase 7**: Document classes and variables
 
