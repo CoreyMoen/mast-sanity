@@ -609,6 +609,7 @@ Key structural patterns for Sanity (using clean static approach without Webflow 
 | Accordion | `details.accordion-component` (native) | `.accordion-component`, `.accordion-trigger`, `.accordion-content` |
 | Modal | `dialog.modal` (native) | `.modal`, `.modal_close-button` |
 | Tabs | `div.tabs-component > .tabs-menu + .tabs-pane` | `.tabs-component`, `.tabs-menu`, `.tabs-link`, `.tabs-pane` |
+| Slider | `div.slider-component > .swiper + .slider-nav` | `.slider-component`, `.slider-nav`, `.slider-pagination` |
 | Form | `form > input-group` | `.form`, `.input-group`, `.input-label`, `.input` |
 
 ### 5.4 Layout Component Diffs
@@ -1571,33 +1572,247 @@ For simple tabs without autoplay or mobile dropdown, the structure is simpler:
 </div>
 ```
 
+#### Slider Component
+
+The Slider component is unique among interactive components - it genuinely requires a slider library (Swiper.js) for:
+- Touch/swipe gesture support
+- Smooth transitions and effects (slide, fade)
+- Infinite loop functionality
+- Responsive breakpoints
+
+Unlike Accordion, Modal, and Tabs which can use native HTML elements, Slider has no native equivalent. The current Sanity implementation using `swiper/react` is appropriate - we just need to align the CSS classes with the Mast framework.
+
+**External Resources (Webflow uses CDN-loaded Swiper):**
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/slider.min.js"></script>
+```
+
+**React Approach:** Use `swiper/react` package (already in Sanity) - no external scripts needed.
+
+**Current Sanity (Swiper React + Tailwind) → Proposed (Swiper React + Mast CSS):**
+
+```tsx
+// CURRENT (Swiper React with Tailwind utilities)
+<div className={cn('relative slider-container', isSides && 'px-14', className)}>
+  <Swiper
+    modules={modules}
+    spaceBetween={spaceBetween}
+    slidesPerView={slidesPerViewMobile}
+    breakpoints={{
+      768: { slidesPerView: slidesPerViewTablet },
+      1024: { slidesPerView: slidesPerViewDesktop },
+    }}
+    className={cn(overflowVisible && 'overflow-visible')}
+  >
+    {slides.map((child, index) => (
+      <SwiperSlide key={index}>{child}</SwiperSlide>
+    ))}
+  </Swiper>
+
+  {/* Custom navigation */}
+  <div className="flex items-center justify-center gap-2 mt-6">
+    <button className={cn(
+      'flex h-10 w-10 items-center justify-center rounded-full border',
+      'border-brand bg-brand text-white hover:bg-brand/90',
+      'disabled:opacity-40 disabled:cursor-not-allowed'
+    )}>
+      <CaretLeft className="h-5 w-5" weight="bold" />
+    </button>
+    <div className="flex items-center gap-2">
+      {/* Pagination dots */}
+    </div>
+    <button>...</button>
+  </div>
+</div>
+
+// PROPOSED (Swiper React with Mast CSS classes)
+<div
+  className="slider-component"
+  data-slider="component"
+  style={{
+    '--lg': slidesPerViewDesktop,
+    '--md': slidesPerViewTablet,
+    '--sm': slidesPerViewMobile,
+    '--xs': slidesPerViewMobile,
+    '--gap': `${gapPixels}px`,
+  } as React.CSSProperties}
+>
+  <div style={{ '--gap': `var(--gap)` } as React.CSSProperties}>
+    <Swiper
+      className="swiper"
+      data-slider="slider"
+      data-loop={loop}
+      data-autoplay={autoplay ? autoplayDelay : false}
+      data-effect={effect}
+      data-speed={speed}
+      data-slider-overflow={overflowVisible}
+      modules={modules}
+      spaceBetween={gapPixels}
+      slidesPerView={slidesPerViewMobile}
+      breakpoints={{
+        480: { slidesPerView: slidesPerViewMobile },
+        768: { slidesPerView: slidesPerViewTablet },
+        992: { slidesPerView: slidesPerViewDesktop },
+      }}
+      loop={loop}
+      speed={speed}
+      effect={effect}
+      autoplay={autoplay ? { delay: autoplayDelay, pauseOnMouseEnter: true } : false}
+    >
+      {slides.map((child, index) => (
+        <SwiperSlide key={index} className="swiper-slide">
+          <div className="u-h-100">{child}</div>
+        </SwiperSlide>
+      ))}
+    </Swiper>
+  </div>
+
+  {/* Navigation */}
+  <div className="slider-nav">
+    <button className="button" data-slider="previous" onClick={handlePrev}>
+      <span className="btn-text u-sr-only">Previous Slide</span>
+      <span className="btn-icon">
+        <span className="icon ph ph-arrow-left" />
+      </span>
+    </button>
+
+    <div className="slider-pagination" data-slider="pagination">
+      {Array.from({ length: totalSlides }).map((_, index) => (
+        <button
+          key={index}
+          className={cn('slider-pagination_button', index === activeIndex && 'cc-active')}
+          onClick={() => swiperInstance?.slideToLoop(index)}
+          aria-label={`Go to slide ${index + 1}`}
+        />
+      ))}
+    </div>
+
+    <button className="button" data-slider="next" onClick={handleNext}>
+      <span className="btn-text u-sr-only">Next Slide</span>
+      <span className="btn-icon">
+        <span className="icon ph ph-arrow-right" />
+      </span>
+    </button>
+  </div>
+</div>
+```
+
+**Slider CSS (in `slider.css`):**
+
+```css
+/* slider.css - Component-specific styles */
+
+/* Responsive slides per view via CSS variables */
+[data-slider="component"] {
+  --lg: 3;  /* Desktop (992px+) */
+  --md: 2;  /* Tablet (768-991px) */
+  --sm: 1;  /* Mobile Landscape (480-767px) */
+  --xs: 1;  /* Mobile Portrait (0-479px) */
+  --gap: 24px;
+  --current-slides-per-view: var(--xs);
+}
+
+@media (min-width: 30rem) and (max-width: 47.9375rem) {
+  [data-slider="component"] { --current-slides-per-view: var(--sm); }
+}
+
+@media (min-width: 48rem) and (max-width: 61.9375rem) {
+  [data-slider="component"] { --current-slides-per-view: var(--md); }
+}
+
+@media (min-width: 62rem) {
+  [data-slider="component"] { --current-slides-per-view: var(--lg); }
+}
+
+/* Slide width calculation (for CSS-only responsive control) */
+[data-slider="component"] .swiper-slide {
+  width: calc((100% - (var(--current-slides-per-view) - 1) * var(--gap)) / var(--current-slides-per-view)) !important;
+  margin-right: var(--gap);
+}
+
+/* Overflow control */
+[data-slider-overflow="false"] { overflow: hidden; }
+[data-slider-overflow="true"] { overflow: visible !important; }
+
+/* Disabled state for navigation */
+.swiper-button-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Base styles from mast-framework.css are in globals.css:
+   .slider-component, .slider-nav, .slider-pagination, .slider-pagination_button */
+```
+
+**Slider Data Attributes:**
+
+| Attribute | Element | Purpose |
+|-----------|---------|---------|
+| `data-slider="component"` | `.slider-component` | Root wrapper, holds CSS variables |
+| `data-slider="slider"` | `.swiper` | Swiper container |
+| `data-slider="previous"` | button | Previous slide button |
+| `data-slider="next"` | button | Next slide button |
+| `data-slider="pagination"` | `.slider-pagination` | Pagination container |
+| `data-slider-overflow` | `.swiper` | Control overflow visibility |
+| `data-loop` | `.swiper` | Enable infinite loop |
+| `data-autoplay` | `.swiper` | Autoplay delay in ms (or "false") |
+| `data-effect` | `.swiper` | Transition effect (slide, fade) |
+| `data-speed` | `.swiper` | Transition speed in ms |
+
+**Key Differences from External JS Approach:**
+
+| Aspect | Webflow (External slider.js) | Sanity (swiper/react) |
+|--------|------------------------------|----------------------|
+| Swiper init | External JS reads data attrs | React props directly |
+| State | DOM-based | React state |
+| Navigation | External JS binds events | React onClick handlers |
+| Pagination | External JS configures Swiper | Custom React component |
+| Breakpoints | CSS variables + JS read | React breakpoints prop |
+| Bundle | CDN + external script | npm package, tree-shaken |
+
+**Note:** The external `slider.min.js` from Mast is NOT needed in React because:
+1. `swiper/react` handles all Swiper initialization
+2. React state manages navigation/pagination
+3. Breakpoints are passed directly as props
+4. No need to process Webflow CMS lists
+
+The Mast CSS classes (`.slider-component`, `.slider-nav`, `.slider-pagination`, `.slider-pagination_button`) are still used for styling consistency.
+
 #### Summary of Interactive Component Changes (Updated)
 
 | Component | Current | Proposed |
 |-----------|---------|----------|
 | Accordion wrapper | Native `<details>` with Tailwind | Native `<details>` with Mast CSS |
-| Accordion animation | CSS Grid trick (`grid-rows-[0fr]`) | `interpolate-size` + external JS fallback |
+| Accordion animation | CSS Grid trick (`grid-rows-[0fr]`) | `interpolate-size` + React hook |
 | Accordion icon rotation | `group-open:rotate-45` | `details[open] .accordion-icon { transform: rotate(45deg) }` |
-| Modal | Radix Dialog + Portal | Native `<dialog>` |
-| Modal trigger | `<ModalTrigger>` component | `data-modal-trigger` attribute |
+| Modal | Radix Dialog + Portal | Native `<dialog>` + React hook |
+| Modal trigger | `<ModalTrigger>` component | React `open()` callback |
 | Modal focus trap | Radix built-in | Native `<dialog>` built-in |
 | Modal backdrop | Radix `<DialogOverlay>` | Native `::backdrop` pseudo-element |
-| Modal close | Radix `<DialogClose>` | `.modal_close-button` + external JS |
+| Modal close | Radix `<DialogClose>` | `.modal_close-button` + React `close()` |
 | Modal animation | Tailwind `animate-in/out` | CSS `@keyframes modal-fadein` |
 | Video modal | `<VideoModalContent>` component | `.modal.cc-video` variant class |
-| Tabs | Radix Tabs + React state | Mast CSS + external JS |
-| Tabs autoplay | React useEffect timer | CSS animation + external JS |
-| Tabs progress | React state + inline style | CSS animation on `.tabs-autoplay-progress` |
-| Tabs mobile dropdown | React state + conditional render | CSS + external JS via data attributes |
+| Tabs | Radix Tabs + React state | Mast CSS + React hook |
+| Tabs autoplay | React useEffect timer | React `useTabs` hook |
+| Tabs progress | React state + inline style | CSS animation + React key reset |
+| Tabs mobile dropdown | React state + conditional render | React state + Mast CSS |
 | Tabs orientation | React context | `.tabs-menu.cc-vertical` class |
+| Slider wrapper | `swiper/react` + Tailwind | `swiper/react` + Mast CSS |
+| Slider navigation | Tailwind button styles | `.slider-nav` + `.button` classes |
+| Slider pagination | Tailwind dot styles | `.slider-pagination` + `.slider-pagination_button` |
+| Slider breakpoints | React breakpoints prop | CSS variables + React breakpoints |
 
 #### Dependencies Removed (Updated)
 
 With this approach, you can remove:
-- `@radix-ui/react-dialog` - Replaced by native `<dialog>` + Mast JS
-- `@radix-ui/react-tabs` - Replaced by semantic HTML + Mast JS
+- `@radix-ui/react-dialog` - Replaced by native `<dialog>` + React hook
+- `@radix-ui/react-tabs` - Replaced by semantic HTML + React hook
 - Complex Tailwind animation utilities - Replaced by simple CSS keyframes
-- React state management for tabs autoplay/progress - Handled by external JS
+- External jsdelivr scripts - All behavior handled by React hooks
+
+**Note:** `swiper` package is retained - it provides essential touch/gesture support that cannot be easily replicated.
 
 ---
 
@@ -2422,12 +2637,15 @@ export function Tabs({
 | Accordion | `useAccordion` | ~80 | Height animation, reduced motion |
 | Modal | `useModal` | ~100 | Open/close, cooldown, click-outside |
 | Tabs | `useTabs` | ~150 | Autoplay, keyboard nav, deep linking |
+| Slider | N/A (use `swiper/react`) | ~0 | Keep existing swiper/react, update CSS only |
 
 **Shared utilities needed:**
 - `useReducedMotion()` - Hook for checking `prefers-reduced-motion`
 - `useLocalStorage()` - Hook for modal cooldown persistence
 
 **Total estimated lines:** ~400 (vs ~630 in external JS files)
+
+**Note on Slider:** Unlike Accordion, Modal, and Tabs which can use native HTML elements, Slider requires a library for touch gestures, smooth animations, and loop behavior. The existing `swiper/react` implementation is appropriate - only CSS class updates are needed (no React hook rewrite).
 
 ### 8.6 Migration Steps
 
@@ -2438,11 +2656,13 @@ export function Tabs({
    - `useModal.ts`
    - `useTabs.ts`
 3. **Update components** to use new hooks with Mast CSS classes
-4. **Remove external script tags** from layout
-5. **Test each component:**
+4. **Update Slider component** to use Mast CSS classes (keep `swiper/react`)
+5. **Remove external script tags** from layout (if any were added)
+6. **Test each component:**
    - Accordion: open/close animation, reduced motion, keyboard
    - Modal: trigger, close button, ESC key, click-outside, cooldown
    - Tabs: click, keyboard, autoplay, mobile dropdown, visibility pause
+   - Slider: swipe, navigation, pagination, autoplay, loop, fade effect
 
 ### 8.7 Benefits Over External JS
 
@@ -2476,11 +2696,12 @@ export function Tabs({
   - [ ] Create `useAccordion.ts` hook (~80 lines)
   - [ ] Create `useModal.ts` hook (~100 lines)
   - [ ] Create `useTabs.ts` hook (~150 lines)
-  - [ ] Update Accordion component to use hook
-  - [ ] Update Modal component to use hook
-  - [ ] Update Tabs component to use hook
+  - [ ] Update Accordion component to use hook + Mast CSS
+  - [ ] Update Modal component to use hook + Mast CSS
+  - [ ] Update Tabs component to use hook + Mast CSS
+  - [ ] Update Slider component CSS classes (keep `swiper/react`)
   - [ ] Remove external jsdelivr script tags from layout
-  - [ ] Test all interactive components
+  - [ ] Test all interactive components (Accordion, Modal, Tabs, Slider)
 
 ---
 
