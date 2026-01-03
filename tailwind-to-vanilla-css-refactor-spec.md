@@ -20,23 +20,22 @@ Style regression is most likely to occur when the Sanity component's DOM structu
 
 ### Why This Matters
 
-Mast CSS assumes specific parent-child relationships:
+Mast CSS assumes specific parent-child relationships. We use the **static/clean approach** (not the component-wrapped approach that Webflow requires for its component system):
+
 ```html
-<!-- Webflow Mast structure -->
+<!-- Clean static structure (what we want in Sanity) -->
 <section class="section">
   <div class="container">
     <div class="row">
       <div class="col col-lg-6">
-        <div class="slot cc-content-wrap">
-          <!-- Content here -->
-        </div>
+        <!-- Content blocks directly here -->
       </div>
     </div>
   </div>
 </section>
 ```
 
-If the Sanity component omits `.slot` or nests differently, selectors like `.slot > *:last-child { margin-bottom: 0; }` won't work, causing visual discrepancies.
+**Note:** In Webflow, components require extra wrappers like `.slot` and `xxx-component` classes due to how Webflow's component system works. Since Sanity doesn't require these, we keep the markup clean and simple.
 
 ### Alignment Process (Required for Each Component)
 
@@ -596,20 +595,182 @@ After applying Mast CSS classes:
 
 ### 5.3 Component Structure Reference
 
-Key structural patterns from Webflow Mast to preserve:
+Key structural patterns for Sanity (using clean static approach without Webflow component wrappers):
 
-| Component | Required Wrappers | Critical Classes |
-|-----------|-------------------|------------------|
-| Section | `section > container > row > col` | `.section`, `.container`, `.row`, `.col` |
-| Column Content | `col > slot` | `.slot.cc-content-wrap` or `.slot.cc-column` |
-| Button | `button > btn-text + btn-icon > icon` | `.button`, `.btn-text`, `.btn-icon`, `.icon` |
-| Card | `card > slot` | `.card`, `.slot` |
-| Heading | `heading-component > h1-h6` | `.heading-component`, `.h1`-`.h6` |
-| Accordion | `details.accordion-component > summary.accordion-trigger` | `.accordion-component`, `.accordion-trigger`, `.accordion-content` |
-| Tabs | `tabs-component > tabs-menu + tabs-content` | `.tabs-component`, `.tabs-menu`, `.tabs-link`, `.tabs-pane` |
-| Form | `form > input-group > input-label + input` | `.form`, `.input-group`, `.input-label`, `.input` |
+| Component | Structure | Critical Classes |
+|-----------|-----------|------------------|
+| Section | `section > container` | `.section`, `.container` |
+| Row | `div.row` | `.row`, `.row-justify-*`, `.row-align-*` |
+| Column | `div.col` | `.col`, `.col-lg-*`, `.col-md-*` |
+| Heading | `h1-h6` | `.h1`-`.h6` (or native elements) |
+| Rich Text | `div.rich-text` | `.rich-text` |
+| Button | `a.button` or `button.button` | `.button`, `.cc-secondary`, `.cc-ghost` |
+| Card | `div.card` | `.card` |
+| Accordion | `details.accordion` | `.accordion`, `.accordion-trigger`, `.accordion-content` |
+| Tabs | `div.tabs` | `.tabs`, `.tabs-menu`, `.tabs-link`, `.tabs-pane` |
+| Form | `form > input-group` | `.form`, `.input-group`, `.input-label`, `.input` |
 
-### 5.4 Component Class Migration Example
+### 5.4 Layout Component Diffs
+
+Detailed structure changes for the core layout components:
+
+#### Section Component
+
+**Current Sanity → Proposed:**
+```tsx
+// CURRENT
+<section className={`relative ${bgClass} ${isDarkBg ? 'text-white' : 'text-foreground'} ${minHeightClass} ${hasMinHeight ? 'flex flex-col' : ''} ${alignClass}`}>
+  {backgroundImageUrl && (
+    <>
+      <Image src={backgroundImageUrl} ... className="object-cover" />
+      {cleanOverlay > 0 && (
+        <div className="absolute inset-0 bg-black" style={{opacity: cleanOverlay / 100}} />
+      )}
+    </>
+  )}
+  <div className={`relative z-10 ${maxWidthClass} ${ptClass} ${pbClass} ${pxClass} ...`}>
+    {rowItems.map(...)}
+  </div>
+</section>
+
+// PROPOSED
+<section className={cn('section', themeClass, minHeightClass, alignClass)}>
+  {backgroundImageUrl && (
+    <>
+      <Image src={backgroundImageUrl} ... className="section-bg-image" />
+      {cleanOverlay > 0 && (
+        <div className="section-bg-overlay" style={{opacity: cleanOverlay / 100}} />
+      )}
+    </>
+  )}
+  <div className="container">
+    {rowItems.map(...)}
+  </div>
+</section>
+```
+
+**Section Class Mappings:**
+```tsx
+const themeClasses = {
+  primary: '',                    // Default
+  secondary: 'cc-muted',          // Light gray / dark gray
+  invert: 'cc-invert',            // Inverted colors
+}
+
+const minHeightClasses = {
+  auto: '',
+  small: 'cc-min-sm',
+  medium: 'cc-min-md',
+  large: 'cc-min-lg',
+  screen: 'cc-min-screen',
+}
+
+const verticalAlignClasses = {
+  start: '',
+  center: 'cc-valign-center',
+  end: 'cc-valign-end',
+}
+```
+
+#### Row Component
+
+**Current Sanity → Proposed:**
+```tsx
+// CURRENT
+<div className={`flex ${mobileClass} md:flex-row ${wrapClass} ${justifyClass} ${alignClass} ${negativeMarginClass} ${verticalGapClass}`}>
+  {columnItems.map((column) => <Column ... />)}
+</div>
+
+// PROPOSED
+<div className={cn('row', justifyClass, alignClass, gapClass)}>
+  {columnItems.map((column) => <Column ... />)}
+</div>
+```
+
+**Row Class Mappings:**
+```tsx
+const justifyClasses = {
+  start: '',                      // Default
+  center: 'row-justify-center',
+  end: 'row-justify-end',
+  between: 'row-justify-between',
+}
+
+const alignClasses = {
+  stretch: '',                    // Default
+  start: 'row-align-start',
+  center: 'row-align-center',
+  end: 'row-align-end',
+}
+
+const gapClasses = {
+  '0': 'row-gap-0',
+  'sm': 'row-gap-sm',
+  'md': '',                       // Default
+  'lg': 'row-gap-lg',
+}
+```
+
+#### Column Component
+
+**Current Sanity → Proposed:**
+```tsx
+// CURRENT
+<div className={`flex flex-col ${alignClass} w-full md:w-auto ${tabletClass} ${desktopClass} ${gutterClass} ${innerPaddingClass}`}
+     data-sanity={...}>
+  {contentBlocks.map(...)}
+</div>
+
+// PROPOSED
+<div className={cn('col', desktopClass, tabletClass, mobileClass, alignClass)}
+     data-sanity={...}>
+  {contentBlocks.map(...)}
+</div>
+```
+
+**Column Class Mappings:**
+```tsx
+const widthClasses = {
+  '1': 'col-lg-1',
+  '2': 'col-lg-2',
+  '3': 'col-lg-3',
+  '4': 'col-lg-4',
+  '5': 'col-lg-5',
+  '6': 'col-lg-6',
+  '7': 'col-lg-7',
+  '8': 'col-lg-8',
+  '9': 'col-lg-9',
+  '10': 'col-lg-10',
+  '11': 'col-lg-11',
+  '12': 'col-lg-12',
+  'fill': '',                     // Default flex behavior
+  'shrink': 'col-shrink',
+}
+
+// Repeat pattern for tablet: col-md-* and mobile: col-sm-*
+```
+
+#### Summary of Layout Changes
+
+| Element | Current (Tailwind) | Proposed (Mast) |
+|---------|-------------------|-----------------|
+| Section | `relative bg-[var(...)] pt-12 pb-12` | `.section` |
+| Section theme | `bg-[var(--secondary-background)]` | `.section.cc-muted` |
+| Section min-height | `min-h-[500px] flex flex-col justify-center` | `.section.cc-min-md.cc-valign-center` |
+| Background image | `object-cover` | `.section-bg-image` |
+| Background overlay | `absolute inset-0 bg-black` | `.section-bg-overlay` |
+| Container | `container pt-12 pb-12 px-6` | `.container` |
+| Row | `flex flex-col md:flex-row flex-wrap -mx-3 gap-y-6` | `.row` |
+| Row justify | `justify-center` | `.row-justify-center` |
+| Row align | `items-center` | `.row-align-center` |
+| Row gap | `gap-y-6 -mx-3` | `.row-gap-md` (default) |
+| Column | `flex flex-col lg:w-6/12 px-3` | `.col.col-lg-6` |
+| Column tablet | `md:w-full` | `.col-md-12` |
+| Column align | `justify-center` | `.col-valign-center` |
+
+---
+
+### 5.5 Component Class Migration Example
 
 **Before (Tailwind in TSX):**
 ```tsx
