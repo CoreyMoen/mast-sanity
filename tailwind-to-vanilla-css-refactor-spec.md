@@ -608,7 +608,7 @@ Key structural patterns for Sanity (using clean static approach without Webflow 
 | Card | `div.card > div.card-body` | `.card`, `.card-body` |
 | Accordion | `details.accordion-component` (native) | `.accordion-component`, `.accordion-trigger`, `.accordion-content` |
 | Modal | `dialog.modal` (native) | `.modal`, `.modal_close-button` |
-| Tabs | `div.tabs` | `.tabs`, `.tabs-menu`, `.tabs-link`, `.tabs-pane` |
+| Tabs | `div.tabs-component > .tabs-menu + .tabs-pane` | `.tabs-component`, `.tabs-menu`, `.tabs-link`, `.tabs-pane` |
 | Form | `form > input-group` | `.form`, `.input-group`, `.input-label`, `.input` |
 
 ### 5.4 Layout Component Diffs
@@ -1259,11 +1259,345 @@ dialog.modal.cc-video {
 | Modal animation | Tailwind `animate-in/out` | CSS `@keyframes modal-fadein` |
 | Video modal | `<VideoModalContent>` component | `.modal.cc-video` variant class |
 
-#### Dependencies Removed
+#### Tabs Component
+
+The Tabs component is the most complex interactive component, featuring:
+- Horizontal and vertical orientations
+- Autoplay with progress indicators
+- Mobile dropdown menu on smaller screens
+- Pause on hover
+
+**External Resource:**
+```html
+<script defer src="https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/tabs.min.js"></script>
+```
+
+**Current Sanity (Radix Tabs) → Proposed (Mast CSS + External JS):**
+
+```tsx
+// CURRENT (Radix Tabs with React-based autoplay logic)
+import * as TabsPrimitive from '@radix-ui/react-tabs'
+
+<Tabs
+  defaultValue={defaultValue}
+  orientation={orientation}
+  menuPosition={menuPosition}
+  mobileDropdown={mobileDropdown}
+  autoplay={autoplay}
+  autoplayDuration={autoplayDuration}
+  pauseOnHover={pauseOnHover}
+  showProgress={showProgress}
+>
+  <TabsList>
+    {tabs.map((tab) => (
+      <TabsTrigger key={tab._key} value={tab._key}>
+        {tab.label}
+      </TabsTrigger>
+    ))}
+  </TabsList>
+  {tabs.map((tab) => (
+    <TabsContent key={tab._key} value={tab._key}>
+      {tab.content}
+    </TabsContent>
+  ))}
+</Tabs>
+// Complex React state management for autoplay, progress tracking, mobile dropdown
+
+// PROPOSED (Mast CSS classes + external JS handles all behavior)
+<div className="tabs-component" data-tabs-component>
+  <div className="row">
+    <div className="col col-lg-12">
+      <div
+        className="tabs-menu"
+        role="tablist"
+        data-tabs-menu
+        data-tabs-autoplay={autoplay}
+        data-tabs-autoplay-duration={autoplayDuration}
+        data-tabs-autoplay-hover-pause={pauseOnHover}
+        data-tab-mobile-dropdown={mobileDropdown}
+      >
+        {/* Mobile dropdown toggle - shown only on mobile when enabled */}
+        <button className="tabs-menu_dropdown-toggle" data-tabs-menu-dropdown-toggle>
+          <span className="tabs-menu_dropdown-text" data-tabs-menu-dropdown-text>
+            {activeTabLabel}
+          </span>
+          <span className="tabs-menu_dropdown-arrow">
+            <span className="icon ph ph-caret-down" />
+          </span>
+        </button>
+
+        {/* Dropdown menu wrapper */}
+        <div className="tabs-menu_dropdown-menu" data-tabs-menu-dropdown-menu>
+          {tabs.map((tab, index) => (
+            <div
+              key={tab._key}
+              role="tab"
+              aria-selected={index === 0}
+              className={cn('tabs-link', index === 0 && 'cc-active')}
+              data-tabs-link
+              data-tab-link-name={tab.label}
+            >
+              <span className="tabs-link-text">{tab.label}</span>
+              <button
+                aria-label={tab.label}
+                tabIndex={-1}
+                className="u-link-cover cc-tabs-link"
+                data-tabs-link-button
+              />
+              <div className="tabs-autoplay-progress" data-tabs-autoplay-progress />
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <div className="col col-lg-12">
+      {tabs.map((tab, index) => (
+        <div
+          key={tab._key}
+          role="tabpanel"
+          aria-hidden={index !== 0}
+          className="tabs-pane"
+          data-tabs-pane
+        >
+          {tab.content}
+        </div>
+      ))}
+    </div>
+  </div>
+
+  {/* Optional autoplay toggle button */}
+  {autoplay && (
+    <button className="tabs-autoplay-toggle" data-tabs-autoplay-toggle>
+      <span className="tabs-autoplay-toggle_pause">
+        <span className="icon ph ph-pause" />
+      </span>
+      <span className="tabs-autoplay-toggle_play">
+        <span className="icon ph ph-play" />
+      </span>
+    </button>
+  )}
+</div>
+```
+
+**Tabs CSS (in `tabs.css`):**
+
+```css
+/* tabs.css - Component-specific styles */
+
+/* Tab pane fade-in animation */
+.tabs-pane {
+  animation: tabsFadeIn 0.5s ease;
+}
+
+@keyframes tabsFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.tabs-pane[aria-hidden="true"] {
+  display: none;
+}
+
+/* Vertical menu variant */
+.tabs-menu.cc-vertical .tabs-link {
+  border-bottom: none;
+  border-left: 2px solid var(--border-primary);
+}
+
+.tabs-menu.cc-vertical .tabs-link.cc-active {
+  border-color: var(--text-primary);
+}
+
+.tabs-menu.cc-vertical .tabs-autoplay-progress {
+  top: 0;
+  right: auto;
+  bottom: 0;
+  left: -2px;
+  width: 2px;
+  height: 0%;
+}
+
+/* Autoplay progress animation (horizontal) */
+.tabs-menu[data-tabs-autoplay="true"] .tabs-link[aria-selected="true"] .tabs-autoplay-progress {
+  animation: autoplayProgress var(--autoplay-duration, 5s) linear forwards;
+}
+
+.tabs-component.autoplay-paused .tabs-autoplay-progress {
+  animation-play-state: paused;
+}
+
+@keyframes autoplayProgress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+/* Autoplay progress animation (vertical) */
+.tabs-menu.cc-vertical[data-tabs-autoplay="true"] .tabs-link[aria-selected="true"] .tabs-autoplay-progress {
+  animation: autoplayProgressVertical var(--autoplay-duration, 5s) linear forwards;
+}
+
+@keyframes autoplayProgressVertical {
+  from { height: 0%; }
+  to { height: 100%; }
+}
+
+/* Play/pause toggle states */
+.tabs-component.autoplay-paused .tabs-autoplay-toggle_pause {
+  display: none;
+}
+
+.tabs-component.autoplay-paused .tabs-autoplay-toggle_play {
+  display: flex;
+}
+
+/* Mobile dropdown */
+@media (max-width: 47.9375rem) {
+  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-menu_dropdown-toggle {
+    display: flex;
+  }
+
+  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-menu_dropdown-toggle.cc-open {
+    border-radius: var(--button-radius) var(--button-radius) 0 0;
+  }
+
+  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-menu_dropdown-toggle.cc-open .tabs-menu_dropdown-arrow {
+    transform: rotate(180deg);
+  }
+
+  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-menu_dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% - 1px);
+    left: 0;
+    right: 0;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 0 0 var(--button-radius) var(--button-radius);
+    z-index: 10;
+    max-height: 300px;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-menu_dropdown-menu.cc-open {
+    display: block;
+  }
+
+  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-link {
+    border: none;
+  }
+
+  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-link.cc-active {
+    background-color: var(--border-primary);
+  }
+}
+
+/* Base styles from mast-framework.css are in globals.css:
+   .tabs-component, .tabs-menu, .tabs-link, .tabs-autoplay-progress,
+   .tabs-autoplay-toggle, .tabs-menu_dropdown-toggle */
+```
+
+**Tabs Data Attributes (handled by external JS):**
+
+| Attribute | Element | Purpose |
+|-----------|---------|---------|
+| `data-tabs-component` | `.tabs-component` | Identifies component root |
+| `data-tabs-menu` | `.tabs-menu` | Tab menu container |
+| `data-tabs-link` | `.tabs-link` | Individual tab trigger |
+| `data-tab-link-name` | `.tabs-link` | Tab identifier for linking |
+| `data-tabs-pane` | `.tabs-pane` | Tab content panel |
+| `data-tabs-autoplay` | `.tabs-menu` | Enable autoplay (`"true"`) |
+| `data-tabs-autoplay-duration` | `.tabs-menu` | Duration in seconds |
+| `data-tabs-autoplay-hover-pause` | `.tabs-menu` | Pause on hover (`"true"`) |
+| `data-tab-mobile-dropdown` | `.tabs-menu` | Show as dropdown on mobile |
+| `data-tabs-autoplay-toggle` | button | Play/pause autoplay |
+| `data-tabs-link-button` | button | Hidden accessible button in tab |
+| `data-tabs-autoplay-progress` | div | Progress bar element |
+
+**Tabs Class Mappings:**
+
+```tsx
+const orientationClasses = {
+  horizontal: '',                // Default
+  vertical: 'cc-vertical',
+}
+
+// Note: Layout (menu position) is handled via row/column structure
+// not additional classes on .tabs-menu
+```
+
+**Note:** The external `tabs.min.js` handles:
+- Tab switching via click and keyboard navigation
+- ARIA attribute management (`aria-selected`, `aria-hidden`)
+- Autoplay timer with progress animation
+- Pause/resume on hover (when configured)
+- Mobile dropdown open/close
+- Updating dropdown text to show active tab
+- Adding `.cc-active` class to active tab
+- Adding `.cc-open` class to open dropdown
+
+**Simplified Tabs (without autoplay/dropdown):**
+
+For simple tabs without autoplay or mobile dropdown, the structure is simpler:
+
+```tsx
+<div className="tabs-component" data-tabs-component>
+  <div className="tabs-menu" role="tablist" data-tabs-menu>
+    {tabs.map((tab, index) => (
+      <div
+        key={tab._key}
+        role="tab"
+        aria-selected={index === 0}
+        className={cn('tabs-link', index === 0 && 'cc-active')}
+        data-tabs-link
+        data-tab-link-name={tab.label}
+      >
+        {tab.label}
+      </div>
+    ))}
+  </div>
+  {tabs.map((tab, index) => (
+    <div
+      key={tab._key}
+      role="tabpanel"
+      aria-hidden={index !== 0}
+      className="tabs-pane"
+      data-tabs-pane
+    >
+      {tab.content}
+    </div>
+  ))}
+</div>
+```
+
+#### Summary of Interactive Component Changes (Updated)
+
+| Component | Current | Proposed |
+|-----------|---------|----------|
+| Accordion wrapper | Native `<details>` with Tailwind | Native `<details>` with Mast CSS |
+| Accordion animation | CSS Grid trick (`grid-rows-[0fr]`) | `interpolate-size` + external JS fallback |
+| Accordion icon rotation | `group-open:rotate-45` | `details[open] .accordion-icon { transform: rotate(45deg) }` |
+| Modal | Radix Dialog + Portal | Native `<dialog>` |
+| Modal trigger | `<ModalTrigger>` component | `data-modal-trigger` attribute |
+| Modal focus trap | Radix built-in | Native `<dialog>` built-in |
+| Modal backdrop | Radix `<DialogOverlay>` | Native `::backdrop` pseudo-element |
+| Modal close | Radix `<DialogClose>` | `.modal_close-button` + external JS |
+| Modal animation | Tailwind `animate-in/out` | CSS `@keyframes modal-fadein` |
+| Video modal | `<VideoModalContent>` component | `.modal.cc-video` variant class |
+| Tabs | Radix Tabs + React state | Mast CSS + external JS |
+| Tabs autoplay | React useEffect timer | CSS animation + external JS |
+| Tabs progress | React state + inline style | CSS animation on `.tabs-autoplay-progress` |
+| Tabs mobile dropdown | React state + conditional render | CSS + external JS via data attributes |
+| Tabs orientation | React context | `.tabs-menu.cc-vertical` class |
+
+#### Dependencies Removed (Updated)
 
 With this approach, you can remove:
 - `@radix-ui/react-dialog` - Replaced by native `<dialog>` + Mast JS
+- `@radix-ui/react-tabs` - Replaced by semantic HTML + Mast JS
 - Complex Tailwind animation utilities - Replaced by simple CSS keyframes
+- React state management for tabs autoplay/progress - Handled by external JS
 
 ---
 
