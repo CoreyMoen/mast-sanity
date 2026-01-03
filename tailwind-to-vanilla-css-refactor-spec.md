@@ -398,138 +398,103 @@ For easier maintenance, define breakpoints as custom properties in a `:root` com
 
 ## Phase 4: File Structure
 
-### 4.1 New CSS Architecture
+### 4.1 Source Files (Read-Only Reference)
+
+The Webflow export remains untouched for ongoing reference:
+
+```
+reference/
+└── mast-framework.webflow/       # DO NOT MODIFY - reference only
+    ├── css/
+    │   ├── mast-framework.css    # Source of truth for CSS patterns
+    │   ├── components.css        # Component-specific styles
+    │   └── normalize.css
+    ├── components.html           # Component structure reference
+    └── ...
+```
+
+### 4.2 Destination Files (Sanity Build)
+
+The cleaned, simplified CSS is created in the app directory:
 
 ```
 app/
-├── styles/
-│   ├── mast-framework.css      # Core framework (cleaned from Webflow)
-│   │   ├── /* Variables */
-│   │   ├── /* Base/Reset */
-│   │   ├── /* Typography */
-│   │   ├── /* Layout (section, container, row, col) */
-│   │   ├── /* Components */
-│   │   ├── /* Utilities */
-│   │   └── /* Media queries */
-│   │
-│   └── globals.css             # Project-specific overrides & additions
-│       ├── /* Font loading */
-│       ├── /* Project customizations */
-│       └── /* Sanity-specific styles */
-```
-
-### 4.2 Import Order
-
-```css
-/* app/layout.tsx or globals.css */
-@import './styles/mast-framework.css';
-/* Project-specific additions follow */
-```
-
-### 4.3 Component-Specific CSS: Should We Split?
-
-In Webflow, component-specific CSS/JS is embedded at the top of the page body via custom code blocks:
-
-```html
-<!-- Webflow pattern: component code only loads on pages using that component -->
-<div data-custom-code="marquee">
-  <style>/* Marquee keyframes and styles */</style>
-</div>
-<div data-custom-code="accordion">
-  <style>/* Accordion-specific styles */</style>
-</div>
-<div data-custom-code="tabs">
-  <style>/* Tabs-specific styles */</style>
-</div>
-```
-
-**Components with custom CSS/JS in Webflow:**
-- `marquee` - Keyframe animations, pause-on-hover
-- `accordion` - Details/summary animation helpers
-- `modal` - Dialog backdrop, positioning
-- `slider` - Swiper.js integration styles
-- `tabs` - Autoplay progress, mobile dropdown
-- `inline-video` - Play-on-hover behavior
-- `theme-toggle` - Switch styling, state management
-- `form` - Autofill colors, select arrows
-
-#### Option A: Single File (Recommended for Simplicity)
-
-Keep all CSS in `mast-framework.css`. Component-specific styles add ~2-3KB total.
-
-**Pros:**
-- Single HTTP request
-- No conditional loading logic
-- Cached after first page load
-- Simpler mental model
-
-**Cons:**
-- Unused component CSS loads on every page
-
-#### Option B: Component CSS Modules (Maximum Optimization)
-
-Split component-specific CSS into co-located files:
-
-```
-app/
+├── globals.css                   # Core Mast framework CSS (cleaned/simplified)
+│   ├── /* Variables */
+│   ├── /* Base/Reset */
+│   ├── /* Typography */
+│   ├── /* Layout (section, container, row, col) */
+│   ├── /* Base component styles (button, card, form, etc.) */
+│   ├── /* Utilities */
+│   └── /* Media queries */
+│
 ├── components/
-│   ├── Marquee/
-│   │   ├── Marquee.tsx
-│   │   └── marquee.css        # Imported only when component renders
 │   ├── Accordion/
 │   │   ├── Accordion.tsx
-│   │   └── accordion.css
+│   │   └── accordion.css         # Accordion-specific styles only
 │   ├── Tabs/
 │   │   ├── Tabs.tsx
 │   │   └── tabs.css
+│   ├── Marquee/
+│   │   ├── Marquee.tsx
+│   │   └── marquee.css
+│   ├── Modal/
+│   │   ├── Modal.tsx
+│   │   └── modal.css
+│   ├── Slider/
+│   │   ├── Slider.tsx
+│   │   └── slider.css
 │   └── ...
 ```
 
+### 4.3 What Goes Where
+
+| CSS Type | Location | Loaded |
+|----------|----------|--------|
+| Variables (colors, typography, spacing) | `globals.css` | Always |
+| Base/reset styles | `globals.css` | Always |
+| Layout classes (`.section`, `.row`, `.col`) | `globals.css` | Always |
+| Typography classes (`.h1`-`.h6`, `.p-*`) | `globals.css` | Always |
+| Simple components (`.button`, `.card`, `.input`) | `globals.css` | Always |
+| Utility classes (`.u-*`) | `globals.css` | Always |
+| Accordion animations & triggers | `accordion.css` | When used |
+| Tabs autoplay, mobile dropdown | `tabs.css` | When used |
+| Marquee keyframes | `marquee.css` | When used |
+| Modal dialog styles | `modal.css` | When used |
+| Slider/Swiper overrides | `slider.css` | When used |
+
+### 4.4 Import Pattern
+
 ```tsx
-// Marquee.tsx
-import './marquee.css'
-
-export function Marquee({ ... }) {
-  // Component only loads its CSS when rendered
-}
+// app/layout.tsx - globals.css imported here (already the case)
+import './globals.css'
 ```
 
-**Pros:**
-- CSS only loads when component is used on page
-- Aligns with Webflow's conditional loading pattern
-- Better for pages that don't use complex components
+```tsx
+// app/components/Accordion/Accordion.tsx
+import './accordion.css'  // Only loads when Accordion renders
 
-**Cons:**
-- Multiple small CSS files = more HTTP requests (mitigated by HTTP/2)
-- Slightly more complex file organization
-- Need to ensure no duplicate styles between files
-
-#### Option C: Hybrid Approach (Balanced)
-
-Core framework in one file, complex interactive components split:
-
-```
-app/
-├── styles/
-│   ├── mast-framework.css     # Variables, layout, typography, utilities, simple components
-│   └── components/
-│       ├── marquee.css        # ~0.5KB - Keyframes
-│       ├── slider.css         # ~1KB - Swiper overrides
-│       ├── tabs.css           # ~0.5KB - Autoplay, dropdown
-│       └── modal.css          # ~0.3KB - Dialog styles
+export function Accordion({ ... }) { ... }
 ```
 
-Only split components that have:
-1. Significant CSS (>0.3KB)
-2. Keyframe animations
-3. Third-party library overrides
-4. Features not used on most pages
+### 4.5 Component-Specific CSS Approach (Option B - Recommended)
 
-#### Recommendation
+Split component-specific CSS into co-located files. This approach:
+- Loads CSS only when the component is used on a page
+- Aligns with the Webflow pattern of conditional component code
+- Makes it easier to review and collaborate on individual components
+- Requires no additional build tooling (Next.js handles it natively)
 
-**Start with Option A** (single file). The total component CSS is small enough (~3-5KB) that splitting provides marginal benefit. If performance profiling later shows CSS as a bottleneck on specific pages, migrate to Option C selectively.
+**Components requiring separate CSS files:**
+- `accordion.css` - Details/summary animation, icon rotation
+- `tabs.css` - Autoplay progress bar, mobile dropdown toggle
+- `marquee.css` - Keyframe animations, pause-on-hover
+- `modal.css` - Dialog backdrop, positioning, transitions
+- `slider.css` - Swiper.js integration and overrides
+- `inline-video.css` - Play button overlay, hover states (if needed)
+- `theme-toggle.css` - Switch styling (if not in globals)
 
-The Webflow pattern exists because Webflow lacks native CSS bundling—it's a workaround, not necessarily a best practice for a build system like Next.js.
+**Key rule:** Component CSS files should only contain styles unique to that component. Shared variables, base classes, and utilities stay in `globals.css`.
 
 ---
 
