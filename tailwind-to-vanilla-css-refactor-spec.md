@@ -768,9 +768,207 @@ const widthClasses = {
 | Column tablet | `md:w-full` | `.col-md-12` |
 | Column align | `justify-center` | `.col-valign-center` |
 
+### 5.5 Content Component Diffs
+
+Detailed structure changes for content components:
+
+#### Heading Component
+
+**Current Sanity → Proposed:**
+```tsx
+// CURRENT
+createElement(cleanLevel, {
+  className: `${sizeClass} ${alignClass} ${colorClass} mb-4`
+}, text)
+// Outputs: <h2 class="text-h2 text-left text-foreground mb-4">Title</h2>
+
+// PROPOSED
+createElement(cleanLevel, {
+  className: cn(sizeClass, alignClass, colorClass)
+}, text)
+// Outputs: <h2 class="h2">Title</h2>
+// Or with modifiers: <h2 class="h2 u-text-center u-text-brand">Title</h2>
+```
+
+**Heading Class Mappings:**
+```tsx
+const sizeClasses = {
+  h1: 'h1',
+  h2: 'h2',
+  h3: 'h3',
+  h4: 'h4',
+  h5: 'h5',
+  h6: 'h6',
+}
+
+const alignClasses = {
+  left: '',                   // Default
+  center: 'u-text-center',
+  right: 'u-text-right',
+}
+
+const colorClasses = {
+  default: '',                // Inherits from parent
+  gray: 'u-text-muted',
+  brand: 'u-text-brand',
+  blue: 'u-text-blue',
+  white: 'u-text-white',
+}
+```
+
+#### Rich Text Component
+
+**Current Sanity → Proposed:**
+```tsx
+// CURRENT
+<div className={`${alignClass} ${maxWidthClass} ${colorClass} mb-4`}>
+  <PortableText value={content} className={sizeClass} />
+</div>
+// Outputs: <div class="text-left text-foreground mb-4"><div class="prose-base">...</div></div>
+
+// PROPOSED
+<div className={cn('rich-text', sizeClass, alignClass)}>
+  <PortableText value={content} />
+</div>
+// Outputs: <div class="rich-text">...</div>
+// Or with modifiers: <div class="rich-text cc-lg u-text-center">...</div>
+```
+
+**Rich Text Class Mappings:**
+```tsx
+const sizeClasses = {
+  base: '',                   // Default
+  sm: 'cc-sm',
+  lg: 'cc-lg',
+  xl: 'cc-xl',
+}
+
+const alignClasses = {
+  left: '',                   // Default
+  center: 'u-text-center',
+  right: 'u-text-right',
+}
+```
+
+#### Button Component
+
+**Current Sanity → Proposed:**
+```tsx
+// CURRENT
+<div className={cn(alignClass, 'mb-4')}>
+  <Button variant={...} colorScheme={...} size={...} asChild>
+    <ResolvedLink link={link}>
+      {text}
+      {icons[cleanIcon]}
+    </ResolvedLink>
+  </Button>
+</div>
+// Outputs: <div class="flex justify-start mb-4"><a class="inline-flex items-center ... bg-brand ...">Button<svg>...</svg></a></div>
+
+// PROPOSED
+<a href={href} className={cn('button', variantClass, colorClass)}>
+  <span className="btn-text">{text}</span>
+  {icon && (
+    <span className="btn-icon">
+      <span className="icon">{iconElement}</span>
+    </span>
+  )}
+</a>
+// Outputs: <a class="button" href="#">
+//            <span class="btn-text">Button</span>
+//            <span class="btn-icon"><span class="icon"><svg>...</svg></span></span>
+//          </a>
+```
+
+**Button Class Mappings:**
+```tsx
+const variantClasses = {
+  primary: '',                // Default
+  secondary: 'cc-secondary',
+  ghost: 'cc-ghost',
+}
+
+const colorClasses = {
+  brand: '',                  // Default
+  black: 'cc-black',
+  blue: 'cc-blue',
+  white: 'cc-white',
+}
+
+const sizeClasses = {
+  sm: 'cc-sm',
+  md: '',                     // Default
+  lg: 'cc-lg',
+}
+```
+
+#### Card Component
+
+**Current Sanity → Proposed:**
+```tsx
+// CURRENT
+<Card paddingDesktop={...} variant={...} href={...}>
+  {contentItems.map(block => <ContentBlockRenderer ... />)}
+</Card>
+// Outputs: <div class="rounded-lg overflow-hidden flex flex-col bg-card-background border p-4 lg:p-6 ...">...</div>
+
+// PROPOSED
+<div className={cn('card', variantClass, hoverClass)} {...linkProps}>
+  <div className={cn('card-body', paddingClass)}>
+    {contentItems.map(block => <ContentBlockRenderer ... />)}
+  </div>
+</div>
+// Outputs: <div class="card">
+//            <div class="card-body">...</div>
+//          </div>
+// Or with modifiers: <div class="card cc-outline cc-hover">
+//                      <div class="card-body cc-p-lg">...</div>
+//                    </div>
+```
+
+**Card Class Mappings:**
+```tsx
+// On .card element
+const variantClasses = {
+  default: '',                // Border + background
+  outline: 'cc-outline',      // Border only, transparent bg
+  filled: 'cc-filled',        // Filled bg, no border
+  ghost: 'cc-ghost',          // No border, no bg
+}
+
+const hoverClasses = {
+  none: '',
+  hover: 'cc-hover',          // Background change on hover
+}
+
+// On .card-body element
+const paddingClasses = {
+  '0': 'cc-p-0',
+  'sm': 'cc-p-sm',
+  'md': '',                   // Default
+  'lg': 'cc-p-lg',
+}
+```
+
+#### Summary of Content Component Changes
+
+| Component | Current | Proposed |
+|-----------|---------|----------|
+| Heading | `text-h2 text-left text-foreground mb-4` | `.h2` (margin built-in) |
+| Heading align | `text-center` | `.u-text-center` |
+| Heading color | `text-brand` | `.u-text-brand` |
+| Rich Text wrapper | Tailwind utilities + PortableText wrapper | `.rich-text` only |
+| Rich Text size | `prose-lg` | `.rich-text.cc-lg` |
+| Button | CVA utilities on `<Button>` component | `.button` + modifiers on `<a>` |
+| Button icon | Lucide inline | `.btn-icon > .icon` wrapper |
+| Button variant | `variant="secondary"` prop | `.button.cc-secondary` class |
+| Card | Tailwind utilities | `.card` + `.card-body` |
+| Card padding | `p-4 lg:p-6` | `.card-body.cc-p-lg` |
+| Card variant | `variant="outline"` prop | `.card.cc-outline` class |
+
 ---
 
-### 5.5 Component Class Migration Example
+### 5.6 Component Class Migration Example
 
 **Before (Tailwind in TSX):**
 ```tsx
