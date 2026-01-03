@@ -605,8 +605,9 @@ Key structural patterns for Sanity (using clean static approach without Webflow 
 | Heading | `h1-h6` | `.h1`-`.h6` (or native elements) |
 | Rich Text | `div.rich-text` | `.rich-text` |
 | Button | `a.button` or `button.button` | `.button`, `.cc-secondary`, `.cc-ghost` |
-| Card | `div.card` | `.card` |
-| Accordion | `details.accordion` | `.accordion`, `.accordion-trigger`, `.accordion-content` |
+| Card | `div.card > div.card-body` | `.card`, `.card-body` |
+| Accordion | `details.accordion-component` (native) | `.accordion-component`, `.accordion-trigger`, `.accordion-content` |
+| Modal | `dialog.modal` (native) | `.modal`, `.modal_close-button` |
 | Tabs | `div.tabs` | `.tabs`, `.tabs-menu`, `.tabs-link`, `.tabs-pane` |
 | Form | `form > input-group` | `.form`, `.input-group`, `.input-label`, `.input` |
 
@@ -966,9 +967,307 @@ const paddingClasses = {
 | Card padding | `p-4 lg:p-6` | `.card-body.cc-p-lg` |
 | Card variant | `variant="outline"` prop | `.card.cc-outline` class |
 
+### 5.6 Interactive Component Diffs
+
+These components use native HTML elements enhanced by external Mast JS libraries (hosted on jsdelivr). This approach:
+- Replaces Radix primitives with simpler, lighter alternatives
+- Uses native `<details>/<summary>` for accordion (built-in accessibility)
+- Uses native `<dialog>` for modal (built-in focus trap and backdrop)
+- Loads minimal JS only for smooth animations and edge cases
+
+#### External Resources
+
+Add these to the app layout or load conditionally when components are used:
+
+```html
+<!-- In layout.tsx or component-level Script imports -->
+<script defer src="https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/accordion.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/modal.min.js"></script>
+```
+
+#### Accordion Component
+
+**Current Sanity (Radix + Tailwind) → Proposed (Native + Mast CSS):**
+
+```tsx
+// CURRENT (using native details/summary with Tailwind)
+<details className="accordion-component group">
+  <summary className={cn(
+    'accordion-trigger flex cursor-pointer items-center justify-between py-4',
+    'list-none [&::-webkit-details-marker]:hidden',
+    'hover:text-brand focus-visible:outline-none focus-visible:ring-2'
+  )}>
+    <span className="accordion-title text-h4">{title}</span>
+    <PlusIcon className="text-muted-foreground group-open:rotate-45" />
+  </summary>
+  <div className={cn(
+    'accordion-content overflow-hidden',
+    'grid grid-rows-[0fr] transition-[grid-template-rows] duration-300',
+    'group-open:grid-rows-[1fr]'
+  )}>
+    <div className="overflow-hidden">
+      <div className="accordion-content_spacer pb-4">{content}</div>
+    </div>
+  </div>
+</details>
+
+// PROPOSED (Mast CSS classes + external JS)
+<details className={cn('accordion-component', bottomMarginClass)} data-accordion-start-open={defaultOpen}>
+  <summary className="accordion-trigger">
+    <span className={cn('accordion-title', titleClass)}>{title}</span>
+    <svg className="accordion-icon" viewBox="0 0 32 32" fill="none">
+      <path fillRule="evenodd" clipRule="evenodd" d="M17 17L27.3137 17L27.3137 15H17V4.68631L15 4.68631L15 15H4.68629L4.68629 17L15 17V27.3137H17V17Z" fill="currentColor"/>
+    </svg>
+  </summary>
+  <div data-accordion="content" className="accordion-content">
+    <div className="accordion-content_spacer">
+      {content}
+    </div>
+  </div>
+</details>
+```
+
+**Accordion CSS (in `accordion.css`):**
+
+```css
+/* accordion.css - Component-specific styles */
+
+/* Enable smooth height animation (modern browsers) */
+:root {
+  interpolate-size: allow-keywords;
+}
+
+/* Icon rotation on open */
+details[open] .accordion-icon {
+  transform: rotate(45deg);
+}
+
+/* Hide default disclosure marker */
+summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Base styles from mast-framework.css are in globals.css:
+   .accordion-component, .accordion-trigger, .accordion-title,
+   .accordion-icon, .accordion-content, .accordion-content_spacer */
+```
+
+**Accordion Class Mappings:**
+
+```tsx
+const titleClasses = {
+  h3: 'h3',
+  h4: 'h4',
+  h5: 'h5',
+  body: '',        // Inherits body size
+}
+
+const spacingClasses = {
+  none: '',
+  sm: 'u-mb-sm',   // Small bottom margin between accordions
+}
+```
+
+**Note:** The external `accordion.min.js` handles:
+- Smooth height animation fallback for browsers without `interpolate-size`
+- Optional exclusive accordion behavior (only one open at a time via `name` attribute)
+- Respects `data-accordion-start-open` attribute for initial state
+
+#### Modal Component
+
+**Current Sanity (Radix Dialog) → Proposed (Native `<dialog>` + Mast CSS):**
+
+```tsx
+// CURRENT (Radix Dialog with Tailwind)
+import * as DialogPrimitive from '@radix-ui/react-dialog'
+
+<Modal open={isOpen} onOpenChange={setIsOpen}>
+  <ModalTrigger asChild>
+    <Button variant="primary">Open Modal</Button>
+  </ModalTrigger>
+  <ModalContent size="md">
+    <ModalHeader><ModalTitle>Title</ModalTitle></ModalHeader>
+    <ModalBody>{content}</ModalBody>
+  </ModalContent>
+</Modal>
+// Outputs: Radix portal with overlay, focus trap, animations via Tailwind
+
+// PROPOSED (Native dialog + Mast CSS)
+<div className="modal-component">
+  <dialog className={cn('modal', sizeClass)} data-modal-open-on-load={openOnLoad}>
+    <div className="modal-content">
+      {title && <h3 className="modal-title">{title}</h3>}
+      <div className="modal-body">
+        {content}
+      </div>
+    </div>
+    <button className="modal_close-button" aria-label="Close">
+      <svg className="modal_close-button_icon" viewBox="0 0 14 14" fill="none">
+        <path d="M12.673 0.67334L0.67319 12.6731" stroke="currentColor" strokeWidth="1.5"/>
+        <path d="M0.673462 0.67334L12.6732 12.6731" stroke="currentColor" strokeWidth="1.5"/>
+      </svg>
+    </button>
+  </dialog>
+  <button className="button" data-modal-trigger>
+    Open Modal
+  </button>
+</div>
+```
+
+**Modal CSS (in `modal.css`):**
+
+```css
+/* modal.css - Component-specific styles */
+
+/* Prevent body scroll when modal is open */
+body:has(dialog[open]) {
+  overflow: hidden !important;
+}
+
+/* Fade in animation */
+dialog.modal[open] {
+  animation: modal-fadein 400ms ease-out forwards;
+}
+
+/* Backdrop styling */
+dialog.modal::backdrop {
+  background: color-mix(in srgb, var(--color-black) 80%, transparent);
+}
+
+@keyframes modal-fadein {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Custom scrollbar for modal content */
+dialog::-webkit-scrollbar {
+  width: 10px;
+}
+dialog::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background-color: transparent;
+}
+dialog::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  border: 2px solid var(--bg-primary);
+  background: var(--text-primary);
+}
+
+/* Size variants */
+dialog.modal.cc-sm { max-width: 24rem; }
+dialog.modal.cc-md { max-width: 32rem; }
+dialog.modal.cc-lg { max-width: 42rem; }
+dialog.modal.cc-xl { max-width: 56rem; }
+dialog.modal.cc-full { max-width: 90vw; }
+
+/* Base styles from mast-framework.css are in globals.css:
+   .modal, .modal_close-button, .modal_close-button_icon */
+```
+
+**Modal Class Mappings:**
+
+```tsx
+const sizeClasses = {
+  sm: 'cc-sm',
+  md: '',           // Default
+  lg: 'cc-lg',
+  xl: 'cc-xl',
+  full: 'cc-full',
+}
+```
+
+**Note:** The external `modal.min.js` handles:
+- Binding trigger buttons to their modal via `data-modal-trigger` attribute
+- `showModal()` / `close()` calls on the native `<dialog>` element
+- Optional cookie-based "show once" behavior via `data-modal-cooldown-days`
+- Optional auto-open on page load via `data-modal-open-on-load`
+- ESC key and backdrop click to close (native behavior)
+- Focus trapping is built into native `<dialog>`
+
+#### Video Modal Variant
+
+For YouTube video lightbox modals, use a simplified structure:
+
+```tsx
+// PROPOSED (Video modal)
+<div className="modal-component">
+  <dialog className="modal cc-video cc-xl">
+    <div className="modal-video-wrapper">
+      <iframe
+        src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
+        title={title}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    </div>
+    <button className="modal_close-button cc-video" aria-label="Close">
+      <svg>...</svg>
+    </button>
+  </dialog>
+  <button className="button" data-modal-trigger>
+    Watch Video
+  </button>
+</div>
+```
+
+**Video Modal CSS additions:**
+
+```css
+/* Video modal variant */
+dialog.modal.cc-video {
+  background: black;
+  padding: 0;
+  overflow: hidden;
+}
+
+.modal-video-wrapper {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+}
+
+.modal-video-wrapper iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.modal_close-button.cc-video {
+  position: absolute;
+  top: -0.75rem;
+  right: -0.75rem;
+  background: white;
+  border-radius: 50%;
+  padding: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+```
+
+#### Summary of Interactive Component Changes
+
+| Component | Current | Proposed |
+|-----------|---------|----------|
+| Accordion wrapper | Native `<details>` with Tailwind | Native `<details>` with Mast CSS |
+| Accordion animation | CSS Grid trick (`grid-rows-[0fr]`) | `interpolate-size` + external JS fallback |
+| Accordion icon rotation | `group-open:rotate-45` | `details[open] .accordion-icon { transform: rotate(45deg) }` |
+| Modal | Radix Dialog + Portal | Native `<dialog>` |
+| Modal trigger | `<ModalTrigger>` component | `data-modal-trigger` attribute |
+| Modal focus trap | Radix built-in | Native `<dialog>` built-in |
+| Modal backdrop | Radix `<DialogOverlay>` | Native `::backdrop` pseudo-element |
+| Modal close | Radix `<DialogClose>` | `.modal_close-button` + external JS |
+| Modal animation | Tailwind `animate-in/out` | CSS `@keyframes modal-fadein` |
+| Video modal | `<VideoModalContent>` component | `.modal.cc-video` variant class |
+
+#### Dependencies Removed
+
+With this approach, you can remove:
+- `@radix-ui/react-dialog` - Replaced by native `<dialog>` + Mast JS
+- Complex Tailwind animation utilities - Replaced by simple CSS keyframes
+
 ---
 
-### 5.6 Component Class Migration Example
+### 5.7 Component Class Migration Example
 
 **Before (Tailwind in TSX):**
 ```tsx
@@ -995,7 +1294,7 @@ const paddingClasses = {
 </button>
 ```
 
-### 5.3 Handling Dynamic Values from Sanity
+### 5.8 Handling Dynamic Values from Sanity
 
 For values that come from Sanity CMS, use a mapping approach:
 
