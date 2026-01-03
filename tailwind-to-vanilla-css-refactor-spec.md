@@ -1721,6 +1721,743 @@ Change these variables to match your brand:
 
 ---
 
+## Phase 8: Interactive Component JS (External → React)
+
+Instead of loading external JS from jsdelivr, rewrite the interactive component behavior in React. This provides:
+- **No external dependencies** - Eliminates CDN requests and version management
+- **Better React integration** - Uses hooks, refs, and React's lifecycle
+- **TypeScript support** - Full type safety
+- **SSR compatibility** - Works with Next.js server components where appropriate
+- **Smaller bundle** - Only loads what's needed per component
+
+### 8.1 Source Analysis
+
+The external Mast JS files were analyzed from `github.com/nocodesupplyco/mast`:
+
+| File | Lines | Key Functionality |
+|------|-------|-------------------|
+| `accordion.js` | ~100 | Height animation, reduced motion, GSAP fallback |
+| `modal.js` | ~130 | Open/close, click-outside, auto-open cooldown |
+| `tabs.js` | ~400 | Tab switching, autoplay, keyboard nav, mobile dropdown, deep linking |
+
+### 8.2 Accordion React Implementation
+
+**What the external JS does:**
+1. Handles `data-accordion-start-open` attribute for initial state
+2. Animates height transitions (with GSAP fallback to CSS transitions)
+3. Respects `prefers-reduced-motion` accessibility setting
+4. Manages the native `<details>` open attribute
+
+**React implementation approach:**
+
+```tsx
+// hooks/useAccordion.ts
+import { useRef, useEffect, useCallback } from 'react'
+
+interface UseAccordionOptions {
+  defaultOpen?: boolean
+  onOpenChange?: (open: boolean) => void
+}
+
+export function useAccordion({ defaultOpen = false, onOpenChange }: UseAccordionOptions = {}) {
+  const detailsRef = useRef<HTMLDetailsElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
+  const prefersReducedMotion = useRef(false)
+
+  // Check reduced motion preference
+  useEffect(() => {
+    const query = window.matchMedia('(prefers-reduced-motion: reduce)')
+    prefersReducedMotion.current = query.matches
+
+    const handler = (e: MediaQueryListEvent) => {
+      prefersReducedMotion.current = e.matches
+    }
+    query.addEventListener('change', handler)
+    return () => query.removeEventListener('change', handler)
+  }, [])
+
+  // Handle animated close
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    const details = detailsRef.current
+    const content = contentRef.current
+    if (!details || !content) return
+
+    if (details.open) {
+      e.preventDefault() // Prevent native close
+
+      if (prefersReducedMotion.current) {
+        details.open = false
+        onOpenChange?.(false)
+      } else {
+        // Animate close
+        content.style.height = `${content.scrollHeight}px`
+        content.offsetHeight // Force reflow
+        content.style.transition = 'height 0.4s ease-in-out'
+        content.style.height = '0px'
+
+        setTimeout(() => {
+          details.open = false
+          content.style.transition = ''
+          onOpenChange?.(false)
+        }, 400)
+      }
+    }
+  }, [onOpenChange])
+
+  // Handle animated open (via toggle event)
+  useEffect(() => {
+    const details = detailsRef.current
+    const content = contentRef.current
+    if (!details || !content) return
+
+    const handleToggle = () => {
+      if (details.open) {
+        onOpenChange?.(true)
+
+        if (prefersReducedMotion.current) {
+          content.style.height = 'auto'
+        } else {
+          const fullHeight = content.scrollHeight
+          content.style.transition = 'height 0.4s ease-out'
+          content.style.height = `${fullHeight}px`
+
+          setTimeout(() => {
+            content.style.height = 'auto'
+            content.style.transition = ''
+          }, 400)
+        }
+      }
+    }
+
+    details.addEventListener('toggle', handleToggle)
+    return () => details.removeEventListener('toggle', handleToggle)
+  }, [onOpenChange])
+
+  // Set initial collapsed state
+  useEffect(() => {
+    const content = contentRef.current
+    if (content && !defaultOpen) {
+      content.style.height = '0px'
+      content.style.overflow = 'clip'
+    }
+  }, [defaultOpen])
+
+  return { detailsRef, contentRef, handleClick }
+}
+```
+
+**Accordion component using the hook:**
+
+```tsx
+// components/Accordion.tsx
+'use client'
+
+import { useAccordion } from '@/hooks/useAccordion'
+import { cn } from '@/lib/utils'
+
+interface AccordionProps {
+  title: string
+  titleClass?: string
+  defaultOpen?: boolean
+  className?: string
+  children: React.ReactNode
+}
+
+export function Accordion({
+  title,
+  titleClass = 'h4',
+  defaultOpen = false,
+  className,
+  children
+}: AccordionProps) {
+  const { detailsRef, contentRef, handleClick } = useAccordion({ defaultOpen })
+
+  return (
+    <details
+      ref={detailsRef}
+      className={cn('accordion-component', className)}
+      open={defaultOpen}
+    >
+      <summary className="accordion-trigger" onClick={handleClick}>
+        <span className={cn('accordion-title', titleClass)}>{title}</span>
+        <svg className="accordion-icon" viewBox="0 0 32 32" fill="none">
+          <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M17 17L27.3137 17L27.3137 15H17V4.68631L15 4.68631L15 15H4.68629L4.68629 17L15 17V27.3137H17V17Z"
+            fill="currentColor"
+          />
+        </svg>
+      </summary>
+      <div ref={contentRef} className="accordion-content">
+        <div className="accordion-content_spacer">
+          {children}
+        </div>
+      </div>
+    </details>
+  )
+}
+```
+
+### 8.3 Modal React Implementation
+
+**What the external JS does:**
+1. Binds trigger buttons to show modal
+2. Close button and click-outside-to-close
+3. Auto-open on page load with optional cooldown (localStorage)
+4. Uses native `<dialog>` `showModal()` and `close()` methods
+
+**React implementation approach:**
+
+```tsx
+// hooks/useModal.ts
+import { useRef, useEffect, useCallback, useState } from 'react'
+
+interface UseModalOptions {
+  id?: string
+  autoOpen?: boolean
+  cooldownDays?: number
+  onOpenChange?: (open: boolean) => void
+}
+
+export function useModal({
+  id,
+  autoOpen = false,
+  cooldownDays = 0,
+  onOpenChange
+}: UseModalOptions = {}) {
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const [isOpen, setIsOpen] = useState(false)
+
+  // Check cooldown from localStorage
+  const isInCooldown = useCallback(() => {
+    if (!id || cooldownDays <= 0) return false
+
+    try {
+      const storageKey = `modal-cooldown-${id}`
+      const cooldownUntil = localStorage.getItem(storageKey)
+
+      if (!cooldownUntil) return false
+
+      const now = Date.now()
+      const cooldownTime = parseInt(cooldownUntil, 10)
+
+      if (now > cooldownTime) {
+        localStorage.removeItem(storageKey)
+        return false
+      }
+
+      return true
+    } catch {
+      return false
+    }
+  }, [id, cooldownDays])
+
+  // Store cooldown timestamp
+  const storeCooldown = useCallback(() => {
+    if (!id || cooldownDays <= 0) return
+
+    try {
+      const storageKey = `modal-cooldown-${id}`
+      const cooldownDuration = cooldownDays * 24 * 60 * 60 * 1000
+      const cooldownUntil = Date.now() + cooldownDuration
+      localStorage.setItem(storageKey, cooldownUntil.toString())
+    } catch {
+      // Ignore localStorage errors
+    }
+  }, [id, cooldownDays])
+
+  // Open modal
+  const open = useCallback(() => {
+    dialogRef.current?.showModal()
+    setIsOpen(true)
+    onOpenChange?.(true)
+  }, [onOpenChange])
+
+  // Close modal
+  const close = useCallback(() => {
+    dialogRef.current?.close()
+    setIsOpen(false)
+    storeCooldown()
+    onOpenChange?.(false)
+  }, [onOpenChange, storeCooldown])
+
+  // Handle click outside
+  const handleBackdropClick = useCallback((e: React.MouseEvent) => {
+    if (e.target === dialogRef.current) {
+      close()
+    }
+  }, [close])
+
+  // Auto-open on mount (if enabled and not in cooldown)
+  useEffect(() => {
+    if (autoOpen && !isInCooldown()) {
+      // Small delay to ensure DOM is ready
+      requestAnimationFrame(() => {
+        open()
+      })
+    }
+  }, [autoOpen, isInCooldown, open])
+
+  // Handle ESC key (native dialog behavior, but we need to track state)
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (!dialog) return
+
+    const handleClose = () => {
+      setIsOpen(false)
+      storeCooldown()
+      onOpenChange?.(false)
+    }
+
+    dialog.addEventListener('close', handleClose)
+    return () => dialog.removeEventListener('close', handleClose)
+  }, [onOpenChange, storeCooldown])
+
+  return { dialogRef, isOpen, open, close, handleBackdropClick }
+}
+```
+
+**Modal component using the hook:**
+
+```tsx
+// components/Modal.tsx
+'use client'
+
+import { useModal } from '@/hooks/useModal'
+import { cn } from '@/lib/utils'
+
+interface ModalProps {
+  id?: string
+  trigger?: React.ReactNode
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
+  autoOpen?: boolean
+  cooldownDays?: number
+  className?: string
+  children: React.ReactNode
+}
+
+const sizeClasses = {
+  sm: 'cc-sm',
+  md: '',
+  lg: 'cc-lg',
+  xl: 'cc-xl',
+  full: 'cc-full',
+}
+
+export function Modal({
+  id,
+  trigger,
+  size = 'md',
+  autoOpen = false,
+  cooldownDays = 0,
+  className,
+  children
+}: ModalProps) {
+  const { dialogRef, open, close, handleBackdropClick } = useModal({
+    id,
+    autoOpen,
+    cooldownDays
+  })
+
+  return (
+    <div className="modal-component" id={id}>
+      <dialog
+        ref={dialogRef}
+        className={cn('modal', sizeClasses[size], className)}
+        onClick={handleBackdropClick}
+      >
+        {children}
+        <button
+          className="modal_close-button"
+          onClick={close}
+          aria-label="Close"
+        >
+          <svg className="modal_close-button_icon" viewBox="0 0 14 14" fill="none">
+            <path d="M12.673 0.67334L0.67319 12.6731" stroke="currentColor" strokeWidth="1.5"/>
+            <path d="M0.673462 0.67334L12.6732 12.6731" stroke="currentColor" strokeWidth="1.5"/>
+          </svg>
+        </button>
+      </dialog>
+
+      {trigger && (
+        <button className="button" onClick={open}>
+          {trigger}
+        </button>
+      )}
+    </div>
+  )
+}
+```
+
+### 8.4 Tabs React Implementation
+
+**What the external JS does:**
+1. Tab switching with ARIA attribute management
+2. Autoplay with `IntersectionObserver` (pause when off-screen)
+3. Autoplay with hover pause option
+4. Mobile dropdown menu
+5. Keyboard navigation (Arrow keys, Home, End)
+6. URL hash deep linking
+7. Progress bar animation restart
+8. Play/pause toggle button
+
+**React implementation approach:**
+
+```tsx
+// hooks/useTabs.ts
+import { useState, useRef, useEffect, useCallback } from 'react'
+
+interface UseTabsOptions {
+  defaultIndex?: number
+  autoplay?: boolean
+  autoplayDuration?: number // in seconds
+  pauseOnHover?: boolean
+  onTabChange?: (index: number) => void
+}
+
+export function useTabs({
+  defaultIndex = 0,
+  autoplay = false,
+  autoplayDuration = 5,
+  pauseOnHover = false,
+  onTabChange,
+}: UseTabsOptions = {}) {
+  const [activeIndex, setActiveIndex] = useState(defaultIndex)
+  const [isPaused, setIsPaused] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const tabCount = useRef(0)
+  const autoplayTimer = useRef<NodeJS.Timeout | null>(null)
+  const progressKey = useRef(0) // For resetting CSS animation
+
+  // Set active tab
+  const setActiveTab = useCallback((index: number) => {
+    if (index < 0 || index >= tabCount.current) return
+    setActiveIndex(index)
+    progressKey.current++ // Reset progress animation
+    onTabChange?.(index)
+  }, [onTabChange])
+
+  // Navigate to next/prev tab
+  const goToNext = useCallback(() => {
+    setActiveTab((activeIndex + 1) % tabCount.current)
+  }, [activeIndex, setActiveTab])
+
+  const goToPrev = useCallback(() => {
+    setActiveTab(activeIndex > 0 ? activeIndex - 1 : tabCount.current - 1)
+  }, [activeIndex, setActiveTab])
+
+  // Autoplay timer
+  useEffect(() => {
+    if (!autoplay || isPaused || !isVisible) {
+      if (autoplayTimer.current) {
+        clearTimeout(autoplayTimer.current)
+        autoplayTimer.current = null
+      }
+      return
+    }
+
+    autoplayTimer.current = setTimeout(() => {
+      goToNext()
+    }, autoplayDuration * 1000)
+
+    return () => {
+      if (autoplayTimer.current) {
+        clearTimeout(autoplayTimer.current)
+      }
+    }
+  }, [autoplay, autoplayDuration, isPaused, isVisible, activeIndex, goToNext])
+
+  // IntersectionObserver for visibility
+  useEffect(() => {
+    if (!autoplay) return
+
+    const container = containerRef.current
+    if (!container) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting)
+      },
+      { threshold: 0.5 }
+    )
+
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [autoplay])
+
+  // Hover pause handlers
+  const handleMouseEnter = useCallback(() => {
+    if (pauseOnHover) setIsPaused(true)
+  }, [pauseOnHover])
+
+  const handleMouseLeave = useCallback(() => {
+    if (pauseOnHover) setIsPaused(false)
+  }, [pauseOnHover])
+
+  // Toggle play/pause
+  const togglePause = useCallback(() => {
+    setIsPaused(prev => !prev)
+  }, [])
+
+  // Keyboard navigation handler
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case 'ArrowLeft':
+        e.preventDefault()
+        goToPrev()
+        break
+      case 'ArrowRight':
+        e.preventDefault()
+        goToNext()
+        break
+      case 'Home':
+        e.preventDefault()
+        setActiveTab(0)
+        break
+      case 'End':
+        e.preventDefault()
+        setActiveTab(tabCount.current - 1)
+        break
+    }
+  }, [goToNext, goToPrev, setActiveTab])
+
+  // Register tab count
+  const registerTabs = useCallback((count: number) => {
+    tabCount.current = count
+  }, [])
+
+  // URL hash deep linking
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.substring(1)
+      if (hash) {
+        // Find tab with matching id (implementation depends on tab structure)
+        // This would be handled by the component
+      }
+    }
+
+    window.addEventListener('hashchange', handleHashChange)
+    handleHashChange() // Check on mount
+
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [])
+
+  return {
+    activeIndex,
+    setActiveTab,
+    isPaused,
+    togglePause,
+    containerRef,
+    handleMouseEnter,
+    handleMouseLeave,
+    handleKeyDown,
+    registerTabs,
+    autoplayDuration,
+    progressKey: progressKey.current,
+  }
+}
+```
+
+**Tabs component using the hook:**
+
+```tsx
+// components/Tabs.tsx
+'use client'
+
+import { useEffect, useState } from 'react'
+import { useTabs } from '@/hooks/useTabs'
+import { cn } from '@/lib/utils'
+import { CaretDown, Pause, Play } from '@phosphor-icons/react'
+
+interface Tab {
+  id: string
+  label: string
+  content: React.ReactNode
+}
+
+interface TabsProps {
+  tabs: Tab[]
+  orientation?: 'horizontal' | 'vertical'
+  autoplay?: boolean
+  autoplayDuration?: number
+  pauseOnHover?: boolean
+  mobileDropdown?: boolean
+  className?: string
+}
+
+export function Tabs({
+  tabs,
+  orientation = 'horizontal',
+  autoplay = false,
+  autoplayDuration = 5,
+  pauseOnHover = false,
+  mobileDropdown = false,
+  className,
+}: TabsProps) {
+  const [dropdownOpen, setDropdownOpen] = useState(false)
+
+  const {
+    activeIndex,
+    setActiveTab,
+    isPaused,
+    togglePause,
+    containerRef,
+    handleMouseEnter,
+    handleMouseLeave,
+    handleKeyDown,
+    registerTabs,
+    progressKey,
+  } = useTabs({
+    autoplay,
+    autoplayDuration,
+    pauseOnHover,
+  })
+
+  // Register tab count
+  useEffect(() => {
+    registerTabs(tabs.length)
+  }, [tabs.length, registerTabs])
+
+  const activeLabel = tabs[activeIndex]?.label || 'Select tab'
+
+  return (
+    <div
+      ref={containerRef}
+      className={cn('tabs-component', isPaused && 'autoplay-paused', className)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      style={{ '--autoplay-duration': `${autoplayDuration}s` } as React.CSSProperties}
+    >
+      <div
+        className={cn('tabs-menu', orientation === 'vertical' && 'cc-vertical')}
+        role="tablist"
+      >
+        {/* Mobile dropdown toggle */}
+        {mobileDropdown && (
+          <button
+            className={cn('tabs-menu_dropdown-toggle', dropdownOpen && 'cc-open')}
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+            aria-expanded={dropdownOpen}
+            aria-haspopup="true"
+          >
+            <span className="tabs-menu_dropdown-text">{activeLabel}</span>
+            <span className="tabs-menu_dropdown-arrow">
+              <CaretDown className="icon" />
+            </span>
+          </button>
+        )}
+
+        {/* Tab links */}
+        <div className={cn(
+          'tabs-menu_dropdown-menu',
+          mobileDropdown && dropdownOpen && 'cc-open'
+        )}>
+          {tabs.map((tab, index) => (
+            <div
+              key={tab.id}
+              role="tab"
+              aria-selected={index === activeIndex}
+              className={cn('tabs-link', index === activeIndex && 'cc-active')}
+            >
+              <span className="tabs-link-text">{tab.label}</span>
+              <button
+                aria-label={tab.label}
+                tabIndex={index === activeIndex ? 0 : -1}
+                className="u-link-cover cc-tabs-link"
+                onClick={() => {
+                  setActiveTab(index)
+                  setDropdownOpen(false)
+                }}
+                onKeyDown={handleKeyDown}
+              />
+              {autoplay && (
+                <div
+                  key={`progress-${progressKey}`}
+                  className="tabs-autoplay-progress"
+                />
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Autoplay toggle */}
+        {autoplay && (
+          <button
+            className="tabs-autoplay-toggle"
+            onClick={togglePause}
+            aria-label={isPaused ? 'Play autoplay' : 'Pause autoplay'}
+          >
+            <span className="tabs-autoplay-toggle_pause">
+              <Pause className="icon" weight="fill" />
+            </span>
+            <span className="tabs-autoplay-toggle_play">
+              <Play className="icon" weight="fill" />
+            </span>
+          </button>
+        )}
+      </div>
+
+      {/* Tab panes */}
+      {tabs.map((tab, index) => (
+        <div
+          key={tab.id}
+          role="tabpanel"
+          aria-hidden={index !== activeIndex}
+          className="tabs-pane"
+        >
+          {tab.content}
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+### 8.5 Implementation Requirements Summary
+
+| Component | Hook | Lines (Est.) | Key Features |
+|-----------|------|--------------|--------------|
+| Accordion | `useAccordion` | ~80 | Height animation, reduced motion |
+| Modal | `useModal` | ~100 | Open/close, cooldown, click-outside |
+| Tabs | `useTabs` | ~150 | Autoplay, keyboard nav, deep linking |
+
+**Shared utilities needed:**
+- `useReducedMotion()` - Hook for checking `prefers-reduced-motion`
+- `useLocalStorage()` - Hook for modal cooldown persistence
+
+**Total estimated lines:** ~400 (vs ~630 in external JS files)
+
+### 8.6 Migration Steps
+
+1. **Create hooks directory:** `frontend/app/hooks/`
+2. **Implement hooks in order:**
+   - `useReducedMotion.ts` (shared)
+   - `useAccordion.ts`
+   - `useModal.ts`
+   - `useTabs.ts`
+3. **Update components** to use new hooks with Mast CSS classes
+4. **Remove external script tags** from layout
+5. **Test each component:**
+   - Accordion: open/close animation, reduced motion, keyboard
+   - Modal: trigger, close button, ESC key, click-outside, cooldown
+   - Tabs: click, keyboard, autoplay, mobile dropdown, visibility pause
+
+### 8.7 Benefits Over External JS
+
+| Aspect | External JS | React Hooks |
+|--------|-------------|-------------|
+| Bundle | Separate CDN requests | Tree-shaken with app |
+| Loading | After page load | With component |
+| TypeScript | None | Full type safety |
+| SSR | May flash/rehydrate | Consistent rendering |
+| Customization | Fork repo needed | Props and composition |
+| Debugging | Minified, external | Source maps, React DevTools |
+| Dependencies | jsdelivr CDN | Zero external |
+
+---
+
 ## Execution Checklist
 
 - [ ] **Phase 1**: Create `mast-framework.css` with simplified variables
@@ -1734,6 +2471,16 @@ Change these variables to match your brand:
   - [ ] Migration order: layout → typography → interactive → content → complex → nav
 - [ ] **Phase 6**: Remove Tailwind dependencies
 - [ ] **Phase 7**: Document classes and variables
+- [ ] **Phase 8**: Replace external JS with React hooks:
+  - [ ] Create `useReducedMotion.ts` shared utility
+  - [ ] Create `useAccordion.ts` hook (~80 lines)
+  - [ ] Create `useModal.ts` hook (~100 lines)
+  - [ ] Create `useTabs.ts` hook (~150 lines)
+  - [ ] Update Accordion component to use hook
+  - [ ] Update Modal component to use hook
+  - [ ] Update Tabs component to use hook
+  - [ ] Remove external jsdelivr script tags from layout
+  - [ ] Test all interactive components
 
 ---
 
