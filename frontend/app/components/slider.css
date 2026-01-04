@@ -1,0 +1,226 @@
+/* slider.css - Mast CSS Slider Component Styles */
+
+/* ==========================================================================
+   SLIDER COMPONENT - Base Structure
+   ========================================================================== */
+
+.slider-component {
+  position: relative;
+
+  /* Responsive slides per view via CSS variables */
+  --slider-slides-desktop: 3;
+  --slider-slides-tablet: 2;
+  --slider-slides-mobile: 1;
+  --slider-gap: 24px;
+  --slider-current-slides: var(--slider-slides-mobile);
+}
+
+/* Responsive slides per view */
+@media (min-width: 48rem) {
+  .slider-component {
+    --slider-current-slides: var(--slider-slides-tablet);
+  }
+}
+
+@media (min-width: 62rem) {
+  .slider-component {
+    --slider-current-slides: var(--slider-slides-desktop);
+  }
+}
+
+/* Navigation position variants */
+.slider-component.cc-nav-sides {
+  padding-left: 3.5rem;
+  padding-right: 3.5rem;
+}
+
+.slider-component.cc-nav-overlay-center {
+  /* No additional padding needed */
+}
+
+.slider-component.cc-nav-overlay-edges {
+  /* No additional padding needed */
+}
+
+/* ==========================================================================
+   SLIDER NAVIGATION
+   ========================================================================== */
+
+.slider-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Navigation variants by position */
+.slider-nav.cc-below {
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.slider-nav.cc-overlay-center {
+  position: absolute;
+  inset: auto 0 1rem 0;
+  justify-content: center;
+  gap: 1rem;
+  z-index: 10;
+}
+
+.slider-nav.cc-overlay-edges {
+  /* Split navigation - handled by individual button positioning */
+}
+
+.slider-nav.cc-sides-left {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.slider-nav.cc-sides-right {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+/* ==========================================================================
+   NAVIGATION BUTTONS
+   ========================================================================== */
+
+.slider-nav_button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-brand);
+  background-color: var(--color-brand);
+  color: var(--color-white);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.slider-nav_button:hover:not(:disabled) {
+  background-color: var(--color-brand-dark);
+}
+
+.slider-nav_button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Overlay style buttons (lighter background) */
+.slider-nav_button.cc-overlay {
+  border-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  color: var(--text-primary);
+}
+
+.slider-nav_button.cc-overlay:hover:not(:disabled) {
+  background-color: var(--color-white);
+}
+
+.slider-nav_button.cc-overlay:disabled {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Overlay edges positioning */
+.slider-nav_button.cc-overlay-edge {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.slider-nav_button.cc-overlay-edge.cc-prev {
+  left: 1rem;
+}
+
+.slider-nav_button.cc-overlay-edge.cc-next {
+  right: 1rem;
+}
+
+/* ==========================================================================
+   PAGINATION
+   ========================================================================== */
+
+.slider-pagination {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Pagination in below nav position */
+.slider-nav.cc-below .slider-pagination {
+  margin-left: 1rem;
+  margin-right: 1rem;
+}
+
+/* Standalone pagination (no navigation) */
+.slider-pagination.cc-standalone {
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+/* Overlay pagination positioning */
+.slider-pagination.cc-overlay-bottom {
+  position: absolute;
+  inset: auto 0 1rem 0;
+  justify-content: center;
+  z-index: 10;
+}
+
+/* ==========================================================================
+   PAGINATION BUTTONS
+   ========================================================================== */
+
+.slider-pagination_button {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background-color: var(--text-muted);
+  opacity: 0.4;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.slider-pagination_button:hover {
+  opacity: 0.6;
+}
+
+.slider-pagination_button.cc-active {
+  width: 1rem;
+  background-color: var(--color-brand);
+  opacity: 1;
+}
+
+/* ==========================================================================
+   SWIPER OVERRIDES
+   ========================================================================== */
+
+/* Overflow control */
+.slider-component .swiper {
+  overflow: hidden;
+}
+
+.slider-component.cc-overflow-visible .swiper {
+  overflow: visible !important;
+}
+
+/* Disabled state for navigation (Swiper native) */
+.swiper-button-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Slide wrapper */
+.slider-slide {
+  height: 100%;
+}

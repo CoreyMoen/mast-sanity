@@ -1,6 +1,6 @@
 import {stegaClean} from 'next-sanity'
 import {cn} from '@/lib/utils'
-import {Icon, type IconSize, type IconColor} from '@/app/components/ui/icon'
+import {Icon, type IconSize, type IconColor} from '@/app/components/ui/icon-component'
 import {
   CheckCircle,
   Target,

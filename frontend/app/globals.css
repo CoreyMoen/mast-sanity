@@ -3,6 +3,23 @@
 @plugin "@tailwindcss/typography";
 
 /* ==========================================================================
+   MAST CSS FRAMEWORK - Clean Foundation
+
+   This file combines:
+   1. Mast-style vanilla CSS classes (new foundation)
+   2. Tailwind utilities (maintained for gradual migration)
+
+   Structure:
+   - Variables (organized by collection)
+   - Base/Reset
+   - Typography
+   - Layout (section, container, row, col)
+   - Components
+   - Utilities
+   - Media Queries
+   ========================================================================== */
+
+/* ==========================================================================
    COLOR SCHEME & DARK MODE SUPPORT
    Uses CSS light-dark() function for automatic OS preference matching
    ========================================================================== */
@@ -21,213 +38,22 @@ html[data-theme="dark"] {
   color-scheme: dark;
 }
 
-/* Semantic color variables - Light mode defaults */
+/* ==========================================================================
+   CSS VARIABLES - Organized by Collection
+   ========================================================================== */
+
 :root {
-  /* Layout variables */
-  --container-gutter: 6vw;
-  --container-max-width: 90rem;
-
-  /* Primary semantic colors */
-  --primary-background: #ffffff;
-  --primary-foreground: #1d1c1a;
-  --primary-border: #cccabf;
-
-  /* Secondary background (Light Gray in Mast) */
-  --secondary-background: #f0eee6;
-
-  /* Muted/secondary backgrounds */
-  --muted-background: #f0eee6;
-  --muted-foreground: #6b6961;
-
-  /* Card backgrounds */
-  --card-background: #ffffff;
-  --card-foreground: #1d1c1a;
-  --card-border: #e5e3db;
-
-  /* Input/form elements */
-  --input-background: #ffffff;
-  --input-border: #cccabf;
-
-  /* Footer specific */
-  --footer-background: #ffffff;
-  --footer-border: #e5e3db;
-}
-
-/* Dark mode overrides - matches OS preference */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --primary-background: #1d1c1a;
-    --primary-foreground: #ffffff;
-    --primary-border: #474641;
-
-    --secondary-background: #292825;
-
-    --muted-background: #292825;
-    --muted-foreground: #9a9890;
-
-    --card-background: #292825;
-    --card-foreground: #ffffff;
-    --card-border: #353430;
-
-    --input-background: #292825;
-    --input-border: #474641;
-
-    --footer-background: #1d1c1a;
-    --footer-border: #353430;
-  }
-}
-
-/* Force dark mode when data-theme="dark" */
-html[data-theme="dark"] {
-  --primary-background: #1d1c1a;
-  --primary-foreground: #ffffff;
-  --primary-border: #474641;
-
-  --secondary-background: #292825;
-
-  --muted-background: #292825;
-  --muted-foreground: #9a9890;
-
-  --card-background: #292825;
-  --card-foreground: #ffffff;
-  --card-border: #353430;
-
-  --input-background: #292825;
-  --input-border: #474641;
-
-  --footer-background: #1d1c1a;
-  --footer-border: #353430;
-}
-
-/* Apply semantic colors to base elements */
-html {
-  background-color: var(--primary-background);
-  color: var(--primary-foreground);
-}
-
-/* ==========================================================================
-   PROSE TYPOGRAPHY OVERRIDES
-   Make prose inherit text color from parent for theme compatibility
-   ========================================================================== */
-.prose {
-  --tw-prose-body: inherit;
-  --tw-prose-headings: inherit;
-  --tw-prose-lead: inherit;
-  --tw-prose-bold: inherit;
-  --tw-prose-counters: inherit;
-  --tw-prose-bullets: inherit;
-  color: inherit;
-}
-
-/* ==========================================================================
-   CONTAINER SYSTEM (Mast-style)
-   Uses min() function: container is either max-width OR viewport minus gutters
-   This creates the gutter effect without needing padding
-   ========================================================================== */
-@utility container {
-  width: 100%;
-  max-width: min(calc(100% - var(--container-gutter) * 2), var(--container-max-width));
-  margin-left: auto;
-  margin-right: auto;
-}
-
-/* ==========================================================================
-   FLUID TYPOGRAPHY SYSTEM (Mast-style)
-   Uses CSS clamp() for smooth scaling between viewport widths 20rem - 90rem
-   ========================================================================== */
-
-/* Heading utilities */
-@utility text-h1 {
-  font-size: clamp(2.8rem, calc(2.03rem + 3.86vw), 5.5rem);
-  line-height: 1;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-}
-
-@utility text-h2 {
-  font-size: clamp(2rem, calc(1.49rem + 2.57vw), 3.8rem);
-  line-height: 1.1;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-}
-
-@utility text-h3 {
-  font-size: clamp(1.5rem, calc(1.27rem + 1.14vw), 2.3rem);
-  line-height: 1.2;
-  font-weight: 500;
-  letter-spacing: 0;
-}
-
-@utility text-h4 {
-  font-size: clamp(1.3rem, calc(1.24rem + 0.29vw), 1.5rem);
-  line-height: 1.4;
-  font-weight: 500;
-  letter-spacing: 0;
-}
-
-@utility text-h5 {
-  font-size: clamp(1.1rem, calc(1.07rem + 0.14vw), 1.2rem);
-  line-height: 1.4;
-  font-weight: 500;
-  letter-spacing: 0;
-}
-
-@utility text-h6 {
-  font-size: clamp(0.9rem, calc(0.87rem + 0.14vw), 1rem);
-  line-height: 1.4;
-  font-weight: 500;
-  letter-spacing: 0;
-}
-
-/* Paragraph utilities */
-@utility text-p-xl {
-  font-size: clamp(1.2rem, calc(1.11rem + 0.43vw), 1.5rem);
-  line-height: 1.4;
-  font-weight: 400;
-  letter-spacing: 0;
-}
-
-@utility text-p-lg {
-  font-size: clamp(1.1rem, calc(1.06rem + 0.21vw), 1.25rem);
-  line-height: 1.5;
-  font-weight: 400;
-  letter-spacing: 0;
-}
-
-@utility text-body {
-  font-size: clamp(0.9rem, calc(0.87rem + 0.14vw), 1rem);
-  line-height: 1.6;
-  font-weight: 400;
-  letter-spacing: 0;
-}
-
-@utility text-p-sm {
-  font-size: clamp(0.8rem, calc(0.77rem + 0.14vw), 0.9rem);
-  line-height: 1.5;
-  font-weight: 400;
-  letter-spacing: 0;
-}
-
-@theme {
-  --shadow-layer: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
-
-  /* ==========================================================================
-     MAST COLOR PALETTE
-     ========================================================================== */
-
-  /* Neutral colors */
+  /* ==============================================
+     COLORS - Raw palette values
+     ============================================== */
   --color-white: #ffffff;
   --color-black: #1d1c1a;
   --color-dark-gray: #292825;
   --color-light-gray: #f0eee6;
   --color-mid-gray-1: #cccabf;
   --color-mid-gray-2: #474641;
-
-  /* Primary colors */
   --color-brand: #d14424;
   --color-brand-dark: #9c331b;
-
-  /* Secondary colors */
   --color-yellow: #f8d47a;
   --color-blue: #0073e6;
 
@@ -244,15 +70,209 @@ html {
   --color-gray-900: #1d1c1a;
   --color-gray-950: #141311;
 
-  /* ==========================================================================
-     TYPOGRAPHY
-     ========================================================================== */
+  /* ==============================================
+     THEME - Semantic color tokens (light/dark aware)
+     ============================================== */
+  --bg-primary: light-dark(var(--color-white), var(--color-black));
+  --bg-secondary: light-dark(var(--color-light-gray), var(--color-dark-gray));
+  --bg-invert: light-dark(var(--color-black), var(--color-white));
+  --text-primary: light-dark(var(--color-black), var(--color-white));
+  --text-secondary: light-dark(var(--color-white), var(--color-black));
+  --text-muted: light-dark(var(--color-gray-500), var(--color-gray-400));
+  --border-primary: light-dark(var(--color-mid-gray-1), var(--color-mid-gray-2));
+  --border-light: light-dark(var(--color-gray-100), var(--color-gray-700));
+  --accent: var(--color-brand);
+  --accent-dark: var(--color-brand-dark);
+
+  /* Legacy semantic colors (for backward compatibility) */
+  --primary-background: light-dark(#ffffff, #1d1c1a);
+  --primary-foreground: light-dark(#1d1c1a, #ffffff);
+  --primary-border: light-dark(#cccabf, #474641);
+  --secondary-background: light-dark(#f0eee6, #292825);
+  --muted-background: light-dark(#f0eee6, #292825);
+  --muted-foreground: light-dark(#6b6961, #9a9890);
+  --card-background: light-dark(#ffffff, #292825);
+  --card-foreground: light-dark(#1d1c1a, #ffffff);
+  --card-border: light-dark(#e5e3db, #353430);
+  --input-background: light-dark(#ffffff, #292825);
+  --input-border: light-dark(#cccabf, #474641);
+  --footer-background: light-dark(#ffffff, #1d1c1a);
+  --footer-border: light-dark(#e5e3db, #353430);
+
+  /* ==============================================
+     TYPOGRAPHY - Font sizing and spacing
+     ============================================== */
+  --font-family: var(--font-general-sans), 'General Sans', Arial, sans-serif;
+
+  /* Fluid scale bounds */
+  --fluid-min: 20;  /* rem */
+  --fluid-max: 90;  /* rem */
+
+  /* H1 */
+  --type-h1-size: clamp(2.8rem, calc(2.03rem + 3.86vw), 5.5rem);
+  --type-h1-leading: 1;
+  --type-h1-weight: 500;
+  --type-h1-tracking: -0.02em;
+  --type-h1-margin: 0.2em;
+
+  /* H2 */
+  --type-h2-size: clamp(2rem, calc(1.49rem + 2.57vw), 3.8rem);
+  --type-h2-leading: 1.1;
+  --type-h2-weight: 500;
+  --type-h2-tracking: -0.02em;
+  --type-h2-margin: 0.2em;
+
+  /* H3 */
+  --type-h3-size: clamp(1.5rem, calc(1.27rem + 1.14vw), 2.3rem);
+  --type-h3-leading: 1.2;
+  --type-h3-weight: 500;
+  --type-h3-tracking: 0;
+  --type-h3-margin: 0.2em;
+
+  /* H4 */
+  --type-h4-size: clamp(1.3rem, calc(1.24rem + 0.29vw), 1.5rem);
+  --type-h4-leading: 1.4;
+  --type-h4-weight: 500;
+  --type-h4-tracking: 0;
+  --type-h4-margin: 0.2em;
+
+  /* H5 */
+  --type-h5-size: clamp(1.1rem, calc(1.07rem + 0.14vw), 1.2rem);
+  --type-h5-leading: 1.4;
+  --type-h5-weight: 500;
+  --type-h5-tracking: 0;
+  --type-h5-margin: 0.2em;
+
+  /* H6 */
+  --type-h6-size: clamp(0.9rem, calc(0.87rem + 0.14vw), 1rem);
+  --type-h6-leading: 1.4;
+  --type-h6-weight: 500;
+  --type-h6-tracking: 0;
+  --type-h6-margin: 0.2em;
+
+  /* Paragraph - Extra Large */
+  --type-p-xl-size: clamp(1.2rem, calc(1.11rem + 0.43vw), 1.5rem);
+  --type-p-xl-leading: 1.4;
+  --type-p-xl-weight: 400;
+  --type-p-xl-tracking: 0;
+
+  /* Paragraph - Large */
+  --type-p-lg-size: clamp(1.1rem, calc(1.06rem + 0.21vw), 1.25rem);
+  --type-p-lg-leading: 1.5;
+  --type-p-lg-weight: 400;
+  --type-p-lg-tracking: 0;
+
+  /* Paragraph - Body (default) */
+  --type-body-size: clamp(0.9rem, calc(0.87rem + 0.14vw), 1rem);
+  --type-body-leading: 1.6;
+  --type-body-weight: 400;
+  --type-body-tracking: 0;
+
+  /* Paragraph - Small */
+  --type-p-sm-size: clamp(0.8rem, calc(0.77rem + 0.14vw), 0.9rem);
+  --type-p-sm-leading: 1.5;
+  --type-p-sm-weight: 400;
+  --type-p-sm-tracking: 0;
+
+  /* ==============================================
+     LAYOUT - Grid and spacing
+     ============================================== */
+  --grid-columns: 12;
+  --grid-gap: 40px;
+  --grid-gap-md: 24px;
+  --grid-gap-sm: 8px;
+  --container-gutter: 6vw;
+  --container-max: 90rem;
+
+  /* Spacing scale */
+  --space-xs: 0.5em;
+  --space-sm: 1em;
+  --space-md: 2em;
+  --space-lg: 3em;
+  --space-xl: 4em;
+
+  /* ==============================================
+     COMPONENTS - Element-specific tokens
+     ============================================== */
+  /* Section */
+  --section-padding: clamp(3rem, calc(2.57rem + 2.14vw), 6rem);
+
+  /* Button */
+  --button-padding-x: 1em;
+  --button-padding-y: 0.7em;
+  --button-radius: 0.5rem;
+  --button-weight: 400;
+
+  /* Card */
+  --card-padding: clamp(1rem, calc(0.93rem + 0.36vw), 1.5rem);
+  --card-radius: 0.5rem;
+
+  /* Input */
+  --input-padding-x: 1em;
+  --input-padding-y: 0.7em;
+  --input-radius: 0.5rem;
+  --input-margin: 1rem;
+
+  /* ==============================================
+     TRANSITIONS
+     ============================================== */
+  --transition-fast: 150ms;
+  --transition-base: 250ms;
+  --transition-slow: 400ms;
+  --default-transition-duration: 250ms;
+
+  /* ==============================================
+     SHADOWS
+     ============================================== */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-layer: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
+
+  /* ==============================================
+     MISC / COMPATIBILITY
+     ============================================== */
+  --radius: 0.5rem;  /* shadcn/ui compatible */
+}
+
+/* ==========================================================================
+   TAILWIND THEME INTEGRATION
+   Keep @theme block for Tailwind v4 compatibility
+   ========================================================================== */
+
+@theme {
+  --shadow-layer: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
+
+  /* MAST COLOR PALETTE */
+  --color-white: #ffffff;
+  --color-black: #1d1c1a;
+  --color-dark-gray: #292825;
+  --color-light-gray: #f0eee6;
+  --color-mid-gray-1: #cccabf;
+  --color-mid-gray-2: #474641;
+  --color-brand: #d14424;
+  --color-brand-dark: #9c331b;
+  --color-yellow: #f8d47a;
+  --color-blue: #0073e6;
+
+  /* Gray scale */
+  --color-gray-50: #f0eee6;
+  --color-gray-100: #e5e3db;
+  --color-gray-200: #d4d2c8;
+  --color-gray-300: #cccabf;
+  --color-gray-400: #9a9890;
+  --color-gray-500: #6b6961;
+  --color-gray-600: #474641;
+  --color-gray-700: #353430;
+  --color-gray-800: #292825;
+  --color-gray-900: #1d1c1a;
+  --color-gray-950: #141311;
+
+  /* TYPOGRAPHY */
   --font-display: var(--font-general-sans), 'General Sans', Arial, sans-serif;
   --font-sans: var(--font-general-sans), 'General Sans', Arial, sans-serif;
 
   --default-transition-duration: 250ms;
-
-  /* shadcn/ui compatible radius */
   --radius: 0.5rem;
 }
 
@@ -277,4 +297,855 @@ html {
   --border: 214.3 31.8% 91.4%;
   --input: 214.3 31.8% 91.4%;
   --ring: 222.2 84% 4.9%;
+}
+
+/* Apply semantic colors to base elements */
+html {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   PROSE TYPOGRAPHY OVERRIDES
+   Make prose inherit text color from parent for theme compatibility
+   ========================================================================== */
+
+.prose {
+  --tw-prose-body: inherit;
+  --tw-prose-headings: inherit;
+  --tw-prose-lead: inherit;
+  --tw-prose-bold: inherit;
+  --tw-prose-counters: inherit;
+  --tw-prose-bullets: inherit;
+  color: inherit;
+}
+
+/* ==========================================================================
+   TAILWIND CONTAINER UTILITY
+   Uses min() function: container is either max-width OR viewport minus gutters
+   ========================================================================== */
+
+@utility container {
+  width: 100%;
+  max-width: min(calc(100% - var(--container-gutter) * 2), var(--container-max));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ==========================================================================
+   TAILWIND FLUID TYPOGRAPHY UTILITIES
+   Uses CSS clamp() for smooth scaling between viewport widths 20rem - 90rem
+   ========================================================================== */
+
+/* Heading utilities */
+@utility text-h1 {
+  font-size: var(--type-h1-size);
+  line-height: var(--type-h1-leading);
+  font-weight: var(--type-h1-weight);
+  letter-spacing: var(--type-h1-tracking);
+}
+
+@utility text-h2 {
+  font-size: var(--type-h2-size);
+  line-height: var(--type-h2-leading);
+  font-weight: var(--type-h2-weight);
+  letter-spacing: var(--type-h2-tracking);
+}
+
+@utility text-h3 {
+  font-size: var(--type-h3-size);
+  line-height: var(--type-h3-leading);
+  font-weight: var(--type-h3-weight);
+  letter-spacing: var(--type-h3-tracking);
+}
+
+@utility text-h4 {
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-leading);
+  font-weight: var(--type-h4-weight);
+  letter-spacing: var(--type-h4-tracking);
+}
+
+@utility text-h5 {
+  font-size: var(--type-h5-size);
+  line-height: var(--type-h5-leading);
+  font-weight: var(--type-h5-weight);
+  letter-spacing: var(--type-h5-tracking);
+}
+
+@utility text-h6 {
+  font-size: var(--type-h6-size);
+  line-height: var(--type-h6-leading);
+  font-weight: var(--type-h6-weight);
+  letter-spacing: var(--type-h6-tracking);
+}
+
+/* Paragraph utilities */
+@utility text-p-xl {
+  font-size: var(--type-p-xl-size);
+  line-height: var(--type-p-xl-leading);
+  font-weight: var(--type-p-xl-weight);
+  letter-spacing: var(--type-p-xl-tracking);
+}
+
+@utility text-p-lg {
+  font-size: var(--type-p-lg-size);
+  line-height: var(--type-p-lg-leading);
+  font-weight: var(--type-p-lg-weight);
+  letter-spacing: var(--type-p-lg-tracking);
+}
+
+@utility text-body {
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-leading);
+  font-weight: var(--type-body-weight);
+  letter-spacing: var(--type-body-tracking);
+}
+
+@utility text-p-sm {
+  font-size: var(--type-p-sm-size);
+  line-height: var(--type-p-sm-leading);
+  font-weight: var(--type-p-sm-weight);
+  letter-spacing: var(--type-p-sm-tracking);
+}
+
+/* ==========================================================================
+   MAST TYPOGRAPHY CLASSES
+   Vanilla CSS classes for Mast-style typography
+   ========================================================================== */
+
+.h1 {
+  font-size: var(--type-h1-size);
+  line-height: var(--type-h1-leading);
+  font-weight: var(--type-h1-weight);
+  letter-spacing: var(--type-h1-tracking);
+  margin-bottom: var(--type-h1-margin);
+}
+
+.h2 {
+  font-size: var(--type-h2-size);
+  line-height: var(--type-h2-leading);
+  font-weight: var(--type-h2-weight);
+  letter-spacing: var(--type-h2-tracking);
+  margin-bottom: var(--type-h2-margin);
+}
+
+.h3 {
+  font-size: var(--type-h3-size);
+  line-height: var(--type-h3-leading);
+  font-weight: var(--type-h3-weight);
+  letter-spacing: var(--type-h3-tracking);
+  margin-bottom: var(--type-h3-margin);
+}
+
+.h4 {
+  font-size: var(--type-h4-size);
+  line-height: var(--type-h4-leading);
+  font-weight: var(--type-h4-weight);
+  letter-spacing: var(--type-h4-tracking);
+  margin-bottom: var(--type-h4-margin);
+}
+
+.h5 {
+  font-size: var(--type-h5-size);
+  line-height: var(--type-h5-leading);
+  font-weight: var(--type-h5-weight);
+  letter-spacing: var(--type-h5-tracking);
+  margin-bottom: var(--type-h5-margin);
+}
+
+.h6 {
+  font-size: var(--type-h6-size);
+  line-height: var(--type-h6-leading);
+  font-weight: var(--type-h6-weight);
+  letter-spacing: var(--type-h6-tracking);
+  margin-bottom: var(--type-h6-margin);
+}
+
+/* Paragraph classes */
+.p-xl {
+  font-size: var(--type-p-xl-size);
+  line-height: var(--type-p-xl-leading);
+  font-weight: var(--type-p-xl-weight);
+  letter-spacing: var(--type-p-xl-tracking);
+}
+
+.p-lg {
+  font-size: var(--type-p-lg-size);
+  line-height: var(--type-p-lg-leading);
+  font-weight: var(--type-p-lg-weight);
+  letter-spacing: var(--type-p-lg-tracking);
+}
+
+.p-body {
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-leading);
+  font-weight: var(--type-body-weight);
+  letter-spacing: var(--type-body-tracking);
+}
+
+.p-sm {
+  font-size: var(--type-p-sm-size);
+  line-height: var(--type-p-sm-leading);
+  font-weight: var(--type-p-sm-weight);
+  letter-spacing: var(--type-p-sm-tracking);
+}
+
+/* ==========================================================================
+   MAST LAYOUT CLASSES
+   Core structural components: section, container, row, col
+   ========================================================================== */
+
+/* Section - Primary page section wrapper */
+.section {
+  position: relative;
+  padding-top: var(--section-padding);
+  padding-bottom: var(--section-padding);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* Section variants */
+.section.cc-muted {
+  --bg-primary: light-dark(var(--color-light-gray), var(--color-dark-gray));
+  background-color: var(--bg-primary);
+}
+
+.section.cc-invert {
+  --bg-primary: light-dark(var(--color-black), var(--color-white));
+  --text-primary: light-dark(var(--color-white), var(--color-black));
+  --text-muted: light-dark(var(--color-gray-400), var(--color-gray-500));
+  --border-primary: light-dark(var(--color-mid-gray-2), var(--color-mid-gray-1));
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.section.cc-no-padding-top {
+  padding-top: 0;
+}
+
+.section.cc-no-padding-bottom {
+  padding-bottom: 0;
+}
+
+.section.cc-padding-sm {
+  --section-padding: clamp(1.5rem, calc(1.29rem + 1.07vw), 3rem);
+}
+
+.section.cc-padding-lg {
+  --section-padding: clamp(4rem, calc(3.43rem + 2.86vw), 8rem);
+}
+
+/* Container - Centered content wrapper with gutters */
+.container {
+  width: 100%;
+  max-width: min(calc(100% - var(--container-gutter) * 2), var(--container-max));
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Container variants */
+.container.cc-full {
+  max-width: 100%;
+}
+
+.container.cc-narrow {
+  --container-max: 60rem;
+}
+
+.container.cc-wide {
+  --container-max: 100rem;
+}
+
+/* Row - Flexbox row for columns */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--grid-gap);
+  margin: 0;
+  padding: 0;
+}
+
+/* Row justify variants */
+.row.row-justify-start {
+  justify-content: flex-start;
+}
+
+.row.row-justify-center {
+  justify-content: center;
+}
+
+.row.row-justify-end {
+  justify-content: flex-end;
+}
+
+.row.row-justify-between {
+  justify-content: space-between;
+}
+
+.row.row-justify-around {
+  justify-content: space-around;
+}
+
+/* Row align variants */
+.row.row-align-start {
+  align-items: flex-start;
+}
+
+.row.row-align-center {
+  align-items: center;
+}
+
+.row.row-align-end {
+  align-items: flex-end;
+}
+
+.row.row-align-stretch {
+  align-items: stretch;
+}
+
+.row.row-align-baseline {
+  align-items: baseline;
+}
+
+/* Row gap variants */
+.row.row-gap-none {
+  gap: 0;
+}
+
+.row.row-gap-sm {
+  gap: var(--grid-gap-sm);
+}
+
+.row.row-gap-md {
+  gap: var(--grid-gap-md);
+}
+
+.row.row-gap-lg {
+  gap: var(--grid-gap);
+}
+
+/* Row direction variants */
+.row.row-reverse {
+  flex-direction: row-reverse;
+}
+
+.row.row-col {
+  flex-direction: column;
+}
+
+.row.row-col-reverse {
+  flex-direction: column-reverse;
+}
+
+/* Column - Base column class */
+.col {
+  flex: 1 1 0%;
+  min-width: 0; /* Prevent overflow */
+}
+
+/* Column shrink - Width of content only */
+.col.col-shrink {
+  flex: 0 0 auto;
+}
+
+/* Column grow - Take remaining space */
+.col.col-grow {
+  flex: 1 1 auto;
+}
+
+/* Column width variants (12-column grid) - Large (desktop) */
+.col.col-lg-1 {
+  flex: 0 0 calc(100% / var(--grid-columns) * 1);
+  max-width: calc(100% / var(--grid-columns) * 1);
+}
+
+.col.col-lg-2 {
+  flex: 0 0 calc(100% / var(--grid-columns) * 2);
+  max-width: calc(100% / var(--grid-columns) * 2);
+}
+
+.col.col-lg-3 {
+  flex: 0 0 calc(100% / var(--grid-columns) * 3);
+  max-width: calc(100% / var(--grid-columns) * 3);
+}
+
+.col.col-lg-4 {
+  flex: 0 0 calc(100% / var(--grid-columns) * 4);
+  max-width: calc(100% / var(--grid-columns) * 4);
+}
+
+.col.col-lg-5 {
+  flex: 0 0 calc(100% / var(--grid-columns) * 5);
+  max-width: calc(100% / var(--grid-columns) * 5);
+}
+
+.col.col-lg-6 {
+  flex: 0 0 calc(100% / var(--grid-columns) * 6);
+  max-width: calc(100% / var(--grid-columns) * 6);
+}
+
+.col.col-lg-7 {
+  flex: 0 0 calc(100% / var(--grid-columns) * 7);
+  max-width: calc(100% / var(--grid-columns) * 7);
+}
+
+.col.col-lg-8 {
+  flex: 0 0 calc(100% / var(--grid-columns) * 8);
+  max-width: calc(100% / var(--grid-columns) * 8);
+}
+
+.col.col-lg-9 {
+  flex: 0 0 calc(100% / var(--grid-columns) * 9);
+  max-width: calc(100% / var(--grid-columns) * 9);
+}
+
+.col.col-lg-10 {
+  flex: 0 0 calc(100% / var(--grid-columns) * 10);
+  max-width: calc(100% / var(--grid-columns) * 10);
+}
+
+.col.col-lg-11 {
+  flex: 0 0 calc(100% / var(--grid-columns) * 11);
+  max-width: calc(100% / var(--grid-columns) * 11);
+}
+
+.col.col-lg-12 {
+  flex: 0 0 100%;
+  max-width: 100%;
+}
+
+/* ==========================================================================
+   UTILITY CLASSES
+   Common utility patterns for spacing, alignment, colors, etc.
+   ========================================================================== */
+
+/* Text alignment */
+.u-text-left {
+  text-align: left;
+}
+
+.u-text-center {
+  text-align: center;
+}
+
+.u-text-right {
+  text-align: right;
+}
+
+/* Text colors */
+.u-text-primary {
+  color: var(--text-primary);
+}
+
+.u-text-muted {
+  color: var(--text-muted);
+}
+
+.u-text-brand {
+  color: var(--color-brand);
+}
+
+.u-text-white {
+  color: var(--color-white);
+}
+
+.u-text-black {
+  color: var(--color-black);
+}
+
+.u-text-inherit {
+  color: inherit;
+}
+
+/* Background colors */
+.u-bg-primary {
+  background-color: var(--bg-primary);
+}
+
+.u-bg-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.u-bg-brand {
+  background-color: var(--color-brand);
+}
+
+.u-bg-white {
+  background-color: var(--color-white);
+}
+
+.u-bg-black {
+  background-color: var(--color-black);
+}
+
+.u-bg-transparent {
+  background-color: transparent;
+}
+
+/* Margin utilities */
+.u-mb-none {
+  margin-bottom: 0;
+}
+
+.u-mb-xs {
+  margin-bottom: var(--space-xs);
+}
+
+.u-mb-sm {
+  margin-bottom: var(--space-sm);
+}
+
+.u-mb-md {
+  margin-bottom: var(--space-md);
+}
+
+.u-mb-lg {
+  margin-bottom: var(--space-lg);
+}
+
+.u-mb-xl {
+  margin-bottom: var(--space-xl);
+}
+
+.u-mt-none {
+  margin-top: 0;
+}
+
+.u-mt-xs {
+  margin-top: var(--space-xs);
+}
+
+.u-mt-sm {
+  margin-top: var(--space-sm);
+}
+
+.u-mt-md {
+  margin-top: var(--space-md);
+}
+
+.u-mt-lg {
+  margin-top: var(--space-lg);
+}
+
+.u-mt-xl {
+  margin-top: var(--space-xl);
+}
+
+/* Padding utilities */
+.u-p-none {
+  padding: 0;
+}
+
+.u-p-xs {
+  padding: var(--space-xs);
+}
+
+.u-p-sm {
+  padding: var(--space-sm);
+}
+
+.u-p-md {
+  padding: var(--space-md);
+}
+
+.u-p-lg {
+  padding: var(--space-lg);
+}
+
+/* Display utilities */
+.u-hidden {
+  display: none;
+}
+
+.u-block {
+  display: block;
+}
+
+.u-inline-block {
+  display: inline-block;
+}
+
+.u-flex {
+  display: flex;
+}
+
+.u-inline-flex {
+  display: inline-flex;
+}
+
+.u-grid {
+  display: grid;
+}
+
+/* Flex utilities */
+.u-flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.u-flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.u-flex-col {
+  flex-direction: column;
+}
+
+.u-flex-wrap {
+  flex-wrap: wrap;
+}
+
+.u-flex-1 {
+  flex: 1;
+}
+
+.u-flex-shrink-0 {
+  flex-shrink: 0;
+}
+
+/* Width utilities */
+.u-w-full {
+  width: 100%;
+}
+
+.u-w-auto {
+  width: auto;
+}
+
+.u-max-w-full {
+  max-width: 100%;
+}
+
+/* Height utilities */
+.u-h-full {
+  height: 100%;
+}
+
+.u-h-auto {
+  height: auto;
+}
+
+.u-min-h-screen {
+  min-height: 100vh;
+}
+
+/* Position utilities */
+.u-relative {
+  position: relative;
+}
+
+.u-absolute {
+  position: absolute;
+}
+
+.u-fixed {
+  position: fixed;
+}
+
+.u-sticky {
+  position: sticky;
+}
+
+/* Overflow utilities */
+.u-overflow-hidden {
+  overflow: hidden;
+}
+
+.u-overflow-auto {
+  overflow: auto;
+}
+
+.u-overflow-visible {
+  overflow: visible;
+}
+
+/* Image utilities */
+.u-img-cover {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.u-img-contain {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
+.u-img-cover.cc-top-left { object-position: 0% 0%; }
+.u-img-cover.cc-top-center { object-position: 50% 0%; }
+.u-img-cover.cc-top-right { object-position: 100% 0%; }
+.u-img-cover.cc-center-left { object-position: 0% 50%; }
+.u-img-cover.cc-center { object-position: 50% 50%; }
+.u-img-cover.cc-center-right { object-position: 100% 50%; }
+.u-img-cover.cc-bottom-left { object-position: 0% 100%; }
+.u-img-cover.cc-bottom-center { object-position: 50% 100%; }
+.u-img-cover.cc-bottom-right { object-position: 100% 100%; }
+
+/* Border utilities */
+.u-border {
+  border: 1px solid var(--border-primary);
+}
+
+.u-border-top {
+  border-top: 1px solid var(--border-primary);
+}
+
+.u-border-bottom {
+  border-bottom: 1px solid var(--border-primary);
+}
+
+.u-border-none {
+  border: none;
+}
+
+.u-rounded {
+  border-radius: var(--radius);
+}
+
+.u-rounded-full {
+  border-radius: 9999px;
+}
+
+.u-rounded-none {
+  border-radius: 0;
+}
+
+/* Visibility utilities */
+.u-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Cursor utilities */
+.u-cursor-pointer {
+  cursor: pointer;
+}
+
+.u-cursor-default {
+  cursor: default;
+}
+
+/* Transition utilities */
+.u-transition {
+  transition-property: all;
+  transition-duration: var(--transition-base);
+  transition-timing-function: ease;
+}
+
+.u-transition-fast {
+  transition-duration: var(--transition-fast);
+}
+
+.u-transition-slow {
+  transition-duration: var(--transition-slow);
+}
+
+/* Gap utilities */
+.u-gap-none {
+  gap: 0;
+}
+
+.u-gap-xs {
+  gap: var(--space-xs);
+}
+
+.u-gap-sm {
+  gap: var(--space-sm);
+}
+
+.u-gap-md {
+  gap: var(--space-md);
+}
+
+.u-gap-lg {
+  gap: var(--space-lg);
+}
+
+/* ==========================================================================
+   RESPONSIVE UTILITIES
+   Column adjustments for tablet and mobile breakpoints
+   ========================================================================== */
+
+/*
+  BREAKPOINTS (for reference - use values in media queries)
+  --bp-lg: 61.9375rem  (992px - Desktop)
+  --bp-md: 47.9375rem  (768px - Tablet)
+  --bp-sm: 29.9375rem  (480px - Mobile landscape)
+*/
+
+/* Tablet and below (max-width: 991px / 61.9375rem) */
+@media screen and (max-width: 61.9375rem) {
+  .row {
+    gap: var(--grid-gap-md);
+  }
+
+  /* Medium column widths (tablet) */
+  .col.col-md-1 { flex: 0 0 calc(100% / var(--grid-columns) * 1); max-width: calc(100% / var(--grid-columns) * 1); }
+  .col.col-md-2 { flex: 0 0 calc(100% / var(--grid-columns) * 2); max-width: calc(100% / var(--grid-columns) * 2); }
+  .col.col-md-3 { flex: 0 0 calc(100% / var(--grid-columns) * 3); max-width: calc(100% / var(--grid-columns) * 3); }
+  .col.col-md-4 { flex: 0 0 calc(100% / var(--grid-columns) * 4); max-width: calc(100% / var(--grid-columns) * 4); }
+  .col.col-md-5 { flex: 0 0 calc(100% / var(--grid-columns) * 5); max-width: calc(100% / var(--grid-columns) * 5); }
+  .col.col-md-6 { flex: 0 0 calc(100% / var(--grid-columns) * 6); max-width: calc(100% / var(--grid-columns) * 6); }
+  .col.col-md-7 { flex: 0 0 calc(100% / var(--grid-columns) * 7); max-width: calc(100% / var(--grid-columns) * 7); }
+  .col.col-md-8 { flex: 0 0 calc(100% / var(--grid-columns) * 8); max-width: calc(100% / var(--grid-columns) * 8); }
+  .col.col-md-9 { flex: 0 0 calc(100% / var(--grid-columns) * 9); max-width: calc(100% / var(--grid-columns) * 9); }
+  .col.col-md-10 { flex: 0 0 calc(100% / var(--grid-columns) * 10); max-width: calc(100% / var(--grid-columns) * 10); }
+  .col.col-md-11 { flex: 0 0 calc(100% / var(--grid-columns) * 11); max-width: calc(100% / var(--grid-columns) * 11); }
+  .col.col-md-12 { flex: 0 0 100%; max-width: 100%; }
+
+  /* Tablet visibility */
+  .u-hide-tablet {
+    display: none;
+  }
+}
+
+/* Mobile landscape and below (max-width: 767px / 47.9375rem) */
+@media screen and (max-width: 47.9375rem) {
+  .row {
+    gap: var(--grid-gap-md);
+  }
+
+  /* Small column widths (mobile) - default to full width */
+  .col.col-sm-1 { flex: 0 0 calc(100% / var(--grid-columns) * 1); max-width: calc(100% / var(--grid-columns) * 1); }
+  .col.col-sm-2 { flex: 0 0 calc(100% / var(--grid-columns) * 2); max-width: calc(100% / var(--grid-columns) * 2); }
+  .col.col-sm-3 { flex: 0 0 calc(100% / var(--grid-columns) * 3); max-width: calc(100% / var(--grid-columns) * 3); }
+  .col.col-sm-4 { flex: 0 0 calc(100% / var(--grid-columns) * 4); max-width: calc(100% / var(--grid-columns) * 4); }
+  .col.col-sm-5 { flex: 0 0 calc(100% / var(--grid-columns) * 5); max-width: calc(100% / var(--grid-columns) * 5); }
+  .col.col-sm-6 { flex: 0 0 calc(100% / var(--grid-columns) * 6); max-width: calc(100% / var(--grid-columns) * 6); }
+  .col.col-sm-7 { flex: 0 0 calc(100% / var(--grid-columns) * 7); max-width: calc(100% / var(--grid-columns) * 7); }
+  .col.col-sm-8 { flex: 0 0 calc(100% / var(--grid-columns) * 8); max-width: calc(100% / var(--grid-columns) * 8); }
+  .col.col-sm-9 { flex: 0 0 calc(100% / var(--grid-columns) * 9); max-width: calc(100% / var(--grid-columns) * 9); }
+  .col.col-sm-10 { flex: 0 0 calc(100% / var(--grid-columns) * 10); max-width: calc(100% / var(--grid-columns) * 10); }
+  .col.col-sm-11 { flex: 0 0 calc(100% / var(--grid-columns) * 11); max-width: calc(100% / var(--grid-columns) * 11); }
+  .col.col-sm-12 { flex: 0 0 100%; max-width: 100%; }
+
+  /* Columns stack on mobile by default (can be overridden with col-sm-*) */
+  .col[class*="col-lg-"]:not([class*="col-sm-"]):not([class*="col-md-"]) {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  /* Mobile visibility */
+  .u-hide-mobile {
+    display: none;
+  }
+}
+
+/* Mobile portrait (max-width: 479px / 29.9375rem) */
+@media screen and (max-width: 29.9375rem) {
+  .container {
+    --container-gutter: 4vw;
+  }
 }

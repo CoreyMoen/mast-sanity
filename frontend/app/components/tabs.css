@@ -1,0 +1,113 @@
+/* tabs.css - Component-specific styles */
+
+/* Tab pane fade-in animation */
+.tabs-pane {
+  animation: tabsFadeIn 0.5s ease;
+}
+
+@keyframes tabsFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.tabs-pane[aria-hidden="true"] {
+  display: none;
+}
+
+/* Vertical menu variant */
+.tabs-menu.cc-vertical .tabs-link {
+  border-bottom: none;
+  border-left: 2px solid var(--border-primary);
+}
+
+.tabs-menu.cc-vertical .tabs-link.cc-active {
+  border-color: var(--text-primary);
+}
+
+.tabs-menu.cc-vertical .tabs-autoplay-progress {
+  top: 0;
+  right: auto;
+  bottom: 0;
+  left: -2px;
+  width: 2px;
+  height: 0%;
+}
+
+/* Autoplay progress animation (horizontal) */
+.tabs-menu[data-tabs-autoplay="true"] .tabs-link[aria-selected="true"] .tabs-autoplay-progress {
+  animation: autoplayProgress var(--autoplay-duration, 5s) linear forwards;
+}
+
+.tabs-component.autoplay-paused .tabs-autoplay-progress {
+  animation-play-state: paused;
+}
+
+@keyframes autoplayProgress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+
+/* Autoplay progress animation (vertical) */
+.tabs-menu.cc-vertical[data-tabs-autoplay="true"] .tabs-link[aria-selected="true"] .tabs-autoplay-progress {
+  animation: autoplayProgressVertical var(--autoplay-duration, 5s) linear forwards;
+}
+
+@keyframes autoplayProgressVertical {
+  from { height: 0%; }
+  to { height: 100%; }
+}
+
+/* Play/pause toggle states */
+.tabs-component.autoplay-paused .tabs-autoplay-toggle_pause {
+  display: none;
+}
+
+.tabs-component.autoplay-paused .tabs-autoplay-toggle_play {
+  display: flex;
+}
+
+/* Mobile dropdown */
+@media (max-width: 47.9375rem) {
+  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-menu_dropdown-toggle {
+    display: flex;
+  }
+
+  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-menu_dropdown-toggle.cc-open {
+    border-radius: var(--button-radius) var(--button-radius) 0 0;
+  }
+
+  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-menu_dropdown-toggle.cc-open .tabs-menu_dropdown-arrow {
+    transform: rotate(180deg);
+  }
+
+  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-menu_dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% - 1px);
+    left: 0;
+    right: 0;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    border-radius: 0 0 var(--button-radius) var(--button-radius);
+    z-index: 10;
+    max-height: 300px;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-menu_dropdown-menu.cc-open {
+    display: block;
+  }
+
+  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-link {
+    border: none;
+  }
+
+  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-link.cc-active {
+    background-color: var(--border-primary);
+  }
+}
+
+/* Base styles from mast-framework.css are in globals.css:
+   .tabs-component, .tabs-menu, .tabs-link, .tabs-autoplay-progress,
+   .tabs-autoplay-toggle, .tabs-menu_dropdown-toggle */

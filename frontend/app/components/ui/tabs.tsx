@@ -1,215 +1,177 @@
 'use client'
 
 import * as React from 'react'
-import * as TabsPrimitive from '@radix-ui/react-tabs'
 import {Pause, Play, CaretDown} from '@phosphor-icons/react'
-import {cn} from '@/lib/utils'
+import {useTabs} from '@/app/hooks'
+import '@/app/components/tabs.css'
+
+// Class mappings for orientation and menu position
+const orientationClasses = {
+  horizontal: '',
+  vertical: 'cc-vertical',
+}
+
+const menuPositionClasses = {
+  above: '',
+  below: 'cc-menu-below',
+  left: 'cc-menu-left',
+  right: 'cc-menu-right',
+}
 
 // Context for tabs configuration
 interface TabsContextValue {
   orientation: 'horizontal' | 'vertical'
   menuPosition: 'above' | 'below' | 'left' | 'right'
-  contentGap: string
+  activeIndex: number
+  setActiveTab: (index: number) => void
   autoplay: boolean
   autoplayDuration: number
-  showProgress: boolean
   isPaused: boolean
-  activeValue: string | undefined
+  progressKey: number
 }
 
 const TabsContext = React.createContext<TabsContextValue>({
   orientation: 'horizontal',
   menuPosition: 'above',
-  contentGap: '4',
+  activeIndex: 0,
+  setActiveTab: () => {},
   autoplay: false,
-  autoplayDuration: 5000,
-  showProgress: true,
+  autoplayDuration: 5,
   isPaused: false,
-  activeValue: undefined,
+  progressKey: 0,
 })
 
 // Root Tabs component with autoplay support
-interface TabsProps extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.Root> {
+interface TabsProps {
   orientation?: 'horizontal' | 'vertical'
   menuPosition?: 'above' | 'below' | 'left' | 'right'
-  contentGap?: string
   autoplay?: boolean
   autoplayDuration?: number
   pauseOnHover?: boolean
-  showProgress?: boolean
   mobileDropdown?: boolean
+  defaultIndex?: number
+  className?: string
+  children: React.ReactNode
 }
 
-// Gap classes for spacing between menu and content
-const gapClasses: Record<string, string> = {
-  '0': 'gap-0',
-  '2': 'gap-2',
-  '4': 'gap-4',
-  '6': 'gap-6',
-  '8': 'gap-8',
-  '12': 'gap-12',
-}
-
-const marginTopClasses: Record<string, string> = {
-  '0': 'mt-0',
-  '2': 'mt-2',
-  '4': 'mt-4',
-  '6': 'mt-6',
-  '8': 'mt-8',
-  '12': 'mt-12',
-}
-
-const Tabs = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Root>, TabsProps>(
+const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
   (
     {
       className,
       orientation = 'horizontal',
       menuPosition = 'above',
-      contentGap = '4',
       autoplay = false,
-      autoplayDuration = 5000,
+      autoplayDuration = 5,
       pauseOnHover = true,
-      showProgress = true,
       mobileDropdown = false,
-      defaultValue,
+      defaultIndex = 0,
       children,
       ...props
     },
     ref
   ) => {
-    const [value, setValue] = React.useState(defaultValue)
-    const [isPaused, setIsPaused] = React.useState(false)
-    const [isHovered, setIsHovered] = React.useState(false)
-    const [progress, setProgress] = React.useState(0)
-    const tabValues = React.useRef<string[]>([])
-    const intervalRef = React.useRef<NodeJS.Timeout | null>(null)
-    const progressRef = React.useRef<NodeJS.Timeout | null>(null)
-
-    // Register tab values from children
-    React.useEffect(() => {
-      const values: string[] = []
+    // Count tabs from children
+    const tabCount = React.useMemo(() => {
+      let count = 0
       React.Children.forEach(children, (child) => {
         if (React.isValidElement(child) && child.type === TabsList) {
           const listChild = child as React.ReactElement<{children?: React.ReactNode}>
           React.Children.forEach(listChild.props.children, (trigger) => {
-            if (React.isValidElement(trigger)) {
-              const triggerEl = trigger as React.ReactElement<{value?: string}>
-              if (triggerEl.props.value) {
-                values.push(triggerEl.props.value)
-              }
+            if (React.isValidElement(trigger) && trigger.type === TabsTrigger) {
+              count++
             }
           })
         }
       })
-      tabValues.current = values
-      if (!value && values.length > 0) {
-        setValue(values[0])
-      }
-    }, [children, value])
+      return count
+    }, [children])
 
-    // Reset progress when value changes
+    const {
+      activeIndex,
+      setActiveTab,
+      isPaused,
+      togglePause,
+      containerRef,
+      handleMouseEnter,
+      handleMouseLeave,
+      handleKeyDown,
+      registerTabs,
+      progressKey,
+    } = useTabs({
+      defaultIndex,
+      autoplay,
+      autoplayDuration,
+      pauseOnHover,
+    })
+
+    // Register tab count
     React.useEffect(() => {
-      setProgress(0)
-    }, [value])
+      registerTabs(tabCount)
+    }, [tabCount, registerTabs])
 
-    // Autoplay logic with progress tracking
-    React.useEffect(() => {
-      if (!autoplay || isPaused || (pauseOnHover && isHovered)) {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current)
-          intervalRef.current = null
+    // Combine refs
+    const combinedRef = React.useCallback(
+      (node: HTMLDivElement | null) => {
+        // Update containerRef
+        if (containerRef && 'current' in containerRef) {
+          (containerRef as React.MutableRefObject<HTMLDivElement | null>).current = node
         }
-        if (progressRef.current) {
-          clearInterval(progressRef.current)
-          progressRef.current = null
+        // Update forwarded ref
+        if (typeof ref === 'function') {
+          ref(node)
+        } else if (ref) {
+          ref.current = node
         }
-        return
-      }
+      },
+      [containerRef, ref]
+    )
 
-      // Update progress every 50ms for smooth animation
-      const progressInterval = 50
-      const totalSteps = autoplayDuration / progressInterval
-
-      progressRef.current = setInterval(() => {
-        setProgress((prev) => {
-          const next = prev + (100 / totalSteps)
-          return next >= 100 ? 100 : next
-        })
-      }, progressInterval)
-
-      intervalRef.current = setInterval(() => {
-        setProgress(0)
-        setValue((current) => {
-          const currentIndex = tabValues.current.indexOf(current || '')
-          const nextIndex = (currentIndex + 1) % tabValues.current.length
-          return tabValues.current[nextIndex]
-        })
-      }, autoplayDuration)
-
-      return () => {
-        if (intervalRef.current) {
-          clearInterval(intervalRef.current)
-        }
-        if (progressRef.current) {
-          clearInterval(progressRef.current)
-        }
-      }
-    }, [autoplay, autoplayDuration, isPaused, isHovered, pauseOnHover])
-
-    // Determine layout direction based on menu position
-    const isVerticalLayout = menuPosition === 'left' || menuPosition === 'right'
-    const isReversed = menuPosition === 'below' || menuPosition === 'right'
-    const gapClass = gapClasses[contentGap] || gapClasses['4']
+    // Build class names
+    const wrapperClasses = [
+      'tabs-component',
+      orientationClasses[orientation],
+      menuPositionClasses[menuPosition],
+      isPaused ? 'autoplay-paused' : '',
+      className,
+    ]
+      .filter(Boolean)
+      .join(' ')
 
     return (
       <TabsContext.Provider
         value={{
           orientation,
           menuPosition,
-          contentGap,
+          activeIndex,
+          setActiveTab,
           autoplay,
           autoplayDuration,
-          showProgress,
           isPaused,
-          activeValue: value,
+          progressKey,
         }}
       >
-        <TabsPrimitive.Root
-          ref={ref}
-          value={value}
-          onValueChange={(newValue) => {
-            setValue(newValue)
-            setProgress(0)
-          }}
-          orientation={orientation}
-          className={cn(
-            'w-full',
-            isVerticalLayout && `flex ${gapClass}`,
-            isReversed && isVerticalLayout && 'flex-row-reverse',
-            isReversed && !isVerticalLayout && 'flex flex-col-reverse',
-            className
-          )}
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
+        <div
+          ref={combinedRef}
+          className={wrapperClasses}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
+          onKeyDown={handleKeyDown}
+          style={autoplay ? {'--autoplay-duration': `${autoplayDuration}s`} as React.CSSProperties : undefined}
           {...props}
         >
-          {/* Inject autoplay controls and progress */}
+          {/* Inject autoplay controls */}
           {React.Children.map(children, (child) => {
             if (React.isValidElement(child) && child.type === TabsList) {
               return React.cloneElement(child as React.ReactElement<TabsListProps>, {
                 autoplay,
                 isPaused,
-                onTogglePause: () => setIsPaused(!isPaused),
-                autoplayDuration,
-                showProgress,
-                progress,
-                activeValue: value,
+                onTogglePause: togglePause,
                 mobileDropdown,
               })
             }
             return child
           })}
-        </TabsPrimitive.Root>
+        </div>
       </TabsContext.Provider>
     )
   }
@@ -217,195 +179,203 @@ const Tabs = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Root>, TabsP
 Tabs.displayName = 'Tabs'
 
 // Tabs list (menu)
-interface TabsListProps extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.List> {
+interface TabsListProps {
   autoplay?: boolean
   isPaused?: boolean
   onTogglePause?: () => void
-  autoplayDuration?: number
-  showProgress?: boolean
-  progress?: number
-  activeValue?: string
   mobileDropdown?: boolean
+  className?: string
+  children?: React.ReactNode
 }
 
-const TabsList = React.forwardRef<React.ElementRef<typeof TabsPrimitive.List>, TabsListProps>(
+const TabsList = React.forwardRef<HTMLDivElement, TabsListProps>(
   (
     {
       className,
       autoplay,
       isPaused,
       onTogglePause,
-      autoplayDuration,
-      showProgress,
-      progress,
-      activeValue,
       mobileDropdown,
       children,
       ...props
     },
     ref
   ) => {
-    const {orientation, menuPosition} = React.useContext(TabsContext)
+    const {orientation, activeIndex} = React.useContext(TabsContext)
     const [dropdownOpen, setDropdownOpen] = React.useState(false)
-    const isVerticalLayout = menuPosition === 'left' || menuPosition === 'right'
 
     // Get active tab label for mobile dropdown
     const activeLabel = React.useMemo(() => {
       let label = 'Select tab'
+      let index = 0
       React.Children.forEach(children, (child) => {
-        if (React.isValidElement(child)) {
-          const triggerEl = child as React.ReactElement<{value?: string; children?: React.ReactNode}>
-          if (triggerEl.props.value === activeValue) {
+        if (React.isValidElement(child) && child.type === TabsTrigger) {
+          if (index === activeIndex) {
+            const triggerEl = child as React.ReactElement<{children?: React.ReactNode}>
             label = String(triggerEl.props.children) || 'Tab'
           }
+          index++
         }
       })
       return label
-    }, [children, activeValue])
+    }, [children, activeIndex])
+
+    // Build class names for menu
+    const menuClasses = [
+      'tabs-menu',
+      orientation === 'vertical' ? 'cc-vertical' : '',
+      className,
+    ]
+      .filter(Boolean)
+      .join(' ')
+
+    // Track tab index for children
+    let tabIndex = 0
 
     return (
       <div
-        className={cn(
-          isVerticalLayout && 'flex-shrink-0',
-          !isVerticalLayout && 'w-full'
-        )}
+        ref={ref}
+        className={menuClasses}
+        role="tablist"
+        aria-orientation={orientation}
+        data-tabs-autoplay={autoplay ? 'true' : undefined}
+        data-tab-mobile-dropdown={mobileDropdown ? 'true' : undefined}
+        {...props}
       >
         {/* Mobile dropdown toggle */}
         {mobileDropdown && (
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className={cn(
-              'flex w-full items-center justify-between rounded-lg bg-muted-background px-4 py-3 text-body font-medium md:hidden',
-              dropdownOpen && 'rounded-b-none'
-            )}
+            className={`tabs-menu_dropdown-toggle ${dropdownOpen ? 'cc-open' : ''}`}
+            aria-expanded={dropdownOpen}
           >
             <span>{activeLabel}</span>
-            <CaretDown
-              className={cn(
-                'h-4 w-4 transition-transform',
-                dropdownOpen && 'rotate-180'
-              )}
-              weight="bold"
-            />
+            <CaretDown className="tabs-menu_dropdown-arrow" weight="bold" />
           </button>
         )}
 
-        <TabsPrimitive.List
-          ref={ref}
-          className={cn(
-            'inline-flex items-center gap-1 rounded-lg bg-muted-background p-1',
-            orientation === 'vertical' && 'flex-col',
-            mobileDropdown && 'hidden md:inline-flex',
-            mobileDropdown && dropdownOpen && 'flex flex-col rounded-t-none',
-            className
-          )}
-          {...props}
-        >
-          {/* Clone children to add progress indicator */}
+        {/* Tab links wrapper for mobile dropdown */}
+        <div className={mobileDropdown ? `tabs-menu_dropdown-menu ${dropdownOpen ? 'cc-open' : ''}` : undefined}>
+          {/* Clone children to pass index */}
           {React.Children.map(children, (child) => {
-            if (React.isValidElement(child)) {
-              const triggerEl = child as React.ReactElement<{value?: string}>
-              const isActive = triggerEl.props.value === activeValue
-              return React.cloneElement(child as React.ReactElement<any>, {
-                showProgress: autoplay && showProgress && isActive,
-                progress: isActive ? progress : 0,
-                onClick: mobileDropdown ? () => setDropdownOpen(false) : undefined,
+            if (React.isValidElement(child) && child.type === TabsTrigger) {
+              const currentIndex = tabIndex++
+              return React.cloneElement(child as React.ReactElement<TabsTriggerInternalProps>, {
+                _index: currentIndex,
+                _onClick: mobileDropdown ? () => setDropdownOpen(false) : undefined,
               })
             }
             return child
           })}
-          {autoplay && (
-            <button
-              onClick={onTogglePause}
-              className={cn(
-                'flex h-9 items-center justify-center px-3 text-muted-foreground transition-colors hover:text-foreground',
-                orientation === 'vertical' && 'w-full'
-              )}
-              aria-label={isPaused ? 'Resume autoplay' : 'Pause autoplay'}
-            >
-              {isPaused ? (
-                <Play className="h-4 w-4" weight="fill" />
-              ) : (
-                <Pause className="h-4 w-4" weight="fill" />
-              )}
-            </button>
-          )}
-        </TabsPrimitive.List>
+        </div>
+
+        {/* Autoplay toggle button */}
+        {autoplay && (
+          <button
+            onClick={onTogglePause}
+            className="tabs-autoplay-toggle"
+            aria-label={isPaused ? 'Resume autoplay' : 'Pause autoplay'}
+          >
+            <span className="tabs-autoplay-toggle_pause">
+              <Pause weight="fill" />
+            </span>
+            <span className="tabs-autoplay-toggle_play">
+              <Play weight="fill" />
+            </span>
+          </button>
+        )}
       </div>
     )
   }
 )
 TabsList.displayName = 'TabsList'
 
-// Tab trigger with progress indicator
-interface TabsTriggerProps extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> {
-  showProgress?: boolean
-  progress?: number
+// Tab trigger internal props (passed by TabsList)
+interface TabsTriggerInternalProps {
+  _index?: number
+  _onClick?: () => void
 }
 
-const TabsTrigger = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Trigger>,
-  TabsTriggerProps
->(({className, showProgress, progress = 0, children, ...props}, ref) => {
-  const {orientation} = React.useContext(TabsContext)
+// Tab trigger with progress indicator
+interface TabsTriggerProps extends TabsTriggerInternalProps {
+  className?: string
+  children?: React.ReactNode
+}
 
-  return (
-    <TabsPrimitive.Trigger
-      ref={ref}
-      className={cn(
-        'relative inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-body font-medium transition-all cursor-pointer',
-        'text-muted-foreground hover:text-foreground',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
-        'disabled:pointer-events-none disabled:opacity-50',
-        'data-[state=active]:bg-card-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',
-        orientation === 'vertical' && 'w-full justify-start',
-        className
-      )}
-      {...props}
-    >
-      {children}
-      {/* Progress indicator bar */}
-      {showProgress && (
-        <div
-          className={cn(
-            'absolute bg-brand transition-all',
-            orientation === 'horizontal'
-              ? 'bottom-0 left-0 h-0.5'
-              : 'top-0 bottom-0 left-0 w-0.5'
-          )}
-          style={{
-            [orientation === 'horizontal' ? 'width' : 'height']: `${progress}%`,
-          }}
-        />
-      )}
-    </TabsPrimitive.Trigger>
-  )
-})
+const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>(
+  ({className, children, _index = 0, _onClick, ...props}, ref) => {
+    const {activeIndex, setActiveTab, autoplay} = React.useContext(TabsContext)
+    const isActive = _index === activeIndex
+
+    const handleClick = () => {
+      setActiveTab(_index)
+      _onClick?.()
+    }
+
+    // Build class names
+    const triggerClasses = [
+      'tabs-link',
+      isActive ? 'cc-active' : '',
+      className,
+    ]
+      .filter(Boolean)
+      .join(' ')
+
+    return (
+      <button
+        ref={ref}
+        role="tab"
+        aria-selected={isActive}
+        tabIndex={isActive ? 0 : -1}
+        className={triggerClasses}
+        onClick={handleClick}
+        {...props}
+      >
+        {children}
+        {/* Progress indicator bar for autoplay */}
+        {autoplay && <span className="tabs-autoplay-progress" />}
+      </button>
+    )
+  }
+)
 TabsTrigger.displayName = 'TabsTrigger'
 
-// Tab content with fade animation
-const TabsContent = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
->(({className, ...props}, ref) => {
-  const {menuPosition, contentGap} = React.useContext(TabsContext)
-  const isVerticalLayout = menuPosition === 'left' || menuPosition === 'right'
-  const marginClass = marginTopClasses[contentGap] || marginTopClasses['4']
+// Tab content panel
+interface TabsContentProps {
+  index: number
+  className?: string
+  children?: React.ReactNode
+}
 
-  return (
-    <TabsPrimitive.Content
-      ref={ref}
-      className={cn(
-        'ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
-        'data-[state=inactive]:hidden',
-        'data-[state=active]:animate-in data-[state=active]:fade-in-50 data-[state=active]:duration-200',
-        isVerticalLayout ? 'mt-0 flex-1' : marginClass,
-        className
-      )}
-      {...props}
-    />
-  )
-})
+const TabsContent = React.forwardRef<HTMLDivElement, TabsContentProps>(
+  ({className, index, children, ...props}, ref) => {
+    const {activeIndex, progressKey} = React.useContext(TabsContext)
+    const isActive = index === activeIndex
+
+    // Build class names
+    const contentClasses = [
+      'tabs-pane',
+      isActive ? 'cc-active' : '',
+      className,
+    ]
+      .filter(Boolean)
+      .join(' ')
+
+    return (
+      <div
+        ref={ref}
+        role="tabpanel"
+        aria-hidden={!isActive}
+        tabIndex={isActive ? 0 : -1}
+        className={contentClasses}
+        key={isActive ? progressKey : undefined}
+        {...props}
+      >
+        {children}
+      </div>
+    )
+  }
+)
 TabsContent.displayName = 'TabsContent'
 
 export {Tabs, TabsList, TabsTrigger, TabsContent}

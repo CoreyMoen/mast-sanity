@@ -1,5 +1,6 @@
 import {type PortableTextBlock, stegaClean} from 'next-sanity'
 import PortableText from '@/app/components/PortableText'
+import {cn} from '@/lib/utils'
 
 interface RichTextBlockProps {
   block: {
@@ -8,8 +9,6 @@ interface RichTextBlockProps {
     content?: PortableTextBlock[]
     align?: 'left' | 'center' | 'right'
     size?: 'xl' | 'lg' | 'base' | 'sm'
-    maxWidth?: 'none' | 'prose' | 'prose-lg' | 'prose-xl'
-    color?: 'default' | 'gray' | 'white' | 'brand' | 'blue'
     customStyle?: string
   }
   index: number
@@ -35,36 +34,19 @@ function parseCustomStyle(cssString?: string): React.CSSProperties | undefined {
   }
 }
 
-// Text alignment
+// Text alignment - left is default (no class needed)
 const alignClasses: Record<string, string> = {
-  left: 'text-left',
-  center: 'text-center mx-auto',
-  right: 'text-right ml-auto',
+  left: '',
+  center: 'u-text-center',
+  right: 'u-text-right',
 }
 
-// Text sizes (using design system paragraph utilities)
+// Text sizes using Mast component classes - base is default (no class needed)
 const sizeClasses: Record<string, string> = {
-  xl: 'prose-xl',
-  lg: 'prose-lg',
-  base: 'prose-base',
-  sm: 'prose-sm',
-}
-
-// Max width for readability
-const maxWidthClasses: Record<string, string> = {
-  none: '',
-  prose: 'max-w-prose',
-  'prose-lg': 'max-w-[80ch]',
-  'prose-xl': 'max-w-[90ch]',
-}
-
-// Text colors
-const colorClasses: Record<string, string> = {
-  default: 'text-foreground',
-  gray: 'text-muted-foreground',
-  white: 'text-white',
-  brand: 'text-brand',
-  blue: 'text-blue',
+  sm: 'cc-sm',
+  base: '',
+  lg: 'cc-lg',
+  xl: 'cc-xl',
 }
 
 export default function RichTextBlock({block}: RichTextBlockProps) {
@@ -72,8 +54,6 @@ export default function RichTextBlock({block}: RichTextBlockProps) {
     content,
     align = 'left',
     size = 'base',
-    maxWidth = 'none',
-    color = 'default',
     customStyle,
   } = block
 
@@ -84,18 +64,14 @@ export default function RichTextBlock({block}: RichTextBlockProps) {
   // Clean stega encoding from values before using as lookup keys
   const cleanAlign = stegaClean(align)
   const cleanSize = stegaClean(size)
-  const cleanMaxWidth = stegaClean(maxWidth)
-  const cleanColor = stegaClean(color)
 
-  const alignClass = alignClasses[cleanAlign] || alignClasses.left
-  const sizeClass = sizeClasses[cleanSize] || sizeClasses.base
-  const maxWidthClass = maxWidthClasses[cleanMaxWidth] || ''
-  const colorClass = colorClasses[cleanColor] || colorClasses.default
+  const alignClass = alignClasses[cleanAlign] || ''
+  const sizeClass = sizeClasses[cleanSize] || ''
   const inlineStyle = parseCustomStyle(customStyle)
 
   return (
-    <div className={`${alignClass} ${maxWidthClass} ${colorClass} mb-4`} style={inlineStyle}>
-      <PortableText value={content} className={sizeClass} />
+    <div className={cn('rich-text', sizeClass, alignClass)} style={inlineStyle}>
+      <PortableText value={content} />
     </div>
   )
 }

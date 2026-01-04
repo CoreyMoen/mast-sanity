@@ -1,0 +1,20 @@
+/* accordion.css - Component-specific styles */
+
+/* Enable smooth height animation (modern browsers) */
+:root {
+  interpolate-size: allow-keywords;
+}
+
+/* Icon rotation on open */
+details[open] .accordion-icon {
+  transform: rotate(45deg);
+}
+
+/* Hide default disclosure marker */
+summary::-webkit-details-marker {
+  display: none;
+}
+
+/* Base styles from mast-framework.css are in globals.css:
+   .accordion-component, .accordion-trigger, .accordion-title,
+   .accordion-icon, .accordion-content, .accordion-content_spacer */

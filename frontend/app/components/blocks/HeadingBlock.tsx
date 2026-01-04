@@ -1,5 +1,6 @@
 import {createElement} from 'react'
 import {stegaClean} from 'next-sanity'
+import {cn} from '@/lib/utils'
 
 type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 
@@ -37,30 +38,30 @@ function parseCustomStyle(cssString?: string): React.CSSProperties | undefined {
   }
 }
 
-// Size mapping for visual appearance using fluid typography (Mast-style)
+// Size mapping for visual appearance using Mast typography classes
 const sizeClasses: Record<string, string> = {
-  h1: 'text-h1',
-  h2: 'text-h2',
-  h3: 'text-h3',
-  h4: 'text-h4',
-  h5: 'text-h5',
-  h6: 'text-h6',
+  h1: 'h1',
+  h2: 'h2',
+  h3: 'h3',
+  h4: 'h4',
+  h5: 'h5',
+  h6: 'h6',
 }
 
-// Text alignment
+// Text alignment - left is default (no class needed)
 const alignClasses: Record<string, string> = {
-  left: 'text-left',
-  center: 'text-center',
-  right: 'text-right',
+  left: '',
+  center: 'u-text-center',
+  right: 'u-text-right',
 }
 
-// Color mapping - using semantic colors for theme support
+// Color mapping - default inherits from parent (no class needed)
 const colorClasses: Record<string, string> = {
-  default: 'text-foreground',
-  gray: 'text-muted-foreground',
-  white: 'text-white',
-  brand: 'text-brand',
-  blue: 'text-blue',
+  default: '',
+  gray: 'u-text-muted',
+  white: 'u-text-white',
+  brand: 'u-text-brand',
+  blue: 'u-text-blue',
 }
 
 export default function HeadingBlock({block}: HeadingBlockProps) {
@@ -80,9 +81,9 @@ export default function HeadingBlock({block}: HeadingBlockProps) {
   const cleanLevel = stegaClean(level) as HeadingLevel
 
   const sizeClass = sizeClasses[cleanSize] || sizeClasses.h2
-  const alignClass = alignClasses[cleanAlign] || alignClasses.left
-  const colorClass = colorClasses[cleanColor] || colorClasses.default
-  const className = `${sizeClass} ${alignClass} ${colorClass} mb-4`
+  const alignClass = alignClasses[cleanAlign] || ''
+  const colorClass = colorClasses[cleanColor] || ''
+  const className = cn(sizeClass, alignClass, colorClass)
   const inlineStyle = parseCustomStyle(customStyle)
   return createElement(cleanLevel, {className, style: inlineStyle}, text)
 }

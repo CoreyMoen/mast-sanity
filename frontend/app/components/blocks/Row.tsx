@@ -1,4 +1,5 @@
 import {stegaClean} from 'next-sanity'
+import {cn} from '@/lib/utils'
 import Column from './Column'
 
 interface RowProps {
@@ -39,46 +40,38 @@ function parseCustomStyle(cssString?: string): React.CSSProperties | undefined {
   }
 }
 
-// Horizontal alignment (justify-content)
-const horizontalAlignClasses: Record<string, string> = {
-  start: 'justify-start',
-  center: 'justify-center',
-  end: 'justify-end',
-  between: 'justify-between',
-  around: 'justify-around',
-  evenly: 'justify-evenly',
+// Horizontal alignment (justify-content) - Mast CSS classes
+const justifyClasses: Record<string, string> = {
+  start: '',                      // Default
+  center: 'row-justify-center',
+  end: 'row-justify-end',
+  between: 'row-justify-between',
+  around: 'row-justify-between',  // Map to between as fallback
+  evenly: 'row-justify-between',  // Map to between as fallback
 }
 
-// Vertical alignment (align-items / align-content for space-between)
-const verticalAlignClasses: Record<string, string> = {
-  start: 'items-start',
-  center: 'items-center',
-  end: 'items-end',
-  stretch: 'items-stretch',
-  baseline: 'items-baseline',
-  between: 'content-between',
+// Vertical alignment (align-items) - Mast CSS classes
+const alignClasses: Record<string, string> = {
+  stretch: '',                    // Default
+  start: 'row-align-start',
+  center: 'row-align-center',
+  end: 'row-align-end',
+  baseline: 'row-align-start',    // Map to start as fallback
+  between: '',                    // Not supported, use default
 }
 
-// Row negative margin (half of gap on each side)
-// This cancels out the column padding on the outer edges
-const rowNegativeMarginClasses: Record<string, string> = {
-  '0': '',
-  '2': '-mx-1',    // 4px each side (8px total gap)
-  '4': '-mx-2',    // 8px each side (16px total gap)
-  '6': '-mx-3',    // 12px each side (24px total gap)
-  '8': '-mx-4',    // 16px each side (32px total gap)
-  '12': '-mx-6',   // 24px each side (48px total gap)
+// Gap classes - Mast CSS
+const gapClasses: Record<string, string> = {
+  '0': 'row-gap-0',
+  '2': 'row-gap-sm',
+  '4': 'row-gap-sm',
+  '6': '',                        // Default (md)
+  '8': 'row-gap-lg',
+  '12': 'row-gap-lg',
 }
 
-// Vertical gap for stacked mobile columns
-const verticalGapClasses: Record<string, string> = {
-  '0': 'gap-y-0',
-  '2': 'gap-y-2',
-  '4': 'gap-y-4',
-  '6': 'gap-y-6',
-  '8': 'gap-y-8',
-  '12': 'gap-y-12',
-}
+// Reverse on mobile modifier
+const reverseClass = 'row-reverse-mobile'
 
 export default function Row({block, index, pageId, pageType, sectionKey}: RowProps) {
   const {
@@ -99,21 +92,21 @@ export default function Row({block, index, pageId, pageType, sectionKey}: RowPro
   const cleanVerticalAlign = stegaClean(verticalAlign)
   const cleanGap = stegaClean(gap)
 
-  const justifyClass = horizontalAlignClasses[cleanHorizontalAlign] || horizontalAlignClasses.start
-  const alignClass = verticalAlignClasses[cleanVerticalAlign] || verticalAlignClasses.stretch
-  const negativeMarginClass = rowNegativeMarginClasses[cleanGap] || rowNegativeMarginClasses['6']
-  const verticalGapClass = verticalGapClasses[cleanGap] || verticalGapClasses['6']
-  const wrapClass = wrap ? 'flex-wrap' : 'flex-nowrap'
-
-  // Flexbox with negative margins (Bootstrap-style gutter system)
-  // On mobile, stack columns vertically with gap
-  const mobileClass = reverseOnMobile ? 'flex-col-reverse' : 'flex-col'
+  const justifyClass = justifyClasses[cleanHorizontalAlign] || ''
+  const alignClass = alignClasses[cleanVerticalAlign] || ''
+  const gapClass = gapClasses[cleanGap] || ''
 
   const inlineStyle = parseCustomStyle(customStyle)
 
   return (
     <div
-      className={`flex ${mobileClass} md:flex-row ${wrapClass} ${justifyClass} ${alignClass} ${negativeMarginClass} ${verticalGapClass}`}
+      className={cn(
+        'row',
+        justifyClass,
+        alignClass,
+        gapClass,
+        reverseOnMobile && reverseClass
+      )}
       style={inlineStyle}
     >
       {columnItems.map((column, colIndex) => (
@@ -125,7 +118,6 @@ export default function Row({block, index, pageId, pageType, sectionKey}: RowPro
           pageType={pageType}
           sectionKey={sectionKey}
           rowKey={block._key}
-          gap={cleanGap}
         />
       ))}
     </div>

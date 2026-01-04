@@ -1,5 +1,5 @@
 import {Button} from '@/app/components/ui/button'
-import {Icon} from '@/app/components/ui/icon'
+import {Icon} from '@/app/components/ui/icon-component'
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '@/app/components/ui/accordion'
 import {Divider} from '@/app/components/ui/divider'
 import {Card} from '@/app/components/ui/card'
@@ -901,13 +901,13 @@ export default function DesignSystemPage() {
         <div className="space-y-12">
           <div>
             <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Horizontal Tabs (Menu Above - Default)</span>
-            <Tabs defaultValue="tab1">
+            <Tabs>
               <TabsList>
-                <TabsTrigger value="tab1">Overview</TabsTrigger>
-                <TabsTrigger value="tab2">Features</TabsTrigger>
-                <TabsTrigger value="tab3">Pricing</TabsTrigger>
+                <TabsTrigger>Overview</TabsTrigger>
+                <TabsTrigger>Features</TabsTrigger>
+                <TabsTrigger>Pricing</TabsTrigger>
               </TabsList>
-              <TabsContent value="tab1">
+              <TabsContent index={0}>
                 <Card variant="outline">
                   <h4 className="text-h4 mb-2">Overview Content</h4>
                   <p className="text-body text-[var(--muted-foreground)]">
@@ -915,7 +915,7 @@ export default function DesignSystemPage() {
                   </p>
                 </Card>
               </TabsContent>
-              <TabsContent value="tab2">
+              <TabsContent index={1}>
                 <Card variant="outline">
                   <h4 className="text-h4 mb-2">Features Content</h4>
                   <p className="text-body text-[var(--muted-foreground)]">
@@ -923,7 +923,7 @@ export default function DesignSystemPage() {
                   </p>
                 </Card>
               </TabsContent>
-              <TabsContent value="tab3">
+              <TabsContent index={2}>
                 <Card variant="outline">
                   <h4 className="text-h4 mb-2">Pricing Content</h4>
                   <p className="text-body text-[var(--muted-foreground)]">
@@ -935,25 +935,25 @@ export default function DesignSystemPage() {
           </div>
           <div>
             <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Menu Below Content</span>
-            <Tabs defaultValue="b1" menuPosition="below">
+            <Tabs menuPosition="below">
               <TabsList>
-                <TabsTrigger value="b1">Tab 1</TabsTrigger>
-                <TabsTrigger value="b2">Tab 2</TabsTrigger>
-                <TabsTrigger value="b3">Tab 3</TabsTrigger>
+                <TabsTrigger>Tab 1</TabsTrigger>
+                <TabsTrigger>Tab 2</TabsTrigger>
+                <TabsTrigger>Tab 3</TabsTrigger>
               </TabsList>
-              <TabsContent value="b1">
+              <TabsContent index={0}>
                 <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <h4 className="text-h4 mb-2">Content First</h4>
                   <p className="text-body text-[var(--muted-foreground)]">Menu positioned below the content area.</p>
                 </div>
               </TabsContent>
-              <TabsContent value="b2">
+              <TabsContent index={1}>
                 <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <h4 className="text-h4 mb-2">Tab 2 Content</h4>
                   <p className="text-body text-[var(--muted-foreground)]">Useful for bottom navigation patterns.</p>
                 </div>
               </TabsContent>
-              <TabsContent value="b3">
+              <TabsContent index={2}>
                 <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <h4 className="text-h4 mb-2">Tab 3 Content</h4>
                   <p className="text-body text-[var(--muted-foreground)]">Third tab with menu below.</p>
@@ -963,13 +963,13 @@ export default function DesignSystemPage() {
           </div>
           <div>
             <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Menu Left of Content (Vertical Layout)</span>
-            <Tabs defaultValue="l1" menuPosition="left" orientation="vertical">
+            <Tabs menuPosition="left" orientation="vertical">
               <TabsList>
-                <TabsTrigger value="l1">Dashboard</TabsTrigger>
-                <TabsTrigger value="l2">Analytics</TabsTrigger>
-                <TabsTrigger value="l3">Settings</TabsTrigger>
+                <TabsTrigger>Dashboard</TabsTrigger>
+                <TabsTrigger>Analytics</TabsTrigger>
+                <TabsTrigger>Settings</TabsTrigger>
               </TabsList>
-              <TabsContent value="l1">
+              <TabsContent index={0}>
                 <Card variant="filled">
                   <h4 className="text-h4 mb-2">Dashboard</h4>
                   <p className="text-body text-[var(--muted-foreground)]">
@@ -977,13 +977,13 @@ export default function DesignSystemPage() {
                   </p>
                 </Card>
               </TabsContent>
-              <TabsContent value="l2">
+              <TabsContent index={1}>
                 <Card variant="filled">
                   <h4 className="text-h4 mb-2">Analytics</h4>
                   <p className="text-body text-[var(--muted-foreground)]">View your analytics data here.</p>
                 </Card>
               </TabsContent>
-              <TabsContent value="l3">
+              <TabsContent index={2}>
                 <Card variant="filled">
                   <h4 className="text-h4 mb-2">Settings</h4>
                   <p className="text-body text-[var(--muted-foreground)]">Configure your preferences.</p>
@@ -993,25 +993,25 @@ export default function DesignSystemPage() {
           </div>
           <div>
             <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Menu Right of Content</span>
-            <Tabs defaultValue="r1" menuPosition="right" orientation="vertical">
+            <Tabs menuPosition="right" orientation="vertical">
               <TabsList>
-                <TabsTrigger value="r1">Option A</TabsTrigger>
-                <TabsTrigger value="r2">Option B</TabsTrigger>
-                <TabsTrigger value="r3">Option C</TabsTrigger>
+                <TabsTrigger>Option A</TabsTrigger>
+                <TabsTrigger>Option B</TabsTrigger>
+                <TabsTrigger>Option C</TabsTrigger>
               </TabsList>
-              <TabsContent value="r1">
+              <TabsContent index={0}>
                 <div className="bg-brand/10 border border-brand/20 rounded-lg p-6">
                   <h4 className="text-h4 mb-2">Content on Left</h4>
                   <p className="text-body text-[var(--muted-foreground)]">Menu positioned to the right of content.</p>
                 </div>
               </TabsContent>
-              <TabsContent value="r2">
+              <TabsContent index={1}>
                 <div className="bg-brand/10 border border-brand/20 rounded-lg p-6">
                   <h4 className="text-h4 mb-2">Option B Selected</h4>
                   <p className="text-body text-[var(--muted-foreground)]">Alternative layout option.</p>
                 </div>
               </TabsContent>
-              <TabsContent value="r3">
+              <TabsContent index={2}>
                 <div className="bg-brand/10 border border-brand/20 rounded-lg p-6">
                   <h4 className="text-h4 mb-2">Option C Selected</h4>
                   <p className="text-body text-[var(--muted-foreground)]">Third option content.</p>
@@ -1021,13 +1021,13 @@ export default function DesignSystemPage() {
           </div>
           <div>
             <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Autoplay with Progress Indicator</span>
-            <Tabs defaultValue="a1" autoplay autoplayDuration={5000} showProgress>
+            <Tabs autoplay autoplayDuration={5000}>
               <TabsList>
-                <TabsTrigger value="a1">Step 1</TabsTrigger>
-                <TabsTrigger value="a2">Step 2</TabsTrigger>
-                <TabsTrigger value="a3">Step 3</TabsTrigger>
+                <TabsTrigger>Step 1</TabsTrigger>
+                <TabsTrigger>Step 2</TabsTrigger>
+                <TabsTrigger>Step 3</TabsTrigger>
               </TabsList>
-              <TabsContent value="a1">
+              <TabsContent index={0}>
                 <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <Eyebrow variant="pill" color="brand">Step 1</Eyebrow>
                   <h4 className="text-h4 mt-4 mb-2">Getting Started</h4>
@@ -1036,7 +1036,7 @@ export default function DesignSystemPage() {
                   </p>
                 </div>
               </TabsContent>
-              <TabsContent value="a2">
+              <TabsContent index={1}>
                 <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <Eyebrow variant="pill" color="brand">Step 2</Eyebrow>
                   <h4 className="text-h4 mt-4 mb-2">Configuration</h4>
@@ -1045,7 +1045,7 @@ export default function DesignSystemPage() {
                   </p>
                 </div>
               </TabsContent>
-              <TabsContent value="a3">
+              <TabsContent index={2}>
                 <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <Eyebrow variant="pill" color="brand">Step 3</Eyebrow>
                   <h4 className="text-h4 mt-4 mb-2">Launch</h4>
@@ -1058,13 +1058,13 @@ export default function DesignSystemPage() {
           </div>
           <div>
             <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Vertical Tabs with Autoplay and Progress</span>
-            <Tabs defaultValue="v1" orientation="vertical" menuPosition="left" autoplay autoplayDuration={4000} showProgress>
+            <Tabs orientation="vertical" menuPosition="left" autoplay autoplayDuration={4000}>
               <TabsList>
-                <TabsTrigger value="v1">Phase 1</TabsTrigger>
-                <TabsTrigger value="v2">Phase 2</TabsTrigger>
-                <TabsTrigger value="v3">Phase 3</TabsTrigger>
+                <TabsTrigger>Phase 1</TabsTrigger>
+                <TabsTrigger>Phase 2</TabsTrigger>
+                <TabsTrigger>Phase 3</TabsTrigger>
               </TabsList>
-              <TabsContent value="v1">
+              <TabsContent index={0}>
                 <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <Icon icon={Target} size="lg" color="brand" className="mb-4" />
                   <h4 className="text-h4 mb-2">Phase 1: Discovery</h4>
@@ -1073,7 +1073,7 @@ export default function DesignSystemPage() {
                   </p>
                 </div>
               </TabsContent>
-              <TabsContent value="v2">
+              <TabsContent index={1}>
                 <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <Icon icon={Lightning} size="lg" color="brand" className="mb-4" />
                   <h4 className="text-h4 mb-2">Phase 2: Development</h4>
@@ -1082,7 +1082,7 @@ export default function DesignSystemPage() {
                   </p>
                 </div>
               </TabsContent>
-              <TabsContent value="v3">
+              <TabsContent index={2}>
                 <div className="bg-[var(--muted-background)] rounded-lg p-6">
                   <Icon icon={Trophy} size="lg" color="brand" className="mb-4" />
                   <h4 className="text-h4 mb-2">Phase 3: Launch</h4>
@@ -1095,13 +1095,13 @@ export default function DesignSystemPage() {
           </div>
           <div>
             <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Mobile Dropdown (resize to mobile to see)</span>
-            <Tabs defaultValue="m1" mobileDropdown>
+            <Tabs mobileDropdown>
               <TabsList>
-                <TabsTrigger value="m1">First Tab</TabsTrigger>
-                <TabsTrigger value="m2">Second Tab</TabsTrigger>
-                <TabsTrigger value="m3">Third Tab</TabsTrigger>
+                <TabsTrigger>First Tab</TabsTrigger>
+                <TabsTrigger>Second Tab</TabsTrigger>
+                <TabsTrigger>Third Tab</TabsTrigger>
               </TabsList>
-              <TabsContent value="m1">
+              <TabsContent index={0}>
                 <Card variant="outline">
                   <h4 className="text-h4 mb-2">Mobile Dropdown Mode</h4>
                   <p className="text-body text-[var(--muted-foreground)]">
@@ -1110,7 +1110,7 @@ export default function DesignSystemPage() {
                   </p>
                 </Card>
               </TabsContent>
-              <TabsContent value="m2">
+              <TabsContent index={1}>
                 <Card variant="outline">
                   <h4 className="text-h4 mb-2">Second Tab Content</h4>
                   <p className="text-body text-[var(--muted-foreground)]">
@@ -1118,7 +1118,7 @@ export default function DesignSystemPage() {
                   </p>
                 </Card>
               </TabsContent>
-              <TabsContent value="m3">
+              <TabsContent index={2}>
                 <Card variant="outline">
                   <h4 className="text-h4 mb-2">Third Tab Content</h4>
                   <p className="text-body text-[var(--muted-foreground)]">
@@ -1508,19 +1508,19 @@ export default function DesignSystemPage() {
             </div>
           </div>
           <div>
-            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Padding Options (Desktop / Mobile)</span>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Padding Options</span>
             <div className="grid md:grid-cols-3 gap-6">
-              <Card paddingDesktop="4" paddingMobile="4">
+              <Card padding="sm">
                 <h4 className="text-h5 mb-2">Small Padding</h4>
-                <p className="text-p-sm text-[var(--muted-foreground)]">paddingDesktop=&quot;4&quot; paddingMobile=&quot;4&quot;</p>
+                <p className="text-p-sm text-[var(--muted-foreground)]">padding=&quot;sm&quot;</p>
               </Card>
-              <Card paddingDesktop="6" paddingMobile="4">
+              <Card padding="md">
                 <h4 className="text-h5 mb-2">Medium Padding (Default)</h4>
-                <p className="text-p-sm text-[var(--muted-foreground)]">paddingDesktop=&quot;6&quot; paddingMobile=&quot;4&quot;</p>
+                <p className="text-p-sm text-[var(--muted-foreground)]">padding=&quot;md&quot;</p>
               </Card>
-              <Card paddingDesktop="12" paddingMobile="8">
+              <Card padding="lg">
                 <h4 className="text-h5 mb-2">Large Padding</h4>
-                <p className="text-p-sm text-[var(--muted-foreground)]">paddingDesktop=&quot;12&quot; paddingMobile=&quot;8&quot;</p>
+                <p className="text-p-sm text-[var(--muted-foreground)]">padding=&quot;lg&quot;</p>
               </Card>
             </div>
           </div>
@@ -1554,7 +1554,7 @@ export default function DesignSystemPage() {
                   Learn More <ArrowRight className="h-4 w-4 ml-2" weight="bold" />
                 </Button>
               </Card>
-              <Card variant="filled" paddingDesktop="8" paddingMobile="6">
+              <Card variant="filled" padding="lg">
                 <div className="flex items-start gap-4">
                   <Icon icon={CheckCircle} size="md" color="brand" />
                   <div>

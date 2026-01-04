@@ -6,7 +6,7 @@ import {cn} from '@/lib/utils'
  * Card component - Mast design system card container
  *
  * A flexible card component that can contain any content.
- * Supports responsive padding and optional link functionality.
+ * Supports padding variants and optional link functionality.
  *
  * @example
  * // Basic card
@@ -16,9 +16,9 @@ import {cn} from '@/lib/utils'
  * </Card>
  *
  * @example
- * // Card with custom padding
- * <Card paddingDesktop="8" paddingMobile="4">
- *   <p>Content with responsive padding</p>
+ * // Card with large padding
+ * <Card padding="lg">
+ *   <p>Content with large padding</p>
  * </Card>
  *
  * @example
@@ -28,15 +28,13 @@ import {cn} from '@/lib/utils'
  * </Card>
  */
 
-export type CardPadding = '0' | '4' | '6' | '8' | '12' | '16'
+export type CardPadding = '0' | 'sm' | 'md' | 'lg'
 export type CardVariant = 'default' | 'outline' | 'filled' | 'ghost'
 
 interface CardProps {
   children: React.ReactNode
-  /** Padding on desktop (lg+) */
-  paddingDesktop?: CardPadding
-  /** Padding on mobile/tablet */
-  paddingMobile?: CardPadding
+  /** Padding size for card body */
+  padding?: CardPadding
   /** Card visual style */
   variant?: CardVariant
   /** Makes the entire card a link */
@@ -49,54 +47,44 @@ interface CardProps {
   className?: string
 }
 
-// Desktop padding classes (lg breakpoint)
-const paddingDesktopClasses: Record<CardPadding, string> = {
-  '0': 'lg:p-0',
-  '4': 'lg:p-4',
-  '6': 'lg:p-6',
-  '8': 'lg:p-8',
-  '12': 'lg:p-12',
-  '16': 'lg:p-16',
-}
-
-// Mobile padding classes (base)
-const paddingMobileClasses: Record<CardPadding, string> = {
-  '0': 'p-0',
-  '4': 'p-4',
-  '6': 'p-6',
-  '8': 'p-8',
-  '12': 'p-12',
-  '16': 'p-16',
-}
-
-// Variant classes
+// Mast card variant classes - default has border + background (no class needed)
 const variantClasses: Record<CardVariant, string> = {
-  default: 'bg-card-background border border-border',
-  outline: 'bg-transparent border border-border',
-  filled: 'bg-muted-background border border-transparent',
-  ghost: 'bg-transparent border border-transparent',
+  default: '',
+  outline: 'cc-outline',
+  filled: 'cc-filled',
+  ghost: 'cc-ghost',
+}
+
+// Mast card-body padding classes - md is default (no class needed)
+const paddingClasses: Record<CardPadding, string> = {
+  '0': 'cc-p-0',
+  'sm': 'cc-p-sm',
+  'md': '',
+  'lg': 'cc-p-lg',
 }
 
 export function Card({
   children,
-  paddingDesktop = '6',
-  paddingMobile = '4',
+  padding = 'md',
   variant = 'default',
   href,
   openInNewTab = false,
   hoverEffect = false,
   className,
 }: CardProps) {
-  const baseClasses = cn(
-    'rounded-lg overflow-hidden flex flex-col relative',
-    'transition-all duration-300 ease-out',
+  const cardClasses = cn(
+    'card',
     variantClasses[variant],
-    paddingMobileClasses[paddingMobile],
-    paddingDesktopClasses[paddingDesktop],
-    hoverEffect && 'hover:bg-muted-background hover:border-border',
-    href && 'cursor-pointer',
+    hoverEffect && 'cc-hover',
     className,
   )
+
+  const bodyClasses = cn(
+    'card-body',
+    paddingClasses[padding],
+  )
+
+  const content = <div className={bodyClasses}>{children}</div>
 
   // If href is provided, render as a link
   if (href) {
@@ -108,22 +96,22 @@ export function Card({
           href={href}
           target={openInNewTab ? '_blank' : undefined}
           rel={openInNewTab ? 'noopener noreferrer' : undefined}
-          className={cn(baseClasses, 'no-underline text-inherit')}
+          className={cardClasses}
         >
-          {children}
+          {content}
         </a>
       )
     }
 
     return (
-      <Link href={href} className={cn(baseClasses, 'no-underline text-inherit')}>
-        {children}
+      <Link href={href} className={cardClasses}>
+        {content}
       </Link>
     )
   }
 
   // Default: render as div
-  return <div className={baseClasses}>{children}</div>
+  return <div className={cardClasses}>{content}</div>
 }
 
 /**
@@ -135,7 +123,7 @@ interface CardHeaderProps {
 }
 
 export function CardHeader({children, className}: CardHeaderProps) {
-  return <div className={cn('mb-4', className)}>{children}</div>
+  return <div className={cn('card-header', className)}>{children}</div>
 }
 
 /**
@@ -147,7 +135,7 @@ interface CardContentProps {
 }
 
 export function CardContent({children, className}: CardContentProps) {
-  return <div className={cn('flex-1', className)}>{children}</div>
+  return <div className={cn('card-content', className)}>{children}</div>
 }
 
 /**
@@ -159,7 +147,7 @@ interface CardFooterProps {
 }
 
 export function CardFooter({children, className}: CardFooterProps) {
-  return <div className={cn('mt-4 pt-4 border-t border-border', className)}>{children}</div>
+  return <div className={cn('card-footer', className)}>{children}</div>
 }
 
 export default Card

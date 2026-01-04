@@ -19,12 +19,12 @@ interface ButtonBlockProps {
   index: number
 }
 
-// Alignment wrapper classes
+// Alignment wrapper classes - using Mast utility classes
 const alignClasses: Record<string, string> = {
-  left: 'flex justify-start',
-  center: 'flex justify-center',
-  right: 'flex justify-end',
-  full: 'flex',
+  left: '',
+  center: 'u-flex u-flex-center',
+  right: 'u-flex row-justify-end',
+  full: 'u-flex',
 }
 
 // Icon components using Lucide (shadcn's icon library)
@@ -53,16 +53,15 @@ export default function ButtonBlock({block}: ButtonBlockProps) {
   const cleanAlign = stegaClean(align)
   const cleanIcon = stegaClean(icon)
 
-  const alignClass = alignClasses[cleanAlign] || alignClasses.left
-  const fullWidthClass = cleanAlign === 'full' ? 'w-full' : ''
+  const alignClass = alignClasses[cleanAlign] || ''
+  const fullWidthClass = cleanAlign === 'full' ? 'u-w-full' : ''
 
   return (
-    <div className={cn(alignClass, 'mb-4')}>
+    <div className={cn(alignClass, 'u-mb-sm')}>
       <Button
         variant={cleanVariant}
         colorScheme={cleanColor}
         size={cleanSize}
-        rounded="full"
         className={fullWidthClass}
         asChild
       >

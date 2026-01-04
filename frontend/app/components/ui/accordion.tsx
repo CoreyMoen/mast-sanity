@@ -2,6 +2,8 @@
 
 import * as React from 'react'
 import {cn} from '@/lib/utils'
+import {useAccordion} from '@/app/hooks'
+import '@/app/components/accordion.css'
 
 /**
  * Accordion component - Mast design system accordion
@@ -30,22 +32,30 @@ import {cn} from '@/lib/utils'
 // Plus icon SVG that rotates to X when open (matching Mast framework)
 function PlusIcon({className}: {className?: string}) {
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 32 32"
-      fill="none"
-      className={cn('accordion-icon shrink-0 transition-transform duration-300', className)}
-    >
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M17 17L27.3137 17L27.3137 15H17V4.68631L15 4.68631L15 15H4.68629L4.68629 17L15 17V27.3137H17V17Z"
-        fill="currentColor"
-      />
-    </svg>
+    <div className={cn('accordion-icon', className)}>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="24"
+        height="24"
+        viewBox="0 0 32 32"
+        fill="none"
+      >
+        <path
+          fillRule="evenodd"
+          clipRule="evenodd"
+          d="M17 17L27.3137 17L27.3137 15H17V4.68631L15 4.68631L15 15H4.68629L4.68629 17L15 17V27.3137H17V17Z"
+          fill="currentColor"
+        />
+      </svg>
+    </div>
   )
+}
+
+// Title size class mappings
+const titleClasses = {
+  h3: 'h3',
+  h4: 'h4',
+  h5: 'h5',
 }
 
 interface AccordionProps {
@@ -66,7 +76,7 @@ const Accordion = React.forwardRef<HTMLDivElement, AccordionProps>(
     )
 
     return (
-      <div ref={ref} className={cn('divide-y divide-border', className)} role="list">
+      <div ref={ref} className={className} role="list">
         {React.Children.map(children, (child) => {
           if (React.isValidElement(child)) {
             return React.cloneElement(child as React.ReactElement<AccordionItemProps>, {
@@ -88,18 +98,53 @@ interface AccordionItemProps {
   defaultOpen?: boolean
   /** Name attribute for exclusive accordion behavior (injected by Accordion parent) */
   name?: string
+  /** Callback when open state changes */
+  onOpenChange?: (open: boolean) => void
 }
 
 const AccordionItem = React.forwardRef<HTMLDetailsElement, AccordionItemProps>(
-  ({children, className, defaultOpen = false, name}, ref) => {
+  ({children, className, defaultOpen = false, name, onOpenChange}, ref) => {
+    const {detailsRef, contentRef, handleClick} = useAccordion({
+      defaultOpen,
+      onOpenChange,
+    })
+
+    // Merge refs
+    const mergedRef = React.useCallback(
+      (node: HTMLDetailsElement | null) => {
+        (detailsRef as React.MutableRefObject<HTMLDetailsElement | null>).current = node
+        if (typeof ref === 'function') {
+          ref(node)
+        } else if (ref) {
+          ref.current = node
+        }
+      },
+      [detailsRef, ref]
+    )
+
     return (
       <details
-        ref={ref}
-        className={cn('accordion-component group', className)}
+        ref={mergedRef}
+        className={cn('accordion-component', className)}
         open={defaultOpen}
         name={name}
       >
-        {children}
+        {React.Children.map(children, (child) => {
+          if (React.isValidElement(child)) {
+            // Pass hook refs and handlers to trigger and content
+            if (child.type === AccordionTrigger) {
+              return React.cloneElement(child as React.ReactElement<AccordionTriggerInternalProps>, {
+                onClick: handleClick,
+              })
+            }
+            if (child.type === AccordionContent) {
+              return React.cloneElement(child as React.ReactElement<AccordionContentInternalProps>, {
+                contentRef,
+              })
+            }
+          }
+          return child
+        })}
       </details>
     )
   }
@@ -113,30 +158,24 @@ interface AccordionTriggerProps {
   as?: 'h3' | 'h4' | 'h5' | 'span'
 }
 
-const AccordionTrigger = React.forwardRef<HTMLElement, AccordionTriggerProps>(
-  ({children, className, as: Component = 'span'}, ref) => {
+interface AccordionTriggerInternalProps extends AccordionTriggerProps {
+  onClick?: (e: React.MouseEvent) => void
+}
+
+const AccordionTrigger = React.forwardRef<HTMLElement, AccordionTriggerInternalProps>(
+  ({children, className, as: Component = 'span', onClick}, ref) => {
+    const titleClass = Component !== 'span' ? titleClasses[Component] : titleClasses.h4
+
     return (
       <summary
         ref={ref as React.Ref<HTMLElement>}
-        className={cn(
-          'accordion-trigger flex cursor-pointer items-center justify-between py-4',
-          'list-none [&::-webkit-details-marker]:hidden',
-          'hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
-          className
-        )}
+        className={cn('accordion-trigger', className)}
+        onClick={onClick}
       >
-        <Component
-          className={cn(
-            'accordion-title',
-            Component === 'h3' && 'text-h3',
-            Component === 'h4' && 'text-h4',
-            Component === 'h5' && 'text-h5',
-            Component === 'span' && 'text-h4'
-          )}
-        >
+        <Component className={cn('accordion-title', titleClass)}>
           {children}
         </Component>
-        <PlusIcon className="text-muted-foreground group-open:rotate-45" />
+        <PlusIcon />
       </summary>
     )
   }
@@ -148,22 +187,30 @@ interface AccordionContentProps {
   className?: string
 }
 
-const AccordionContent = React.forwardRef<HTMLDivElement, AccordionContentProps>(
-  ({children, className}, ref) => {
+interface AccordionContentInternalProps extends AccordionContentProps {
+  contentRef?: React.RefObject<HTMLDivElement | null>
+}
+
+const AccordionContent = React.forwardRef<HTMLDivElement, AccordionContentInternalProps>(
+  ({children, className, contentRef}, ref) => {
+    // Merge refs
+    const mergedRef = React.useCallback(
+      (node: HTMLDivElement | null) => {
+        if (contentRef) {
+          (contentRef as React.MutableRefObject<HTMLDivElement | null>).current = node
+        }
+        if (typeof ref === 'function') {
+          ref(node)
+        } else if (ref) {
+          ref.current = node
+        }
+      },
+      [contentRef, ref]
+    )
+
     return (
-      <div
-        ref={ref}
-        className={cn(
-          'accordion-content overflow-hidden',
-          // Animate height using CSS grid trick
-          'grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-in-out',
-          'group-open:grid-rows-[1fr]',
-          className
-        )}
-      >
-        <div className="overflow-hidden">
-          <div className="accordion-content_spacer pb-4">{children}</div>
-        </div>
+      <div ref={mergedRef} className={cn('accordion-content', className)}>
+        <div className="accordion-content_spacer">{children}</div>
       </div>
     )
   }

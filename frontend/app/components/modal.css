@@ -1,0 +1,75 @@
+/* modal.css - Component-specific styles */
+
+/* Prevent body scroll when modal is open */
+body:has(dialog[open]) {
+  overflow: hidden !important;
+}
+
+/* Fade in animation */
+dialog.modal[open] {
+  animation: modal-fadein 400ms ease-out forwards;
+}
+
+/* Backdrop styling */
+dialog.modal::backdrop {
+  background: color-mix(in srgb, var(--color-black) 80%, transparent);
+}
+
+@keyframes modal-fadein {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* Custom scrollbar for modal content */
+dialog::-webkit-scrollbar {
+  width: 10px;
+}
+dialog::-webkit-scrollbar-track {
+  border-radius: 10px;
+  background-color: transparent;
+}
+dialog::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+  border: 2px solid var(--bg-primary);
+  background: var(--text-primary);
+}
+
+/* Size variants */
+dialog.modal.cc-sm { max-width: 24rem; }
+dialog.modal.cc-md { max-width: 32rem; }
+dialog.modal.cc-lg { max-width: 42rem; }
+dialog.modal.cc-xl { max-width: 56rem; }
+dialog.modal.cc-full { max-width: 90vw; }
+
+/* Video modal variant */
+dialog.modal.cc-video {
+  background: black;
+  padding: 0;
+  overflow: hidden;
+}
+
+.modal_video-wrapper {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  width: 100%;
+}
+
+.modal_video-wrapper iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.modal_close-button.cc-video {
+  position: absolute;
+  top: -0.75rem;
+  right: -0.75rem;
+  background: white;
+  border-radius: 50%;
+  padding: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+/* Base styles from mast-framework.css are in globals.css:
+   .modal, .modal_close-button, .modal_close-button_icon */

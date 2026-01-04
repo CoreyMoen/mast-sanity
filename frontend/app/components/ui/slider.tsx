@@ -13,6 +13,9 @@ import 'swiper/css/navigation'
 import 'swiper/css/pagination'
 import 'swiper/css/effect-fade'
 
+// Import Mast CSS component styles
+import '@/app/components/slider.css'
+
 type SlidesPerView = 1 | 2 | 3 | 4 | 5 | 6
 type NavigationPosition = 'below' | 'overlay-center' | 'overlay-edges' | 'sides'
 type SlideEffect = 'slide' | 'fade'
@@ -36,13 +39,21 @@ interface SliderProps {
   className?: string
 }
 
-// Convert Tailwind spacing scale to pixels
+// Convert gap scale to pixels
 const gapToPixels: Record<string, number> = {
   '0': 0,
   '2': 8,
   '4': 16,
   '6': 24,
   '8': 32,
+}
+
+// Navigation position class mapping
+const navPositionClasses: Record<NavigationPosition, string> = {
+  below: '',
+  'overlay-center': 'cc-nav-overlay-center',
+  'overlay-edges': 'cc-nav-overlay-edges',
+  sides: 'cc-nav-sides',
 }
 
 export function Slider({
@@ -71,7 +82,7 @@ export function Slider({
 
   const spaceBetween = gapToPixels[gap] || 16
 
-  // Determine if navigation is overlay or sides style
+  // Determine navigation position type
   const isOverlay = navigationPosition.startsWith('overlay')
   const isSides = navigationPosition === 'sides'
   const isBelow = navigationPosition === 'below'
@@ -104,20 +115,24 @@ export function Slider({
     direction,
     onClick,
     disabled,
+    overlay = false,
+    overlayEdge = false,
   }: {
     direction: 'prev' | 'next'
     onClick: () => void
     disabled: boolean
+    overlay?: boolean
+    overlayEdge?: boolean
   }) => (
     <button
       onClick={onClick}
       disabled={disabled && !loop}
       className={cn(
-        'flex h-10 w-10 items-center justify-center rounded-full border transition-all cursor-pointer',
-        isOverlay
-          ? 'border-white/30 bg-white/90 backdrop-blur-sm hover:bg-white disabled:bg-white/50 text-foreground'
-          : 'border-brand bg-brand text-white hover:bg-brand/90',
-        'disabled:opacity-40 disabled:cursor-not-allowed'
+        'slider-nav_button',
+        overlay && 'cc-overlay',
+        overlayEdge && 'cc-overlay-edge',
+        overlayEdge && direction === 'prev' && 'cc-prev',
+        overlayEdge && direction === 'next' && 'cc-next'
       )}
       aria-label={direction === 'prev' ? 'Previous slide' : 'Next slide'}
     >
@@ -130,17 +145,23 @@ export function Slider({
   )
 
   // Custom pagination component
-  const CustomPagination = () => {
+  const CustomPagination = ({standalone = false, overlayBottom = false}: {standalone?: boolean; overlayBottom?: boolean}) => {
     if (!showPagination || totalSlides <= 1) return null
     return (
-      <div className="flex items-center gap-2">
+      <div
+        className={cn(
+          'slider-pagination',
+          standalone && 'cc-standalone',
+          overlayBottom && 'cc-overlay-bottom'
+        )}
+      >
         {Array.from({length: totalSlides}).map((_, index) => (
           <button
             key={index}
             onClick={() => swiperInstance?.slideToLoop(index)}
             className={cn(
-              'h-2 w-2 rounded-full transition-all cursor-pointer',
-              index === activeIndex ? 'bg-brand w-4' : 'bg-muted-foreground/40 hover:bg-muted-foreground/60'
+              'slider-pagination_button',
+              index === activeIndex && 'cc-active'
             )}
             aria-label={`Go to slide ${index + 1}`}
             aria-current={index === activeIndex ? 'true' : 'false'}
@@ -164,14 +185,20 @@ export function Slider({
   return (
     <div
       className={cn(
-        'relative slider-container',
-        isSides && 'px-14',
+        'slider-component',
+        navPositionClasses[navigationPosition],
+        overflowVisible && 'cc-overflow-visible',
         className
       )}
+      style={{
+        '--slider-slides-desktop': slidesPerViewDesktop,
+        '--slider-slides-tablet': slidesPerViewTablet,
+        '--slider-slides-mobile': slidesPerViewMobile,
+      } as React.CSSProperties}
     >
       {/* Side Navigation - Left */}
       {showNavigation && isSides && (
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10">
+        <div className="slider-nav cc-sides-left">
           <NavButton direction="prev" onClick={handlePrev} disabled={isBeginning} />
         </div>
       )}
@@ -204,8 +231,6 @@ export function Slider({
         }
         onSwiper={handleInit}
         onSlideChange={handleSlideChange}
-        className={cn(overflowVisible && 'overflow-visible')}
-        style={overflowVisible ? {overflow: 'visible'} : undefined}
       >
         {slides.map((child, index) => (
           <SwiperSlide key={index}>{child}</SwiperSlide>
@@ -214,59 +239,57 @@ export function Slider({
 
       {/* Side Navigation - Right */}
       {showNavigation && isSides && (
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10">
+        <div className="slider-nav cc-sides-right">
           <NavButton direction="next" onClick={handleNext} disabled={isEnd} />
         </div>
       )}
 
       {/* Overlay Navigation - Center */}
       {showNavigation && navigationPosition === 'overlay-center' && (
-        <div className="absolute inset-x-0 bottom-4 flex items-center justify-center gap-4 z-10">
-          <NavButton direction="prev" onClick={handlePrev} disabled={isBeginning} />
+        <div className="slider-nav cc-overlay-center">
+          <NavButton direction="prev" onClick={handlePrev} disabled={isBeginning} overlay />
           <CustomPagination />
-          <NavButton direction="next" onClick={handleNext} disabled={isEnd} />
+          <NavButton direction="next" onClick={handleNext} disabled={isEnd} overlay />
         </div>
       )}
 
       {/* Overlay Navigation - Edges */}
       {showNavigation && navigationPosition === 'overlay-edges' && (
         <>
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
-            <NavButton direction="prev" onClick={handlePrev} disabled={isBeginning} />
-          </div>
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
-            <NavButton direction="next" onClick={handleNext} disabled={isEnd} />
-          </div>
-          {showPagination && (
-            <div className="absolute inset-x-0 bottom-4 flex justify-center z-10">
-              <CustomPagination />
-            </div>
-          )}
+          <NavButton
+            direction="prev"
+            onClick={handlePrev}
+            disabled={isBeginning}
+            overlay
+            overlayEdge
+          />
+          <NavButton
+            direction="next"
+            onClick={handleNext}
+            disabled={isEnd}
+            overlay
+            overlayEdge
+          />
+          {showPagination && <CustomPagination overlayBottom />}
         </>
       )}
 
       {/* Below Navigation (default) */}
       {showNavigation && isBelow && (
-        <div className="flex items-center justify-center gap-2 mt-6">
+        <div className="slider-nav cc-below">
           <NavButton direction="prev" onClick={handlePrev} disabled={isBeginning} />
-          <div className="mx-4">
-            <CustomPagination />
-          </div>
+          <CustomPagination />
           <NavButton direction="next" onClick={handleNext} disabled={isEnd} />
         </div>
       )}
 
       {/* Pagination only (no navigation) */}
-      {!showNavigation && showPagination && (
-        <div className="flex justify-center mt-6">
-          <CustomPagination />
-        </div>
-      )}
+      {!showNavigation && showPagination && <CustomPagination standalone />}
     </div>
   )
 }
 
 // Individual slide wrapper for semantic clarity (kept for backwards compatibility)
 export function SliderSlide({children, className}: {children: React.ReactNode; className?: string}) {
-  return <div className={cn('h-full', className)}>{children}</div>
+  return <div className={cn('slider-slide', className)}>{children}</div>
 }
