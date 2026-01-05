@@ -114,9 +114,7 @@ export function Slider({
       disabled={disabled && !loop}
       className={cn(
         'flex h-10 w-10 items-center justify-center rounded-full border transition-all cursor-pointer',
-        isOverlay
-          ? 'border-white/30 bg-white/90 backdrop-blur-sm hover:bg-white disabled:bg-white/50 text-foreground'
-          : 'border-brand bg-brand text-white hover:bg-brand/90',
+        'border-brand bg-brand text-white hover:bg-brand/90',
         'disabled:opacity-40 disabled:cursor-not-allowed'
       )}
       aria-label={direction === 'prev' ? 'Previous slide' : 'Next slide'}

@@ -2,6 +2,7 @@ import {stegaClean} from 'next-sanity'
 import {dataAttr} from '@/sanity/lib/utils'
 import ContentBlockRenderer from './ContentBlockRenderer'
 import ContentBlockOverlay from '@/app/components/overlays/ContentBlockOverlay'
+import ColumnOverlay from '@/app/components/overlays/ColumnOverlay'
 import Row from './Row'
 
 interface ColumnProps {
@@ -184,7 +185,8 @@ export default function Column({block, index, pageId, pageType, sectionKey, rowK
       data-sanity={columnDataSanity}
       style={inlineStyle}
     >
-      {contentBlocks.map((contentBlock, contentIndex) => {
+      <ColumnOverlay gap={gap}>
+        {contentBlocks.map((contentBlock, contentIndex) => {
         const blockDataSanity = pageId && pageType && basePath
           ? dataAttr({
               id: pageId,
@@ -201,13 +203,15 @@ export default function Column({block, index, pageId, pageType, sectionKey, rowK
               data-sanity={blockDataSanity}
               data-block-type={contentBlock._type}
             >
-              <Row
-                block={contentBlock}
-                index={contentIndex}
-                pageId={pageId}
-                pageType={pageType}
-                sectionKey={basePath ? `${basePath.replace('pageBuilder:', '')}.content:${contentBlock._key}` : undefined}
-              />
+              <ContentBlockOverlay blockType="row">
+                <Row
+                  block={contentBlock}
+                  index={contentIndex}
+                  pageId={pageId}
+                  pageType={pageType}
+                  sectionKey={basePath ? `${basePath.replace('pageBuilder:', '')}.content:${contentBlock._key}` : undefined}
+                />
+              </ContentBlockOverlay>
             </div>
           )
         }
@@ -227,6 +231,7 @@ export default function Column({block, index, pageId, pageType, sectionKey, rowK
           </div>
         )
       })}
+      </ColumnOverlay>
     </div>
   )
 }

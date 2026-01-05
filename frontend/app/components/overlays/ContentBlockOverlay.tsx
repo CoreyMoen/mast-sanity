@@ -1,7 +1,8 @@
 'use client'
 
-import {useState, useEffect, useRef, type ReactNode} from 'react'
+import {useState, useEffect, useRef, useId, type ReactNode} from 'react'
 import {useIsPresentationTool} from 'next-sanity/hooks'
+import {useOverlayHover} from './OverlayHoverContext'
 
 // Map schema types to friendly display names
 const typeLabels: Record<string, string> = {
@@ -53,10 +54,11 @@ interface ContentBlockOverlayProps {
 }
 
 export default function ContentBlockOverlay({blockType, children}: ContentBlockOverlayProps) {
-  const [isHovered, setIsHovered] = useState(false)
+  const overlayId = useId()
   const [isSelected, setIsSelected] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const isPresentationTool = useIsPresentationTool()
+  const {activeOverlayId, setActiveOverlay} = useOverlayHover()
 
   const label = typeLabels[blockType] || blockType
   const icon = typeIcons[label] || '\u25C7'
@@ -91,14 +93,32 @@ export default function ContentBlockOverlay({blockType, children}: ContentBlockO
     return <>{children}</>
   }
 
+  const isHovered = activeOverlayId === overlayId
   const showLabel = isHovered || isSelected
+
+  // Handle mouse events - set this overlay as active
+  const handleMouseOver = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setActiveOverlay(overlayId)
+  }
+
+  const handleMouseOut = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    // Only clear if we're actually leaving this container entirely
+    if (!containerRef.current?.contains(e.relatedTarget as Node)) {
+      // Only clear if we're still the active overlay
+      if (activeOverlayId === overlayId) {
+        setActiveOverlay(null)
+      }
+    }
+  }
 
   return (
     <div
       ref={containerRef}
       style={{position: 'relative'}}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      onMouseOver={handleMouseOver}
+      onMouseOut={handleMouseOut}
     >
       {showLabel && (
         <div

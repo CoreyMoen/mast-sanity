@@ -11,6 +11,7 @@ import DraftModeToast from '@/app/components/DraftModeToast'
 import Navigation from '@/app/components/Navigation'
 import FooterNew from '@/app/components/FooterNew'
 import VisualEditingWithPlugins from '@/app/components/overlays/VisualEditingWithPlugins'
+import {OverlayHoverProvider} from '@/app/components/overlays/OverlayHoverContext'
 import * as demo from '@/sanity/lib/demo'
 import {sanityFetch, SanityLive} from '@/sanity/lib/live'
 import {settingsQuery, navigationQuery, footerQuery} from '@/sanity/lib/queries'
@@ -116,7 +117,9 @@ export default async function RootLayout({children}: {children: React.ReactNode}
         {/* The <SanityLive> component is responsible for making all sanityFetch calls in your application live, so should always be rendered. */}
         <SanityLive onError={handleError} />
         <Navigation data={navigation} siteTitle={siteTitle} />
-        <main id="main" className="flex-1 pt-16 md:pt-20">{children}</main>
+        <OverlayHoverProvider>
+          <main id="main" className="flex-1 pt-16 md:pt-20">{children}</main>
+        </OverlayHoverProvider>
         <FooterNew data={footer} siteTitle={siteTitle} />
         <SpeedInsights />
       </body>

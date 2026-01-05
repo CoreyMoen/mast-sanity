@@ -189,13 +189,15 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
             data-block-type={item._type}
           >
             {item._type === 'row' ? (
-              <Row
-                block={item}
-                index={itemIndex}
-                pageId={pageId}
-                pageType={pageType}
-                sectionKey={block._key}
-              />
+              <ContentBlockOverlay blockType="row">
+                <Row
+                  block={item}
+                  index={itemIndex}
+                  pageId={pageId}
+                  pageType={pageType}
+                  sectionKey={block._key}
+                />
+              </ContentBlockOverlay>
             ) : (
               // Render content blocks directly (not wrapped in row/column)
               <ContentBlockOverlay blockType={item._type}>
