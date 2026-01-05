@@ -12,11 +12,13 @@
     "build": "sanity build",
     "deploy": "sanity deploy",
     "dev": "sanity dev",
+    "dev:docker": "sanity dev --host 0.0.0.0",
     "extract-types": "sanity schema extract --enforce-required-fields",
     "start": "sanity start",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@phosphor-icons/react": "^2.1.10",
     "@sanity/assist": "^5.0.2",
     "@sanity/icons": "^3.7.4",
     "@sanity/vision": "^4.20.0",

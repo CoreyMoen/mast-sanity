@@ -28,15 +28,13 @@ import {cn} from '@/lib/utils'
  * </Card>
  */
 
-export type CardPadding = '0' | '4' | '6' | '8' | '12' | '16'
+export type CardPadding = 'none' | 'sm' | 'md' | 'lg'
 export type CardVariant = 'default' | 'outline' | 'filled' | 'ghost'
 
 interface CardProps {
   children: React.ReactNode
-  /** Padding on desktop (lg+) */
-  paddingDesktop?: CardPadding
-  /** Padding on mobile/tablet */
-  paddingMobile?: CardPadding
+  /** Padding size - uses fluid CSS variables */
+  padding?: CardPadding
   /** Card visual style */
   variant?: CardVariant
   /** Makes the entire card a link */
@@ -49,24 +47,12 @@ interface CardProps {
   className?: string
 }
 
-// Desktop padding classes (lg breakpoint)
-const paddingDesktopClasses: Record<CardPadding, string> = {
-  '0': 'lg:p-0',
-  '4': 'lg:p-4',
-  '6': 'lg:p-6',
-  '8': 'lg:p-8',
-  '12': 'lg:p-12',
-  '16': 'lg:p-16',
-}
-
-// Mobile padding classes (base)
-const paddingMobileClasses: Record<CardPadding, string> = {
-  '0': 'p-0',
-  '4': 'p-4',
-  '6': 'p-6',
-  '8': 'p-8',
-  '12': 'p-12',
-  '16': 'p-16',
+// Simplified padding - uses fluid CSS variable-based sizing
+const paddingClasses: Record<CardPadding, string> = {
+  none: 'p-0',
+  sm: 'p-3 md:p-4',
+  md: 'card-padding', // Uses fluid clamp() from CSS
+  lg: 'p-6 md:p-8 lg:p-10',
 }
 
 // Variant classes
@@ -79,8 +65,7 @@ const variantClasses: Record<CardVariant, string> = {
 
 export function Card({
   children,
-  paddingDesktop = '6',
-  paddingMobile = '4',
+  padding = 'md',
   variant = 'default',
   href,
   openInNewTab = false,
@@ -88,11 +73,10 @@ export function Card({
   className,
 }: CardProps) {
   const baseClasses = cn(
-    'rounded-lg overflow-hidden flex flex-col relative',
+    'rounded-[var(--component-card-radius)] overflow-hidden flex flex-col relative',
     'transition-all duration-300 ease-out',
     variantClasses[variant],
-    paddingMobileClasses[paddingMobile],
-    paddingDesktopClasses[paddingDesktop],
+    paddingClasses[padding],
     hoverEffect && 'hover:bg-muted-background hover:border-border',
     href && 'cursor-pointer',
     className,

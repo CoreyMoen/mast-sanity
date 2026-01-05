@@ -47,9 +47,10 @@ export const headingBlock = defineType({
       title: 'Visual Size',
       type: 'string',
       group: 'content',
-      description: 'Visual size using fluid typography (can differ from semantic level)',
+      description: 'Override the visual size (default inherits from heading level)',
       options: {
         list: [
+          {title: 'Inherit from Level', value: 'inherit'},
           {title: 'H1 (44-88px)', value: 'h1'},
           {title: 'H2 (32-61px)', value: 'h2'},
           {title: 'H3 (24-37px)', value: 'h3'},
@@ -57,8 +58,10 @@ export const headingBlock = defineType({
           {title: 'H5 (18-19px)', value: 'h5'},
           {title: 'H6 (14-16px)', value: 'h6'},
         ],
+        layout: 'dropdown',
       },
-      initialValue: 'h2',
+      initialValue: 'inherit',
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'align',

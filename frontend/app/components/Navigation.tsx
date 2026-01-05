@@ -159,6 +159,12 @@ function NavLinkItem({
 
 export default function Navigation({data, siteTitle = 'Mast Sanity'}: NavigationProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
+  const [mounted, setMounted] = React.useState(false)
+
+  // Prevent hydration mismatch with Radix NavigationMenu IDs
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const linkClasses =
     'inline-flex items-center justify-center gap-1.5 px-4 py-2.5 text-body font-medium transition-colors duration-300 hover:text-brand focus:text-brand focus:outline-none cursor-pointer'
@@ -200,62 +206,81 @@ export default function Navigation({data, siteTitle = 'Mast Sanity'}: Navigation
 
             {/* Desktop Navigation and CTA - aligned to the right */}
             <div className="hidden md:flex items-center gap-4 ml-auto">
-              <NavigationMenu.Root className="relative">
-                <NavigationMenu.List className="flex items-center">
-                  {(data?.items?.length ? data.items : defaultNavItems).map((item) => (
-                    <NavigationMenu.Item key={item._key} className="relative">
-                      {item.type === 'dropdown' && item.dropdownLinks?.length ? (
-                        <>
-                          <NavigationMenu.Trigger
-                            className={cn(
-                              linkClasses,
-                              'group data-[state=open]:text-brand'
-                            )}
-                          >
-                            {item.label}
-                            <CaretDown
-                              className="h-4 w-4 transition-transform duration-300 group-data-[state=open]:rotate-180"
-                              weight="bold"
-                            />
-                          </NavigationMenu.Trigger>
-                          <NavigationMenu.Content className="absolute left-0 top-full mt-2 min-w-[200px] rounded-lg border border-border bg-background py-1 shadow-lg">
-                            {item.dropdownLinks.map((dropdownLink) => (
-                              <NavigationMenu.Link key={dropdownLink._key} asChild>
-                                <NavLinkItem
-                                  href={resolveLink(dropdownLink.link)}
-                                  openInNewTab={dropdownLink.link?.openInNewTab}
-                                  className={dropdownLinkClasses}
-                                >
-                                  {dropdownLink.label}
-                                </NavLinkItem>
-                              </NavigationMenu.Link>
-                            ))}
-                          </NavigationMenu.Content>
-                        </>
-                      ) : (
-                        <NavigationMenu.Link asChild>
-                          <NavLinkItem
-                            href={resolveLink(item.link)}
-                            openInNewTab={item.link?.openInNewTab}
-                            className={linkClasses}
-                          >
-                            {item.label}
-                          </NavLinkItem>
-                        </NavigationMenu.Link>
-                      )}
-                    </NavigationMenu.Item>
-                  ))}
-                </NavigationMenu.List>
+              {/* Only render NavigationMenu after mount to prevent hydration mismatch */}
+              {mounted ? (
+                <NavigationMenu.Root className="relative">
+                  <NavigationMenu.List className="flex items-center">
+                    {(data?.items?.length ? data.items : defaultNavItems).map((item) => (
+                      <NavigationMenu.Item key={item._key} className="relative">
+                        {item.type === 'dropdown' && item.dropdownLinks?.length ? (
+                          <>
+                            <NavigationMenu.Trigger
+                              className={cn(
+                                linkClasses,
+                                'group data-[state=open]:text-brand'
+                              )}
+                            >
+                              {item.label}
+                              <CaretDown
+                                className="h-4 w-4 transition-transform duration-300 group-data-[state=open]:rotate-180"
+                                weight="bold"
+                              />
+                            </NavigationMenu.Trigger>
+                            <NavigationMenu.Content className="absolute left-0 top-full mt-2 min-w-[200px] rounded-lg border border-border bg-background py-1 shadow-lg">
+                              {item.dropdownLinks.map((dropdownLink) => (
+                                <NavigationMenu.Link key={dropdownLink._key} asChild>
+                                  <NavLinkItem
+                                    href={resolveLink(dropdownLink.link)}
+                                    openInNewTab={dropdownLink.link?.openInNewTab}
+                                    className={dropdownLinkClasses}
+                                  >
+                                    {dropdownLink.label}
+                                  </NavLinkItem>
+                                </NavigationMenu.Link>
+                              ))}
+                            </NavigationMenu.Content>
+                          </>
+                        ) : (
+                          <NavigationMenu.Link asChild>
+                            <NavLinkItem
+                              href={resolveLink(item.link)}
+                              openInNewTab={item.link?.openInNewTab}
+                              className={linkClasses}
+                            >
+                              {item.label}
+                            </NavLinkItem>
+                          </NavigationMenu.Link>
+                        )}
+                      </NavigationMenu.Item>
+                    ))}
+                  </NavigationMenu.List>
 
-                <NavigationMenu.Viewport className="absolute top-full left-0" />
-              </NavigationMenu.Root>
+                  <NavigationMenu.Viewport className="absolute top-full left-0" />
+                </NavigationMenu.Root>
+              ) : (
+                // SSR fallback - simple nav links without Radix
+                <nav className="flex items-center">
+                  {(data?.items?.length ? data.items : defaultNavItems).map((item) => (
+                    <NavLinkItem
+                      key={item._key}
+                      href={resolveLink(item.link)}
+                      openInNewTab={item.link?.openInNewTab}
+                      className={linkClasses}
+                    >
+                      {item.label}
+                      {item.type === 'dropdown' && (
+                        <CaretDown className="h-4 w-4" weight="bold" />
+                      )}
+                    </NavLinkItem>
+                  ))}
+                </nav>
+              )}
 
               {/* CTA Button */}
               {(data?.showCta ?? defaultCta.show) && (data?.ctaLabel || defaultCta.label) && (
                 <Button
                   variant={data?.ctaStyle || defaultCta.style}
                   colorScheme="brand"
-                  size="md"
                   asChild
                 >
                   <NavLinkItem
@@ -300,38 +325,44 @@ export default function Navigation({data, siteTitle = 'Mast Sanity'}: Navigation
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        <div
-          className={cn(
-            'fixed inset-0 top-16 z-40 bg-[var(--primary-background)] transition-transform duration-300 md:hidden md:top-20',
-            mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
-          )}
-        >
-          <div className="container h-full overflow-y-auto py-6">
-            <nav className="flex flex-col gap-2">
-              {(data?.items?.length ? data.items : defaultNavItems).map((item) => (
-                <div key={item._key}>
-                  {item.type === 'dropdown' && item.dropdownLinks?.length ? (
-                    <MobileDropdown item={item} onLinkClick={() => setMobileMenuOpen(false)} />
-                  ) : (
-                    <NavLinkItem
-                      href={resolveLink(item.link)}
-                      openInNewTab={item.link?.openInNewTab}
-                      className="block py-3 text-h4 font-medium transition-colors hover:text-brand"
-                    >
-                      <span onClick={() => setMobileMenuOpen(false)}>{item.label}</span>
-                    </NavLinkItem>
-                  )}
-                </div>
-              ))}
+      </header>
 
-              {(data?.showCta ?? defaultCta.show) && (data?.ctaLabel || defaultCta.label) && (
-                <div className="mt-6 pt-6 border-t border-[var(--primary-border)]">
+      {/* Mobile Menu - Full screen overlay with fade */}
+      <div
+        className={cn(
+          'fixed inset-0 z-[60] bg-[var(--primary-background)] transition-opacity duration-300 md:hidden',
+          mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        )}
+      >
+        {/* Mobile menu header with logo, CTA, and close button */}
+        <div className="border-b border-[var(--primary-border)]">
+          <div className="container">
+            <div className="flex h-16 items-center justify-between">
+              {/* Logo */}
+              <Link
+                href="/"
+                className="flex-shrink-0 text-brand transition-opacity duration-300 hover:opacity-80"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                {hasLogoImage ? (
+                  <Image
+                    src={urlForImage(data.logoImage)?.width(200).height(50).url() || ''}
+                    alt={data.logoImage?.alt || siteTitle}
+                    width={80}
+                    height={32}
+                    className="w-20 h-auto"
+                  />
+                ) : (
+                  <MastLogo className="w-20 h-auto" />
+                )}
+              </Link>
+
+              {/* CTA and Close button */}
+              <div className="flex items-center gap-4">
+                {(data?.showCta ?? defaultCta.show) && (data?.ctaLabel || defaultCta.label) && (
                   <Button
                     variant={data?.ctaStyle || defaultCta.style}
                     colorScheme="brand"
-                    size="lg"
-                    className="w-full"
                     asChild
                   >
                     <NavLinkItem
@@ -341,12 +372,51 @@ export default function Navigation({data, siteTitle = 'Mast Sanity'}: Navigation
                       <span onClick={() => setMobileMenuOpen(false)}>{data?.ctaLabel || defaultCta.label}</span>
                     </NavLinkItem>
                   </Button>
-                </div>
-              )}
-            </nav>
+                )}
+
+                {/* Close button */}
+                <button
+                  type="button"
+                  className="flex h-10 w-10 cursor-pointer items-center justify-center"
+                  onClick={() => setMobileMenuOpen(false)}
+                  aria-label="Close menu"
+                >
+                  <svg
+                    className="h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </header>
+
+        {/* Mobile menu content */}
+        <div className="container h-[calc(100%-4rem)] overflow-y-auto py-6">
+          <nav className="flex flex-col gap-4">
+            {(data?.items?.length ? data.items : defaultNavItems).map((item) => (
+              <div key={item._key}>
+                {item.type === 'dropdown' && item.dropdownLinks?.length ? (
+                  <MobileDropdown item={item} onLinkClick={() => setMobileMenuOpen(false)} />
+                ) : (
+                  <NavLinkItem
+                    href={resolveLink(item.link)}
+                    openInNewTab={item.link?.openInNewTab}
+                    className="block py-3 text-h4 font-medium transition-colors hover:text-brand"
+                  >
+                    <span onClick={() => setMobileMenuOpen(false)}>{item.label}</span>
+                  </NavLinkItem>
+                )}
+              </div>
+            ))}
+          </nav>
+        </div>
+      </div>
     </>
   )
 }
@@ -381,16 +451,17 @@ function MobileDropdown({
       <div
         className={cn(
           'overflow-hidden transition-all duration-300',
-          isOpen ? 'max-h-96' : 'max-h-0'
+          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
         )}
       >
-        <div className="pl-4 pb-2">
+        {/* Bordered container for dropdown links - matches Mast Webflow style */}
+        <div className="mt-2 rounded-lg border border-[var(--primary-border)] p-2">
           {item.dropdownLinks?.map((dropdownLink) => (
             <NavLinkItem
               key={dropdownLink._key}
               href={resolveLink(dropdownLink.link)}
               openInNewTab={dropdownLink.link?.openInNewTab}
-              className="block py-2.5 text-body text-muted-foreground transition-colors hover:text-brand"
+              className="block px-4 py-3 text-body transition-colors hover:text-brand"
             >
               <span onClick={onLinkClick}>{dropdownLink.label}</span>
             </NavLinkItem>

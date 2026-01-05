@@ -1,0 +1,10 @@
+services:
+  studio:
+    build: .
+    ports:
+      - "3333:3333"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - /app/node_modules

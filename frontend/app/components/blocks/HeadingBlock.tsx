@@ -9,7 +9,8 @@ interface HeadingBlockProps {
     _type: string
     text?: string
     level?: HeadingLevel
-    size?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+    /** Visual size - 'inherit' uses the heading level's default size */
+    size?: 'inherit' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
     align?: 'left' | 'center' | 'right'
     color?: 'default' | 'gray' | 'white' | 'brand' | 'blue'
     customStyle?: string
@@ -67,7 +68,7 @@ export default function HeadingBlock({block}: HeadingBlockProps) {
   const {
     text = '',
     level = 'h2',
-    size = 'h2',
+    size = 'inherit',
     align = 'left',
     color = 'default',
     customStyle,
@@ -79,7 +80,9 @@ export default function HeadingBlock({block}: HeadingBlockProps) {
   const cleanColor = stegaClean(color)
   const cleanLevel = stegaClean(level) as HeadingLevel
 
-  const sizeClass = sizeClasses[cleanSize] || sizeClasses.h2
+  // If size is 'inherit' or not set, use the heading level for visual size
+  const effectiveSize = cleanSize === 'inherit' || !cleanSize ? cleanLevel : cleanSize
+  const sizeClass = sizeClasses[effectiveSize] || sizeClasses[cleanLevel]
   const alignClass = alignClasses[cleanAlign] || alignClasses.left
   const colorClass = colorClasses[cleanColor] || colorClasses.default
   const className = `${sizeClass} ${alignClass} ${colorClass} mb-4`

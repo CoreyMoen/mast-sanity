@@ -25,7 +25,8 @@ interface ModalBlockProps {
   modalId?: string
   triggerLabel?: string
   triggerVariant?: 'primary' | 'secondary' | 'ghost'
-  triggerColor?: 'black' | 'brand' | 'blue' | 'white'
+  /** Brand, black, or white. Legacy 'blue' maps to 'brand' */
+  triggerColor?: 'brand' | 'black' | 'white' | 'blue'
   contentType?: 'content' | 'video'
   modalTitle?: string
   modalSize?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
@@ -57,7 +58,9 @@ export default function ModalBlock({
   const cleanContentType = stegaClean(contentType)
   const cleanModalSize = stegaClean(modalSize)
   const cleanTriggerVariant = stegaClean(triggerVariant)
-  const cleanTriggerColor = stegaClean(triggerColor)
+  // Map legacy 'blue' color to 'brand' for backwards compatibility
+  const rawTriggerColor = stegaClean(triggerColor)
+  const cleanTriggerColor = (rawTriggerColor === 'blue' ? 'brand' : rawTriggerColor) as 'brand' | 'black' | 'white'
   const cleanModalId = stegaClean(modalId)
 
   // Check URL parameter for opening modal

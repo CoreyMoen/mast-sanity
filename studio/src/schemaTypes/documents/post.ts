@@ -1,6 +1,7 @@
 import {DocumentTextIcon} from '@sanity/icons'
 import {format, parseISO} from 'date-fns'
 import {defineField, defineType} from 'sanity'
+import {PostFormInput} from '../components/PostFormInput'
 
 /**
  * Post schema.  Define and edit the fields for the 'post' content type.
@@ -12,6 +13,10 @@ export const post = defineType({
   title: 'Post',
   icon: DocumentTextIcon,
   type: 'document',
+  // Add banner at top of document form
+  components: {
+    input: PostFormInput,
+  },
   fields: [
     defineField({
       name: 'title',

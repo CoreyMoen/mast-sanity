@@ -3,7 +3,7 @@ import {LaunchIcon} from '@sanity/icons'
 
 /**
  * Button Block schema - Configurable button/link element.
- * Supports multiple styles, sizes, and link types.
+ * Size is controlled globally via CSS variables.
  */
 export const buttonBlock = defineType({
   name: 'buttonBlock',
@@ -41,45 +41,16 @@ export const buttonBlock = defineType({
       name: 'color',
       title: 'Color',
       type: 'string',
+      description: 'Use White for buttons on dark backgrounds',
       options: {
         list: [
-          {title: 'Black', value: 'black'},
           {title: 'Brand', value: 'brand'},
-          {title: 'Blue', value: 'blue'},
-          {title: 'White', value: 'white'},
-        ],
-      },
-      initialValue: 'black',
-    }),
-    defineField({
-      name: 'size',
-      title: 'Size',
-      type: 'string',
-      options: {
-        list: [
-          {title: 'Small', value: 'sm'},
-          {title: 'Medium', value: 'md'},
-          {title: 'Large', value: 'lg'},
-        ],
-        layout: 'radio',
-        direction: 'horizontal',
-      },
-      initialValue: 'md',
-    }),
-    defineField({
-      name: 'align',
-      title: 'Alignment',
-      type: 'string',
-      options: {
-        list: [
-          {title: 'Left', value: 'left'},
-          {title: 'Center', value: 'center'},
-          {title: 'Right', value: 'right'},
-          {title: 'Full Width', value: 'full'},
+          {title: 'Black', value: 'black'},
+          {title: 'White (for dark backgrounds)', value: 'white'},
         ],
         layout: 'radio',
       },
-      initialValue: 'left',
+      initialValue: 'brand',
     }),
     defineField({
       name: 'icon',

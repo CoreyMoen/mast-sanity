@@ -1,7 +1,7 @@
 'use client'
 
 import {stegaClean} from 'next-sanity'
-import {Tabs, TabsList, TabsTrigger, TabsContent} from '../ui/tabs'
+import {Tabs, TabsList, TabsTrigger, TabsContent, TabsPlayPause} from '../ui/tabs'
 import ContentBlockRenderer from './ContentBlockRenderer'
 
 interface TabContent {
@@ -13,6 +13,7 @@ interface TabContent {
 interface TabItem {
   _key: string
   label: string
+  icon?: string
   content?: TabContent[]
 }
 
@@ -90,6 +91,9 @@ export default function TabsBlock({block}: TabsBlockProps) {
             ))}
           </TabsContent>
         ))}
+
+        {/* Play/Pause button positioned below tab content */}
+        <TabsPlayPause className="mt-4" />
       </Tabs>
     </div>
   )

@@ -1,5 +1,5 @@
 import {Button} from '@/app/components/ui/button'
-import {Icon} from '@/app/components/ui/icon'
+import {Icon} from '@/app/components/ui/Icon'
 import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from '@/app/components/ui/accordion'
 import {Divider} from '@/app/components/ui/divider'
 import {Card} from '@/app/components/ui/card'
@@ -232,117 +232,54 @@ export default function DesignSystemPage() {
         </div>
       </Section>
 
-      {/* Buttons */}
-      <Section title="Buttons - Primary Variant">
+      {/* Buttons - Simplified to match Mast for Webflow */}
+      <Section title="Buttons">
+        <p className="text-p-lg text-[var(--muted-foreground)] mb-8">
+          Simplified to 3 variants (primary, secondary, ghost) and 3 color schemes (brand, black, white).
+          Uses CSS variables for consistent sizing.
+        </p>
         <div className="space-y-8">
           <div>
-            <span className="text-sm text-[var(--muted-foreground)] mb-4 block">Color Schemes</span>
+            <span className="text-sm text-[var(--muted-foreground)] mb-4 block">Primary Variant</span>
             <div className="flex flex-wrap gap-4">
+              <Button variant="primary" colorScheme="brand">
+                Brand (Default)
+              </Button>
               <Button variant="primary" colorScheme="black">
                 Black
-              </Button>
-              <Button variant="primary" colorScheme="brand">
-                Brand
-              </Button>
-              <Button variant="primary" colorScheme="blue">
-                Blue
-              </Button>
-              <Button variant="primary" colorScheme="white" className="border border-[var(--primary-border)]">
-                White
               </Button>
             </div>
           </div>
           <div>
-            <span className="text-sm text-[var(--muted-foreground)] mb-4 block">Sizes</span>
-            <div className="flex flex-wrap items-center gap-4">
-              <Button variant="primary" colorScheme="black" size="sm">
-                Small
+            <span className="text-sm text-[var(--muted-foreground)] mb-4 block">Secondary Variant (Outline)</span>
+            <div className="flex flex-wrap gap-4">
+              <Button variant="secondary" colorScheme="brand">
+                Brand Outline
               </Button>
-              <Button variant="primary" colorScheme="black" size="md">
-                Medium
+              <Button variant="secondary" colorScheme="black">
+                Black Outline
               </Button>
-              <Button variant="primary" colorScheme="black" size="lg">
-                Large
+            </div>
+          </div>
+          <div>
+            <span className="text-sm text-[var(--muted-foreground)] mb-4 block">Ghost Variant</span>
+            <div className="flex flex-wrap gap-4">
+              <Button variant="ghost" colorScheme="brand">
+                Brand Ghost
+              </Button>
+              <Button variant="ghost" colorScheme="black">
+                Black Ghost
               </Button>
             </div>
           </div>
           <div>
             <span className="text-sm text-[var(--muted-foreground)] mb-4 block">With Icons</span>
             <div className="flex flex-wrap gap-4">
-              <Button variant="primary" colorScheme="black">
+              <Button variant="primary" colorScheme="brand">
                 Continue <ArrowRight className="h-4 w-4 ml-2" weight="bold" />
               </Button>
-              <Button variant="primary" colorScheme="brand">
-                External <ArrowUpRight className="h-4 w-4 ml-2" weight="bold" />
-              </Button>
-              <Button variant="primary" colorScheme="blue">
-                Download <Download className="h-4 w-4 ml-2" weight="bold" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      <Section title="Buttons - Secondary Variant">
-        <div className="space-y-8">
-          <div>
-            <span className="text-sm text-[var(--muted-foreground)] mb-4 block">Color Schemes</span>
-            <div className="flex flex-wrap gap-4">
               <Button variant="secondary" colorScheme="black">
-                Black
-              </Button>
-              <Button variant="secondary" colorScheme="brand">
-                Brand
-              </Button>
-              <Button variant="secondary" colorScheme="blue">
-                Blue
-              </Button>
-            </div>
-          </div>
-          <div>
-            <span className="text-sm text-[var(--muted-foreground)] mb-4 block">Sizes</span>
-            <div className="flex flex-wrap items-center gap-4">
-              <Button variant="secondary" colorScheme="black" size="sm">
-                Small
-              </Button>
-              <Button variant="secondary" colorScheme="black" size="md">
-                Medium
-              </Button>
-              <Button variant="secondary" colorScheme="black" size="lg">
-                Large
-              </Button>
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      <Section title="Buttons - Ghost Variant">
-        <div className="space-y-8">
-          <div>
-            <span className="text-sm text-[var(--muted-foreground)] mb-4 block">Color Schemes</span>
-            <div className="flex flex-wrap gap-4">
-              <Button variant="ghost" colorScheme="black">
-                Black
-              </Button>
-              <Button variant="ghost" colorScheme="brand">
-                Brand
-              </Button>
-              <Button variant="ghost" colorScheme="blue">
-                Blue
-              </Button>
-            </div>
-          </div>
-          <div>
-            <span className="text-sm text-[var(--muted-foreground)] mb-4 block">Sizes</span>
-            <div className="flex flex-wrap items-center gap-4">
-              <Button variant="ghost" colorScheme="black" size="sm">
-                Small
-              </Button>
-              <Button variant="ghost" colorScheme="black" size="md">
-                Medium
-              </Button>
-              <Button variant="ghost" colorScheme="black" size="lg">
-                Large
+                External <ArrowUpRight className="h-4 w-4 ml-2" weight="bold" />
               </Button>
             </div>
           </div>
@@ -1508,19 +1445,23 @@ export default function DesignSystemPage() {
             </div>
           </div>
           <div>
-            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Padding Options (Desktop / Mobile)</span>
-            <div className="grid md:grid-cols-3 gap-6">
-              <Card paddingDesktop="4" paddingMobile="4">
-                <h4 className="text-h5 mb-2">Small Padding</h4>
-                <p className="text-p-sm text-[var(--muted-foreground)]">paddingDesktop=&quot;4&quot; paddingMobile=&quot;4&quot;</p>
+            <span className="text-p-sm text-[var(--muted-foreground)] mb-4 block">Simplified Padding (uses CSS variables for fluid sizing)</span>
+            <div className="grid md:grid-cols-4 gap-6">
+              <Card padding="none">
+                <h4 className="text-h5 mb-2">None</h4>
+                <p className="text-p-sm text-[var(--muted-foreground)]">padding=&quot;none&quot;</p>
               </Card>
-              <Card paddingDesktop="6" paddingMobile="4">
-                <h4 className="text-h5 mb-2">Medium Padding (Default)</h4>
-                <p className="text-p-sm text-[var(--muted-foreground)]">paddingDesktop=&quot;6&quot; paddingMobile=&quot;4&quot;</p>
+              <Card padding="sm">
+                <h4 className="text-h5 mb-2">Small</h4>
+                <p className="text-p-sm text-[var(--muted-foreground)]">padding=&quot;sm&quot;</p>
               </Card>
-              <Card paddingDesktop="12" paddingMobile="8">
-                <h4 className="text-h5 mb-2">Large Padding</h4>
-                <p className="text-p-sm text-[var(--muted-foreground)]">paddingDesktop=&quot;12&quot; paddingMobile=&quot;8&quot;</p>
+              <Card padding="md">
+                <h4 className="text-h5 mb-2">Medium (Default)</h4>
+                <p className="text-p-sm text-[var(--muted-foreground)]">padding=&quot;md&quot;</p>
+              </Card>
+              <Card padding="lg">
+                <h4 className="text-h5 mb-2">Large</h4>
+                <p className="text-p-sm text-[var(--muted-foreground)]">padding=&quot;lg&quot;</p>
               </Card>
             </div>
           </div>
@@ -1550,11 +1491,11 @@ export default function DesignSystemPage() {
                 <p className="text-body text-[var(--muted-foreground)] mb-4">
                   Cards can contain any combination of icons, headings, text, buttons, and more.
                 </p>
-                <Button variant="primary" colorScheme="brand" size="sm">
+                <Button variant="primary" colorScheme="brand">
                   Learn More <ArrowRight className="h-4 w-4 ml-2" weight="bold" />
                 </Button>
               </Card>
-              <Card variant="filled" paddingDesktop="8" paddingMobile="6">
+              <Card variant="filled" padding="lg">
                 <div className="flex items-start gap-4">
                   <Icon icon={CheckCircle} size="md" color="brand" />
                   <div>
@@ -1664,8 +1605,8 @@ export default function DesignSystemPage() {
               },
               {
                 name: 'ButtonBlock',
-                description: 'Call-to-action buttons with variant, color, and size options',
-                props: ['variant', 'color', 'size', 'align', 'icon'],
+                description: 'Call-to-action buttons with variant and color options',
+                props: ['variant', 'color', 'icon'],
               },
               {
                 name: 'ImageBlock',

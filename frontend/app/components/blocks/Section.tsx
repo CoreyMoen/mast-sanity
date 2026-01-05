@@ -20,7 +20,6 @@ interface SectionProps {
     maxWidth?: string
     paddingTop?: string
     paddingBottom?: string
-    paddingX?: string
   }
   index: number
   pageId: string
@@ -53,30 +52,20 @@ const maxWidthClasses: Record<string, string> = {
   '2xl': 'max-w-screen-2xl mx-auto',
 }
 
-// Padding mapping
-const paddingTopClasses: Record<string, string> = {
-  '0': 'pt-0',
-  '4': 'pt-4',
-  '8': 'pt-8',
-  '12': 'pt-12',
-  '16': 'pt-16',
-  '24': 'pt-24',
-}
-
-const paddingBottomClasses: Record<string, string> = {
-  '0': 'pb-0',
-  '4': 'pb-4',
-  '8': 'pb-8',
-  '12': 'pb-12',
-  '16': 'pb-16',
-  '24': 'pb-24',
-}
-
-const paddingXClasses: Record<string, string> = {
-  '0': 'px-0',
-  '4': 'px-4',
-  '6': 'px-6',
-  '8': 'px-8',
+// Simplified padding - uses CSS variable-based fluid spacing
+// Presets: 'none', 'compact', 'default' (fluid), 'spacious'
+const paddingPresets: Record<string, string> = {
+  none: '',
+  compact: 'py-6 md:py-8 lg:py-12',
+  default: 'section-padding', // Uses fluid clamp() from CSS
+  spacious: 'py-16 md:py-24 lg:py-32',
+  // Legacy support for numeric values (maps to closest preset)
+  '0': '',
+  '4': 'py-4',
+  '8': 'py-6 md:py-8',
+  '12': 'section-padding',
+  '16': 'py-16',
+  '24': 'py-24',
 }
 
 // Min height mapping
@@ -107,7 +96,6 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
     maxWidth = 'container',
     paddingTop = '12',
     paddingBottom = '12',
-    paddingX = '6',
   } = block
 
   // Ensure rows is always an array (handles null from Sanity when adding new items)
@@ -118,7 +106,6 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
   const cleanMaxWidth = stegaClean(maxWidth)
   const cleanPaddingTop = stegaClean(paddingTop)
   const cleanPaddingBottom = stegaClean(paddingBottom)
-  const cleanPaddingX = stegaClean(paddingX)
   const cleanMinHeight = stegaClean(minHeight)
   const cleanCustomMinHeight = stegaClean(customMinHeight)
   const cleanVerticalAlign = stegaClean(verticalAlign)
@@ -126,11 +113,9 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
 
   const bgClass = bgColorClasses[cleanBgColor] || ''
   const maxWidthClass = maxWidthClasses[cleanMaxWidth] || maxWidthClasses.container
-  const ptClass = paddingTopClasses[cleanPaddingTop] || paddingTopClasses['12']
-  const pbClass = paddingBottomClasses[cleanPaddingBottom] || paddingBottomClasses['12']
-  // Don't apply horizontal padding when using container class (min() function handles gutters)
-  const usesContainer = cleanMaxWidth === 'container' || !cleanMaxWidth
-  const pxClass = usesContainer ? '' : (paddingXClasses[cleanPaddingX] || paddingXClasses['6'])
+
+  // Handle padding - simplified to presets
+  const paddingClass = paddingPresets[cleanPaddingTop] || paddingPresets['default']
 
   // Handle min-height (preset or custom)
   const minHeightClass = cleanMinHeight === 'custom' ? '' : (minHeightClasses[cleanMinHeight] || '')
@@ -177,7 +162,7 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
       )}
 
       {/* Content Container */}
-      <div className={`relative z-10 ${maxWidthClass} ${ptClass} ${pbClass} ${pxClass} ${hasMinHeight ? 'flex-1 flex flex-col' : ''} ${alignClass}`}>
+      <div className={`relative z-10 ${maxWidthClass} ${paddingClass} ${hasMinHeight ? 'flex-1 flex flex-col' : ''} ${alignClass}`}>
         {rowItems.map((item, itemIndex) => (
           <div
             key={item._key}

@@ -2,6 +2,7 @@ import {stegaClean} from 'next-sanity'
 import {ArrowRight, Download, ExternalLink} from 'lucide-react'
 import ResolvedLink from '@/app/components/ResolvedLink'
 import {Button} from '@/app/components/ui/button'
+import {linkResolver} from '@/sanity/lib/utils'
 import {cn} from '@/lib/utils'
 
 interface ButtonBlockProps {
@@ -11,20 +12,11 @@ interface ButtonBlockProps {
     text?: string
     link?: any
     variant?: 'primary' | 'secondary' | 'ghost'
-    color?: 'black' | 'brand' | 'blue' | 'white'
-    size?: 'sm' | 'md' | 'lg'
-    align?: 'left' | 'center' | 'right' | 'full'
+    /** Brand, black, or white. Legacy 'blue' maps to 'brand' */
+    color?: 'brand' | 'black' | 'white' | 'blue'
     icon?: 'none' | 'arrow-right' | 'external' | 'download'
   }
   index: number
-}
-
-// Alignment wrapper classes
-const alignClasses: Record<string, string> = {
-  left: 'flex justify-start',
-  center: 'flex justify-center',
-  right: 'flex justify-end',
-  full: 'flex',
 }
 
 // Icon components using Lucide (shadcn's icon library)
@@ -40,37 +32,46 @@ export default function ButtonBlock({block}: ButtonBlockProps) {
     text = 'Click here',
     link,
     variant = 'primary',
-    color = 'black',
-    size = 'md',
-    align = 'left',
+    color = 'brand',
     icon = 'none',
   } = block
 
   // Clean stega encoding from values before using as lookup keys
   const cleanVariant = stegaClean(variant) as 'primary' | 'secondary' | 'ghost'
-  const cleanColor = stegaClean(color) as 'black' | 'brand' | 'blue' | 'white'
-  const cleanSize = stegaClean(size) as 'sm' | 'md' | 'lg'
-  const cleanAlign = stegaClean(align)
+  // Map legacy 'blue' color to 'brand' for backwards compatibility
+  const rawColor = stegaClean(color)
+  const cleanColor = (rawColor === 'blue' ? 'brand' : rawColor) as 'brand' | 'black' | 'white'
   const cleanIcon = stegaClean(icon)
 
-  const alignClass = alignClasses[cleanAlign] || alignClasses.left
-  const fullWidthClass = cleanAlign === 'full' ? 'w-full' : ''
+  // Check if link is valid
+  const resolvedLink = linkResolver(link)
+  const hasValidLink = typeof resolvedLink === 'string'
 
-  return (
-    <div className={cn(alignClass, 'mb-4')}>
+  // If no valid link, render button without asChild to maintain proper styling
+  // Add magenta dashed outline to indicate missing link in preview/edit mode
+  if (!hasValidLink) {
+    return (
       <Button
         variant={cleanVariant}
         colorScheme={cleanColor}
-        size={cleanSize}
-        rounded="full"
-        className={fullWidthClass}
-        asChild
+        className="outline outline-3 outline-offset-3 outline-dashed outline-[#FF00FF] cursor-not-allowed"
       >
-        <ResolvedLink link={link}>
-          {text}
-          {icons[cleanIcon]}
-        </ResolvedLink>
+        {text}
+        {icons[cleanIcon]}
       </Button>
-    </div>
+    )
+  }
+
+  return (
+    <Button
+      variant={cleanVariant}
+      colorScheme={cleanColor}
+      asChild
+    >
+      <ResolvedLink link={link}>
+        {text}
+        {icons[cleanIcon]}
+      </ResolvedLink>
+    </Button>
   )
 }

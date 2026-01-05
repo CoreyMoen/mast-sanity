@@ -1,5 +1,6 @@
 import {defineField, defineType} from 'sanity'
 import {DocumentIcon} from '@sanity/icons'
+import {PageFormInput} from '../components/PageFormInput'
 
 /**
  * Page schema.  Define and edit the fields for the 'page' content type.
@@ -11,6 +12,10 @@ export const page = defineType({
   title: 'Page',
   type: 'document',
   icon: DocumentIcon,
+  // Add banner at top of document form
+  components: {
+    input: PageFormInput,
+  },
   fields: [
     defineField({
       name: 'name',

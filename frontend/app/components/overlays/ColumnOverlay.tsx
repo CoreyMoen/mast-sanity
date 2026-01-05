@@ -19,10 +19,19 @@ const SVG_PATTERN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/200
 
 interface ColumnOverlayProps {
   gap?: string
+  verticalAlign?: string
   children: ReactNode
 }
 
-export default function ColumnOverlay({gap = '6', children}: ColumnOverlayProps) {
+// Vertical alignment classes for column content
+const verticalAlignClasses: Record<string, string> = {
+  start: 'justify-start',
+  center: 'justify-center',
+  end: 'justify-end',
+  between: 'justify-between',
+}
+
+export default function ColumnOverlay({gap = '6', verticalAlign = 'start', children}: ColumnOverlayProps) {
   const overlayId = useId()
   const [isSelected, setIsSelected] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -56,9 +65,12 @@ export default function ColumnOverlay({gap = '6', children}: ColumnOverlayProps)
     return () => observer.disconnect()
   }, [])
 
+  const alignClass = verticalAlignClasses[verticalAlign] || verticalAlignClasses.start
+
   // Only show overlay in presentation tool (visual editing mode)
   if (!isPresentationTool) {
-    return <>{children}</>
+    // Still need flex container for alignment to work
+    return <div className={`flex flex-col flex-1 h-full ${alignClass}`}>{children}</div>
   }
 
   const isHovered = activeOverlayId === overlayId
@@ -85,7 +97,6 @@ export default function ColumnOverlay({gap = '6', children}: ColumnOverlayProps)
   // and compensate with padding to keep content in place
   const containerStyle: React.CSSProperties = {
     position: 'relative',
-    height: '100%',
     // Expand to fill gutter area
     marginLeft: gutterWidth > 0 ? `-${gutterWidth}px` : undefined,
     marginRight: gutterWidth > 0 ? `-${gutterWidth}px` : undefined,
@@ -97,6 +108,7 @@ export default function ColumnOverlay({gap = '6', children}: ColumnOverlayProps)
   return (
     <div
       ref={containerRef}
+      className={`flex flex-col flex-1 h-full ${alignClass}`}
       style={containerStyle}
       onMouseOver={handleMouseOver}
       onMouseOut={handleMouseOut}

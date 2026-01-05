@@ -3,111 +3,445 @@
 @plugin "@tailwindcss/typography";
 
 /* ==========================================================================
-   COLOR SCHEME & DARK MODE SUPPORT
-   Uses CSS light-dark() function for automatic OS preference matching
+   MAST DESIGN SYSTEM - CSS Variables
+
+   All brand customization happens here. Update these variables to match
+   your brand, and the entire system adapts automatically.
+
+   Naming Convention:
+   - --color-*     : Color palette
+   - --type-*      : Typography styles (sizes, weights, line-heights)
+   - --font-*      : Font families (used by Tailwind)
+   - --layout-*    : Layout & spacing values
+   - --component-* : Component-specific values
    ========================================================================== */
 
+/* ==========================================================================
+   TAILWIND v4 THEME CONFIGURATION
+   Defines design tokens that generate Tailwind utility classes
+   ========================================================================== */
+@theme {
+  /* --------------------------------------------------------------------------
+     COLOR PALETTE
+     These generate utilities like bg-brand, text-black, border-gray-300, etc.
+     -------------------------------------------------------------------------- */
+
+  /* Neutral colors */
+  --color-white: #ffffff;
+  --color-black: #1d1c1a;
+  --color-dark-gray: #292825;
+  --color-light-gray: #f0eee6;
+  --color-mid-gray-1: #cccabf;
+  --color-mid-gray-2: #474641;
+
+  /* Brand colors */
+  --color-brand: #d14424;
+  --color-brand-dark: #9c331b;
+
+  /* Secondary colors */
+  --color-yellow: #f8d47a;
+  --color-blue: #0073e6;
+
+  /* Gray scale */
+  --color-gray-50: #f0eee6;
+  --color-gray-100: #e5e3db;
+  --color-gray-200: #d4d2c8;
+  --color-gray-300: #cccabf;
+  --color-gray-400: #9a9890;
+  --color-gray-500: #6b6961;
+  --color-gray-600: #474641;
+  --color-gray-700: #353430;
+  --color-gray-800: #292825;
+  --color-gray-900: #1d1c1a;
+  --color-gray-950: #141311;
+
+  /* Yellow scale */
+  --color-yellow-50: #fefcf5;
+  --color-yellow-100: #fdf8e8;
+  --color-yellow-200: #fbf0d0;
+  --color-yellow-300: #f8d47a;
+  --color-yellow-400: #f5c24d;
+  --color-yellow-500: #e9a820;
+  --color-yellow-600: #c78618;
+  --color-yellow-700: #a56614;
+  --color-yellow-800: #834e12;
+  --color-yellow-900: #613a0f;
+  --color-yellow-950: #3f250a;
+
+  /* Blue scale */
+  --color-blue-50: #e6f2ff;
+  --color-blue-100: #cce5ff;
+  --color-blue-200: #99cbff;
+  --color-blue-300: #66b0ff;
+  --color-blue-400: #3396ff;
+  --color-blue-500: #0073e6;
+  --color-blue-600: #005cb8;
+  --color-blue-700: #00458a;
+  --color-blue-800: #002e5c;
+  --color-blue-900: #00172e;
+  --color-blue-950: #000b17;
+
+  /* Semantic colors (reference CSS variables for theme switching) */
+  --color-foreground: var(--theme-foreground);
+  --color-background: var(--theme-background);
+  --color-border: var(--theme-border);
+  --color-muted-foreground: var(--theme-muted-foreground);
+  --color-muted-background: var(--theme-muted-background);
+  --color-card-background: var(--theme-card-background);
+  --color-card-foreground: var(--theme-card-foreground);
+
+  /* --------------------------------------------------------------------------
+     TYPOGRAPHY
+     -------------------------------------------------------------------------- */
+  --font-sans: var(--font-general-sans), 'General Sans', Arial, sans-serif;
+  --font-display: var(--font-general-sans), 'General Sans', Arial, sans-serif;
+
+  /* --------------------------------------------------------------------------
+     SHADOWS
+     -------------------------------------------------------------------------- */
+  --shadow-layer: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
+
+  /* --------------------------------------------------------------------------
+     ANIMATION
+     -------------------------------------------------------------------------- */
+  --default-transition-duration: 250ms;
+
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
+
+  /* --------------------------------------------------------------------------
+     MISC
+     -------------------------------------------------------------------------- */
+  --radius: 0.5rem;
+}
+
+@keyframes accordion-down {
+  from { height: 0; }
+  to { height: var(--radix-accordion-content-height); }
+}
+
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
+}
+
+/* ==========================================================================
+   MAST DESIGN TOKENS (CSS Custom Properties)
+   These are the core brand variables. Edit these to customize.
+   ========================================================================== */
+:root {
+  /* --------------------------------------------------------------------------
+     LAYOUT - Fluid Scaling
+     Used by the clamp() functions to calculate fluid values
+     -------------------------------------------------------------------------- */
+  --layout-fluid-min: 20;  /* Minimum viewport width in rem */
+  --layout-fluid-max: 90;  /* Maximum viewport width in rem */
+
+  /* --------------------------------------------------------------------------
+     LAYOUT - Container
+     -------------------------------------------------------------------------- */
+  --layout-container-gutter: 6vw;
+  --layout-container-max-width: 90rem;
+
+  /* --------------------------------------------------------------------------
+     LAYOUT - Grid Gaps
+     -------------------------------------------------------------------------- */
+  --layout-gap-xl: 40px;
+  --layout-gap-lg: 24px;
+  --layout-gap-md: 16px;
+  --layout-gap-sm: 8px;
+
+  /* --------------------------------------------------------------------------
+     LAYOUT - Spacing Margins
+     -------------------------------------------------------------------------- */
+  --layout-margin-xl: 4em;
+  --layout-margin-lg: 3em;
+  --layout-margin-md: 2em;
+  --layout-margin-sm: 1em;
+  --layout-margin-xs: 0.5em;
+
+  /* ==========================================================================
+     TYPOGRAPHY - Type Styles
+     Each style is grouped with all its properties together.
+     Only change the -min and -max values - the clamp() auto-calculates.
+     ========================================================================== */
+
+  /* --------------------------------------------------------------------------
+     H1
+     -------------------------------------------------------------------------- */
+  --type-h1-size-min: 2.8;
+  --type-h1-size-max: 5.5;
+  --type-h1-line-height: 1;
+  --type-h1-font-weight: 500;
+  --type-h1-letter-spacing: -0.02em;
+  --type-h1-margin-bottom: 0.2em;
+
+  /* --------------------------------------------------------------------------
+     H2
+     -------------------------------------------------------------------------- */
+  --type-h2-size-min: 2;
+  --type-h2-size-max: 3.8;
+  --type-h2-line-height: 1.1;
+  --type-h2-font-weight: 500;
+  --type-h2-letter-spacing: -0.02em;
+  --type-h2-margin-bottom: 0.2em;
+
+  /* --------------------------------------------------------------------------
+     H3
+     -------------------------------------------------------------------------- */
+  --type-h3-size-min: 1.5;
+  --type-h3-size-max: 2.3;
+  --type-h3-line-height: 1.2;
+  --type-h3-font-weight: 500;
+  --type-h3-letter-spacing: 0em;
+  --type-h3-margin-bottom: 0.3em;
+
+  /* --------------------------------------------------------------------------
+     H4
+     -------------------------------------------------------------------------- */
+  --type-h4-size-min: 1.3;
+  --type-h4-size-max: 1.5;
+  --type-h4-line-height: 1.4;
+  --type-h4-font-weight: 500;
+  --type-h4-letter-spacing: 0em;
+  --type-h4-margin-bottom: 0.4em;
+
+  /* --------------------------------------------------------------------------
+     H5
+     -------------------------------------------------------------------------- */
+  --type-h5-size-min: 1.1;
+  --type-h5-size-max: 1.2;
+  --type-h5-line-height: 1.4;
+  --type-h5-font-weight: 500;
+  --type-h5-letter-spacing: 0em;
+  --type-h5-margin-bottom: 0.5em;
+
+  /* --------------------------------------------------------------------------
+     H6
+     -------------------------------------------------------------------------- */
+  --type-h6-size-min: 0.9;
+  --type-h6-size-max: 1;
+  --type-h6-line-height: 1.4;
+  --type-h6-font-weight: 500;
+  --type-h6-letter-spacing: 0em;
+  --type-h6-margin-bottom: 0.6em;
+
+  /* --------------------------------------------------------------------------
+     Paragraph XL
+     -------------------------------------------------------------------------- */
+  --type-p-xl-size-min: 1.2;
+  --type-p-xl-size-max: 1.5;
+  --type-p-xl-line-height: 1.4;
+  --type-p-xl-font-weight: 400;
+  --type-p-xl-letter-spacing: 0em;
+  --type-p-xl-margin-bottom: 1em;
+
+  /* --------------------------------------------------------------------------
+     Paragraph LG
+     -------------------------------------------------------------------------- */
+  --type-p-lg-size-min: 1.1;
+  --type-p-lg-size-max: 1.25;
+  --type-p-lg-line-height: 1.5;
+  --type-p-lg-font-weight: 400;
+  --type-p-lg-letter-spacing: 0em;
+  --type-p-lg-margin-bottom: 1em;
+
+  /* --------------------------------------------------------------------------
+     Paragraph Body (default)
+     -------------------------------------------------------------------------- */
+  --type-body-size-min: 0.9;
+  --type-body-size-max: 1;
+  --type-body-line-height: 1.6;
+  --type-body-font-weight: 400;
+  --type-body-letter-spacing: 0em;
+  --type-body-margin-bottom: 1em;
+
+  /* --------------------------------------------------------------------------
+     Paragraph SM
+     -------------------------------------------------------------------------- */
+  --type-p-sm-size-min: 0.8;
+  --type-p-sm-size-max: 0.9;
+  --type-p-sm-line-height: 1.5;
+  --type-p-sm-font-weight: 400;
+  --type-p-sm-letter-spacing: 0em;
+  --type-p-sm-margin-bottom: 1em;
+
+  /* --------------------------------------------------------------------------
+     Eyebrow
+     -------------------------------------------------------------------------- */
+  --type-eyebrow-size-min: 0.7;
+  --type-eyebrow-size-max: 0.8;
+  --type-eyebrow-line-height: 1.2;
+  --type-eyebrow-font-weight: 500;
+  --type-eyebrow-letter-spacing: 0.1em;
+  --type-eyebrow-margin-bottom: 1.5em;
+
+  /* ==========================================================================
+     COMPONENTS
+     ========================================================================== */
+
+  /* --------------------------------------------------------------------------
+     Section
+     -------------------------------------------------------------------------- */
+  --component-section-padding-min: 3;
+  --component-section-padding-max: 6;
+
+  /* --------------------------------------------------------------------------
+     Card
+     -------------------------------------------------------------------------- */
+  --component-card-padding-min: 1;
+  --component-card-padding-max: 1.5;
+  --component-card-radius: 0.5rem;
+
+  /* --------------------------------------------------------------------------
+     Button
+     -------------------------------------------------------------------------- */
+  --component-button-padding-x: 1em;
+  --component-button-padding-y: 0.7em;
+  --component-button-radius: 0.5rem;
+  --component-button-font-size: 1rem;
+  --component-button-line-height: 1.3em;
+  --component-button-font-weight: 400;
+  --component-button-letter-spacing: 0em;
+
+  /* --------------------------------------------------------------------------
+     Input
+     -------------------------------------------------------------------------- */
+  --component-input-radius: 0.5rem;
+  --component-input-font-size: 1rem;
+  --component-input-line-height: 1.5em;
+  --component-input-font-weight: 400;
+  --component-input-letter-spacing: 0em;
+  --component-input-margin-bottom: 1rem;
+
+  /* --------------------------------------------------------------------------
+     Input Label
+     -------------------------------------------------------------------------- */
+  --component-input-label-font-size: 0.9rem;
+  --component-input-label-line-height: 1em;
+  --component-input-label-font-weight: 500;
+  --component-input-label-letter-spacing: 0em;
+
+  /* ==========================================================================
+     THEME COLORS (Light Mode)
+     These semantic tokens switch between light/dark mode
+     ========================================================================== */
+  --theme-background: #ffffff;
+  --theme-foreground: #1d1c1a;
+  --theme-border: #cccabf;
+
+  --theme-secondary-background: #f0eee6;
+
+  --theme-muted-background: #f0eee6;
+  --theme-muted-foreground: #6b6961;
+
+  --theme-card-background: #ffffff;
+  --theme-card-foreground: #1d1c1a;
+  --theme-card-border: #e5e3db;
+
+  --theme-input-background: #ffffff;
+  --theme-input-border: #cccabf;
+
+  --theme-footer-background: #ffffff;
+  --theme-footer-border: #e5e3db;
+
+  --theme-accent: #d14424;
+  --theme-accent-dark: #9c331b;
+}
+
+/* ==========================================================================
+   COLOR SCHEME & DARK MODE SUPPORT
+   ========================================================================== */
 html {
   color-scheme: light dark;
 }
 
-/* Force light mode when data-theme="light" */
 html[data-theme="light"] {
   color-scheme: light;
 }
 
-/* Force dark mode when data-theme="dark" */
 html[data-theme="dark"] {
   color-scheme: dark;
 }
 
-/* Semantic color variables - Light mode defaults */
-:root {
-  /* Layout variables */
-  --container-gutter: 6vw;
-  --container-max-width: 90rem;
-
-  /* Primary semantic colors */
-  --primary-background: #ffffff;
-  --primary-foreground: #1d1c1a;
-  --primary-border: #cccabf;
-
-  /* Secondary background (Light Gray in Mast) */
-  --secondary-background: #f0eee6;
-
-  /* Muted/secondary backgrounds */
-  --muted-background: #f0eee6;
-  --muted-foreground: #6b6961;
-
-  /* Card backgrounds */
-  --card-background: #ffffff;
-  --card-foreground: #1d1c1a;
-  --card-border: #e5e3db;
-
-  /* Input/form elements */
-  --input-background: #ffffff;
-  --input-border: #cccabf;
-
-  /* Footer specific */
-  --footer-background: #ffffff;
-  --footer-border: #e5e3db;
-}
-
-/* Dark mode overrides - matches OS preference */
+/* Dark mode - OS preference */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --primary-background: #1d1c1a;
-    --primary-foreground: #ffffff;
-    --primary-border: #474641;
+    --theme-background: #1d1c1a;
+    --theme-foreground: #ffffff;
+    --theme-border: #474641;
 
-    --secondary-background: #292825;
+    --theme-secondary-background: #292825;
 
-    --muted-background: #292825;
-    --muted-foreground: #9a9890;
+    --theme-muted-background: #292825;
+    --theme-muted-foreground: #9a9890;
 
-    --card-background: #292825;
-    --card-foreground: #ffffff;
-    --card-border: #353430;
+    --theme-card-background: #292825;
+    --theme-card-foreground: #ffffff;
+    --theme-card-border: #353430;
 
-    --input-background: #292825;
-    --input-border: #474641;
+    --theme-input-background: #292825;
+    --theme-input-border: #474641;
 
-    --footer-background: #1d1c1a;
-    --footer-border: #353430;
+    --theme-footer-background: #1d1c1a;
+    --theme-footer-border: #353430;
   }
 }
 
-/* Force dark mode when data-theme="dark" */
+/* Dark mode - explicit */
 html[data-theme="dark"] {
-  --primary-background: #1d1c1a;
-  --primary-foreground: #ffffff;
-  --primary-border: #474641;
+  --theme-background: #1d1c1a;
+  --theme-foreground: #ffffff;
+  --theme-border: #474641;
 
-  --secondary-background: #292825;
+  --theme-secondary-background: #292825;
 
-  --muted-background: #292825;
-  --muted-foreground: #9a9890;
+  --theme-muted-background: #292825;
+  --theme-muted-foreground: #9a9890;
 
-  --card-background: #292825;
-  --card-foreground: #ffffff;
-  --card-border: #353430;
+  --theme-card-background: #292825;
+  --theme-card-foreground: #ffffff;
+  --theme-card-border: #353430;
 
-  --input-background: #292825;
-  --input-border: #474641;
+  --theme-input-background: #292825;
+  --theme-input-border: #474641;
 
-  --footer-background: #1d1c1a;
-  --footer-border: #353430;
+  --theme-footer-background: #1d1c1a;
+  --theme-footer-border: #353430;
 }
 
-/* Apply semantic colors to base elements */
+/* Apply theme colors to html */
 html {
-  background-color: var(--primary-background);
-  color: var(--primary-foreground);
+  background-color: var(--theme-background);
+  color: var(--theme-foreground);
+}
+
+/* ==========================================================================
+   LEGACY VARIABLE ALIASES
+   For backwards compatibility with existing components
+   ========================================================================== */
+:root {
+  /* Map old names to new names */
+  --container-gutter: var(--layout-container-gutter);
+  --container-max-width: var(--layout-container-max-width);
+
+  --primary-background: var(--theme-background);
+  --primary-foreground: var(--theme-foreground);
+  --primary-border: var(--theme-border);
+  --secondary-background: var(--theme-secondary-background);
+  --muted-background: var(--theme-muted-background);
+  --muted-foreground: var(--theme-muted-foreground);
+  --card-background: var(--theme-card-background);
+  --card-foreground: var(--theme-card-foreground);
+  --card-border: var(--theme-card-border);
+  --input-background: var(--theme-input-background);
+  --input-border: var(--theme-input-border);
+  --footer-background: var(--theme-footer-background);
+  --footer-border: var(--theme-footer-border);
 }
 
 /* ==========================================================================
    PROSE TYPOGRAPHY OVERRIDES
-   Make prose inherit text color from parent for theme compatibility
    ========================================================================== */
 .prose {
   --tw-prose-body: inherit;
@@ -121,160 +455,224 @@ html {
 
 /* ==========================================================================
    CONTAINER SYSTEM (Mast-style)
-   Uses min() function: container is either max-width OR viewport minus gutters
-   This creates the gutter effect without needing padding
    ========================================================================== */
 @utility container {
   width: 100%;
-  max-width: min(calc(100% - var(--container-gutter) * 2), var(--container-max-width));
+  max-width: min(calc(100% - var(--layout-container-gutter) * 2), var(--layout-container-max-width));
   margin-left: auto;
   margin-right: auto;
 }
 
 /* ==========================================================================
-   FLUID TYPOGRAPHY SYSTEM (Mast-style)
-   Uses CSS clamp() for smooth scaling between viewport widths 20rem - 90rem
+   FLUID TYPOGRAPHY UTILITIES
+
+   Uses the Mast clamp() formula that auto-calculates from min/max values:
+   clamp(
+     MIN * 1rem,
+     ((MIN - ((MAX - MIN) / (FLUID_MAX - FLUID_MIN) * FLUID_MIN)) * 1rem
+       + ((MAX - MIN) / (FLUID_MAX - FLUID_MIN)) * 100vw),
+     MAX * 1rem
+   )
+
+   This means you only need to change --type-XX-size-min and --type-XX-size-max
+   and the fluid scaling is automatically calculated.
    ========================================================================== */
 
-/* Heading utilities */
+/* H1 */
 @utility text-h1 {
-  font-size: clamp(2.8rem, calc(2.03rem + 3.86vw), 5.5rem);
-  line-height: 1;
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  font-size: clamp(
+    calc(var(--type-h1-size-min) * 1rem),
+    calc(
+      (var(--type-h1-size-min) - ((var(--type-h1-size-max) - var(--type-h1-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
+      + ((var(--type-h1-size-max) - var(--type-h1-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+    ),
+    calc(var(--type-h1-size-max) * 1rem)
+  );
+  line-height: var(--type-h1-line-height);
+  font-weight: var(--type-h1-font-weight);
+  letter-spacing: var(--type-h1-letter-spacing);
 }
 
+/* H2 */
 @utility text-h2 {
-  font-size: clamp(2rem, calc(1.49rem + 2.57vw), 3.8rem);
-  line-height: 1.1;
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  font-size: clamp(
+    calc(var(--type-h2-size-min) * 1rem),
+    calc(
+      (var(--type-h2-size-min) - ((var(--type-h2-size-max) - var(--type-h2-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
+      + ((var(--type-h2-size-max) - var(--type-h2-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+    ),
+    calc(var(--type-h2-size-max) * 1rem)
+  );
+  line-height: var(--type-h2-line-height);
+  font-weight: var(--type-h2-font-weight);
+  letter-spacing: var(--type-h2-letter-spacing);
 }
 
+/* H3 */
 @utility text-h3 {
-  font-size: clamp(1.5rem, calc(1.27rem + 1.14vw), 2.3rem);
-  line-height: 1.2;
-  font-weight: 500;
-  letter-spacing: 0;
+  font-size: clamp(
+    calc(var(--type-h3-size-min) * 1rem),
+    calc(
+      (var(--type-h3-size-min) - ((var(--type-h3-size-max) - var(--type-h3-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
+      + ((var(--type-h3-size-max) - var(--type-h3-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+    ),
+    calc(var(--type-h3-size-max) * 1rem)
+  );
+  line-height: var(--type-h3-line-height);
+  font-weight: var(--type-h3-font-weight);
+  letter-spacing: var(--type-h3-letter-spacing);
 }
 
+/* H4 */
 @utility text-h4 {
-  font-size: clamp(1.3rem, calc(1.24rem + 0.29vw), 1.5rem);
-  line-height: 1.4;
-  font-weight: 500;
-  letter-spacing: 0;
+  font-size: clamp(
+    calc(var(--type-h4-size-min) * 1rem),
+    calc(
+      (var(--type-h4-size-min) - ((var(--type-h4-size-max) - var(--type-h4-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
+      + ((var(--type-h4-size-max) - var(--type-h4-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+    ),
+    calc(var(--type-h4-size-max) * 1rem)
+  );
+  line-height: var(--type-h4-line-height);
+  font-weight: var(--type-h4-font-weight);
+  letter-spacing: var(--type-h4-letter-spacing);
 }
 
+/* H5 */
 @utility text-h5 {
-  font-size: clamp(1.1rem, calc(1.07rem + 0.14vw), 1.2rem);
-  line-height: 1.4;
-  font-weight: 500;
-  letter-spacing: 0;
+  font-size: clamp(
+    calc(var(--type-h5-size-min) * 1rem),
+    calc(
+      (var(--type-h5-size-min) - ((var(--type-h5-size-max) - var(--type-h5-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
+      + ((var(--type-h5-size-max) - var(--type-h5-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+    ),
+    calc(var(--type-h5-size-max) * 1rem)
+  );
+  line-height: var(--type-h5-line-height);
+  font-weight: var(--type-h5-font-weight);
+  letter-spacing: var(--type-h5-letter-spacing);
 }
 
+/* H6 */
 @utility text-h6 {
-  font-size: clamp(0.9rem, calc(0.87rem + 0.14vw), 1rem);
-  line-height: 1.4;
-  font-weight: 500;
-  letter-spacing: 0;
+  font-size: clamp(
+    calc(var(--type-h6-size-min) * 1rem),
+    calc(
+      (var(--type-h6-size-min) - ((var(--type-h6-size-max) - var(--type-h6-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
+      + ((var(--type-h6-size-max) - var(--type-h6-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+    ),
+    calc(var(--type-h6-size-max) * 1rem)
+  );
+  line-height: var(--type-h6-line-height);
+  font-weight: var(--type-h6-font-weight);
+  letter-spacing: var(--type-h6-letter-spacing);
 }
 
-/* Paragraph utilities */
+/* Paragraph XL */
 @utility text-p-xl {
-  font-size: clamp(1.2rem, calc(1.11rem + 0.43vw), 1.5rem);
-  line-height: 1.4;
-  font-weight: 400;
-  letter-spacing: 0;
+  font-size: clamp(
+    calc(var(--type-p-xl-size-min) * 1rem),
+    calc(
+      (var(--type-p-xl-size-min) - ((var(--type-p-xl-size-max) - var(--type-p-xl-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
+      + ((var(--type-p-xl-size-max) - var(--type-p-xl-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+    ),
+    calc(var(--type-p-xl-size-max) * 1rem)
+  );
+  line-height: var(--type-p-xl-line-height);
+  font-weight: var(--type-p-xl-font-weight);
+  letter-spacing: var(--type-p-xl-letter-spacing);
 }
 
+/* Paragraph LG */
 @utility text-p-lg {
-  font-size: clamp(1.1rem, calc(1.06rem + 0.21vw), 1.25rem);
-  line-height: 1.5;
-  font-weight: 400;
-  letter-spacing: 0;
+  font-size: clamp(
+    calc(var(--type-p-lg-size-min) * 1rem),
+    calc(
+      (var(--type-p-lg-size-min) - ((var(--type-p-lg-size-max) - var(--type-p-lg-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
+      + ((var(--type-p-lg-size-max) - var(--type-p-lg-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+    ),
+    calc(var(--type-p-lg-size-max) * 1rem)
+  );
+  line-height: var(--type-p-lg-line-height);
+  font-weight: var(--type-p-lg-font-weight);
+  letter-spacing: var(--type-p-lg-letter-spacing);
 }
 
+/* Paragraph Body (default) */
 @utility text-body {
-  font-size: clamp(0.9rem, calc(0.87rem + 0.14vw), 1rem);
-  line-height: 1.6;
-  font-weight: 400;
-  letter-spacing: 0;
+  font-size: clamp(
+    calc(var(--type-body-size-min) * 1rem),
+    calc(
+      (var(--type-body-size-min) - ((var(--type-body-size-max) - var(--type-body-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
+      + ((var(--type-body-size-max) - var(--type-body-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+    ),
+    calc(var(--type-body-size-max) * 1rem)
+  );
+  line-height: var(--type-body-line-height);
+  font-weight: var(--type-body-font-weight);
+  letter-spacing: var(--type-body-letter-spacing);
 }
 
+/* Paragraph SM */
 @utility text-p-sm {
-  font-size: clamp(0.8rem, calc(0.77rem + 0.14vw), 0.9rem);
-  line-height: 1.5;
-  font-weight: 400;
-  letter-spacing: 0;
+  font-size: clamp(
+    calc(var(--type-p-sm-size-min) * 1rem),
+    calc(
+      (var(--type-p-sm-size-min) - ((var(--type-p-sm-size-max) - var(--type-p-sm-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
+      + ((var(--type-p-sm-size-max) - var(--type-p-sm-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+    ),
+    calc(var(--type-p-sm-size-max) * 1rem)
+  );
+  line-height: var(--type-p-sm-line-height);
+  font-weight: var(--type-p-sm-font-weight);
+  letter-spacing: var(--type-p-sm-letter-spacing);
 }
 
-@theme {
-  --shadow-layer: 0 35px 60px -15px rgba(0, 0, 0, 0.3);
-
-  /* ==========================================================================
-     MAST COLOR PALETTE
-     ========================================================================== */
-
-  /* Neutral colors */
-  --color-white: #ffffff;
-  --color-black: #1d1c1a;
-  --color-dark-gray: #292825;
-  --color-light-gray: #f0eee6;
-  --color-mid-gray-1: #cccabf;
-  --color-mid-gray-2: #474641;
-
-  /* Primary colors */
-  --color-brand: #d14424;
-  --color-brand-dark: #9c331b;
-
-  /* Secondary colors */
-  --color-yellow: #f8d47a;
-  --color-blue: #0073e6;
-
-  /* Gray scale (mapped for compatibility) */
-  --color-gray-50: #f0eee6;
-  --color-gray-100: #e5e3db;
-  --color-gray-200: #d4d2c8;
-  --color-gray-300: #cccabf;
-  --color-gray-400: #9a9890;
-  --color-gray-500: #6b6961;
-  --color-gray-600: #474641;
-  --color-gray-700: #353430;
-  --color-gray-800: #292825;
-  --color-gray-900: #1d1c1a;
-  --color-gray-950: #141311;
-
-  /* ==========================================================================
-     TYPOGRAPHY
-     ========================================================================== */
-  --font-display: var(--font-general-sans), 'General Sans', Arial, sans-serif;
-  --font-sans: var(--font-general-sans), 'General Sans', Arial, sans-serif;
-
-  --default-transition-duration: 250ms;
-
-  /* shadcn/ui compatible radius */
-  --radius: 0.5rem;
+/* Eyebrow */
+@utility text-eyebrow {
+  font-size: clamp(
+    calc(var(--type-eyebrow-size-min) * 1rem),
+    calc(
+      (var(--type-eyebrow-size-min) - ((var(--type-eyebrow-size-max) - var(--type-eyebrow-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
+      + ((var(--type-eyebrow-size-max) - var(--type-eyebrow-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+    ),
+    calc(var(--type-eyebrow-size-max) * 1rem)
+  );
+  line-height: var(--type-eyebrow-line-height);
+  font-weight: var(--type-eyebrow-font-weight);
+  letter-spacing: var(--type-eyebrow-letter-spacing);
+  text-transform: uppercase;
 }
 
-/* shadcn/ui CSS variables for light mode */
-:root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 222.2 47.4% 11.2%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96.1%;
-  --secondary-foreground: 222.2 47.4% 11.2%;
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96.1%;
-  --accent-foreground: 222.2 47.4% 11.2%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 222.2 84% 4.9%;
+/* ==========================================================================
+   FLUID SPACING UTILITIES
+   ========================================================================== */
+@utility section-padding {
+  padding-top: clamp(
+    calc(var(--component-section-padding-min) * 1rem),
+    calc(
+      (var(--component-section-padding-min) - ((var(--component-section-padding-max) - var(--component-section-padding-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
+      + ((var(--component-section-padding-max) - var(--component-section-padding-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+    ),
+    calc(var(--component-section-padding-max) * 1rem)
+  );
+  padding-bottom: clamp(
+    calc(var(--component-section-padding-min) * 1rem),
+    calc(
+      (var(--component-section-padding-min) - ((var(--component-section-padding-max) - var(--component-section-padding-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
+      + ((var(--component-section-padding-max) - var(--component-section-padding-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+    ),
+    calc(var(--component-section-padding-max) * 1rem)
+  );
+}
+
+@utility card-padding {
+  padding: clamp(
+    calc(var(--component-card-padding-min) * 1rem),
+    calc(
+      (var(--component-card-padding-min) - ((var(--component-card-padding-max) - var(--component-card-padding-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
+      + ((var(--component-card-padding-max) - var(--component-card-padding-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+    ),
+    calc(var(--component-card-padding-max) * 1rem)
+  );
 }

@@ -15,6 +15,8 @@ interface TabsContextValue {
   showProgress: boolean
   isPaused: boolean
   activeValue: string | undefined
+  onTogglePause: () => void
+  progress: number
 }
 
 const TabsContext = React.createContext<TabsContextValue>({
@@ -26,6 +28,8 @@ const TabsContext = React.createContext<TabsContextValue>({
   showProgress: true,
   isPaused: false,
   activeValue: undefined,
+  onTogglePause: () => {},
+  progress: 0,
 })
 
 // Root Tabs component with autoplay support
@@ -161,6 +165,8 @@ const Tabs = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Root>, TabsP
     const isReversed = menuPosition === 'below' || menuPosition === 'right'
     const gapClass = gapClasses[contentGap] || gapClasses['4']
 
+    const handleTogglePause = () => setIsPaused(!isPaused)
+
     return (
       <TabsContext.Provider
         value={{
@@ -172,6 +178,8 @@ const Tabs = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Root>, TabsP
           showProgress,
           isPaused,
           activeValue: value,
+          onTogglePause: handleTogglePause,
+          progress,
         }}
       >
         <TabsPrimitive.Root
@@ -199,7 +207,6 @@ const Tabs = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Root>, TabsP
               return React.cloneElement(child as React.ReactElement<TabsListProps>, {
                 autoplay,
                 isPaused,
-                onTogglePause: () => setIsPaused(!isPaused),
                 autoplayDuration,
                 showProgress,
                 progress,
@@ -220,7 +227,6 @@ Tabs.displayName = 'Tabs'
 interface TabsListProps extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.List> {
   autoplay?: boolean
   isPaused?: boolean
-  onTogglePause?: () => void
   autoplayDuration?: number
   showProgress?: boolean
   progress?: number
@@ -233,9 +239,8 @@ const TabsList = React.forwardRef<React.ElementRef<typeof TabsPrimitive.List>, T
     {
       className,
       autoplay,
-      isPaused,
-      onTogglePause,
-      autoplayDuration,
+      isPaused: _isPaused, // Extract to prevent passing to DOM
+      autoplayDuration: _autoplayDuration, // Extract to prevent passing to DOM
       showProgress,
       progress,
       activeValue,
@@ -293,10 +298,11 @@ const TabsList = React.forwardRef<React.ElementRef<typeof TabsPrimitive.List>, T
         <TabsPrimitive.List
           ref={ref}
           className={cn(
-            'inline-flex items-center gap-1 rounded-lg bg-muted-background p-1',
-            orientation === 'vertical' && 'flex-col',
-            mobileDropdown && 'hidden md:inline-flex',
-            mobileDropdown && dropdownOpen && 'flex flex-col rounded-t-none',
+            // Mast-style: full width, no background, border-bottom line
+            'flex w-full border-b border-border',
+            orientation === 'vertical' && 'flex-col border-b-0 border-r',
+            mobileDropdown && 'hidden md:flex',
+            mobileDropdown && dropdownOpen && 'flex flex-col',
             className
           )}
           {...props}
@@ -314,22 +320,6 @@ const TabsList = React.forwardRef<React.ElementRef<typeof TabsPrimitive.List>, T
             }
             return child
           })}
-          {autoplay && (
-            <button
-              onClick={onTogglePause}
-              className={cn(
-                'flex h-9 items-center justify-center px-3 text-muted-foreground transition-colors hover:text-foreground',
-                orientation === 'vertical' && 'w-full'
-              )}
-              aria-label={isPaused ? 'Resume autoplay' : 'Pause autoplay'}
-            >
-              {isPaused ? (
-                <Play className="h-4 w-4" weight="fill" />
-              ) : (
-                <Pause className="h-4 w-4" weight="fill" />
-              )}
-            </button>
-          )}
         </TabsPrimitive.List>
       </div>
     )
@@ -341,37 +331,42 @@ TabsList.displayName = 'TabsList'
 interface TabsTriggerProps extends React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger> {
   showProgress?: boolean
   progress?: number
+  icon?: React.ReactNode
 }
 
 const TabsTrigger = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
   TabsTriggerProps
->(({className, showProgress, progress = 0, children, ...props}, ref) => {
+>(({className, showProgress, progress = 0, icon, children, ...props}, ref) => {
   const {orientation} = React.useContext(TabsContext)
 
   return (
     <TabsPrimitive.Trigger
       ref={ref}
       className={cn(
-        'relative inline-flex items-center justify-center whitespace-nowrap rounded-md px-4 py-2 text-body font-medium transition-all cursor-pointer',
+        // Mast-style: text with bottom border on active, no background
+        'relative flex-1 inline-flex items-center justify-center gap-2 whitespace-nowrap px-4 py-3 text-body font-medium transition-colors cursor-pointer',
         'text-muted-foreground hover:text-foreground',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
         'disabled:pointer-events-none disabled:opacity-50',
-        'data-[state=active]:bg-card-background data-[state=active]:text-foreground data-[state=active]:shadow-sm',
-        orientation === 'vertical' && 'w-full justify-start',
+        // Active state: bottom border instead of background
+        'data-[state=active]:text-foreground',
+        orientation === 'vertical' && 'flex-1-0-auto justify-start border-r-2 border-transparent data-[state=active]:border-r-foreground',
+        orientation === 'horizontal' && 'border-b-2 border-transparent -mb-[1px] data-[state=active]:border-b-foreground',
         className
       )}
       {...props}
     >
+      {icon && <span className="shrink-0">{icon}</span>}
       {children}
-      {/* Progress indicator bar */}
+      {/* Progress indicator bar - overlaps the active border */}
       {showProgress && (
         <div
           className={cn(
-            'absolute bg-brand transition-all',
+            'absolute bg-brand',
             orientation === 'horizontal'
-              ? 'bottom-0 left-0 h-0.5'
-              : 'top-0 bottom-0 left-0 w-0.5'
+              ? 'bottom-0 left-0 h-0.5 -mb-[2px]'
+              : 'top-0 right-0 w-0.5'
           )}
           style={{
             [orientation === 'horizontal' ? 'width' : 'height']: `${progress}%`,
@@ -408,4 +403,34 @@ const TabsContent = React.forwardRef<
 })
 TabsContent.displayName = 'TabsContent'
 
-export {Tabs, TabsList, TabsTrigger, TabsContent}
+// Separate Play/Pause button component for positioning outside TabsList
+const TabsPlayPause = React.forwardRef<
+  HTMLButtonElement,
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+>(({className, ...props}, ref) => {
+  const {autoplay, isPaused, onTogglePause} = React.useContext(TabsContext)
+
+  if (!autoplay) return null
+
+  return (
+    <button
+      ref={ref}
+      onClick={onTogglePause}
+      className={cn(
+        'inline-flex items-center justify-center w-10 h-10 border border-border text-muted-foreground transition-colors hover:text-foreground hover:bg-muted-background rounded-[var(--component-button-radius)]',
+        className
+      )}
+      aria-label={isPaused ? 'Resume autoplay' : 'Pause autoplay'}
+      {...props}
+    >
+      {isPaused ? (
+        <Play className="h-4 w-4" weight="fill" />
+      ) : (
+        <Pause className="h-4 w-4" weight="fill" />
+      )}
+    </button>
+  )
+})
+TabsPlayPause.displayName = 'TabsPlayPause'
+
+export {Tabs, TabsList, TabsTrigger, TabsContent, TabsPlayPause}

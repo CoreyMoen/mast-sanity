@@ -109,14 +109,6 @@ const columnGutterClasses: Record<string, string> = {
   '12': 'px-6',   // 24px each side (48px total gap)
 }
 
-// Vertical alignment for column content
-const verticalAlignClasses: Record<string, string> = {
-  start: 'justify-start',
-  center: 'justify-center',
-  end: 'justify-end',
-  between: 'justify-between',
-}
-
 // Inner padding classes (user-configurable padding inside the column)
 const innerPaddingClasses: Record<string, string> = {
   '0': '',
@@ -156,7 +148,6 @@ export default function Column({block, index, pageId, pageType, sectionKey, rowK
   const desktopClass = desktopWidthClasses[cleanWidthDesktop] || desktopWidthClasses['12']
   const tabletClass = tabletWidthClasses[effectiveTabletWidth] || ''
   const mobileClass = mobileWidthClasses[effectiveMobileWidth] || mobileWidthClasses['12']
-  const alignClass = verticalAlignClasses[cleanVerticalAlign] || verticalAlignClasses.start
   const innerPaddingClass = innerPaddingClasses[cleanPadding] || ''
 
   // Bootstrap-style gutters: horizontal padding based on row gap
@@ -181,11 +172,11 @@ export default function Column({block, index, pageId, pageType, sectionKey, rowK
 
   return (
     <div
-      className={`flex flex-col ${alignClass} w-full md:w-auto ${tabletClass} ${desktopClass} ${gutterClass} ${innerPaddingClass}`}
+      className={`flex flex-col ${mobileClass} ${tabletClass} ${desktopClass} ${gutterClass} ${innerPaddingClass}`}
       data-sanity={columnDataSanity}
       style={inlineStyle}
     >
-      <ColumnOverlay gap={gap}>
+      <ColumnOverlay gap={gap} verticalAlign={cleanVerticalAlign}>
         {contentBlocks.map((contentBlock, contentIndex) => {
         const blockDataSanity = pageId && pageType && basePath
           ? dataAttr({

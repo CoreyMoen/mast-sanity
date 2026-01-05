@@ -101,6 +101,20 @@ export const iconBlock = defineType({
       initialValue: 'inherit',
     }),
     defineField({
+      name: 'align',
+      title: 'Alignment',
+      type: 'string',
+      options: {
+        list: [
+          {title: 'Left', value: 'left'},
+          {title: 'Center', value: 'center'},
+          {title: 'Right', value: 'right'},
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'left',
+    }),
+    defineField({
       name: 'marginBottom',
       title: 'Bottom Margin',
       type: 'string',

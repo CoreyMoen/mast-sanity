@@ -11,8 +11,7 @@ interface CardBlockProps {
       _type: string
       [key: string]: any
     }>
-    paddingDesktop?: CardPadding
-    paddingMobile?: CardPadding
+    padding?: CardPadding
     variant?: CardVariant
     href?: string
     openInNewTab?: boolean
@@ -24,8 +23,7 @@ interface CardBlockProps {
 export default function CardBlock({block}: CardBlockProps) {
   const {
     content,
-    paddingDesktop = '6',
-    paddingMobile = '4',
+    padding = 'md',
     variant = 'default',
     href,
     openInNewTab = false,
@@ -36,8 +34,7 @@ export default function CardBlock({block}: CardBlockProps) {
   const contentItems = content ?? []
 
   // Clean stega encoding from values
-  const cleanPaddingDesktop = stegaClean(paddingDesktop) as CardPadding
-  const cleanPaddingMobile = stegaClean(paddingMobile) as CardPadding
+  const cleanPadding = stegaClean(padding) as CardPadding
   const cleanVariant = stegaClean(variant) as CardVariant
   const cleanHref = stegaClean(href)
   const cleanOpenInNewTab = stegaClean(openInNewTab)
@@ -45,8 +42,7 @@ export default function CardBlock({block}: CardBlockProps) {
 
   return (
     <Card
-      paddingDesktop={cleanPaddingDesktop}
-      paddingMobile={cleanPaddingMobile}
+      padding={cleanPadding}
       variant={cleanVariant}
       href={cleanHref}
       openInNewTab={cleanOpenInNewTab}

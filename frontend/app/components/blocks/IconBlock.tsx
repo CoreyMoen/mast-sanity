@@ -1,6 +1,6 @@
 import {stegaClean} from 'next-sanity'
 import {cn} from '@/lib/utils'
-import {Icon, type IconSize, type IconColor} from '@/app/components/ui/icon'
+import {Icon, type IconSize, type IconColor} from '@/app/components/ui/Icon'
 import {
   CheckCircle,
   Target,
@@ -58,6 +58,7 @@ interface IconBlockProps {
     icon?: string
     size?: 'sm' | 'md' | 'lg' | 'xl'
     color?: 'inherit' | 'brand' | 'blue'
+    align?: 'left' | 'center' | 'right'
     marginBottom?: '0' | 'sm' | 'md' | 'lg'
   }
   index: number
@@ -121,13 +122,21 @@ const marginClasses: Record<string, string> = {
   lg: 'mb-6',
 }
 
+// Alignment classes
+const alignClasses: Record<string, string> = {
+  left: 'justify-start',
+  center: 'justify-center',
+  right: 'justify-end',
+}
+
 export default function IconBlock({block}: IconBlockProps) {
-  const {icon = 'check-circle', size = 'md', color = 'inherit', marginBottom = 'sm'} = block
+  const {icon = 'check-circle', size = 'md', color = 'inherit', align = 'left', marginBottom = 'sm'} = block
 
   // Clean stega encoding
   const cleanIcon = stegaClean(icon)
   const cleanSize = stegaClean(size) as IconSize
   const cleanColor = stegaClean(color) as IconColor
+  const cleanAlign = stegaClean(align) as 'left' | 'center' | 'right'
   const cleanMargin = stegaClean(marginBottom) as '0' | 'sm' | 'md' | 'lg'
 
   const IconComponent = iconMap[cleanIcon]
@@ -137,7 +146,13 @@ export default function IconBlock({block}: IconBlockProps) {
   }
 
   return (
-    <div className={cn(marginClasses[cleanMargin] || marginClasses.sm)}>
+    <div
+      className={cn(
+        'flex',
+        alignClasses[cleanAlign] || alignClasses.left,
+        marginClasses[cleanMargin] || marginClasses.sm
+      )}
+    >
       <Icon icon={IconComponent} size={cleanSize} color={cleanColor} />
     </div>
   )
