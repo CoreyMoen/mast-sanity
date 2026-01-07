@@ -1,5 +1,6 @@
 'use client'
 
+import {useState, useEffect} from 'react'
 import {stegaClean} from 'next-sanity'
 import {Tabs, TabsList, TabsTrigger, TabsContent, TabsPlayPause} from '../ui/tabs'
 import ContentBlockRenderer from './ContentBlockRenderer'
@@ -36,6 +37,13 @@ interface TabsBlockProps {
 }
 
 export default function TabsBlock({block}: TabsBlockProps) {
+  // Prevent hydration mismatch by only rendering after mount
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
   const {
     tabs,
     orientation = 'horizontal',
@@ -50,6 +58,11 @@ export default function TabsBlock({block}: TabsBlockProps) {
   } = block
 
   if (!tabs || tabs.length === 0) return null
+
+  // Render placeholder during SSR to prevent hydration mismatch with Radix IDs
+  if (!isMounted) {
+    return <div className="my-6" aria-hidden="true" />
+  }
 
   const cleanOrientation = stegaClean(orientation)
   const cleanMenuPosition = stegaClean(menuPosition)

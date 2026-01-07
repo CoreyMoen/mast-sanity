@@ -1,4 +1,5 @@
 import type {Metadata} from 'next'
+import {draftMode} from 'next/headers'
 
 import PageBuilderPage from '@/app/components/PageBuilder'
 import {sanityFetch} from '@/sanity/lib/live'
@@ -44,6 +45,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
 export default async function Page(props: Props) {
   const params = await props.params
+  const {isEnabled: isDraftMode} = await draftMode()
   const [{data: page}] = await Promise.all([sanityFetch({query: getPageQuery, params})])
 
   if (!page?._id) {
@@ -56,7 +58,7 @@ export default async function Page(props: Props) {
 
   return (
     <div>
-      <PageBuilderPage page={page as GetPageQueryResult} />
+      <PageBuilderPage page={page as GetPageQueryResult} isDraftMode={isDraftMode} />
     </div>
   )
 }

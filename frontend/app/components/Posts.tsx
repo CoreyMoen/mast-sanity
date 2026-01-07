@@ -6,20 +6,12 @@ import {Post as PostType, AllPostsQueryResult} from '@/sanity.types'
 import DateComponent from '@/app/components/Date'
 import OnBoarding from '@/app/components/Onboarding'
 import Avatar from '@/app/components/Avatar'
-import {createDataAttribute} from 'next-sanity'
 
 const Post = ({post}: {post: AllPostsQueryResult[number]}) => {
   const {_id, title, slug, excerpt, date, author} = post
 
-  const attr = createDataAttribute({
-    id: _id,
-    type: 'post',
-    path: 'title',
-  })
-
   return (
     <article
-      data-sanity={attr()}
       key={_id}
       className="border border-border rounded-sm p-6 bg-muted-background flex flex-col justify-between transition-colors hover:bg-background relative"
     >

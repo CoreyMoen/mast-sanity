@@ -68,7 +68,7 @@ export default function ContentWrap({block}: ContentWrapProps) {
   return (
     <div className={`flex flex-col ${gapClass} ${alignClass}`} style={inlineStyle}>
       {contentBlocks.map((contentBlock, contentIndex) => (
-        <div key={contentBlock._key} data-block-type={contentBlock._type}>
+        <div key={contentBlock._key}>
           <ContentBlockOverlay blockType={contentBlock._type}>
             <ContentBlockRenderer block={contentBlock} index={contentIndex} />
           </ContentBlockOverlay>

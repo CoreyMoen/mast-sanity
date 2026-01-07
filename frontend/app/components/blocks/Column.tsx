@@ -192,7 +192,7 @@ export default function Column({block, index, pageId, pageType, sectionKey, rowK
             <div
               key={contentBlock._key}
               data-sanity={blockDataSanity}
-              data-block-type={contentBlock._type}
+              data-block-type={pageId ? contentBlock._type : undefined}
             >
               <ContentBlockOverlay blockType="row">
                 <Row
@@ -211,7 +211,7 @@ export default function Column({block, index, pageId, pageType, sectionKey, rowK
           <div
             key={contentBlock._key}
             data-sanity={blockDataSanity}
-            data-block-type={contentBlock._type}
+            data-block-type={pageId ? contentBlock._type : undefined}
           >
             <ContentBlockOverlay blockType={contentBlock._type}>
               <ContentBlockRenderer

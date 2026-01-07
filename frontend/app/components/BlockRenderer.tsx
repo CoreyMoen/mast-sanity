@@ -17,8 +17,8 @@ type BlockType = {
 type BlockProps = {
   index: number
   block: BlockType
-  pageId: string
-  pageType: string
+  pageId?: string
+  pageType?: string
 }
 
 // Blocks that need pageId and pageType for nested visual editing
@@ -54,15 +54,17 @@ export default function BlockRenderer({block, index, pageId, pageType}: BlockPro
 
   // Handle simple blocks
   if (SimpleBlocks[block._type]) {
-    return (
-      <div
-        key={block._key}
-        data-sanity={dataAttr({
+    // Only add data-sanity attributes when pageId is provided (draft mode)
+    const dataSanityAttr = pageId && pageType
+      ? dataAttr({
           id: pageId,
           type: pageType,
           path: `pageBuilder[_key=="${block._key}"]`,
-        }).toString()}
-      >
+        }).toString()
+      : undefined
+
+    return (
+      <div key={block._key} data-sanity={dataSanityAttr}>
         {React.createElement(SimpleBlocks[block._type], {
           key: block._key,
           block: block,

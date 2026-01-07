@@ -11,9 +11,29 @@ interface EyebrowBlockProps {
     variant?: 'text' | 'overline' | 'pill'
     color?: 'default' | 'brand' | 'blue' | 'muted'
     align?: 'left' | 'center' | 'right'
-    marginBottom?: string
+    customStyle?: string
   }
   index: number
+}
+
+// Parse CSS string to React style object
+function parseCustomStyle(cssString?: string): React.CSSProperties | undefined {
+  if (!cssString) return undefined
+  try {
+    return Object.fromEntries(
+      cssString
+        .split(';')
+        .filter((s) => s.trim())
+        .map((s) => {
+          const [key, ...valueParts] = s.split(':')
+          const value = valueParts.join(':').trim()
+          const camelKey = key.trim().replace(/-([a-z])/g, (g) => g[1].toUpperCase())
+          return [camelKey, value]
+        })
+    )
+  } catch {
+    return undefined
+  }
 }
 
 const alignClasses: Record<string, string> = {
@@ -22,22 +42,13 @@ const alignClasses: Record<string, string> = {
   right: 'text-right',
 }
 
-const marginBottomClasses: Record<string, string> = {
-  '0': 'mb-0',
-  '1': 'mb-1',
-  '2': 'mb-2',
-  '4': 'mb-4',
-  '6': 'mb-6',
-  '8': 'mb-8',
-}
-
 export default function EyebrowBlock({block}: EyebrowBlockProps) {
   const {
     text,
     variant = 'text',
     color = 'default',
     align = 'left',
-    marginBottom = '4',
+    customStyle,
   } = block
 
   if (!text) return null
@@ -45,13 +56,12 @@ export default function EyebrowBlock({block}: EyebrowBlockProps) {
   const cleanVariant = stegaClean(variant)
   const cleanColor = stegaClean(color)
   const cleanAlign = stegaClean(align)
-  const cleanMarginBottom = stegaClean(marginBottom)
 
   const alignClass = alignClasses[cleanAlign] || alignClasses.left
-  const marginClass = marginBottomClasses[cleanMarginBottom] || marginBottomClasses['4']
+  const inlineStyle = parseCustomStyle(customStyle)
 
   return (
-    <div className={`${alignClass} ${marginClass}`}>
+    <div className={alignClass} style={inlineStyle}>
       <Eyebrow variant={cleanVariant} color={cleanColor}>
         {text}
       </Eyebrow>

@@ -11,6 +11,7 @@ import {studioUrl} from '@/sanity/lib/api'
 
 type PageBuilderPageProps = {
   page: GetPageQueryResult
+  isDraftMode?: boolean
 }
 
 type PageBuilderSection = {
@@ -28,25 +29,28 @@ type PageData = {
  * The PageBuilder component is used to render the blocks from the `pageBuilder` field in the Page type in your Sanity Studio.
  */
 
-function renderSections(pageBuilderSections: PageBuilderSection[], page: GetPageQueryResult) {
+function renderSections(pageBuilderSections: PageBuilderSection[], page: GetPageQueryResult, isDraftMode?: boolean) {
   if (!page) {
     return null
   }
-  return (
-    <div
-      data-sanity={dataAttr({
+  // Only add data-sanity attributes when in draft mode (for visual editing)
+  const dataSanityAttr = isDraftMode
+    ? dataAttr({
         id: page._id,
         type: page._type,
         path: `pageBuilder`,
-      }).toString()}
-    >
+      }).toString()
+    : undefined
+
+  return (
+    <div data-sanity={dataSanityAttr}>
       {pageBuilderSections.map((block: any, index: number) => (
         <BlockRenderer
           key={block._key}
           index={index}
           block={block}
-          pageId={page._id}
-          pageType={page._type}
+          pageId={isDraftMode ? page._id : undefined}
+          pageType={isDraftMode ? page._type : undefined}
         />
       ))}
     </div>
@@ -77,7 +81,7 @@ function renderEmptyState(page: GetPageQueryResult) {
   )
 }
 
-export default function PageBuilder({page}: PageBuilderPageProps) {
+export default function PageBuilder({page, isDraftMode}: PageBuilderPageProps) {
   const pageBuilderSections = useOptimistic<
     PageBuilderSection[] | undefined,
     SanityDocument<PageData>
@@ -106,7 +110,9 @@ export default function PageBuilder({page}: PageBuilderPageProps) {
     return renderEmptyState(page)
   }
 
-  return pageBuilderSections && pageBuilderSections.length > 0
-    ? renderSections(pageBuilderSections, page)
-    : renderEmptyState(page)
+  if (pageBuilderSections && pageBuilderSections.length > 0) {
+    return renderSections(pageBuilderSections, page, isDraftMode)
+  }
+
+  return renderEmptyState(page)
 }

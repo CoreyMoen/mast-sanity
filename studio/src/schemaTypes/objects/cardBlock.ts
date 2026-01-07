@@ -65,6 +65,34 @@ export const cardBlock = defineType({
       },
       initialValue: 'md',
     }),
+    defineField({
+      name: 'backgroundImage',
+      title: 'Background Image',
+      type: 'image',
+      group: 'style',
+      description: 'Optional background image for the card',
+      options: {
+        hotspot: true,
+      },
+    }),
+    defineField({
+      name: 'backgroundOverlay',
+      title: 'Background Overlay',
+      type: 'number',
+      group: 'style',
+      description: 'Darken the background image (0 = no overlay, 100 = fully black)',
+      options: {
+        list: [
+          {title: 'None', value: 0},
+          {title: 'Light (20%)', value: 20},
+          {title: 'Medium (40%)', value: 40},
+          {title: 'Dark (60%)', value: 60},
+          {title: 'Very Dark (80%)', value: 80},
+        ],
+      },
+      initialValue: 0,
+      hidden: ({parent}) => !parent?.backgroundImage,
+    }),
     // Link Group
     defineField({
       name: 'href',

@@ -85,7 +85,7 @@ export default function HeadingBlock({block}: HeadingBlockProps) {
   const sizeClass = sizeClasses[effectiveSize] || sizeClasses[cleanLevel]
   const alignClass = alignClasses[cleanAlign] || alignClasses.left
   const colorClass = colorClasses[cleanColor] || colorClasses.default
-  const className = `${sizeClass} ${alignClass} ${colorClass} mb-4`
+  const className = `${sizeClass} ${alignClass} ${colorClass}`
   const inlineStyle = parseCustomStyle(customStyle)
   return createElement(cleanLevel, {className, style: inlineStyle}, text)
 }

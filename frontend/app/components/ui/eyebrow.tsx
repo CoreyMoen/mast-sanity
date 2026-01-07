@@ -1,5 +1,4 @@
 import * as React from 'react'
-import {cn} from '@/lib/utils'
 
 type EyebrowVariant = 'text' | 'overline' | 'pill'
 type EyebrowColor = 'default' | 'brand' | 'blue' | 'muted'
@@ -54,16 +53,17 @@ export function Eyebrow({
   color = 'default',
   className,
 }: EyebrowProps) {
+  const classes = [
+    'text-eyebrow',
+    variantClasses[variant],
+    colorClasses[color][variant],
+    className,
+  ]
+    .filter(Boolean)
+    .join(' ')
+
   return (
-    <span
-      className={cn(
-        // Base styles matching Mast eyebrow
-        'text-p-sm font-medium uppercase tracking-[0.1em] leading-tight',
-        variantClasses[variant],
-        colorClasses[color][variant],
-        className
-      )}
-    >
+    <span className={classes}>
       {children}
     </span>
   )

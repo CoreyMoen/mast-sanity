@@ -3,7 +3,6 @@
 import * as React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import * as NavigationMenu from '@radix-ui/react-navigation-menu'
 import {CaretDown} from '@phosphor-icons/react'
 import {urlForImage} from '@/sanity/lib/utils'
 import {Button} from './ui/button'
@@ -208,55 +207,23 @@ export default function Navigation({data, siteTitle = 'Mast Sanity'}: Navigation
             <div className="hidden md:flex items-center gap-4 ml-auto">
               {/* Only render NavigationMenu after mount to prevent hydration mismatch */}
               {mounted ? (
-                <NavigationMenu.Root className="relative">
-                  <NavigationMenu.List className="flex items-center">
-                    {(data?.items?.length ? data.items : defaultNavItems).map((item) => (
-                      <NavigationMenu.Item key={item._key} className="relative">
-                        {item.type === 'dropdown' && item.dropdownLinks?.length ? (
-                          <>
-                            <NavigationMenu.Trigger
-                              className={cn(
-                                linkClasses,
-                                'group data-[state=open]:text-brand'
-                              )}
-                            >
-                              {item.label}
-                              <CaretDown
-                                className="h-4 w-4 transition-transform duration-300 group-data-[state=open]:rotate-180"
-                                weight="bold"
-                              />
-                            </NavigationMenu.Trigger>
-                            <NavigationMenu.Content className="absolute left-0 top-full mt-2 min-w-[200px] rounded-lg border border-border bg-background py-1 shadow-lg">
-                              {item.dropdownLinks.map((dropdownLink) => (
-                                <NavigationMenu.Link key={dropdownLink._key} asChild>
-                                  <NavLinkItem
-                                    href={resolveLink(dropdownLink.link)}
-                                    openInNewTab={dropdownLink.link?.openInNewTab}
-                                    className={dropdownLinkClasses}
-                                  >
-                                    {dropdownLink.label}
-                                  </NavLinkItem>
-                                </NavigationMenu.Link>
-                              ))}
-                            </NavigationMenu.Content>
-                          </>
-                        ) : (
-                          <NavigationMenu.Link asChild>
-                            <NavLinkItem
-                              href={resolveLink(item.link)}
-                              openInNewTab={item.link?.openInNewTab}
-                              className={linkClasses}
-                            >
-                              {item.label}
-                            </NavLinkItem>
-                          </NavigationMenu.Link>
-                        )}
-                      </NavigationMenu.Item>
-                    ))}
-                  </NavigationMenu.List>
-
-                  <NavigationMenu.Viewport className="absolute top-full left-0" />
-                </NavigationMenu.Root>
+                <nav className="flex items-center">
+                  {(data?.items?.length ? data.items : defaultNavItems).map((item) => (
+                    <div key={item._key} className="relative">
+                      {item.type === 'dropdown' && item.dropdownLinks?.length ? (
+                        <DesktopDropdown item={item} linkClasses={linkClasses} dropdownLinkClasses={dropdownLinkClasses} />
+                      ) : (
+                        <NavLinkItem
+                          href={resolveLink(item.link)}
+                          openInNewTab={item.link?.openInNewTab}
+                          className={linkClasses}
+                        >
+                          {item.label}
+                        </NavLinkItem>
+                      )}
+                    </div>
+                  ))}
+                </nav>
               ) : (
                 // SSR fallback - simple nav links without Radix
                 <nav className="flex items-center">
@@ -279,16 +246,17 @@ export default function Navigation({data, siteTitle = 'Mast Sanity'}: Navigation
               {/* CTA Button */}
               {(data?.showCta ?? defaultCta.show) && (data?.ctaLabel || defaultCta.label) && (
                 <Button
-                  variant={data?.ctaStyle || defaultCta.style}
+                  variant={(data?.ctaStyle === 'secondary' ? 'secondary' : 'primary')}
                   colorScheme="brand"
                   asChild
                 >
-                  <NavLinkItem
+                  <Link
                     href={resolveLink(data?.ctaLink || defaultCta.link)}
-                    openInNewTab={data?.ctaLink?.openInNewTab}
+                    target={data?.ctaLink?.openInNewTab ? '_blank' : undefined}
+                    rel={data?.ctaLink?.openInNewTab ? 'noopener noreferrer' : undefined}
                   >
                     {data?.ctaLabel || defaultCta.label}
-                  </NavLinkItem>
+                  </Link>
                 </Button>
               )}
             </div>
@@ -361,16 +329,18 @@ export default function Navigation({data, siteTitle = 'Mast Sanity'}: Navigation
               <div className="flex items-center gap-4">
                 {(data?.showCta ?? defaultCta.show) && (data?.ctaLabel || defaultCta.label) && (
                   <Button
-                    variant={data?.ctaStyle || defaultCta.style}
+                    variant={(data?.ctaStyle === 'secondary' ? 'secondary' : 'primary')}
                     colorScheme="brand"
                     asChild
                   >
-                    <NavLinkItem
+                    <Link
                       href={resolveLink(data?.ctaLink || defaultCta.link)}
-                      openInNewTab={data?.ctaLink?.openInNewTab}
+                      target={data?.ctaLink?.openInNewTab ? '_blank' : undefined}
+                      rel={data?.ctaLink?.openInNewTab ? 'noopener noreferrer' : undefined}
+                      onClick={() => setMobileMenuOpen(false)}
                     >
-                      <span onClick={() => setMobileMenuOpen(false)}>{data?.ctaLabel || defaultCta.label}</span>
-                    </NavLinkItem>
+                      {data?.ctaLabel || defaultCta.label}
+                    </Link>
                   </Button>
                 )}
 
@@ -418,6 +388,58 @@ export default function Navigation({data, siteTitle = 'Mast Sanity'}: Navigation
         </div>
       </div>
     </>
+  )
+}
+
+// Desktop dropdown component with hover
+function DesktopDropdown({
+  item,
+  linkClasses,
+  dropdownLinkClasses,
+}: {
+  item: NavItem
+  linkClasses: string
+  dropdownLinkClasses: string
+}) {
+  const [isOpen, setIsOpen] = React.useState(false)
+
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+    >
+      <button
+        type="button"
+        className={cn(linkClasses, 'group', isOpen && 'text-brand')}
+        aria-expanded={isOpen}
+      >
+        {item.label}
+        <CaretDown
+          className={cn(
+            'h-4 w-4 transition-transform duration-300',
+            isOpen && 'rotate-180'
+          )}
+          weight="bold"
+        />
+      </button>
+      {isOpen && (
+        <div className="absolute left-0 top-full pt-2 min-w-[200px]">
+          <div className="rounded-lg border border-border bg-background py-1 shadow-lg">
+            {item.dropdownLinks?.map((dropdownLink) => (
+              <NavLinkItem
+                key={dropdownLink._key}
+                href={resolveLink(dropdownLink.link)}
+                openInNewTab={dropdownLink.link?.openInNewTab}
+                className={dropdownLinkClasses}
+              >
+                {dropdownLink.label}
+              </NavLinkItem>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   )
 }
 

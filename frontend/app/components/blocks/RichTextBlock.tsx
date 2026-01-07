@@ -7,7 +7,7 @@ interface RichTextBlockProps {
     _type: string
     content?: PortableTextBlock[]
     align?: 'left' | 'center' | 'right'
-    size?: 'xl' | 'lg' | 'base' | 'sm'
+    size?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'xl' | 'lg' | 'base' | 'sm'
     maxWidth?: 'none' | 'prose' | 'prose-lg' | 'prose-xl'
     color?: 'default' | 'gray' | 'white' | 'brand' | 'blue'
     customStyle?: string
@@ -42,12 +42,20 @@ const alignClasses: Record<string, string> = {
   right: 'text-right ml-auto',
 }
 
-// Text sizes (using design system paragraph utilities)
+// Text sizes (using design system heading and paragraph utilities)
 const sizeClasses: Record<string, string> = {
-  xl: 'prose-xl',
-  lg: 'prose-lg',
-  base: 'prose-base',
-  sm: 'prose-sm',
+  // Heading sizes - use design system heading variables
+  h1: 'text-h1',
+  h2: 'text-h2',
+  h3: 'text-h3',
+  h4: 'text-h4',
+  h5: 'text-h5',
+  h6: 'text-h6',
+  // Paragraph sizes - use design system paragraph utilities
+  xl: 'text-p-xl',
+  lg: 'text-p-lg',
+  base: 'text-body',
+  sm: 'text-p-sm',
 }
 
 // Max width for readability
@@ -94,8 +102,8 @@ export default function RichTextBlock({block}: RichTextBlockProps) {
   const inlineStyle = parseCustomStyle(customStyle)
 
   return (
-    <div className={`${alignClass} ${maxWidthClass} ${colorClass} mb-4`} style={inlineStyle}>
-      <PortableText value={content} className={sizeClass} />
+    <div className={`${alignClass} ${maxWidthClass} ${colorClass} ${sizeClass}`} style={inlineStyle}>
+      <PortableText value={content} disableProse />
     </div>
   )
 }

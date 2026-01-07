@@ -1,5 +1,6 @@
 import * as React from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import {cn} from '@/lib/utils'
 
 /**
@@ -43,6 +44,10 @@ interface CardProps {
   openInNewTab?: boolean
   /** Show hover effect (background change) */
   hoverEffect?: boolean
+  /** Background image URL */
+  backgroundImage?: string
+  /** Background overlay opacity (0-100) */
+  backgroundOverlay?: number
   /** Additional CSS classes */
   className?: string
 }
@@ -70,8 +75,13 @@ export function Card({
   href,
   openInNewTab = false,
   hoverEffect = false,
+  backgroundImage,
+  backgroundOverlay = 0,
   className,
 }: CardProps) {
+  const hasBackgroundImage = !!backgroundImage
+  const isDarkBg = hasBackgroundImage && backgroundOverlay >= 40
+
   const baseClasses = cn(
     'rounded-[var(--component-card-radius)] overflow-hidden flex flex-col relative',
     'transition-all duration-300 ease-out',
@@ -79,7 +89,37 @@ export function Card({
     paddingClasses[padding],
     hoverEffect && 'hover:bg-muted-background hover:border-border',
     href && 'cursor-pointer',
+    isDarkBg && 'text-white',
     className,
+  )
+
+  // Background image and overlay elements
+  const backgroundElements = hasBackgroundImage ? (
+    <>
+      <Image
+        src={backgroundImage}
+        alt=""
+        fill
+        className="object-cover"
+        sizes="(max-width: 768px) 100vw, 50vw"
+      />
+      {backgroundOverlay > 0 && (
+        <div
+          className="absolute inset-0 bg-black"
+          style={{opacity: backgroundOverlay / 100}}
+        />
+      )}
+    </>
+  ) : null
+
+  // Content wrapper with relative positioning to appear above background
+  const contentWrapper = (
+    <>
+      {backgroundElements}
+      <div className={cn('relative z-10', hasBackgroundImage && 'flex-1 flex flex-col')}>
+        {children}
+      </div>
+    </>
   )
 
   // If href is provided, render as a link
@@ -94,20 +134,20 @@ export function Card({
           rel={openInNewTab ? 'noopener noreferrer' : undefined}
           className={cn(baseClasses, 'no-underline text-inherit')}
         >
-          {children}
+          {contentWrapper}
         </a>
       )
     }
 
     return (
       <Link href={href} className={cn(baseClasses, 'no-underline text-inherit')}>
-        {children}
+        {contentWrapper}
       </Link>
     )
   }
 
   // Default: render as div
-  return <div className={baseClasses}>{children}</div>
+  return <div className={baseClasses}>{contentWrapper}</div>
 }
 
 /**

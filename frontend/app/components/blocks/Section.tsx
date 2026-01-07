@@ -22,8 +22,8 @@ interface SectionProps {
     paddingBottom?: string
   }
   index: number
-  pageId: string
-  pageType: string
+  pageId?: string
+  pageType?: string
 }
 
 // Background color mapping - using semantic CSS variables
@@ -130,15 +130,20 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
   const backgroundImageUrl = urlForImage(backgroundImage)?.url()
   const isDarkBg = ['gray-800', 'black', 'brand', 'blue'].includes(cleanBgColor) || (backgroundImageUrl && cleanOverlay >= 40)
 
+  // Only add data-sanity attributes when pageId is provided (draft mode)
+  const sectionDataSanity = pageId && pageType
+    ? dataAttr({
+        id: pageId,
+        type: pageType,
+        path: `pageBuilder:${block._key}`,
+      }).toString()
+    : undefined
+
   return (
     <section
       className={`relative ${bgClass} ${isDarkBg ? 'text-white' : 'text-foreground'} ${minHeightClass} ${hasMinHeight ? 'flex flex-col' : ''} ${alignClass}`}
       style={customMinHeightStyle}
-      data-sanity={dataAttr({
-        id: pageId,
-        type: pageType,
-        path: `pageBuilder:${block._key}`,
-      }).toString()}
+      data-sanity={sectionDataSanity}
     >
       {/* Background Image */}
       {backgroundImageUrl && (
@@ -163,34 +168,41 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
 
       {/* Content Container */}
       <div className={`relative z-10 ${maxWidthClass} ${paddingClass} ${hasMinHeight ? 'flex-1 flex flex-col' : ''} ${alignClass}`}>
-        {rowItems.map((item, itemIndex) => (
-          <div
-            key={item._key}
-            data-sanity={dataAttr({
-              id: pageId,
-              type: pageType,
-              path: `pageBuilder:${block._key}.rows:${item._key}`,
-            }).toString()}
-            data-block-type={item._type}
-          >
-            {item._type === 'row' ? (
-              <ContentBlockOverlay blockType="row">
-                <Row
-                  block={item}
-                  index={itemIndex}
-                  pageId={pageId}
-                  pageType={pageType}
-                  sectionKey={block._key}
-                />
-              </ContentBlockOverlay>
-            ) : (
-              // Render content blocks directly (not wrapped in row/column)
-              <ContentBlockOverlay blockType={item._type}>
-                <ContentBlockRenderer block={item} index={itemIndex} />
-              </ContentBlockOverlay>
-            )}
-          </div>
-        ))}
+        {rowItems.map((item, itemIndex) => {
+          // Only add data-sanity attributes when pageId is provided (draft mode)
+          const itemDataSanity = pageId && pageType
+            ? dataAttr({
+                id: pageId,
+                type: pageType,
+                path: `pageBuilder:${block._key}.rows:${item._key}`,
+              }).toString()
+            : undefined
+
+          return (
+            <div
+              key={item._key}
+              data-sanity={itemDataSanity}
+              data-block-type={pageId ? item._type : undefined}
+            >
+              {item._type === 'row' ? (
+                <ContentBlockOverlay blockType="row">
+                  <Row
+                    block={item}
+                    index={itemIndex}
+                    pageId={pageId}
+                    pageType={pageType}
+                    sectionKey={block._key}
+                  />
+                </ContentBlockOverlay>
+              ) : (
+                // Render content blocks directly (not wrapped in row/column)
+                <ContentBlockOverlay blockType={item._type}>
+                  <ContentBlockRenderer block={item} index={itemIndex} />
+                </ContentBlockOverlay>
+              )}
+            </div>
+          )
+        })}
       </div>
     </section>
   )

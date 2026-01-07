@@ -491,6 +491,7 @@ html {
   line-height: var(--type-h1-line-height);
   font-weight: var(--type-h1-font-weight);
   letter-spacing: var(--type-h1-letter-spacing);
+  margin-bottom: var(--type-h1-margin-bottom);
 }
 
 /* H2 */
@@ -506,6 +507,7 @@ html {
   line-height: var(--type-h2-line-height);
   font-weight: var(--type-h2-font-weight);
   letter-spacing: var(--type-h2-letter-spacing);
+  margin-bottom: var(--type-h2-margin-bottom);
 }
 
 /* H3 */
@@ -521,6 +523,7 @@ html {
   line-height: var(--type-h3-line-height);
   font-weight: var(--type-h3-font-weight);
   letter-spacing: var(--type-h3-letter-spacing);
+  margin-bottom: var(--type-h3-margin-bottom);
 }
 
 /* H4 */
@@ -536,6 +539,7 @@ html {
   line-height: var(--type-h4-line-height);
   font-weight: var(--type-h4-font-weight);
   letter-spacing: var(--type-h4-letter-spacing);
+  margin-bottom: var(--type-h4-margin-bottom);
 }
 
 /* H5 */
@@ -551,6 +555,7 @@ html {
   line-height: var(--type-h5-line-height);
   font-weight: var(--type-h5-font-weight);
   letter-spacing: var(--type-h5-letter-spacing);
+  margin-bottom: var(--type-h5-margin-bottom);
 }
 
 /* H6 */
@@ -566,6 +571,7 @@ html {
   line-height: var(--type-h6-line-height);
   font-weight: var(--type-h6-font-weight);
   letter-spacing: var(--type-h6-letter-spacing);
+  margin-bottom: var(--type-h6-margin-bottom);
 }
 
 /* Paragraph XL */
@@ -581,6 +587,7 @@ html {
   line-height: var(--type-p-xl-line-height);
   font-weight: var(--type-p-xl-font-weight);
   letter-spacing: var(--type-p-xl-letter-spacing);
+  margin-bottom: var(--type-p-xl-margin-bottom);
 }
 
 /* Paragraph LG */
@@ -596,6 +603,7 @@ html {
   line-height: var(--type-p-lg-line-height);
   font-weight: var(--type-p-lg-font-weight);
   letter-spacing: var(--type-p-lg-letter-spacing);
+  margin-bottom: var(--type-p-lg-margin-bottom);
 }
 
 /* Paragraph Body (default) */
@@ -611,6 +619,7 @@ html {
   line-height: var(--type-body-line-height);
   font-weight: var(--type-body-font-weight);
   letter-spacing: var(--type-body-letter-spacing);
+  margin-bottom: var(--type-body-margin-bottom);
 }
 
 /* Paragraph SM */
@@ -626,6 +635,7 @@ html {
   line-height: var(--type-p-sm-line-height);
   font-weight: var(--type-p-sm-font-weight);
   letter-spacing: var(--type-p-sm-letter-spacing);
+  margin-bottom: var(--type-p-sm-margin-bottom);
 }
 
 /* Eyebrow */
@@ -642,6 +652,149 @@ html {
   font-weight: var(--type-eyebrow-font-weight);
   letter-spacing: var(--type-eyebrow-letter-spacing);
   text-transform: uppercase;
+  margin-bottom: var(--type-eyebrow-margin-bottom);
+}
+
+/* ==========================================================================
+   RICH TEXT CHILD ELEMENT MARGINS
+   Apply appropriate bottom margins to child elements based on parent text size.
+   Last child elements have no bottom margin to prevent extra spacing.
+   Uses descendant selectors to work with nested wrapper divs.
+   ========================================================================== */
+
+/* Heading sizes - child element margins */
+.text-h1 p:not(:last-child),
+.text-h1 ul:not(:last-child),
+.text-h1 ol:not(:last-child),
+.text-h1 blockquote:not(:last-child) {
+  margin-bottom: var(--type-h1-margin-bottom);
+}
+
+.text-h2 p:not(:last-child),
+.text-h2 ul:not(:last-child),
+.text-h2 ol:not(:last-child),
+.text-h2 blockquote:not(:last-child) {
+  margin-bottom: var(--type-h2-margin-bottom);
+}
+
+.text-h3 p:not(:last-child),
+.text-h3 ul:not(:last-child),
+.text-h3 ol:not(:last-child),
+.text-h3 blockquote:not(:last-child) {
+  margin-bottom: var(--type-h3-margin-bottom);
+}
+
+.text-h4 p:not(:last-child),
+.text-h4 ul:not(:last-child),
+.text-h4 ol:not(:last-child),
+.text-h4 blockquote:not(:last-child) {
+  margin-bottom: var(--type-h4-margin-bottom);
+}
+
+.text-h5 p:not(:last-child),
+.text-h5 ul:not(:last-child),
+.text-h5 ol:not(:last-child),
+.text-h5 blockquote:not(:last-child) {
+  margin-bottom: var(--type-h5-margin-bottom);
+}
+
+.text-h6 p:not(:last-child),
+.text-h6 ul:not(:last-child),
+.text-h6 ol:not(:last-child),
+.text-h6 blockquote:not(:last-child) {
+  margin-bottom: var(--type-h6-margin-bottom);
+}
+
+/* Paragraph sizes - child element margins */
+.text-p-xl p:not(:last-child),
+.text-p-xl ul:not(:last-child),
+.text-p-xl ol:not(:last-child),
+.text-p-xl blockquote:not(:last-child) {
+  margin-bottom: var(--type-p-xl-margin-bottom);
+}
+
+.text-p-lg p:not(:last-child),
+.text-p-lg ul:not(:last-child),
+.text-p-lg ol:not(:last-child),
+.text-p-lg blockquote:not(:last-child) {
+  margin-bottom: var(--type-p-lg-margin-bottom);
+}
+
+.text-body p:not(:last-child),
+.text-body ul:not(:last-child),
+.text-body ol:not(:last-child),
+.text-body blockquote:not(:last-child) {
+  margin-bottom: var(--type-body-margin-bottom);
+}
+
+.text-p-sm p:not(:last-child),
+.text-p-sm ul:not(:last-child),
+.text-p-sm ol:not(:last-child),
+.text-p-sm blockquote:not(:last-child) {
+  margin-bottom: var(--type-p-sm-margin-bottom);
+}
+
+/* Reset last child margins to prevent extra spacing */
+.text-h1 p:last-child,
+.text-h1 ul:last-child,
+.text-h1 ol:last-child,
+.text-h1 blockquote:last-child,
+.text-h2 p:last-child,
+.text-h2 ul:last-child,
+.text-h2 ol:last-child,
+.text-h2 blockquote:last-child,
+.text-h3 p:last-child,
+.text-h3 ul:last-child,
+.text-h3 ol:last-child,
+.text-h3 blockquote:last-child,
+.text-h4 p:last-child,
+.text-h4 ul:last-child,
+.text-h4 ol:last-child,
+.text-h4 blockquote:last-child,
+.text-h5 p:last-child,
+.text-h5 ul:last-child,
+.text-h5 ol:last-child,
+.text-h5 blockquote:last-child,
+.text-h6 p:last-child,
+.text-h6 ul:last-child,
+.text-h6 ol:last-child,
+.text-h6 blockquote:last-child,
+.text-p-xl p:last-child,
+.text-p-xl ul:last-child,
+.text-p-xl ol:last-child,
+.text-p-xl blockquote:last-child,
+.text-p-lg p:last-child,
+.text-p-lg ul:last-child,
+.text-p-lg ol:last-child,
+.text-p-lg blockquote:last-child,
+.text-body p:last-child,
+.text-body ul:last-child,
+.text-body ol:last-child,
+.text-body blockquote:last-child,
+.text-p-sm p:last-child,
+.text-p-sm ul:last-child,
+.text-p-sm ol:last-child,
+.text-p-sm blockquote:last-child {
+  margin-bottom: 0;
+}
+
+/* Reset margin-bottom for typography utilities in nav/header/footer contexts */
+nav .text-body,
+nav .text-p-xl,
+nav .text-p-lg,
+nav .text-p-sm,
+nav .text-eyebrow,
+header .text-body,
+header .text-p-xl,
+header .text-p-lg,
+header .text-p-sm,
+header .text-eyebrow,
+footer .text-body,
+footer .text-p-xl,
+footer .text-p-lg,
+footer .text-p-sm,
+footer .text-eyebrow {
+  margin-bottom: 0;
 }
 
 /* ==========================================================================

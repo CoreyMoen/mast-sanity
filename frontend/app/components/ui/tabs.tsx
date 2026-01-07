@@ -77,10 +77,14 @@ const Tabs = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Root>, TabsP
       mobileDropdown = false,
       defaultValue,
       children,
+      id,
       ...props
     },
     ref
   ) => {
+    // Use React's useId for stable SSR-compatible ID generation
+    const generatedId = React.useId()
+    const tabsId = id || generatedId
     const [value, setValue] = React.useState(defaultValue)
     const [isPaused, setIsPaused] = React.useState(false)
     const [isHovered, setIsHovered] = React.useState(false)
@@ -184,6 +188,7 @@ const Tabs = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Root>, TabsP
       >
         <TabsPrimitive.Root
           ref={ref}
+          id={tabsId}
           value={value}
           onValueChange={(newValue) => {
             setValue(newValue)

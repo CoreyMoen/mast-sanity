@@ -7,8 +7,9 @@ export const eyebrowBlock = defineType({
   type: 'object',
   icon: TextIcon,
   groups: [
-    {name: 'content', title: 'Content'},
+    {name: 'content', title: 'Content', default: true},
     {name: 'style', title: 'Style'},
+    {name: 'advanced', title: 'Advanced'},
   ],
   fields: [
     defineField({
@@ -65,22 +66,14 @@ export const eyebrowBlock = defineType({
       },
       initialValue: 'left',
     }),
+    // Advanced Group
     defineField({
-      name: 'marginBottom',
-      title: 'Bottom Margin',
-      type: 'string',
-      group: 'style',
-      options: {
-        list: [
-          {title: 'None', value: '0'},
-          {title: 'XS (4px)', value: '1'},
-          {title: 'SM (8px)', value: '2'},
-          {title: 'MD (16px)', value: '4'},
-          {title: 'LG (24px)', value: '6'},
-          {title: 'XL (32px)', value: '8'},
-        ],
-      },
-      initialValue: '4',
+      name: 'customStyle',
+      title: 'Custom CSS',
+      type: 'text',
+      group: 'advanced',
+      description: 'Add custom inline CSS styles (e.g., "margin-bottom: 0; opacity: 0.8;")',
+      rows: 3,
     }),
   ],
   preview: {

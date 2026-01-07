@@ -11,6 +11,9 @@ export const client = createClient({
   perspective: 'published',
   token, // Required if you have a private dataset
   stega: {
+    // Stega is disabled by default - defineLive will enable it automatically
+    // when in draft mode (Presentation tool or Vercel Toolbar Edit Mode)
+    enabled: false,
     studioUrl,
     // Set logger to 'console' for more verbose logging
     // logger: console,

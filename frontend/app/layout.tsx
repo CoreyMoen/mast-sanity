@@ -107,10 +107,10 @@ export default async function RootLayout({children}: {children: React.ReactNode}
       <body className="flex min-h-screen flex-col">
         {/* The <Toaster> component is responsible for rendering toast notifications used in /app/client-utils.ts and /app/components/DraftModeToast.tsx */}
         <Toaster />
+        {/* Visual Editing and Draft Mode Toast - only rendered in draft mode */}
         {isDraftMode && (
           <>
             <DraftModeToast />
-            {/*  Enable Visual Editing, only to be rendered when Draft Mode is enabled */}
             <VisualEditingWithPlugins />
           </>
         )}
