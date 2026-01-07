@@ -8,7 +8,15 @@ import pluralize from 'pluralize-esm'
  * Learn more: https://www.sanity.io/docs/structure-builder-introduction
  */
 
-const DISABLED_TYPES = ['settings', 'navigation', 'footer', 'assist.instruction.context']
+const DISABLED_TYPES = [
+  'settings',
+  'navigation',
+  'footer',
+  'assist.instruction.context',
+  // Claude Assistant schemas - accessed via Claude tool only
+  'claudeConversation',
+  'claudeInstructions',
+]
 
 export const structure: StructureResolver = (S: StructureBuilder) =>
   S.list()

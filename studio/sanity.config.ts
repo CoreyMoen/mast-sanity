@@ -16,6 +16,7 @@ import {
   type DocumentLocation,
 } from 'sanity/presentation'
 import {assist} from '@sanity/assist'
+import {claudeAssistant} from './src/plugins/claude-assistant'
 
 // Environment variables for project configuration
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'your-projectID'
@@ -126,10 +127,22 @@ export default defineConfig({
     unsplashImageAsset(),
     assist(),
     visionTool(),
+    claudeAssistant({
+      apiEndpoint: `${SANITY_STUDIO_PREVIEW_URL}/api/claude`,
+    }),
   ],
 
   // Schema configuration, imported from ./src/schemaTypes/index.ts
   schema: {
     types: schemaTypes,
+  },
+
+  // Filter out Claude assistant document types from "Create new document" menu
+  document: {
+    newDocumentOptions: (prev) =>
+      prev.filter(
+        (item) =>
+          !['claudeConversation', 'claudeInstructions'].includes(item.templateId)
+      ),
   },
 })

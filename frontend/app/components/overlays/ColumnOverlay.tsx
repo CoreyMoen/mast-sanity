@@ -14,8 +14,8 @@ const gapToPixels: Record<string, number> = {
   '12': 24, // px-6 = 1.5rem = 24px
 }
 
-// SVG pattern with blue color (#4f46e5) - diagonal stripes pattern
-const SVG_PATTERN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='3' height='3' viewBox='0 0 3 3' fill='none'%3E%3Cg clip-path='url(%23clip0_481_2070)'%3E%3Cpath d='M2.99997 0.970703L0.969971 3.0007H2.02997L2.99997 2.0307V0.970703Z' fill='%234f46e5'/%3E%3Cpath d='M0.97 0L0 0.97V2.03L2.03 0H0.97Z' fill='%234f46e5'/%3E%3C/g%3E%3Cdefs%3E%3CclipPath id='clip0_481_2070'%3E%3Crect width='3' height='3' fill='white'/%3E%3C/clipPath%3E%3C/defs%3E%3C/svg%3E")`
+// SVG pattern with blue color (#5571FB) - diagonal stripes pattern
+const SVG_PATTERN = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='3' height='3' viewBox='0 0 3 3' fill='none'%3E%3Cg clip-path='url(%23clip0_481_2070)'%3E%3Cpath d='M2.99997 0.970703L0.969971 3.0007H2.02997L2.99997 2.0307V0.970703Z' fill='%235571FB'/%3E%3Cpath d='M0.97 0L0 0.97V2.03L2.03 0H0.97Z' fill='%235571FB'/%3E%3C/g%3E%3Cdefs%3E%3CclipPath id='clip0_481_2070'%3E%3Crect width='3' height='3' fill='white'/%3E%3C/clipPath%3E%3C/defs%3E%3C/svg%3E")`
 
 interface ColumnOverlayProps {
   gap?: string
@@ -118,15 +118,15 @@ export default function ColumnOverlay({gap = '6', verticalAlign = 'start', child
         <div
           style={{
             position: 'absolute',
-            bottom: '100%',
+            bottom: 'calc(100% + 3px)',
             left: '0',
             display: 'flex',
             alignItems: 'center',
             gap: '6px',
             padding: '4px 10px',
-            background: '#4f46e5',
+            background: '#5571FB',
             color: 'white',
-            borderRadius: '4px 4px 0 0',
+            borderRadius: '3px',
             fontSize: '12px',
             fontWeight: 500,
             fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',

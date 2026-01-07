@@ -164,7 +164,7 @@ function EnhancedOverlay(props: OverlayComponentProps) {
       <div
         style={{
           position: 'absolute',
-          bottom: '100%',
+          bottom: 'calc(100% + 3px)',
           left: '0',
           display: 'flex',
           alignItems: 'center',
@@ -178,9 +178,9 @@ function EnhancedOverlay(props: OverlayComponentProps) {
             alignItems: 'center',
             gap: '6px',
             padding: '5px 10px',
-            background: '#4f46e5',
+            background: '#5571FB',
             color: 'white',
-            borderRadius: '4px 4px 0 0',
+            borderRadius: '3px',
             fontSize: '13px',
             fontWeight: 500,
             fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif',
