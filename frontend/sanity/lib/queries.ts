@@ -115,6 +115,18 @@ const contentBlockFields = /* groq */ `
     },
     _type == "richTextBlock" => {
       ${richTextFields}
+    },
+    _type == "inlineVideoBlock" => {
+      ...,
+      videoFile {
+        asset-> {
+          url
+        }
+      },
+      poster {
+        ...,
+        asset->
+      }
     }
   }
 `

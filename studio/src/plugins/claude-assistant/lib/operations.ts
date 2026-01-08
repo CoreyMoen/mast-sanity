@@ -138,6 +138,12 @@ export class ContentOperations {
 
   /**
    * Update an existing document
+   * Handles both draft and published documents - updates the draft version
+   * Supports nested field paths with _key selectors for array items
+   *
+   * For nested updates, use paths like:
+   * - Simple: { "title": "New Title" }
+   * - Nested with _key: { "pageBuilder[_key==\"abc123\"].rows[_key==\"def456\"].columns[_key==\"ghi789\"].content[_key==\"jkl012\"].text": "New Text" }
    */
   async updateDocument(payload: ActionPayload): Promise<ActionResult> {
     if (!payload.documentId) {
@@ -148,16 +154,64 @@ export class ContentOperations {
       return {success: false, message: 'No fields to update'}
     }
 
-    const result = await this.client
-      .patch(payload.documentId)
-      .set(payload.fields)
-      .commit()
+    // Validate field paths - reject if they use numeric indices (which can corrupt data)
+    for (const fieldPath of Object.keys(payload.fields)) {
+      if (/\[\d+\]/.test(fieldPath)) {
+        return {
+          success: false,
+          message: `Invalid field path "${fieldPath}". Use _key selectors like [_key=="abc123"] instead of numeric indices like [0]. Query the document first to get the _key values.`,
+        }
+      }
+    }
 
-    return {
-      success: true,
-      documentId: result._id,
-      message: `Updated document ${payload.documentId}`,
-      data: result,
+    // Strip drafts. prefix if present to get the base ID
+    const baseId = payload.documentId.replace(/^drafts\./, '')
+    const draftId = `drafts.${baseId}`
+
+    try {
+      // First check if the draft exists
+      let draft = await this.client.getDocument(draftId)
+
+      if (!draft) {
+        // Try to get the published version and create a draft from it
+        const published = await this.client.getDocument(baseId)
+        if (published) {
+          const {_id, ...docWithoutId} = published
+          draft = await this.client.create({
+            ...docWithoutId,
+            _id: draftId,
+          })
+        } else {
+          return {
+            success: false,
+            message: `Document not found: ${baseId}. Please verify the document ID exists.`,
+          }
+        }
+      }
+
+      // Log the fields being updated for debugging
+      console.log('[Claude Assistant] Updating document:', draftId)
+      console.log('[Claude Assistant] Fields:', JSON.stringify(payload.fields, null, 2))
+
+      // Apply the patch with the provided fields
+      const result = await this.client
+        .patch(draftId)
+        .set(payload.fields)
+        .commit()
+
+      return {
+        success: true,
+        documentId: result._id,
+        message: `Updated document successfully. Changes saved to draft - remember to publish when ready.`,
+        data: result,
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to update document'
+      console.error('[Claude Assistant] Update error:', errorMessage)
+      return {
+        success: false,
+        message: `Update failed: ${errorMessage}. This may indicate the field path is incorrect. Ensure you're using _key selectors (e.g., [_key=="abc"]) and that all _key values exist in the document.`,
+      }
     }
   }
 

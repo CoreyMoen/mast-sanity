@@ -115,12 +115,25 @@ export function ActionCard({
   const canExecute = isPending && action.type !== 'explain'
   const needsConfirmation = canExecute && isDestructive
 
-  // Get the document ID from result or payload
+  // Get the document ID and slug from result or payload
   const documentId = action.result?.documentId || action.payload.documentId
   const documentType = action.payload.documentType
+  // Extract slug from result data if available (for pages)
+  const resultData = action.result?.data as Record<string, unknown> | undefined
+  const documentSlug = resultData?.slug as {current?: string} | undefined
 
   // Auto-execute non-destructive actions when enabled
   useEffect(() => {
+    console.log('[ActionCard] Auto-execute check:', {
+      actionId: action.id,
+      actionType: action.type,
+      autoExecuteEnabled,
+      isPending,
+      shouldAutoExec,
+      isDestructive,
+      hasAutoExecuted: hasAutoExecuted.current,
+      hasOnExecute: !!onExecute,
+    })
     if (
       autoExecuteEnabled &&
       isPending &&
@@ -129,10 +142,11 @@ export function ActionCard({
       !hasAutoExecuted.current &&
       onExecute
     ) {
+      console.log('[ActionCard] Auto-executing action:', action.id, action.type)
       hasAutoExecuted.current = true
       onExecute()
     }
-  }, [autoExecuteEnabled, isPending, shouldAutoExec, isDestructive, onExecute])
+  }, [autoExecuteEnabled, isPending, shouldAutoExec, isDestructive, onExecute, action.id, action.type])
 
   // Handle opening in Structure tool
   const handleOpenInStructure = useCallback(
@@ -141,7 +155,7 @@ export function ActionCard({
       if (documentId && onOpenInStructure) {
         onOpenInStructure(documentId, documentType)
       } else if (documentId) {
-        // Default: navigate using window.location
+        // Navigate to Structure tool using relative URL
         const typeSegment = documentType || 'document'
         window.location.href = `/structure/${typeSegment};${documentId}`
       }
@@ -149,20 +163,22 @@ export function ActionCard({
     [documentId, documentType, onOpenInStructure]
   )
 
-  // Handle opening in Preview
+  // Handle opening in Preview/Presentation
   const handleOpenInPreview = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation()
       if (documentId && onOpenInPreview) {
         onOpenInPreview(documentId, documentType)
+      } else if (documentType === 'page') {
+        // For pages, open in Presentation tool using the slug path
+        const slugPath = documentSlug?.current ? `/${documentSlug.current}` : '/'
+        window.location.href = `/presentation?preview=${encodeURIComponent(slugPath)}`
       } else if (documentId) {
-        // Default: open in Presentation tool
-        // Try to determine the preview URL based on document type
-        const previewPath = documentType === 'page' ? `/presentation?preview=true&id=${documentId}` : `/structure/${documentType || 'document'};${documentId}`
-        window.location.href = previewPath
+        // For other document types, open in Structure tool
+        window.location.href = `/structure/${documentType || 'document'};${documentId}`
       }
     },
-    [documentId, documentType, onOpenInPreview]
+    [documentId, documentType, documentSlug, onOpenInPreview]
   )
 
   // Determine card tone based on action type and status

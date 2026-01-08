@@ -188,17 +188,21 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
 
   /**
    * Navigate to a document in Presentation/Preview
+   * @param documentId - The document ID
+   * @param documentType - The document type (e.g., 'page')
+   * @param slug - Optional slug for pages (e.g., 'about-us')
    */
   const navigateToPreview = useCallback(
-    (documentId: string, documentType?: string) => {
-      // For pages, open in Presentation tool
+    (documentId: string, documentType?: string, slug?: string) => {
+      // For pages, open in Presentation tool using the slug path
       if (documentType === 'page') {
-        // Navigate to Presentation tool using URL path with query params
+        const slugPath = slug ? `/${slug}` : '/'
+        const presentationUrl = `/presentation?preview=${encodeURIComponent(slugPath)}`
         try {
-          router.navigateUrl({path: `/presentation?id=${documentId}`})
+          router.navigateUrl({path: presentationUrl})
         } catch {
           // Fallback to direct URL
-          window.location.href = `/presentation?id=${documentId}`
+          window.location.href = presentationUrl
         }
       } else {
         // For other types, open in Structure tool

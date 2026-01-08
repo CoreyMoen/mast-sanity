@@ -5,7 +5,7 @@
  * Integrates with streaming API endpoint and conversation persistence.
  */
 
-import {useState, useCallback, useRef, useEffect} from 'react'
+import React, {useState, useCallback, useRef, useEffect} from 'react'
 import type {Message, ParsedAction, SchemaContext, UseClaudeChatReturn} from '../types'
 import {parseActions, extractTextContent} from '../lib/actions'
 import {buildSystemPrompt} from '../lib/instructions'
@@ -159,7 +159,7 @@ function parseSSEChunk(chunk: string): Array<{text?: string; done?: boolean; err
  * Hook for managing Claude chat interactions with streaming support
  */
 export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatReturn & {
-  setMessages: (messages: Message[]) => void
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>
   cancelStream: () => void
 } {
   const {
@@ -182,6 +182,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatRetur
   const isFirstMessageRef = useRef(true)
 
   // Sync messages with active conversation
+  // Use the full activeConversation object as dependency to catch any changes
   useEffect(() => {
     if (activeConversation) {
       setMessages(activeConversation.messages)
@@ -190,7 +191,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatRetur
       setMessages([])
       isFirstMessageRef.current = true
     }
-  }, [activeConversation?.id])
+  }, [activeConversation])
 
   /**
    * Cancel the current stream
@@ -332,6 +333,11 @@ export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatRetur
 
         // Parse actions from complete response
         const actions = parseActions(fullContent)
+        console.log('[useClaudeChat] Parsed actions from response:', {
+          actionCount: actions.length,
+          actions: actions.map(a => ({ id: a.id, type: a.type, description: a.description })),
+          responseLength: fullContent.length,
+        })
         const textContent = extractTextContent(fullContent)
 
         // Finalize the message

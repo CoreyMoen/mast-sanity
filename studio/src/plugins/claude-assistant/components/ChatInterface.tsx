@@ -93,6 +93,7 @@ export interface ChatInterfaceProps {
   onCreateConversation: () => void | Promise<void>
   onSelectConversation: (id: string) => void
   onDeleteConversation: (id: string) => void | Promise<void>
+  onRenameConversation?: (id: string, newTitle: string) => void | Promise<void>
   // Chat state
   messages: Message[]
   isLoading: boolean
@@ -154,6 +155,7 @@ export function ChatInterface({
   onCreateConversation,
   onSelectConversation,
   onDeleteConversation,
+  onRenameConversation,
   // Chat state
   messages,
   isLoading,
@@ -193,6 +195,15 @@ export function ChatInterface({
     }
     prevMessageCountRef.current = messages.length
   }, [messages])
+
+  // Sync showQuickActions with messages - hide when conversation has messages
+  useEffect(() => {
+    if (messages.length > 0) {
+      setShowQuickActions(false)
+    } else {
+      setShowQuickActions(true)
+    }
+  }, [messages.length])
 
   // Handle quick action selection
   const handleQuickAction = useCallback(
@@ -311,6 +322,7 @@ export function ChatInterface({
           onSelect={onSelectConversation}
           onDelete={onDeleteConversation}
           onCreate={handleNewChat}
+          onRename={onRenameConversation}
         />
       )}
 

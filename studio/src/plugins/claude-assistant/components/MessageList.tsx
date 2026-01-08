@@ -195,39 +195,19 @@ export function MessageList({
             aria-label="Claude is thinking"
           >
             <Flex gap={3} align="center">
-              <Box
+              <img
+                src="/static/claude-writing-animation.gif"
+                alt=""
+                aria-hidden="true"
                 style={{
-                  width: 36,
-                  height: 36,
-                  borderRadius: '50%',
-                  backgroundColor: 'var(--card-badge-primary-bg-color)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
+                  width: 48,
+                  height: 48,
                   flexShrink: 0,
                 }}
-                aria-hidden="true"
-              >
-                <Text size={2} style={{display: 'flex', color: 'var(--card-badge-primary-fg-color)'}}>
-                  <RobotIcon />
-                </Text>
-              </Box>
-              <Flex align="center" gap={2}>
-                <Box
-                  style={{
-                    display: 'flex',
-                    gap: 4,
-                  }}
-                  aria-hidden="true"
-                >
-                  <TypingDot delay={0} />
-                  <TypingDot delay={150} />
-                  <TypingDot delay={300} />
-                </Box>
-                <Text size={1} muted>
-                  Claude is thinking...
-                </Text>
-              </Flex>
+              />
+              <Text size={1} muted>
+                Claude is thinking...
+              </Text>
             </Flex>
           </Card>
         )}
@@ -239,35 +219,3 @@ export function MessageList({
   )
 }
 
-/**
- * Animated typing dot for loading indicator
- */
-function TypingDot({delay}: {delay: number}) {
-  return (
-    <Box
-      style={{
-        width: 8,
-        height: 8,
-        borderRadius: '50%',
-        backgroundColor: 'var(--card-badge-primary-bg-color)',
-        animation: `typingBounce 1.4s infinite ease-in-out both`,
-        animationDelay: `${delay}ms`,
-      }}
-    >
-      <style>
-        {`
-          @keyframes typingBounce {
-            0%, 80%, 100% {
-              transform: scale(0.6);
-              opacity: 0.5;
-            }
-            40% {
-              transform: scale(1);
-              opacity: 1;
-            }
-          }
-        `}
-      </style>
-    </Box>
-  )
-}

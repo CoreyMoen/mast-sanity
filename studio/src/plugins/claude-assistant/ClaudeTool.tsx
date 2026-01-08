@@ -5,7 +5,7 @@
  * This is rendered in the Sanity Studio navigation
  */
 
-import {useCallback, useEffect, useState} from 'react'
+import {useCallback, useEffect, useState, useRef} from 'react'
 import {Card, useToast} from '@sanity/ui'
 import {useClient, useCurrentUser, useSchema} from 'sanity'
 import type {Tool} from 'sanity'
@@ -16,7 +16,7 @@ import {useInstructions} from './hooks/useInstructions'
 import {useContentOperations} from './hooks/useContentOperations'
 import {extractSchemaContext} from './lib/schema-context'
 import type {ClaudeAssistantOptions} from './index'
-import type {ParsedAction, PluginSettings, SchemaContext} from './types'
+import type {Message, ParsedAction, PluginSettings, SchemaContext} from './types'
 import {DEFAULT_SETTINGS} from './types'
 
 const SETTINGS_STORAGE_KEY = 'claude-assistant-settings'
@@ -86,7 +86,12 @@ export function ClaudeTool(props: ClaudeToolProps) {
     createConversation,
     selectConversation,
     deleteConversation,
-  } = useConversations()
+    loadConversation,
+    addMessage,
+    updateMessage,
+    generateTitle,
+    updateConversationTitle,
+  } = useConversations({apiEndpoint})
 
   // Instructions hook
   const {
@@ -102,6 +107,31 @@ export function ClaudeTool(props: ClaudeToolProps) {
       setSchemaContext(context)
     }
   }, [schema])
+
+  // Ref to hold setMessages function (to break circular dependency)
+  const setMessagesRef = useRef<React.Dispatch<React.SetStateAction<Message[]>> | null>(null)
+
+  // Helper to update action status in messages
+  const updateActionStatus = useCallback(
+    (actionId: string, status: ParsedAction['status'], result?: ParsedAction['result'], error?: string) => {
+      if (setMessagesRef.current) {
+        setMessagesRef.current((prev) =>
+          prev.map((msg) => {
+            if (!msg.actions) return msg
+            const updatedActions = msg.actions.map((a) =>
+              a.id === actionId ? {...a, status, result, error} : a
+            )
+            // Only update if something changed
+            if (updatedActions.some((a, i) => a !== msg.actions![i])) {
+              return {...msg, actions: updatedActions}
+            }
+            return msg
+          })
+        )
+      }
+    },
+    []
+  )
 
   // Handle action execution
   // Only modifying actions (create, update, delete) require confirmation
@@ -119,7 +149,18 @@ export function ClaudeTool(props: ClaudeToolProps) {
         // This allows the user to see the action details before confirming
       }
 
+      // Update status to executing
+      updateActionStatus(action.id, 'executing')
+
       const result = await executeAction(action)
+
+      // Update status based on result
+      updateActionStatus(
+        action.id,
+        result.success ? 'completed' : 'failed',
+        result,
+        result.success ? undefined : result.message
+      )
 
       if (result.success) {
         toast.push({
@@ -127,6 +168,19 @@ export function ClaudeTool(props: ClaudeToolProps) {
           title: 'Action completed',
           description: result.message,
         })
+
+        // For query actions, inject the results back into the conversation
+        // so Claude can see what was found and respond accordingly
+        if (action.type === 'query' && result.data && setMessagesRef.current) {
+          const queryResultMessage: Message = {
+            id: `query_result_${Date.now()}`,
+            role: 'assistant',
+            content: `**Query Results:**\n\n\`\`\`json\n${JSON.stringify(result.data, null, 2)}\n\`\`\`\n\nI found ${Array.isArray(result.data) ? result.data.length : 1} result(s). What would you like to do with this data?`,
+            timestamp: new Date(),
+            status: 'complete',
+          }
+          setMessagesRef.current((prev) => [...prev, queryResultMessage])
+        }
       } else {
         toast.push({
           status: 'error',
@@ -135,10 +189,12 @@ export function ClaudeTool(props: ClaudeToolProps) {
         })
       }
     },
-    [settings.confirmBeforeExecute, executeAction, toast]
+    [settings.confirmBeforeExecute, executeAction, toast, updateActionStatus]
   )
 
   // Initialize chat hook with apiEndpoint from options
+  // Note: We don't pass onAction here because action execution happens via ActionCard
+  // which calls onActionExecute after the action is rendered in the UI
   const {
     messages,
     isLoading,
@@ -146,14 +202,24 @@ export function ClaudeTool(props: ClaudeToolProps) {
     sendMessage,
     clearMessages,
     retryLastMessage,
+    setMessages,
   } = useClaudeChat({
     apiEndpoint: apiEndpoint || '/api/claude',
     schemaContext,
     customInstructions: settings.customInstructions,
     activeConversation,
-    onAction: handleAction,
+    onAddMessage: addMessage,
+    onUpdateMessage: updateMessage,
+    onGenerateTitle: generateTitle,
+    // onAction is intentionally not set - action execution happens via ActionCard's
+    // auto-execute useEffect (for read-only actions) or manual button click (for modifying actions)
     enableStreaming: settings.enableStreaming,
   })
+
+  // Update ref when setMessages is available
+  useEffect(() => {
+    setMessagesRef.current = setMessages
+  }, [setMessages])
 
   // Handle settings change
   const handleSettingsChange = useCallback((newSettings: PluginSettings) => {
@@ -169,12 +235,20 @@ export function ClaudeTool(props: ClaudeToolProps) {
 
   // Handle conversation selection
   const handleSelectConversation = useCallback(
-    (id: string) => {
+    async (id: string) => {
       selectConversation(id)
-      // Note: In a full implementation, you would also load the messages
-      // from the selected conversation into the chat state
+      // Load the full conversation with messages from Sanity
+      await loadConversation(id)
     },
-    [selectConversation]
+    [selectConversation, loadConversation]
+  )
+
+  // Handle conversation rename
+  const handleRenameConversation = useCallback(
+    async (id: string, newTitle: string) => {
+      await updateConversationTitle(id, newTitle)
+    },
+    [updateConversationTitle]
   )
 
   // Handle settings panel open
@@ -213,6 +287,7 @@ export function ClaudeTool(props: ClaudeToolProps) {
         onCreateConversation={handleNewChat}
         onSelectConversation={handleSelectConversation}
         onDeleteConversation={deleteConversation}
+        onRenameConversation={handleRenameConversation}
         // Chat state
         messages={messages}
         isLoading={isLoading}

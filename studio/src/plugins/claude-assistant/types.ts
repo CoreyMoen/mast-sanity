@@ -123,6 +123,7 @@ export interface SchemaContext {
 // ============================================================================
 
 export interface ClaudeConfig {
+  apiKey: string
   model: string
   maxTokens: number
   temperature: number

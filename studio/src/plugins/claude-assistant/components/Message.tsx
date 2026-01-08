@@ -14,10 +14,60 @@
  * - useMemo for parsed markdown content
  */
 
-import React, {useMemo} from 'react'
-import {Box, Card, Flex, Text, Stack, Spinner, Code} from '@sanity/ui'
+import React, {useMemo, useState} from 'react'
+import {Box, Card, Flex, Text, Stack, Spinner, Code, Button} from '@sanity/ui'
+import {ChevronDownIcon, ChevronUpIcon} from '@sanity/icons'
 import type {Message as MessageType, ParsedAction} from '../types'
 import {ActionCard} from './ActionCard'
+
+/**
+ * Collapsible code block component for long content
+ */
+function CollapsibleCodeBlock({language, code}: {language: string; code: string}) {
+  const [isExpanded, setIsExpanded] = useState(false)
+  const lines = code.trim().split('\n')
+  const isLong = lines.length > 10
+  const previewLines = 8
+
+  const displayCode = isExpanded || !isLong
+    ? code.trim()
+    : lines.slice(0, previewLines).join('\n') + '\n...'
+
+  return (
+    <Box marginY={3}>
+      <Card padding={3} radius={2} tone="transparent" border style={{backgroundColor: 'var(--card-code-bg-color)'}}>
+        <Flex align="center" justify="space-between" marginBottom={2}>
+          <Text size={0} muted style={{fontFamily: 'monospace', textTransform: 'uppercase'}}>
+            {language}
+          </Text>
+          {isLong && (
+            <Button
+              mode="bleed"
+              tone="primary"
+              fontSize={0}
+              padding={1}
+              text={isExpanded ? 'Collapse' : `Expand (${lines.length} lines)`}
+              icon={isExpanded ? ChevronUpIcon : ChevronDownIcon}
+              onClick={() => setIsExpanded(!isExpanded)}
+            />
+          )}
+        </Flex>
+        <Box style={{maxHeight: isExpanded ? 'none' : '300px', overflow: 'auto'}}>
+          <Code size={1} style={{display: 'block', whiteSpace: 'pre-wrap', overflowX: 'auto'}}>
+            {displayCode}
+          </Code>
+        </Box>
+        {!isExpanded && isLong && (
+          <Box marginTop={2} style={{textAlign: 'center'}}>
+            <Text size={0} muted>
+              {lines.length - previewLines} more lines hidden
+            </Text>
+          </Box>
+        )}
+      </Card>
+    </Box>
+  )
+}
 
 export interface MessageProps {
   message: MessageType
@@ -46,19 +96,9 @@ function parseMarkdown(content: string): React.ReactNode[] {
       // This is a language identifier, next part is code
       const language = parts[i] || 'text'
       const code = parts[i + 1] || ''
+      // Use collapsible component for code blocks
       elements.push(
-        <Box key={key++} marginY={3}>
-          <Card padding={3} radius={2} tone="transparent" style={{backgroundColor: 'var(--card-code-bg-color)'}}>
-            <Box marginBottom={2}>
-              <Text size={0} muted style={{fontFamily: 'monospace', textTransform: 'uppercase'}}>
-                {language}
-              </Text>
-            </Box>
-            <Code size={1} style={{display: 'block', whiteSpace: 'pre-wrap', overflowX: 'auto'}}>
-              {code.trim()}
-            </Code>
-          </Card>
-        </Box>
+        <CollapsibleCodeBlock key={key++} language={language} code={code} />
       )
       i += 2
       continue
@@ -469,7 +509,7 @@ function formatTimestampForScreenReader(date: Date): string {
 
 /**
  * Memoized Message component with custom comparison
- * Only re-renders when content, status, or actions change
+ * Only re-renders when content, status, actions, or callbacks change
  */
 export const MemoizedMessage = React.memo(Message, (prevProps, nextProps) => {
   // Re-render if content changed
@@ -479,6 +519,14 @@ export const MemoizedMessage = React.memo(Message, (prevProps, nextProps) => {
 
   // Re-render if status changed (e.g., streaming -> complete)
   if (prevProps.message.status !== nextProps.message.status) {
+    return false
+  }
+
+  // Re-render if callbacks changed (important for action execution)
+  if (prevProps.onActionExecute !== nextProps.onActionExecute) {
+    return false
+  }
+  if (prevProps.onActionClick !== nextProps.onActionClick) {
     return false
   }
 

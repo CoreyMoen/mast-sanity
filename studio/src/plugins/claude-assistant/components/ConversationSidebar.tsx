@@ -17,8 +17,8 @@
  * - Memoized grouped conversations to avoid recalculation
  */
 
-import React, {useMemo, useState, useCallback, useRef, KeyboardEvent} from 'react'
-import {Box, Button, Card, Flex, Stack, Text, Menu, MenuButton, MenuItem, Tooltip} from '@sanity/ui'
+import React, {useMemo, useState, useCallback, useRef, useEffect, KeyboardEvent} from 'react'
+import {Box, Button, Card, Flex, Stack, Text, Menu, MenuButton, MenuItem, Tooltip, TextInput} from '@sanity/ui'
 import {
   AddIcon,
   TrashIcon,
@@ -27,6 +27,7 @@ import {
   ArchiveIcon,
   RestoreIcon,
   CommentIcon,
+  EditIcon,
 } from '@sanity/icons'
 import type {Conversation} from '../types'
 
@@ -42,6 +43,7 @@ export interface ConversationSidebarProps {
   onCreate: () => void
   onArchive?: (id: string) => void
   onRestore?: (id: string) => void
+  onRename?: (id: string, newTitle: string) => void | Promise<void>
 }
 
 /**
@@ -116,6 +118,7 @@ export function ConversationSidebar({
   onCreate,
   onArchive,
   onRestore,
+  onRename,
 }: ConversationSidebarProps) {
   const [showArchived, setShowArchived] = useState(false)
   const [visibleCount, setVisibleCount] = useState(INITIAL_CONVERSATIONS_COUNT)
@@ -198,7 +201,8 @@ export function ConversationSidebar({
   return (
     <Card
       style={{
-        width: 280,
+        width: '280px',
+        minWidth: '280px',
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
@@ -286,6 +290,7 @@ export function ConversationSidebar({
                 onSelect={onSelect}
                 onDelete={onDelete}
                 onArchive={onArchive}
+                onRename={onRename}
               />
             ))}
 
@@ -339,6 +344,7 @@ interface ConversationGroupProps {
   onSelect: (id: string) => void
   onDelete: (id: string) => void
   onArchive?: (id: string) => void
+  onRename?: (id: string, newTitle: string) => void | Promise<void>
 }
 
 function ConversationGroup({
@@ -348,6 +354,7 @@ function ConversationGroup({
   onSelect,
   onDelete,
   onArchive,
+  onRename,
 }: ConversationGroupProps) {
   if (conversations.length === 0) return null
 
@@ -375,6 +382,7 @@ function ConversationGroup({
             onSelect={() => onSelect(conversation.id)}
             onDelete={() => onDelete(conversation.id)}
             onArchive={onArchive ? () => onArchive(conversation.id) : undefined}
+            onRename={onRename ? (newTitle: string) => onRename(conversation.id, newTitle) : undefined}
           />
         ))}
       </Stack>
@@ -388,6 +396,7 @@ interface ConversationItemProps {
   onSelect: () => void
   onDelete: () => void
   onArchive?: () => void
+  onRename?: (newTitle: string) => void | Promise<void>
 }
 
 /**
@@ -399,19 +408,62 @@ const ConversationItem = React.memo(function ConversationItem({
   onSelect,
   onDelete,
   onArchive,
+  onRename,
 }: ConversationItemProps) {
   const [isHovered, setIsHovered] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editTitle, setEditTitle] = useState(conversation.title)
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  // Focus input when entering edit mode
+  useEffect(() => {
+    if (isEditing && inputRef.current) {
+      inputRef.current.focus()
+      inputRef.current.select()
+    }
+  }, [isEditing])
 
   // Handle keyboard interaction
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLDivElement>) => {
+      if (isEditing) return
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault()
         onSelect()
       }
     },
-    [onSelect]
+    [onSelect, isEditing]
   )
+
+  // Handle rename submission
+  const handleRenameSubmit = useCallback(() => {
+    const trimmedTitle = editTitle.trim()
+    if (trimmedTitle && trimmedTitle !== conversation.title && onRename) {
+      onRename(trimmedTitle)
+    }
+    setIsEditing(false)
+  }, [editTitle, conversation.title, onRename])
+
+  // Handle rename input key events
+  const handleRenameKeyDown = useCallback(
+    (event: React.KeyboardEvent<HTMLInputElement>) => {
+      event.stopPropagation()
+      if (event.key === 'Enter') {
+        handleRenameSubmit()
+      } else if (event.key === 'Escape') {
+        setEditTitle(conversation.title)
+        setIsEditing(false)
+      }
+    },
+    [handleRenameSubmit, conversation.title]
+  )
+
+  // Start editing
+  const handleStartEdit = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    setEditTitle(conversation.title)
+    setIsEditing(true)
+  }, [conversation.title])
 
   return (
     <Card
@@ -420,7 +472,7 @@ const ConversationItem = React.memo(function ConversationItem({
       radius={2}
       tone={isActive ? 'primary' : 'default'}
       style={{
-        cursor: 'pointer',
+        cursor: isEditing ? 'default' : 'pointer',
         backgroundColor: isActive
           ? 'var(--card-badge-primary-bg-color)'
           : isHovered
@@ -428,7 +480,7 @@ const ConversationItem = React.memo(function ConversationItem({
           : undefined,
         transition: 'background-color 100ms ease',
       }}
-      onClick={onSelect}
+      onClick={isEditing ? undefined : onSelect}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       role="option"
@@ -437,37 +489,47 @@ const ConversationItem = React.memo(function ConversationItem({
       tabIndex={isActive ? 0 : -1}
       onKeyDown={handleKeyDown}
     >
-      <Flex align="center" gap={2}>
+      <Flex align="center" gap={1}>
         <Box style={{flex: 1, minWidth: 0}}>
-          <Text
-            size={1}
-            weight={isActive ? 'semibold' : 'regular'}
-            textOverflow="ellipsis"
-            style={{
-              display: 'block',
-              overflow: 'hidden',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {conversation.title}
-          </Text>
-          <Flex align="center" gap={1} marginTop={1}>
-            <ClockIcon style={{width: 10, height: 10, opacity: 0.5}} />
-            <Text size={0} muted>
-              {formatRelativeTime(conversation.updatedAt)}
-            </Text>
-            {conversation.messages.length > 0 && (
-              <>
-                <Text size={0} muted style={{opacity: 0.5}}>|</Text>
+          {isEditing ? (
+            <TextInput
+              ref={inputRef}
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.currentTarget.value)}
+              onKeyDown={handleRenameKeyDown}
+              onBlur={handleRenameSubmit}
+              fontSize={1}
+              padding={1}
+              style={{width: '100%'}}
+            />
+          ) : (
+            <>
+              <Text
+                size={1}
+                weight={isActive ? 'semibold' : 'regular'}
+                textOverflow="ellipsis"
+              >
+                {conversation.title}
+              </Text>
+              <Flex align="center" gap={1} marginTop={1}>
+                <ClockIcon style={{width: 10, height: 10, opacity: 0.5}} />
                 <Text size={0} muted>
-                  {conversation.messages.length} message{conversation.messages.length !== 1 ? 's' : ''}
+                  {formatRelativeTime(conversation.updatedAt)}
                 </Text>
-              </>
-            )}
-          </Flex>
+                {conversation.messages.length > 0 && (
+                  <>
+                    <Text size={0} muted style={{opacity: 0.5}}>|</Text>
+                    <Text size={0} muted>
+                      {conversation.messages.length} message{conversation.messages.length !== 1 ? 's' : ''}
+                    </Text>
+                  </>
+                )}
+              </Flex>
+            </>
+          )}
         </Box>
 
-        {(isHovered || isActive) && (
+        {(isHovered || isActive) && !isEditing && (
           <MenuButton
             button={
               <Button
@@ -483,6 +545,13 @@ const ConversationItem = React.memo(function ConversationItem({
             id={`conversation-menu-${conversation.id}`}
             menu={
               <Menu aria-label="Conversation actions">
+                {onRename && (
+                  <MenuItem
+                    icon={EditIcon}
+                    text="Rename"
+                    onClick={handleStartEdit}
+                  />
+                )}
                 {onArchive && (
                   <MenuItem
                     icon={ArchiveIcon}
