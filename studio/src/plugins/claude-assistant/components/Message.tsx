@@ -22,16 +22,30 @@ import {ActionCard} from './ActionCard'
 
 /**
  * Collapsible code block component for long content
+ * Collapses based on line count OR character count for JSON/data
  */
 function CollapsibleCodeBlock({language, code}: {language: string; code: string}) {
   const [isExpanded, setIsExpanded] = useState(false)
   const lines = code.trim().split('\n')
-  const isLong = lines.length > 10
-  const previewLines = 8
+  const charCount = code.length
+
+  // Determine if content should be collapsed
+  // Use stricter thresholds for JSON which tends to be verbose
+  const isJSON = language.toLowerCase() === 'json'
+  const charThreshold = isJSON ? 300 : 500
+  const lineThreshold = isJSON ? 8 : 10
+
+  const isLong = lines.length > lineThreshold || charCount > charThreshold
+  const previewLines = isJSON ? 6 : 8
 
   const displayCode = isExpanded || !isLong
     ? code.trim()
     : lines.slice(0, previewLines).join('\n') + '\n...'
+
+  // Calculate size info for the expand button
+  const sizeInfo = charCount > 1000
+    ? `${Math.round(charCount / 1000)}k chars`
+    : `${lines.length} lines`
 
   return (
     <Box marginY={3}>
@@ -46,13 +60,14 @@ function CollapsibleCodeBlock({language, code}: {language: string; code: string}
               tone="primary"
               fontSize={0}
               padding={1}
-              text={isExpanded ? 'Collapse' : `Expand (${lines.length} lines)`}
+              text={isExpanded ? 'Collapse' : `Expand (${sizeInfo})`}
               icon={isExpanded ? ChevronUpIcon : ChevronDownIcon}
               onClick={() => setIsExpanded(!isExpanded)}
             />
           )}
         </Flex>
-        <Box style={{maxHeight: isExpanded ? 'none' : '300px', overflow: 'auto'}}>
+        {/* Cap max height even when expanded to prevent overwhelming the UI */}
+        <Box style={{maxHeight: isExpanded ? '600px' : '250px', overflow: 'auto'}}>
           <Code size={1} style={{display: 'block', whiteSpace: 'pre-wrap', overflowX: 'auto'}}>
             {displayCode}
           </Code>
@@ -60,7 +75,9 @@ function CollapsibleCodeBlock({language, code}: {language: string; code: string}
         {!isExpanded && isLong && (
           <Box marginTop={2} style={{textAlign: 'center'}}>
             <Text size={0} muted>
-              {lines.length - previewLines} more lines hidden
+              {lines.length > previewLines
+                ? `${lines.length - previewLines} more lines hidden`
+                : `${charCount - displayCode.length} more characters hidden`}
             </Text>
           </Box>
         )}

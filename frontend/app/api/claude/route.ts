@@ -54,6 +54,8 @@ interface ClaudeChatRequest {
   messages: Message[]
   schema?: object
   instructions?: string
+  system?: string // Client-provided system prompt (takes precedence)
+  stream?: boolean
 }
 
 /**
@@ -192,7 +194,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const { messages, schema, instructions } = body
+  const { messages, schema, instructions, system } = body
 
   // Ensure there's at least one message
   if (messages.length === 0) {
@@ -202,8 +204,9 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  // Build system prompt
-  const systemPrompt = buildSystemPrompt(schema, instructions)
+  // Use client-provided system prompt if available, otherwise build one
+  // The client's system prompt includes the complete schema context and instructions
+  const systemPrompt = system || buildSystemPrompt(schema, instructions)
 
   try {
     // Create streaming response from Anthropic

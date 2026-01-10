@@ -181,17 +181,39 @@ export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatRetur
   const abortControllerRef = useRef<AbortController | null>(null)
   const isFirstMessageRef = useRef(true)
 
+  // Track the last synced conversation ID to detect actual conversation changes
+  const lastSyncedConversationIdRef = useRef<string | null>(null)
+
   // Sync messages with active conversation
-  // Use the full activeConversation object as dependency to catch any changes
+  // Only sync when conversation actually changes or loads initially
   useEffect(() => {
     if (activeConversation) {
-      setMessages(activeConversation.messages)
-      isFirstMessageRef.current = activeConversation.messages.length === 0
+      // Only fully replace messages when switching to a different conversation
+      // or when loading for the first time
+      const isNewConversation = lastSyncedConversationIdRef.current !== activeConversation.id
+
+      if (isNewConversation) {
+        setMessages(activeConversation.messages)
+        lastSyncedConversationIdRef.current = activeConversation.id
+        isFirstMessageRef.current = activeConversation.messages.length === 0
+      } else {
+        // Same conversation - only update if we have fewer messages locally
+        // This prevents overwriting streaming messages with stale Sanity data
+        setMessages((prevMessages) => {
+          // If we have more messages locally (e.g., streaming), keep them
+          if (prevMessages.length >= activeConversation.messages.length) {
+            return prevMessages
+          }
+          // Otherwise, sync from Sanity (e.g., loading from another device)
+          return activeConversation.messages
+        })
+      }
     } else {
       setMessages([])
+      lastSyncedConversationIdRef.current = null
       isFirstMessageRef.current = true
     }
-  }, [activeConversation])
+  }, [activeConversation?.id, activeConversation?.messages.length])
 
   /**
    * Cancel the current stream
@@ -434,6 +456,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatRetur
     setMessages([])
     setError(null)
     isFirstMessageRef.current = true
+    lastSyncedConversationIdRef.current = null
   }, [])
 
   /**

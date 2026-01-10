@@ -172,7 +172,6 @@ export function ChatInterface({
   // API config (optional)
   apiEndpoint,
 }: ChatInterfaceProps) {
-  const [showQuickActions, setShowQuickActions] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(loadSidebarState)
 
   // Refs for focus management
@@ -182,6 +181,10 @@ export function ChatInterface({
 
   // Track previous message count for announcements
   const prevMessageCountRef = useRef(messages.length)
+
+  // Derive showQuickActions directly from messages.length
+  // This eliminates the race condition that caused flickering
+  const showQuickActions = messages.length === 0
 
   // Announce new messages to screen readers
   useEffect(() => {
@@ -196,20 +199,10 @@ export function ChatInterface({
     prevMessageCountRef.current = messages.length
   }, [messages])
 
-  // Sync showQuickActions with messages - hide when conversation has messages
-  useEffect(() => {
-    if (messages.length > 0) {
-      setShowQuickActions(false)
-    } else {
-      setShowQuickActions(true)
-    }
-  }, [messages.length])
-
   // Handle quick action selection
   const handleQuickAction = useCallback(
     (action: QuickAction) => {
       onSendMessage(action.prompt)
-      setShowQuickActions(false)
     },
     [onSendMessage]
   )
@@ -218,7 +211,6 @@ export function ChatInterface({
   const handleSend = useCallback(
     (content: string) => {
       onSendMessage(content)
-      setShowQuickActions(false)
     },
     [onSendMessage]
   )
@@ -236,7 +228,6 @@ export function ChatInterface({
   const handleNewChat = useCallback(() => {
     onClearMessages()
     onCreateConversation()
-    setShowQuickActions(true)
     announceToScreenReader('New conversation started')
     // Focus the message input after creating a new chat
     setTimeout(() => {
@@ -244,10 +235,9 @@ export function ChatInterface({
     }, 100)
   }, [onClearMessages, onCreateConversation])
 
-  // Handle clear chat (shows quick actions again)
+  // Handle clear chat (shows quick actions again since messages will be empty)
   const handleClearChat = useCallback(() => {
     onClearMessages()
-    setShowQuickActions(true)
     announceToScreenReader('Conversation cleared')
   }, [onClearMessages])
 
@@ -463,7 +453,7 @@ export function ChatInterface({
 
         {/* Messages Area */}
         <Box style={{flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column'}}>
-          {isConfigured && showQuickActions && messages.length === 0 ? (
+          {isConfigured && showQuickActions ? (
             <QuickActions onActionSelect={handleQuickAction} />
           ) : (
             <MessageList

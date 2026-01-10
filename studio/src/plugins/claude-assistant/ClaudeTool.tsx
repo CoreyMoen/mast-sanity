@@ -236,11 +236,15 @@ export function ClaudeTool(props: ClaudeToolProps) {
   // Handle conversation selection
   const handleSelectConversation = useCallback(
     async (id: string) => {
+      // Clear messages first to reset the sync state and show loading
+      clearMessages()
+      // Select the conversation
       selectConversation(id)
       // Load the full conversation with messages from Sanity
+      // This will trigger the sync effect in useClaudeChat
       await loadConversation(id)
     },
-    [selectConversation, loadConversation]
+    [clearMessages, selectConversation, loadConversation]
   )
 
   // Handle conversation rename

@@ -10,7 +10,7 @@
  * - Optimistic UI updates
  */
 
-import {useState, useCallback, useEffect, useRef} from 'react'
+import {useState, useCallback, useEffect, useRef, useMemo} from 'react'
 import {useClient, useCurrentUser} from 'sanity'
 import type {Conversation, Message, UseConversationsReturn, ParsedAction, ActionType, ActionStatus} from '../types'
 
@@ -272,9 +272,12 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
   }, [client, currentUser?.id, activeConversationId])
 
   /**
-   * Get the active conversation
+   * Get the active conversation (memoized to prevent unnecessary re-renders)
    */
-  const activeConversation = conversations.find((c) => c.id === activeConversationId) || null
+  const activeConversation = useMemo(
+    () => conversations.find((c) => c.id === activeConversationId) || null,
+    [conversations, activeConversationId]
+  )
 
   /**
    * Create a new conversation
