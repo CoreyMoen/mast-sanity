@@ -1,0 +1,28 @@
+/**
+ * Claude Assistant Plugin Styles
+ *
+ * Global style overrides for the Claude Assistant plugin
+ */
+
+/* Ensure all buttons have pointer cursor */
+[role="application"] button,
+[role="complementary"] button,
+[role="main"] button,
+[role="log"] button {
+  cursor: pointer;
+}
+
+/* Also apply to any clickable cards/items */
+[role="option"] {
+  cursor: pointer;
+}
+
+/* Menu items */
+[role="menuitem"] {
+  cursor: pointer;
+}
+
+/* Chat box buttons - consistent 8px border radius */
+[role="form"][aria-label="Send message to Claude"] button {
+  border-radius: 8px !important;
+}

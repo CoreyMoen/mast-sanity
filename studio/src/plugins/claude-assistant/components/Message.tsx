@@ -357,9 +357,9 @@ export function Message({message, onActionClick, onActionExecute}: MessageProps)
       aria-label={accessibleLabel}
     >
       {/* Content */}
-      <Stack space={2} style={{minWidth: 0}}>
+      <Stack space={3} style={{minWidth: 0}}>
           {/* Role label with timestamp */}
-          <Flex align="center" gap={2}>
+          <Flex align="center" gap={2} style={{marginBottom: 4}}>
             <Text size={1} weight="semibold">
               {isUser ? 'You' : 'Claude'}
             </Text>

@@ -6,6 +6,7 @@
  */
 
 import {useCallback, useEffect, useState, useRef} from 'react'
+import './styles.css'
 import {Card, useToast} from '@sanity/ui'
 import {useClient, useCurrentUser, useSchema} from 'sanity'
 import type {Tool} from 'sanity'

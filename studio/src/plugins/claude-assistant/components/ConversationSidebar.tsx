@@ -468,7 +468,7 @@ const ConversationItem = React.memo(function ConversationItem({
   return (
     <Card
       id={`conversation-${conversation.id}`}
-      padding={2}
+      padding={3}
       radius={2}
       tone={isActive ? 'primary' : 'default'}
       style={{
@@ -511,7 +511,7 @@ const ConversationItem = React.memo(function ConversationItem({
               >
                 {conversation.title}
               </Text>
-              <Flex align="center" gap={1} marginTop={1}>
+              <Flex align="center" gap={1} marginTop={2}>
                 <ClockIcon style={{width: 10, height: 10, opacity: 0.5}} />
                 <Text size={0} muted>
                   {formatRelativeTime(conversation.updatedAt)}

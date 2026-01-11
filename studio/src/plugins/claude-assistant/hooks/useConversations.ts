@@ -14,7 +14,7 @@ import {useState, useCallback, useEffect, useRef} from 'react'
 import {useClient, useCurrentUser} from 'sanity'
 import type {Conversation, Message, UseConversationsReturn, ParsedAction, ActionType, ActionStatus} from '../types'
 
-const CONVERSATIONS_PER_PAGE = 20
+const CONVERSATIONS_PER_PAGE = 100
 const API_VERSION = '2024-01-01'
 const MESSAGE_UPDATE_DEBOUNCE_MS = 500
 
@@ -215,7 +215,7 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
       }
 
       try {
-        const query = `*[_type == "claudeConversation" && userId == $userId && !archived] | order(lastActivity desc) [0...${CONVERSATIONS_PER_PAGE}] {
+        const query = `*[_type == "claudeConversation" && userId == $userId && !archived && count(messages) > 0] | order(lastActivity desc) [0...${CONVERSATIONS_PER_PAGE}] {
           _id,
           title,
           lastActivity,
@@ -239,10 +239,8 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
 
         setConversations(converted)
 
-        // Set most recent as active if exists and no active conversation
-        if (converted.length > 0 && !activeConversationId) {
-          setActiveConversationId(converted[0].id)
-        }
+        // Don't auto-select a conversation - always start fresh on the home screen
+        // Users can select a conversation from the sidebar if they want
       } catch (err) {
         console.error('Failed to fetch conversations:', err)
       } finally {

@@ -36,11 +36,22 @@ import type {
   SchemaContext,
 } from '../types'
 import {MessageList} from './MessageList'
-import {MessageInput} from './MessageInput'
+import {MessageInput, WorkflowOption} from './MessageInput'
 import {QuickActions} from './QuickActions'
 import {ConversationSidebar} from './ConversationSidebar'
 import {useKeyboardShortcuts, announceToScreenReader} from '../hooks/useKeyboardShortcuts'
 import type {Workflow} from '../hooks/useWorkflows'
+
+/**
+ * Transform Workflow to WorkflowOption for MessageInput
+ */
+function toWorkflowOption(workflow: Workflow): WorkflowOption {
+  return {
+    _id: workflow.id,
+    name: workflow.name,
+    description: workflow.description,
+  }
+}
 
 // Lazy-loaded SettingsPanel for better initial load performance
 const SettingsPanel = React.lazy(() => import('./SettingsPanel').then(module => ({default: module.SettingsPanel})))
@@ -141,6 +152,28 @@ function saveSidebarState(isOpen: boolean): void {
   }
 }
 
+/**
+ * Get time-based greeting with user's first name
+ */
+function getGreeting(userName?: string): string {
+  const hour = new Date().getHours()
+  let greeting: string
+  if (hour < 12) {
+    greeting = 'Good morning'
+  } else if (hour < 17) {
+    greeting = 'Good afternoon'
+  } else {
+    greeting = 'Good evening'
+  }
+
+  // Add user name if available
+  if (userName) {
+    greeting += `, ${userName}`
+  }
+
+  return greeting
+}
+
 export function ChatInterface({
   className,
   // Sanity context (optional, for potential future use)
@@ -182,6 +215,8 @@ export function ChatInterface({
   apiEndpoint,
 }: ChatInterfaceProps) {
   const [sidebarOpen, setSidebarOpen] = useState(loadSidebarState)
+  // State for pre-populated input from quick actions
+  const [pendingInput, setPendingInput] = useState('')
 
   // Refs for focus management
   const messageInputRef = useRef<HTMLTextAreaElement>(null)
@@ -217,22 +252,60 @@ export function ChatInterface({
     return true
   }, [messages.length, isLoading, activeConversation])
 
-  // Handle quick action selection
+  // Handle quick action selection - pre-populates the input instead of sending immediately
   const handleQuickAction = useCallback(
     (action: QuickAction) => {
-      // shouldShowQuickActions will automatically become false when message is sent
-      onSendMessage(action.prompt)
+      setPendingInput(action.prompt)
+      // Focus the input after pre-populating
+      setTimeout(() => {
+        messageInputRef.current?.focus()
+      }, 50)
     },
-    [onSendMessage]
+    []
   )
 
   // Handle send message
   const handleSend = useCallback(
     (content: string) => {
       onSendMessage(content)
-      // Quick actions visibility is computed automatically via useMemo
+      // Clear pending input after sending
+      setPendingInput('')
     },
     [onSendMessage]
+  )
+
+  // Handle model change
+  const handleModelChange = useCallback(
+    (model: string) => {
+      onSettingsChange({...settings, model})
+    },
+    [settings, onSettingsChange]
+  )
+
+  // Handle workflow selection from the + menu
+  const handleWorkflowSelectFromMenu = useCallback(
+    (workflowOption: WorkflowOption) => {
+      // Find the full workflow to get the starterPrompt
+      const workflow = workflows?.find(w => w.id === workflowOption._id)
+      if (workflow) {
+        // Set the workflow as active
+        onWorkflowSelect?.(workflow.id)
+        // Pre-populate input with starter prompt if available
+        if (workflow.starterPrompt) {
+          setPendingInput(workflow.starterPrompt)
+          setTimeout(() => {
+            messageInputRef.current?.focus()
+          }, 50)
+        }
+      }
+    },
+    [workflows, onWorkflowSelect]
+  )
+
+  // Transform workflows for MessageInput
+  const workflowOptions: WorkflowOption[] = useMemo(
+    () => workflows?.map(toWorkflowOption) || [],
+    [workflows]
   )
 
   // Toggle sidebar
@@ -473,32 +546,103 @@ export function ChatInterface({
           </Card>
         )}
 
-        {/* Messages Area */}
-        <Box style={{flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column'}}>
-          {isConfigured && shouldShowQuickActions ? (
-            <QuickActions
-              onActionSelect={handleQuickAction}
-              workflows={workflows}
-              selectedWorkflow={selectedWorkflow}
-              onWorkflowSelect={onWorkflowSelect}
-            />
-          ) : (
-            <MessageList
-              messages={messages}
-              isLoading={isLoading}
-              onActionExecute={onActionExecute}
-            />
-          )}
-        </Box>
+        {/* Main Content Area */}
+        {isConfigured && shouldShowQuickActions ? (
+          /* Home State: Centered welcome screen */
+          <Box
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '32px 24px',
+              overflow: 'auto',
+            }}
+          >
+              <Stack space={4} style={{maxWidth: 680, width: '100%'}}>
+              {/* Welcome greeting */}
+              <Flex direction="column" align="center" style={{marginBottom: 12}}>
+                <img
+                  src="/static/claude-logo.png"
+                  alt="Claude"
+                  style={{
+                    width: 56,
+                    height: 56,
+                    borderRadius: 12,
+                    marginBottom: 16,
+                  }}
+                />
+                <Text
+                  size={4}
+                  weight="bold"
+                  style={{
+                    fontSize: '1.75rem',
+                    lineHeight: 1.2,
+                    textAlign: 'center',
+                  }}
+                >
+                  {getGreeting(currentUser?.name?.split(' ')[0])}
+                </Text>
+              </Flex>
 
-        {/* Input */}
-        {isConfigured && (
-          <MessageInput
-            ref={messageInputRef}
-            onSend={handleSend}
-            isLoading={isLoading}
-            placeholder="Ask Claude anything about your content..."
-          />
+              {/* Centered message input */}
+              <MessageInput
+                ref={messageInputRef}
+                onSend={handleSend}
+                isLoading={isLoading}
+                initialValue={pendingInput}
+                model={settings.model}
+                onModelChange={handleModelChange}
+                variant="centered"
+                workflows={workflowOptions}
+                onWorkflowSelect={handleWorkflowSelectFromMenu}
+              />
+
+              {/* Quick action buttons - closer to input */}
+              <Box style={{marginTop: -4}}>
+                <QuickActions onActionSelect={handleQuickAction} />
+              </Box>
+            </Stack>
+          </Box>
+        ) : (
+          /* Conversation State: Messages + bottom input */
+          <>
+            <Box
+              style={{
+                flex: 1,
+                overflow: 'auto',
+              }}
+            >
+              <MessageList
+                messages={messages}
+                isLoading={isLoading}
+                onActionExecute={onActionExecute}
+                maxWidth={680}
+              />
+            </Box>
+            <Box
+              padding={3}
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+              }}
+            >
+              <Box style={{maxWidth: 680, width: '100%'}}>
+                <MessageInput
+                  ref={messageInputRef}
+                  onSend={handleSend}
+                  isLoading={isLoading}
+                  placeholder="Reply..."
+                  model={settings.model}
+                  onModelChange={handleModelChange}
+                  variant="default"
+                  workflows={workflowOptions}
+                  onWorkflowSelect={handleWorkflowSelectFromMenu}
+                />
+              </Box>
+            </Box>
+          </>
         )}
       </Flex>
 

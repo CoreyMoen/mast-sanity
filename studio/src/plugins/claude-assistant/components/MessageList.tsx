@@ -30,6 +30,8 @@ export interface MessageListProps {
   isLoading: boolean
   onActionClick?: (action: ParsedAction) => void
   onActionExecute?: (action: ParsedAction) => void
+  /** Max width for the message content area */
+  maxWidth?: number
 }
 
 export function MessageList({
@@ -37,6 +39,7 @@ export function MessageList({
   isLoading,
   onActionClick,
   onActionExecute,
+  maxWidth = 900,
 }: MessageListProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -143,8 +146,6 @@ export function MessageList({
       ref={scrollContainerRef}
       onScroll={handleScroll}
       style={{
-        flex: 1,
-        overflowY: 'auto',
         padding: 16,
       }}
       role="log"
@@ -154,8 +155,8 @@ export function MessageList({
       tabIndex={0}
     >
       <Stack
-        space={3}
-        style={{maxWidth: 900, margin: '0 auto'}}
+        space={4}
+        style={{maxWidth, margin: '0 auto'}}
         role="list"
         aria-label={`${totalCount} message${totalCount !== 1 ? 's' : ''} in conversation`}
       >
