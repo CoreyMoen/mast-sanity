@@ -87,6 +87,8 @@ export {ActionCard} from './components/ActionCard'
 export {QuickActions} from './components/QuickActions'
 export {ConversationSidebar} from './components/ConversationSidebar'
 export {SettingsPanel} from './components/SettingsPanel'
+export {FloatingChat} from './components/FloatingChat'
+export {StudioLayout, createStudioLayout} from './components/StudioLayout'
 
 // Re-export hooks for custom implementations
 export {useClaudeChat} from './hooks/useClaudeChat'

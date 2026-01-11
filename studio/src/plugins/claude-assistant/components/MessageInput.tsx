@@ -39,8 +39,8 @@ export interface MessageInputProps {
   onModelChange?: (model: string) => void
   /** Whether to show the model selector */
   showModelSelector?: boolean
-  /** Variant: 'default' for bottom-fixed, 'centered' for home screen */
-  variant?: 'default' | 'centered'
+  /** Variant: 'default' for bottom-fixed, 'centered' for home screen, 'compact' for floating chat */
+  variant?: 'default' | 'centered' | 'compact'
   /** Available workflows for selection */
   workflows?: WorkflowOption[]
   /** Callback when a workflow is selected */
@@ -136,6 +136,7 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
   }, [onModelChange])
 
   const isCentered = variant === 'centered'
+  const isCompact = variant === 'compact'
   const hasWorkflows = workflows.length > 0
 
   // Click container to focus textarea
@@ -153,7 +154,7 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
       aria-label="Send message to Claude"
       style={{
         border: `1px solid ${isFocused ? 'var(--card-focus-ring-color)' : 'var(--card-border-color)'}`,
-        borderRadius: 12,
+        borderRadius: isCompact ? 8 : 12,
         backgroundColor: 'var(--card-bg-color)',
         boxShadow: isCentered ? '0 2px 8px rgba(0,0,0,0.08)' : undefined,
         flexShrink: 0,
@@ -165,7 +166,7 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
       }}
     >
       {/* Text input area */}
-      <div data-input-area style={{padding: '16px 16px 8px 16px'}}>
+      <div data-input-area style={{padding: isCompact ? '10px 12px 6px 12px' : '16px 16px 8px 16px'}}>
         <textarea
           ref={textAreaRef}
           value={value}
@@ -185,7 +186,7 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
             border: 'none',
             outline: 'none',
             background: 'transparent',
-            fontSize: 15,
+            fontSize: isCompact ? 14 : 15,
             lineHeight: 1.5,
             fontFamily: 'inherit',
             color: 'var(--card-fg-color)',
@@ -200,7 +201,7 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
         align="center"
         justify="space-between"
         style={{
-          padding: '8px 12px 12px 12px',
+          padding: isCompact ? '6px 10px 10px 10px' : '8px 12px 12px 12px',
         }}
       >
         {/* Left side: Plus dropdown */}

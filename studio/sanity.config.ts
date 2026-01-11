@@ -16,7 +16,7 @@ import {
   type DocumentLocation,
 } from 'sanity/presentation'
 import {assist} from '@sanity/assist'
-import {claudeAssistant} from './src/plugins/claude-assistant'
+import {claudeAssistant, createStudioLayout} from './src/plugins/claude-assistant'
 
 // Environment variables for project configuration
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'your-projectID'
@@ -144,5 +144,14 @@ export default defineConfig({
         (item) =>
           !['claudeConversation', 'claudeInstructions'].includes(item.templateId)
       ),
+  },
+
+  // Studio UI customization - add floating Claude chat across all tools
+  studio: {
+    components: {
+      layout: createStudioLayout({
+        apiEndpoint: `${SANITY_STUDIO_PREVIEW_URL}/api/claude`,
+      }),
+    },
   },
 })
