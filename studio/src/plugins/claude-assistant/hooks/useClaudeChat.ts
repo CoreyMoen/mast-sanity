@@ -5,7 +5,7 @@
  * Integrates with streaming API endpoint and conversation persistence.
  */
 
-import React, {useState, useCallback, useRef, useEffect} from 'react'
+import React, {useState, useCallback, useRef, useEffect, useMemo} from 'react'
 import type {Message, ParsedAction, SchemaContext, UseClaudeChatReturn} from '../types'
 import {parseActions, extractTextContent} from '../lib/actions'
 import {buildSystemPrompt} from '../lib/instructions'
@@ -29,6 +29,11 @@ export interface UseClaudeChatOptions {
    * Custom instructions to include in system prompt
    */
   customInstructions?: string
+
+  /**
+   * Workflow context to append to system prompt
+   */
+  workflowContext?: string
 
   /**
    * Active conversation to sync messages with
@@ -166,6 +171,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatRetur
     apiEndpoint,
     schemaContext,
     customInstructions,
+    workflowContext,
     activeConversation,
     onAddMessage,
     onUpdateMessage,
@@ -180,18 +186,50 @@ export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatRetur
 
   const abortControllerRef = useRef<AbortController | null>(null)
   const isFirstMessageRef = useRef(true)
+  const lastConversationIdRef = useRef<string | null>(null)
 
   // Sync messages with active conversation
-  // Use the full activeConversation object as dependency to catch any changes
+  // Use activeConversation.id and serialized message IDs for proper dependency tracking
+  // This ensures we sync when the conversation changes OR when messages are loaded from server
+  const conversationMessageIds = useMemo(() =>
+    activeConversation?.messages.map(m => m.id).join(',') || '',
+    [activeConversation?.messages]
+  )
+
   useEffect(() => {
     if (activeConversation) {
-      setMessages(activeConversation.messages)
-      isFirstMessageRef.current = activeConversation.messages.length === 0
+      // Check if this is a new conversation (ID changed)
+      const conversationChanged = lastConversationIdRef.current !== activeConversation.id
+
+      if (conversationChanged) {
+        console.log('[useClaudeChat] Conversation changed:', {
+          from: lastConversationIdRef.current,
+          to: activeConversation.id,
+          messageCount: activeConversation.messages.length,
+        })
+        lastConversationIdRef.current = activeConversation.id
+
+        // Initialize isFirstMessageRef based on whether this conversation has messages
+        isFirstMessageRef.current = activeConversation.messages.length === 0
+      }
+
+      // Only sync if IDs don't match (conversation changed or messages were loaded from server)
+      const localMessageIds = messages.map(m => m.id).join(',')
+
+      if (localMessageIds !== conversationMessageIds) {
+        console.log('[useClaudeChat] Syncing messages from activeConversation:', {
+          conversationId: activeConversation.id,
+          localCount: messages.length,
+          conversationCount: activeConversation.messages.length,
+        })
+        setMessages(activeConversation.messages)
+      }
     } else {
       setMessages([])
       isFirstMessageRef.current = true
+      lastConversationIdRef.current = null
     }
-  }, [activeConversation])
+  }, [activeConversation?.id, conversationMessageIds])
 
   /**
    * Cancel the current stream
@@ -214,6 +252,10 @@ export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatRetur
       setError(null)
       setIsLoading(true)
 
+      // Capture the conversation ID at the start to use throughout the request
+      // This ensures we have it even if activeConversation becomes null during processing
+      const conversationId = activeConversation?.id || null
+
       // Create user message
       const userMessage: Message = {
         id: generateMessageId(),
@@ -227,9 +269,9 @@ export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatRetur
       setMessages((prev) => [...prev, userMessage])
 
       // Persist user message if we have a conversation
-      if (activeConversation && onAddMessage) {
+      if (conversationId && onAddMessage) {
         try {
-          await onAddMessage(activeConversation.id, userMessage)
+          await onAddMessage(conversationId, userMessage)
         } catch (err) {
           console.error('Failed to persist user message:', err)
         }
@@ -259,6 +301,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatRetur
             timestamp: new Date(),
           },
           customInstructions,
+          workflowContext,
         })
 
         // Build conversation history for API
@@ -357,22 +400,39 @@ export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatRetur
         )
 
         // Persist assistant message if we have a conversation
-        if (activeConversation && onAddMessage) {
+        if (conversationId && onAddMessage) {
           try {
-            await onAddMessage(activeConversation.id, finalMessage)
+            await onAddMessage(conversationId, finalMessage)
           } catch (err) {
             console.error('Failed to persist assistant message:', err)
           }
         }
 
         // Generate title if this is the first exchange
-        if (isFirstMessageRef.current && activeConversation && onGenerateTitle) {
+        console.log('[useClaudeChat] Title generation check:', {
+          isFirstMessage: isFirstMessageRef.current,
+          hasConversation: !!conversationId,
+          hasCallback: !!onGenerateTitle,
+          conversationId,
+        })
+        if (isFirstMessageRef.current && conversationId && onGenerateTitle) {
           isFirstMessageRef.current = false
+          console.log('[useClaudeChat] Calling onGenerateTitle with:', {
+            conversationId,
+            userMessageLength: content.length,
+            responseLength: fullContent.length,
+          })
           try {
-            await onGenerateTitle(activeConversation.id, content, fullContent)
+            await onGenerateTitle(conversationId, content, fullContent)
           } catch (err) {
             console.error('Failed to generate title:', err)
           }
+        } else {
+          console.log('[useClaudeChat] Title generation skipped because:', {
+            notFirstMessage: !isFirstMessageRef.current,
+            noConversation: !conversationId,
+            noCallback: !onGenerateTitle,
+          })
         }
 
         // Notify about actions
@@ -419,6 +479,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatRetur
       messages,
       schemaContext,
       customInstructions,
+      workflowContext,
       activeConversation,
       onAddMessage,
       onGenerateTitle,

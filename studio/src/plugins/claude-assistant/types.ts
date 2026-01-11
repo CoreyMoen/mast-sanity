@@ -176,6 +176,7 @@ export interface SystemPromptContext {
   customInstructions?: string
   currentDocument?: SanityDocument
   recentActions?: ParsedAction[]
+  workflowContext?: string
 }
 
 // ============================================================================
@@ -208,7 +209,7 @@ export interface PluginSettings {
 }
 
 export const DEFAULT_SETTINGS: PluginSettings = {
-  model: 'claude-sonnet-4-20250514',
+  model: 'claude-opus-4-5-20251101',
   maxTokens: 4096,
   temperature: 0.7,
   customInstructions: '',

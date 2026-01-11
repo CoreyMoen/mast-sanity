@@ -14,6 +14,7 @@ import {useConversations} from './hooks/useConversations'
 import {useClaudeChat} from './hooks/useClaudeChat'
 import {useInstructions} from './hooks/useInstructions'
 import {useContentOperations} from './hooks/useContentOperations'
+import {useWorkflows, buildWorkflowContext} from './hooks/useWorkflows'
 import {extractSchemaContext} from './lib/schema-context'
 import type {ClaudeAssistantOptions} from './index'
 import type {Message, ParsedAction, PluginSettings, SchemaContext} from './types'
@@ -100,6 +101,13 @@ export function ClaudeTool(props: ClaudeToolProps) {
     setActiveInstruction,
   } = useInstructions()
 
+  // Workflows hook
+  const {
+    workflows,
+    selectedWorkflow,
+    selectWorkflow,
+  } = useWorkflows()
+
   // Extract schema context on mount
   useEffect(() => {
     if (schema) {
@@ -110,6 +118,9 @@ export function ClaudeTool(props: ClaudeToolProps) {
 
   // Ref to hold setMessages function (to break circular dependency)
   const setMessagesRef = useRef<React.Dispatch<React.SetStateAction<Message[]>> | null>(null)
+
+  // Ref to hold sendMessage function for auto-follow-up after query results
+  const sendMessageRef = useRef<((content: string) => Promise<void>) | null>(null)
 
   // Helper to update action status in messages
   const updateActionStatus = useCallback(
@@ -138,6 +149,13 @@ export function ClaudeTool(props: ClaudeToolProps) {
   // Read-only actions (query, navigate, explain) execute automatically
   const handleAction = useCallback(
     async (action: ParsedAction) => {
+      console.log('[ClaudeTool] handleAction called:', {
+        actionId: action.id,
+        actionType: action.type,
+        description: action.description,
+        payload: action.payload,
+      })
+
       // Read-only actions execute immediately without confirmation
       const readOnlyActions = ['query', 'navigate', 'explain']
       const isReadOnly = readOnlyActions.includes(action.type)
@@ -151,8 +169,10 @@ export function ClaudeTool(props: ClaudeToolProps) {
 
       // Update status to executing
       updateActionStatus(action.id, 'executing')
+      console.log('[ClaudeTool] Executing action...')
 
       const result = await executeAction(action)
+      console.log('[ClaudeTool] Action result:', result)
 
       // Update status based on result
       updateActionStatus(
@@ -169,19 +189,33 @@ export function ClaudeTool(props: ClaudeToolProps) {
           description: result.message,
         })
 
-        // For query actions, inject the results back into the conversation
-        // so Claude can see what was found and respond accordingly
-        if (action.type === 'query' && result.data && setMessagesRef.current) {
-          const queryResultMessage: Message = {
-            id: `query_result_${Date.now()}`,
-            role: 'assistant',
-            content: `**Query Results:**\n\n\`\`\`json\n${JSON.stringify(result.data, null, 2)}\n\`\`\`\n\nI found ${Array.isArray(result.data) ? result.data.length : 1} result(s). What would you like to do with this data?`,
-            timestamp: new Date(),
-            status: 'complete',
-          }
-          setMessagesRef.current((prev) => [...prev, queryResultMessage])
+        // For query actions, automatically send the results back to Claude
+        // so it can formulate the next action (like an update) with real _key values
+        if (action.type === 'query' && result.data && sendMessageRef.current) {
+          console.log('[ClaudeTool] Query completed - sending results back to Claude automatically')
+
+          // Format the results in a way that's easy for Claude to parse
+          const resultJson = JSON.stringify(result.data, null, 2)
+          const resultCount = Array.isArray(result.data) ? result.data.length : 1
+
+          // Send the query results as a user message so Claude sees them
+          // and can now formulate the update action with real _key values
+          const followUpMessage = `Here are the query results (${resultCount} result${resultCount !== 1 ? 's' : ''}):
+
+\`\`\`json
+${resultJson}
+\`\`\`
+
+Now that you have the real document structure with _id and _key values, please proceed with the update action using the exact _key values from these results.`
+
+          // Small delay to ensure UI updates first
+          setTimeout(() => {
+            console.log('[ClaudeTool] Sending follow-up message to Claude with query results')
+            sendMessageRef.current?.(followUpMessage)
+          }, 500)
         }
       } else {
+        console.error('[ClaudeTool] Action failed:', result.message)
         toast.push({
           status: 'error',
           title: 'Action failed',
@@ -191,6 +225,11 @@ export function ClaudeTool(props: ClaudeToolProps) {
     },
     [settings.confirmBeforeExecute, executeAction, toast, updateActionStatus]
   )
+
+  // Build workflow context from selected workflow
+  const workflowContext = selectedWorkflow
+    ? buildWorkflowContext(selectedWorkflow)
+    : undefined
 
   // Initialize chat hook with apiEndpoint from options
   // Note: We don't pass onAction here because action execution happens via ActionCard
@@ -207,6 +246,7 @@ export function ClaudeTool(props: ClaudeToolProps) {
     apiEndpoint: apiEndpoint || '/api/claude',
     schemaContext,
     customInstructions: settings.customInstructions,
+    workflowContext,
     activeConversation,
     onAddMessage: addMessage,
     onUpdateMessage: updateMessage,
@@ -216,10 +256,14 @@ export function ClaudeTool(props: ClaudeToolProps) {
     enableStreaming: settings.enableStreaming,
   })
 
-  // Update ref when setMessages is available
+  // Update refs when functions are available
   useEffect(() => {
     setMessagesRef.current = setMessages
   }, [setMessages])
+
+  useEffect(() => {
+    sendMessageRef.current = sendMessage
+  }, [sendMessage])
 
   // Handle settings change
   const handleSettingsChange = useCallback((newSettings: PluginSettings) => {
@@ -301,6 +345,10 @@ export function ClaudeTool(props: ClaudeToolProps) {
         instructions={instructions}
         activeInstruction={activeInstruction}
         onSetActiveInstruction={setActiveInstruction}
+        // Workflows
+        workflows={workflows}
+        selectedWorkflow={selectedWorkflow}
+        onWorkflowSelect={selectWorkflow}
         // API config
         apiEndpoint={apiEndpoint}
       />

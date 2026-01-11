@@ -186,6 +186,9 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
   // Debouncer for message updates during streaming
   const messageUpdateDebouncer = useRef(createDebouncer())
 
+  // Flag to skip subscription updates during active message sending (prevents duplicates)
+  const isUpdatingRef = useRef(false)
+
   // Cache ref for conversation list to avoid unnecessary refetches
   const conversationsCacheRef = useRef<{
     data: Conversation[]
@@ -256,8 +259,12 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
       .listen(subscriptionQuery, {userId: currentUser.id})
       .subscribe({
         next: () => {
-          // Bypass cache on real-time updates
-          fetchConversations(true)
+          // Skip subscription updates if we're in the middle of sending a message
+          // This prevents duplicate messages from appearing
+          if (!isUpdatingRef.current) {
+            // Bypass cache on real-time updates
+            fetchConversations(true)
+          }
         },
         error: (err) => {
           console.error('Subscription error:', err)
@@ -286,27 +293,39 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
 
     const now = new Date().toISOString()
 
-    const newDoc = await client.create({
-      _type: 'claudeConversation' as const,
-      title: 'New Conversation',
-      userId: currentUser.id,
-      messages: [],
-      lastActivity: now,
-      archived: false,
-    })
+    // Set flag to skip subscription updates during conversation creation
+    // This prevents the subscription from overwriting local state before Sanity indexes the new doc
+    isUpdatingRef.current = true
 
-    const newConversation: Conversation = {
-      id: newDoc._id,
-      title: 'New Conversation',
-      messages: [],
-      createdAt: new Date(now),
-      updatedAt: new Date(now),
+    try {
+      const newDoc = await client.create({
+        _type: 'claudeConversation' as const,
+        title: 'New Conversation',
+        userId: currentUser.id,
+        messages: [],
+        lastActivity: now,
+        archived: false,
+      })
+
+      const newConversation: Conversation = {
+        id: newDoc._id,
+        title: 'New Conversation',
+        messages: [],
+        createdAt: new Date(now),
+        updatedAt: new Date(now),
+      }
+
+      setConversations((prev) => [newConversation, ...prev])
+      setActiveConversationId(newDoc._id)
+
+      return newConversation
+    } finally {
+      // Reset flag after a longer delay to allow Sanity to index the new document
+      // 3 seconds should be enough for Sanity to index and make the document available
+      setTimeout(() => {
+        isUpdatingRef.current = false
+      }, 3000)
     }
-
-    setConversations((prev) => [newConversation, ...prev])
-    setActiveConversationId(newDoc._id)
-
-    return newConversation
   }, [client, currentUser?.id])
 
   /**
@@ -380,14 +399,19 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
 
         const conversation = sanityToConversation(doc)
 
-        // Update local state
+        // Update local state - create a new array AND new object to ensure re-render
         setConversations((prev) => {
           const exists = prev.find((c) => c.id === conversationId)
           if (exists) {
-            return prev.map((c) => (c.id === conversationId ? conversation : c))
+            // Create new array with new conversation object (spread to ensure new reference)
+            return prev.map((c) => (c.id === conversationId ? {...conversation} : c))
           }
-          return [conversation, ...prev]
+          // Prepend new conversation
+          return [{...conversation}, ...prev]
         })
+
+        // Also ensure the active conversation ID is set (in case it wasn't already)
+        setActiveConversationId(conversationId)
 
         return conversation
       } catch (err) {
@@ -405,6 +429,9 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
     async (conversationId: string, message: Message) => {
       const sanityMessage = messageToSanity(message)
       const now = new Date().toISOString()
+
+      // Set flag to skip subscription updates during message sending
+      isUpdatingRef.current = true
 
       try {
         await client
@@ -430,6 +457,11 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
       } catch (err) {
         console.error('Failed to add message:', err)
         throw err
+      } finally {
+        // Reset flag after a short delay to allow Sanity to finish processing
+        setTimeout(() => {
+          isUpdatingRef.current = false
+        }, 1000)
       }
     },
     [client]
@@ -506,15 +538,17 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
    */
   const generateTitle = useCallback(
     async (conversationId: string, userMessage: string, assistantResponse: string) => {
-      if (!apiEndpoint) {
-        // Fallback to simple truncation if no API endpoint
-        const fallbackTitle = userMessage.slice(0, 50) + (userMessage.length > 50 ? '...' : '')
-        await updateConversationTitle(conversationId, fallbackTitle)
-        return
-      }
+      // Default to /api/claude if no apiEndpoint provided
+      const baseEndpoint = apiEndpoint || '/api/claude'
+
+      console.log('[useConversations] generateTitle called:', {
+        conversationId,
+        userMessage: userMessage.slice(0, 50) + '...',
+        baseEndpoint,
+      })
 
       try {
-        const response = await fetch(`${apiEndpoint}/generate-title`, {
+        const response = await fetch(`${baseEndpoint}/generate-title`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({
@@ -524,18 +558,22 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
         })
 
         if (!response.ok) {
-          throw new Error('Failed to generate title')
+          const errorText = await response.text()
+          console.error('[useConversations] generateTitle API error:', response.status, errorText)
+          throw new Error(`Failed to generate title: ${response.status}`)
         }
 
         const {title} = await response.json()
+        console.log('[useConversations] generateTitle received:', {title})
 
         if (title) {
           await updateConversationTitle(conversationId, title)
         }
       } catch (err) {
-        console.error('Failed to generate title with Claude:', err)
+        console.error('[useConversations] Failed to generate title with Claude:', err)
         // Fallback to simple truncation
         const fallbackTitle = userMessage.slice(0, 50) + (userMessage.length > 50 ? '...' : '')
+        console.log('[useConversations] Using fallback title:', fallbackTitle)
         await updateConversationTitle(conversationId, fallbackTitle)
       }
     },

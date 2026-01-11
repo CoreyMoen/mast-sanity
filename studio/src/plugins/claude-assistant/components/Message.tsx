@@ -22,16 +22,27 @@ import {ActionCard} from './ActionCard'
 
 /**
  * Collapsible code block component for long content
+ * Collapses when:
+ * - More than 10 lines
+ * - More than 500 characters
+ * - Language is JSON (always start collapsed)
  */
 function CollapsibleCodeBlock({language, code}: {language: string; code: string}) {
-  const [isExpanded, setIsExpanded] = useState(false)
   const lines = code.trim().split('\n')
-  const isLong = lines.length > 10
+  const isLongByLines = lines.length > 10
+  const isLongByChars = code.length > 500
+  const isJSON = language.toLowerCase() === 'json'
+
+  // Determine if the block should be collapsible
+  const shouldCollapse = isLongByLines || isLongByChars || isJSON
+
+  // JSON should start collapsed, others based on length
+  const [isExpanded, setIsExpanded] = useState(!shouldCollapse)
   const previewLines = 8
 
-  const displayCode = isExpanded || !isLong
+  const displayCode = isExpanded
     ? code.trim()
-    : lines.slice(0, previewLines).join('\n') + '\n...'
+    : lines.slice(0, previewLines).join('\n') + (lines.length > previewLines ? '\n...' : '')
 
   return (
     <Box marginY={3}>
@@ -40,7 +51,7 @@ function CollapsibleCodeBlock({language, code}: {language: string; code: string}
           <Text size={0} muted style={{fontFamily: 'monospace', textTransform: 'uppercase'}}>
             {language}
           </Text>
-          {isLong && (
+          {shouldCollapse && (
             <Button
               mode="bleed"
               tone="primary"
@@ -57,7 +68,7 @@ function CollapsibleCodeBlock({language, code}: {language: string; code: string}
             {displayCode}
           </Code>
         </Box>
-        {!isExpanded && isLong && (
+        {!isExpanded && shouldCollapse && lines.length > previewLines && (
           <Box marginTop={2} style={{textAlign: 'center'}}>
             <Text size={0} muted>
               {lines.length - previewLines} more lines hidden
@@ -131,7 +142,7 @@ function parseInlineMarkdown(text: string, startKey: number): React.ReactNode[] 
   const flushParagraph = () => {
     if (currentParagraph.length > 0) {
       elements.push(
-        <Text key={key++} size={2} style={{whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.5}}>
+        <Text key={key++} size={2} style={{whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.5, marginBottom: '0.75rem'}}>
           {currentParagraph}
         </Text>
       )
@@ -142,7 +153,7 @@ function parseInlineMarkdown(text: string, startKey: number): React.ReactNode[] 
   const flushList = () => {
     if (listItems.length > 0) {
       elements.push(
-        <Box key={key++} as="ul" style={{margin: '8px 0', paddingLeft: 20}}>
+        <Box key={key++} as="ul" style={{margin: '0.75rem 0', paddingLeft: 24, listStyleType: 'disc', listStylePosition: 'outside'}}>
           {listItems}
         </Box>
       )
@@ -159,8 +170,8 @@ function parseInlineMarkdown(text: string, startKey: number): React.ReactNode[] 
       flushParagraph()
       inList = true
       listItems.push(
-        <Box key={key++} as="li" style={{marginBottom: 8}}>
-          <Text size={2} style={{lineHeight: 1.5}}>
+        <Box key={key++} as="li" style={{marginBottom: 8, display: 'list-item', lineHeight: 1.5}}>
+          <Text size={2} style={{display: 'inline', lineHeight: 'inherit'}}>
             {parseInlineStyles(listMatch[2], key++)}
           </Text>
         </Box>
@@ -173,7 +184,7 @@ function parseInlineMarkdown(text: string, startKey: number): React.ReactNode[] 
       if (line.trim() === '') {
         flushParagraph()
         if (lineIndex < lines.length - 1) {
-          elements.push(<Box key={key++} style={{height: 8}} />)
+          elements.push(<Box key={key++} style={{height: '0.75rem'}} />)
         }
       } else {
         // Check for headers
@@ -187,7 +198,7 @@ function parseInlineMarkdown(text: string, startKey: number): React.ReactNode[] 
               key={key++}
               size={level <= 2 ? 2 : 1}
               weight="bold"
-              style={{marginTop: level <= 2 ? 12 : 8, marginBottom: 4}}
+              style={{marginTop: level <= 2 ? '1rem' : '0.75rem', marginBottom: '0.5rem'}}
             >
               {parseInlineStyles(headerText, key++)}
             </Text>
@@ -315,13 +326,14 @@ export function Message({message, onActionClick, onActionExecute}: MessageProps)
   const isStreaming = message.status === 'streaming'
   const isError = message.status === 'error'
 
-  // Parse markdown for assistant messages
+  // Parse markdown for all messages (both user and assistant)
+  // This ensures code blocks are collapsible in both directions
   const parsedContent = useMemo(() => {
-    if (isUser || !message.content) {
+    if (!message.content) {
       return null
     }
     return parseMarkdown(message.content)
-  }, [message.content, isUser])
+  }, [message.content])
 
   // Create accessible label for the message
   const accessibleLabel = useMemo(() => {
@@ -366,27 +378,12 @@ export function Message({message, onActionClick, onActionExecute}: MessageProps)
 
           {/* Message content */}
           <Box>
-            {isUser ? (
-              <Text
-                size={2}
-                style={{
-                  whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word',
-                  lineHeight: 1.5,
-                }}
-              >
-                {message.content}
+            {parsedContent}
+            {isStreaming && <BlinkingCursor />}
+            {isStreaming && !message.content && (
+              <Text size={2} muted style={{fontStyle: 'italic'}}>
+                Thinking...
               </Text>
-            ) : (
-              <Box>
-                {parsedContent}
-                {isStreaming && <BlinkingCursor />}
-                {isStreaming && !message.content && (
-                  <Text size={2} muted style={{fontStyle: 'italic'}}>
-                    Thinking...
-                  </Text>
-                )}
-              </Box>
             )}
           </Box>
 
@@ -399,6 +396,7 @@ export function Message({message, onActionClick, onActionExecute}: MessageProps)
                   action={action}
                   onExecute={() => onActionExecute?.(action)}
                   onClick={() => onActionClick?.(action)}
+                  messageTimestamp={message.timestamp}
                 />
               ))}
             </Stack>

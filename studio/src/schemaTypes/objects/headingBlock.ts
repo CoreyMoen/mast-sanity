@@ -61,7 +61,6 @@ export const headingBlock = defineType({
         layout: 'dropdown',
       },
       initialValue: 'inherit',
-      validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'align',

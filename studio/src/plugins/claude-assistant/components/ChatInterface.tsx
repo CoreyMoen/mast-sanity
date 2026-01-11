@@ -15,7 +15,7 @@
  * - Suspense boundary with loading fallback
  */
 
-import React, {useCallback, useState, useRef, useEffect, Suspense} from 'react'
+import React, {useCallback, useState, useRef, useEffect, Suspense, useMemo} from 'react'
 import {Box, Card, Flex, Stack, Text, Button, Tooltip, Spinner} from '@sanity/ui'
 import {
   CogIcon,
@@ -40,6 +40,7 @@ import {MessageInput} from './MessageInput'
 import {QuickActions} from './QuickActions'
 import {ConversationSidebar} from './ConversationSidebar'
 import {useKeyboardShortcuts, announceToScreenReader} from '../hooks/useKeyboardShortcuts'
+import type {Workflow} from '../hooks/useWorkflows'
 
 // Lazy-loaded SettingsPanel for better initial load performance
 const SettingsPanel = React.lazy(() => import('./SettingsPanel').then(module => ({default: module.SettingsPanel})))
@@ -107,6 +108,10 @@ export interface ChatInterfaceProps {
   instructions?: InstructionSet[]
   activeInstruction?: InstructionSet | null
   onSetActiveInstruction?: (id: string) => void
+  // Workflows
+  workflows?: Workflow[]
+  selectedWorkflow?: Workflow | null
+  onWorkflowSelect?: (workflowId: string | null) => void
   // API config
   apiEndpoint?: string
 }
@@ -169,10 +174,13 @@ export function ChatInterface({
   instructions,
   activeInstruction,
   onSetActiveInstruction,
+  // Workflows (optional)
+  workflows,
+  selectedWorkflow,
+  onWorkflowSelect,
   // API config (optional)
   apiEndpoint,
 }: ChatInterfaceProps) {
-  const [showQuickActions, setShowQuickActions] = useState(true)
   const [sidebarOpen, setSidebarOpen] = useState(loadSidebarState)
 
   // Refs for focus management
@@ -196,20 +204,24 @@ export function ChatInterface({
     prevMessageCountRef.current = messages.length
   }, [messages])
 
-  // Sync showQuickActions with messages - hide when conversation has messages
-  useEffect(() => {
-    if (messages.length > 0) {
-      setShowQuickActions(false)
-    } else {
-      setShowQuickActions(true)
-    }
-  }, [messages.length])
+  // Sync showQuickActions with messages - hide when conversation has messages or loading
+  // Use useMemo instead of useEffect/useState to avoid flicker
+  const shouldShowQuickActions = useMemo(() => {
+    // Don't show quick actions if:
+    // 1. There are messages in the conversation
+    // 2. We're currently loading/sending a message
+    // 3. The active conversation has messages (even if local state hasn't synced yet)
+    if (messages.length > 0) return false
+    if (isLoading) return false
+    if (activeConversation && activeConversation.messages.length > 0) return false
+    return true
+  }, [messages.length, isLoading, activeConversation])
 
   // Handle quick action selection
   const handleQuickAction = useCallback(
     (action: QuickAction) => {
+      // shouldShowQuickActions will automatically become false when message is sent
       onSendMessage(action.prompt)
-      setShowQuickActions(false)
     },
     [onSendMessage]
   )
@@ -218,7 +230,7 @@ export function ChatInterface({
   const handleSend = useCallback(
     (content: string) => {
       onSendMessage(content)
-      setShowQuickActions(false)
+      // Quick actions visibility is computed automatically via useMemo
     },
     [onSendMessage]
   )
@@ -236,7 +248,7 @@ export function ChatInterface({
   const handleNewChat = useCallback(() => {
     onClearMessages()
     onCreateConversation()
-    setShowQuickActions(true)
+    // Quick actions visibility is computed automatically via useMemo
     announceToScreenReader('New conversation started')
     // Focus the message input after creating a new chat
     setTimeout(() => {
@@ -247,7 +259,7 @@ export function ChatInterface({
   // Handle clear chat (shows quick actions again)
   const handleClearChat = useCallback(() => {
     onClearMessages()
-    setShowQuickActions(true)
+    // Quick actions visibility is computed automatically via useMemo
     announceToScreenReader('Conversation cleared')
   }, [onClearMessages])
 
@@ -463,8 +475,13 @@ export function ChatInterface({
 
         {/* Messages Area */}
         <Box style={{flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column'}}>
-          {isConfigured && showQuickActions && messages.length === 0 ? (
-            <QuickActions onActionSelect={handleQuickAction} />
+          {isConfigured && shouldShowQuickActions ? (
+            <QuickActions
+              onActionSelect={handleQuickAction}
+              workflows={workflows}
+              selectedWorkflow={selectedWorkflow}
+              onWorkflowSelect={onWorkflowSelect}
+            />
           ) : (
             <MessageList
               messages={messages}

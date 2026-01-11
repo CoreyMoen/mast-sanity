@@ -62,6 +62,107 @@ function generateKey(): string {
 }
 
 /**
+ * Valid Sanity types for nested content
+ */
+const VALID_NESTED_TYPES = new Set([
+  'section', 'row', 'column',
+  'headingBlock', 'richTextBlock', 'eyebrowBlock', 'imageBlock',
+  'buttonBlock', 'spacerBlock', 'dividerBlock', 'iconBlock',
+  'cardBlock', 'sliderBlock', 'tabsBlock', 'accordionBlock',
+  'callToAction', 'infoSection', 'slug', 'image', 'reference',
+])
+
+/**
+ * Arrays that require _type on their items
+ */
+const TYPED_ARRAY_FIELDS = new Set(['pageBuilder', 'rows', 'columns', 'content'])
+
+/**
+ * Expected _type for items in specific arrays
+ */
+const EXPECTED_TYPES: Record<string, string> = {
+  pageBuilder: 'section',
+  rows: 'row',
+  columns: 'column',
+}
+
+/**
+ * Validate that nested objects have required _type and _key fields
+ * Returns an error message if validation fails, null if valid
+ */
+function validateNestedObjects(value: unknown, path: string = '', parentArrayName: string = ''): string | null {
+  if (value === null || value === undefined) {
+    return null
+  }
+
+  if (Array.isArray(value)) {
+    // Extract the array field name from the path (e.g., "pageBuilder" from "pageBuilder" or "rows" from "pageBuilder[0].rows")
+    const arrayName = path.split('.').pop()?.replace(/\[.*\]/, '') || ''
+    const isTypedArray = TYPED_ARRAY_FIELDS.has(arrayName)
+
+    for (let i = 0; i < value.length; i++) {
+      const item = value[i]
+      const itemPath = `${path}[${i}]`
+
+      // Array items that are objects should have _type and _key
+      if (item && typeof item === 'object' && !Array.isArray(item)) {
+        const obj = item as Record<string, unknown>
+
+        // Items in known structural arrays MUST have _type and _key
+        if (isTypedArray) {
+          if (!obj._type) {
+            const expectedType = EXPECTED_TYPES[arrayName]
+            const hint = expectedType ? ` Expected "_type": "${expectedType}".` : ''
+            return `Missing required "_type" field at ${itemPath}.${hint} Every item in the "${arrayName}" array must have a _type field.`
+          }
+
+          if (!obj._key) {
+            return `Missing required "_key" field at ${itemPath}. Every item in the "${arrayName}" array must have a unique _key (a random 10-character string like "xk7m9n2p4q").`
+          }
+
+          // Check for _type === 'object' which is always wrong
+          if (obj._type === 'object') {
+            const expectedType = EXPECTED_TYPES[arrayName]
+            const hint = expectedType ? ` Use "_type": "${expectedType}" instead.` : ''
+            return `Invalid "_type": "object" at ${itemPath}.${hint} Never use "object" as a type.`
+          }
+        } else {
+          // For other arrays, check if objects have structural fields that suggest they need _type
+          const hasNestedContent = obj.rows || obj.columns || obj.content || obj.pageBuilder
+          const hasBlockFields = obj.text || obj.level || obj.url || obj.label
+
+          if (hasNestedContent || hasBlockFields) {
+            if (!obj._type) {
+              return `Missing required "_type" field at ${itemPath}. Every nested content object must have a _type (e.g., "section", "row", "column", "headingBlock", etc.).`
+            }
+
+            if (!obj._key) {
+              return `Missing required "_key" field at ${itemPath}. Every array item must have a unique _key (a random 10-character string like "xk7m9n2p4q").`
+            }
+
+            if (obj._type === 'object') {
+              return `Invalid "_type": "object" at ${itemPath}. The _type must be a specific schema type like "section", "row", "column", "headingBlock", etc. Never use "object" as a type.`
+            }
+          }
+        }
+
+        // Recursively validate nested objects
+        const nestedError = validateNestedObjects(item, itemPath, arrayName)
+        if (nestedError) return nestedError
+      }
+    }
+  } else if (typeof value === 'object') {
+    const obj = value as Record<string, unknown>
+    for (const key of Object.keys(obj)) {
+      const nestedError = validateNestedObjects(obj[key], path ? `${path}.${key}` : key, parentArrayName)
+      if (nestedError) return nestedError
+    }
+  }
+
+  return null
+}
+
+/**
  * Ensure all array items have _key values
  */
 function ensureKeys<T extends {_key?: string}>(items: T[]): T[] {
@@ -82,30 +183,46 @@ export class ContentOperations {
    * Execute a parsed action from Claude
    */
   async executeAction(action: ParsedAction): Promise<ActionResult> {
+    console.log('[ContentOperations] executeAction called:', {
+      type: action.type,
+      description: action.description,
+      payload: action.payload,
+    })
+
     try {
+      let result: ActionResult
       switch (action.type) {
         case 'create':
-          return await this.createDocument(action.payload)
+          result = await this.createDocument(action.payload)
+          break
         case 'update':
-          return await this.updateDocument(action.payload)
+          result = await this.updateDocument(action.payload)
+          break
         case 'delete':
-          return await this.deleteDocument(action.payload)
+          result = await this.deleteDocument(action.payload)
+          break
         case 'query':
-          return await this.queryDocuments(action.payload)
+          result = await this.queryDocuments(action.payload)
+          break
         case 'navigate':
-          return this.navigateToDocument(action.payload)
+          result = this.navigateToDocument(action.payload)
+          break
         case 'explain':
-          return {
+          result = {
             success: true,
             message: action.payload.explanation || 'No explanation provided',
           }
+          break
         default:
-          return {
+          result = {
             success: false,
             message: `Unknown action type: ${action.type}`,
           }
       }
+      console.log('[ContentOperations] executeAction result:', result)
+      return result
     } catch (error) {
+      console.error('[ContentOperations] executeAction error:', error)
       return {
         success: false,
         message: error instanceof Error ? error.message : 'Unknown error occurred',
@@ -160,6 +277,46 @@ export class ContentOperations {
         return {
           success: false,
           message: `Invalid field path "${fieldPath}". Use _key selectors like [_key=="abc123"] instead of numeric indices like [0]. Query the document first to get the _key values.`,
+        }
+      }
+
+      // Detect hallucinated/fake _key values (semantic names instead of random strings)
+      // Real Sanity keys are 10+ char alphanumeric strings like "4b5c6d7e8f"
+      const keyMatches = fieldPath.match(/_key=="([^"]+)"/g)
+      if (keyMatches) {
+        for (const keyMatch of keyMatches) {
+          const keyValue = keyMatch.match(/_key=="([^"]+)"/)?.[1] || ''
+          // Fake keys are usually semantic words like "hero", "hero-row", "main-section"
+          // Real keys are random alphanumeric strings without hyphens or semantic meaning
+          const looksLikeFakeKey = /^[a-z]+-?[a-z]*$/i.test(keyValue) && keyValue.length < 10
+          if (looksLikeFakeKey) {
+            return {
+              success: false,
+              message: `Invalid _key value "${keyValue}" looks like a made-up name. Real Sanity _key values are random strings like "4b5c6d7e8f9g". You must first execute a query to find the actual _key values, then use those exact values in your update.`,
+            }
+          }
+        }
+      }
+    }
+
+    // Validate document ID format - detect hallucinated IDs
+    // Real Sanity IDs are either UUIDs or custom IDs that don't look like slug-based names
+    const docId = payload.documentId
+    const looksLikeFakeDocId = /^(page|post|article|section|block)-[a-z-]+$/i.test(docId)
+    if (looksLikeFakeDocId) {
+      return {
+        success: false,
+        message: `Invalid document ID "${docId}" looks like a made-up slug-based name. Real Sanity document IDs are UUIDs like "4c4d5ab9-abbb-485f-b033-f31a14cbdce2" or custom IDs. You must first execute a query to find the actual _id value, then use that exact ID in your update.`,
+      }
+    }
+
+    // Validate nested objects have required _type and _key fields
+    for (const [fieldPath, fieldValue] of Object.entries(payload.fields)) {
+      const validationError = validateNestedObjects(fieldValue, fieldPath)
+      if (validationError) {
+        return {
+          success: false,
+          message: validationError,
         }
       }
     }

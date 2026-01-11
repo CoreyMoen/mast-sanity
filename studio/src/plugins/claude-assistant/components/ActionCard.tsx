@@ -23,6 +23,7 @@ import {
   WarningOutlineIcon,
   LaunchIcon,
   DocumentIcon,
+  RefreshIcon,
 } from '@sanity/icons'
 import type {ParsedAction, ActionType, ActionStatus} from '../types'
 import {isDestructiveAction, shouldAutoExecute} from '../lib/actions'
@@ -39,6 +40,8 @@ export interface ActionCardProps {
   onOpenInPreview?: (documentId: string, documentType?: string) => void
   /** Whether to auto-execute non-destructive actions */
   autoExecuteEnabled?: boolean
+  /** Message timestamp - used to prevent auto-execution of old actions */
+  messageTimestamp?: Date
 }
 
 /**
@@ -97,6 +100,7 @@ export function ActionCard({
   onOpenInStructure,
   onOpenInPreview,
   autoExecuteEnabled = true,
+  messageTimestamp,
 }: ActionCardProps) {
   const hasAutoExecuted = useRef(false)
 
@@ -110,10 +114,15 @@ export function ActionCard({
   const isDestructive = isDestructiveAction(action)
   const shouldAutoExec = shouldAutoExecute(action)
 
-  // Pending actions that are not explain can be executed
-  // Destructive actions require confirmation
-  const canExecute = isPending && action.type !== 'explain'
-  const needsConfirmation = canExecute && isDestructive
+  // Track if action has been executed before (has a result or was auto-executed)
+  const hasBeenExecuted = !!action.result || hasAutoExecuted.current
+
+  // Actions can be executed if:
+  // - They are pending AND not explain type (first execution)
+  // - OR they completed successfully (re-execution)
+  const canExecute = (isPending && action.type !== 'explain') ||
+                     (isCompleted && action.result?.success)
+  const needsConfirmation = canExecute && isDestructive && !hasBeenExecuted
 
   // Get the document ID and slug from result or payload
   const documentId = action.result?.documentId || action.payload.documentId
@@ -121,6 +130,11 @@ export function ActionCard({
   // Extract slug from result data if available (for pages)
   const resultData = action.result?.data as Record<string, unknown> | undefined
   const documentSlug = resultData?.slug as {current?: string} | undefined
+
+  // Check if message is recent (within last 10 seconds) to prevent auto-executing old actions
+  const isRecentMessage = messageTimestamp
+    ? Date.now() - messageTimestamp.getTime() < 10000
+    : true // If no timestamp provided, assume it's recent (backwards compatibility)
 
   // Auto-execute non-destructive actions when enabled
   useEffect(() => {
@@ -131,6 +145,7 @@ export function ActionCard({
       isPending,
       shouldAutoExec,
       isDestructive,
+      isRecentMessage,
       hasAutoExecuted: hasAutoExecuted.current,
       hasOnExecute: !!onExecute,
     })
@@ -139,6 +154,7 @@ export function ActionCard({
       isPending &&
       shouldAutoExec &&
       !isDestructive &&
+      isRecentMessage &&
       !hasAutoExecuted.current &&
       onExecute
     ) {
@@ -146,7 +162,7 @@ export function ActionCard({
       hasAutoExecuted.current = true
       onExecute()
     }
-  }, [autoExecuteEnabled, isPending, shouldAutoExec, isDestructive, onExecute, action.id, action.type])
+  }, [autoExecuteEnabled, isPending, shouldAutoExec, isDestructive, isRecentMessage, onExecute, action.id, action.type])
 
   // Handle opening in Structure tool
   const handleOpenInStructure = useCallback(
@@ -323,9 +339,22 @@ export function ActionCard({
             )}
             {canExecute && (
               <Button
-                text={needsConfirmation ? 'Confirm & Execute' : 'Execute'}
+                text={
+                  needsConfirmation
+                    ? 'Confirm & Execute'
+                    : hasBeenExecuted
+                    ? 'Execute Again'
+                    : 'Execute'
+                }
                 tone={isDestructive ? 'critical' : 'primary'}
-                icon={needsConfirmation ? CheckmarkIcon : PlayIcon}
+                mode={hasBeenExecuted ? 'ghost' : 'default'}
+                icon={
+                  needsConfirmation
+                    ? CheckmarkIcon
+                    : hasBeenExecuted
+                    ? RefreshIcon
+                    : PlayIcon
+                }
                 onClick={(e) => {
                   e.stopPropagation()
                   onExecute?.()

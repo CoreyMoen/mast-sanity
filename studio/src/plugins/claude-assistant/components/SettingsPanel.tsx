@@ -88,10 +88,8 @@ interface InstructionFieldProps {
 const ADMIN_ROLES = ['administrator']
 
 const AVAILABLE_MODELS = [
-  {value: 'claude-sonnet-4-20250514', title: 'Claude Sonnet 4 (Recommended)'},
-  {value: 'claude-opus-4-20250514', title: 'Claude Opus 4'},
-  {value: 'claude-3-5-sonnet-20241022', title: 'Claude 3.5 Sonnet'},
-  {value: 'claude-3-5-haiku-20241022', title: 'Claude 3.5 Haiku (Faster)'},
+  {value: 'claude-opus-4-5-20251101', title: 'Claude Opus 4.5 (Most Capable)'},
+  {value: 'claude-sonnet-4-5-20250514', title: 'Claude Sonnet 4.5'},
 ]
 
 const DEBOUNCE_DELAY = 1000

@@ -160,6 +160,7 @@ export function parseActions(content: string): ParsedAction[] {
  */
 function parseActionData(data: unknown): ParsedAction | null {
   if (typeof data !== 'object' || data === null) {
+    console.warn('[parseActionData] Invalid data: not an object')
     return null
   }
 
@@ -167,13 +168,21 @@ function parseActionData(data: unknown): ParsedAction | null {
   const type = actionData.type as ActionType
 
   if (!isValidActionType(type)) {
-    console.warn(`Invalid action type: ${type}`)
+    console.warn(`[parseActionData] Invalid action type: ${type}`, actionData)
     return null
   }
 
-  // Parse the payload first so we can check for destructive patterns
-  const payload = parsePayload(actionData.payload || actionData)
+  // Parse the payload - check for nested payload object first, then fall back to flat structure
+  const payloadSource = actionData.payload || actionData
+  const payload = parsePayload(payloadSource)
   const description = (actionData.description as string) || getDefaultDescription(type)
+
+  console.log('[parseActionData] Parsed action:', {
+    type,
+    description,
+    payloadSource: typeof actionData.payload !== 'undefined' ? 'nested' : 'flat',
+    payload,
+  })
 
   const action: ParsedAction = {
     id: generateActionId(),

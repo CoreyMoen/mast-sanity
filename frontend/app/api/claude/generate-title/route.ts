@@ -9,7 +9,7 @@ const anthropic = new Anthropic({
 // CORS headers for cross-origin requests from Sanity Studio
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type, Authorization',
 }
 
@@ -33,14 +33,14 @@ function jsonResponse(data: object, status: number = 200) {
   })
 }
 
-// Model to use as specified in the spec
-const MODEL = 'claude-sonnet-4-20250514'
+// Model to use for title generation (use faster, cheaper model)
+const MODEL = 'claude-3-5-haiku-20241022'
 
-// Low max tokens for title generation
+// Maximum tokens for title (keep it short)
 const MAX_TOKENS = 50
 
 /**
- * Request body structure for title generation
+ * Request body structure
  */
 interface GenerateTitleRequest {
   userMessage: string
@@ -57,11 +57,7 @@ function validateRequest(body: unknown): body is GenerateTitleRequest {
 
   const request = body as GenerateTitleRequest
 
-  if (typeof request.userMessage !== 'string' || !request.userMessage.trim()) {
-    return false
-  }
-
-  if (typeof request.assistantResponse !== 'string') {
+  if (typeof request.userMessage !== 'string' || typeof request.assistantResponse !== 'string') {
     return false
   }
 
@@ -70,7 +66,7 @@ function validateRequest(body: unknown): body is GenerateTitleRequest {
 
 /**
  * POST handler for generating conversation titles
- * Returns: { title: string }
+ * Uses Claude to generate a short, descriptive title from the first exchange
  */
 export async function POST(request: NextRequest) {
   // Check for API key
@@ -102,54 +98,38 @@ export async function POST(request: NextRequest) {
 
   const { userMessage, assistantResponse } = body
 
-  // Truncate assistant response for the prompt (keep first 200 chars)
-  const truncatedResponse = assistantResponse.slice(0, 200)
-  const responseSuffix = assistantResponse.length > 200 ? '...' : ''
-
   try {
-    const response = await anthropic.messages.create({
+    // Generate title using Claude
+    const message = await anthropic.messages.create({
       model: MODEL,
       max_tokens: MAX_TOKENS,
       messages: [
         {
           role: 'user',
-          content: `Generate a short, descriptive title (3-6 words) for this conversation. Return ONLY the title, no quotes or punctuation.
+          content: `Based on this conversation exchange, generate a short, descriptive title (maximum 6 words):
 
-User's message: "${userMessage}"
+User: ${userMessage}Assistant: ${assistantResponse}
 
-Assistant's response summary: "${truncatedResponse}${responseSuffix}"`,
+Your response should ONLY be the title text itself, nothing else.
+Example good responses:
+- "Fix authentication bug"
+- "Add dark mode toggle"
+- "Update user profile page"
+- "Query customer data"`,
         },
       ],
     })
 
     // Extract title from response
-    let title = 'New conversation'
+    const title =message.content[0].type === 'text'
+        ? message.content[0].text.trim()
+        : 'New Conversation'
 
-    if (response.content.length > 0) {
-      const firstBlock = response.content[0]
-      if (firstBlock.type === 'text') {
-        // Clean up the title - remove quotes, extra whitespace, and punctuation
-        title = firstBlock.text
-          .trim()
-          .replace(/^["']|["']$/g, '') // Remove surrounding quotes
-          .replace(/[.!?]$/, '') // Remove trailing punctuation
-          .trim()
-
-        // Ensure title isn't empty after cleanup
-        if (!title) {
-          title = 'New conversation'
-        }
-
-        // Truncate if too long (shouldn't happen with max_tokens, but just in case)
-        if (title.length > 60) {
-          title = title.slice(0, 57) + '...'
-        }
-      }
-    }
+    console.log('[generate-title] Generated title:', title)
 
     return jsonResponse({ title })
   } catch (error) {
-    console.error('[Claude Title API] Error:', error)
+    console.error('[generate-title] Error:', error)
 
     // Handle specific Anthropic API errors
     if (error instanceof Anthropic.APIError) {
@@ -175,8 +155,8 @@ Assistant's response summary: "${truncatedResponse}${responseSuffix}"`,
       return jsonResponse({ error: message }, statusCode)
     }
 
-    // Return fallback title on error rather than failing completely
-    // This allows the conversation to continue even if title generation fails
-    return jsonResponse({ title: 'New conversation' })
+    // Generic error response - still return a fallback title
+    const fallbackTitle = userMessage.slice(0, 50) + (userMessage.length > 50 ? '...' : '')
+    return jsonResponse({ title: fallbackTitle })
   }
 }

@@ -2,14 +2,22 @@
  * QuickActions Component
  *
  * Welcome screen with styled quick action cards for common operations
+ * and optional workflow selector
  */
 
-import {Box, Card, Flex, Grid, Stack, Text} from '@sanity/ui'
-import {HelpCircleIcon} from '@sanity/icons'
+import {Box, Card, Flex, Grid, Stack, Text, Badge} from '@sanity/ui'
+import {HelpCircleIcon, PlayIcon} from '@sanity/icons'
 import type {QuickAction} from '../types'
+import type {Workflow} from '../hooks/useWorkflows'
 
 export interface QuickActionsProps {
   onActionSelect: (action: QuickAction) => void
+  /** Available workflows for selection */
+  workflows?: Workflow[]
+  /** Currently selected workflow */
+  selectedWorkflow?: Workflow | null
+  /** Callback when a workflow is selected */
+  onWorkflowSelect?: (workflowId: string | null) => void
 }
 
 /**
@@ -103,7 +111,92 @@ function QuickActionCard({
   )
 }
 
-export function QuickActions({onActionSelect}: QuickActionsProps) {
+/**
+ * Workflow card component
+ */
+function WorkflowCard({
+  workflow,
+  isSelected,
+  onSelect,
+}: {
+  workflow: Workflow
+  isSelected: boolean
+  onSelect: () => void
+}) {
+  return (
+    <Card
+      padding={3}
+      radius={2}
+      shadow={isSelected ? 2 : 1}
+      tone={isSelected ? 'primary' : 'default'}
+      style={{
+        cursor: 'pointer',
+        transition: 'all 150ms ease',
+        border: isSelected
+          ? '2px solid var(--card-focus-ring-color)'
+          : '1px solid var(--card-border-color)',
+      }}
+      onClick={onSelect}
+      onMouseEnter={(e) => {
+        if (!isSelected) {
+          const target = e.currentTarget
+          target.style.borderColor = 'var(--card-focus-ring-color)'
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isSelected) {
+          const target = e.currentTarget
+          target.style.borderColor = 'var(--card-border-color)'
+        }
+      }}
+    >
+      <Flex gap={3} align="center">
+        <Box
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: 6,
+            backgroundColor: isSelected
+              ? 'var(--card-bg-color)'
+              : 'var(--card-badge-default-bg-color)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexShrink: 0,
+          }}
+        >
+          <PlayIcon />
+        </Box>
+        <Stack space={1} style={{flex: 1, minWidth: 0}}>
+          <Flex align="center" gap={2}>
+            <Text size={1} weight="semibold" style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+              {workflow.name}
+            </Text>
+            {isSelected && (
+              <Badge tone="primary" fontSize={0}>
+                Active
+              </Badge>
+            )}
+          </Flex>
+          {workflow.description && (
+            <Text size={0} muted style={{overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}}>
+              {workflow.description}
+            </Text>
+          )}
+        </Stack>
+      </Flex>
+    </Card>
+  )
+}
+
+export function QuickActions({
+  onActionSelect,
+  workflows = [],
+  selectedWorkflow,
+  onWorkflowSelect,
+}: QuickActionsProps) {
+  const hasWorkflows = workflows.length > 0
+
   return (
     <Box
       style={{
@@ -127,21 +220,71 @@ export function QuickActions({onActionSelect}: QuickActionsProps) {
               How can I help you today?
             </Text>
             <Text size={2} muted>
-              Select a quick action below or type your own message
+              {hasWorkflows
+                ? 'Select a workflow or quick action to get started'
+                : 'Select a quick action below or type your own message'}
             </Text>
           </Stack>
         </Flex>
 
+        {/* Workflow selector (if workflows exist) */}
+        {hasWorkflows && onWorkflowSelect && (
+          <Stack space={3}>
+            <Flex align="center" justify="space-between">
+              <Text size={1} weight="semibold" muted>
+                Workflows
+              </Text>
+              {selectedWorkflow && (
+                <Card
+                  as="button"
+                  padding={1}
+                  radius={2}
+                  tone="default"
+                  style={{
+                    cursor: 'pointer',
+                    border: 'none',
+                    background: 'transparent',
+                  }}
+                  onClick={() => onWorkflowSelect(null)}
+                >
+                  <Text size={0} muted>
+                    Clear selection
+                  </Text>
+                </Card>
+              )}
+            </Flex>
+            <Grid columns={[1, 2]} gap={3}>
+              {workflows.map((workflow) => (
+                <WorkflowCard
+                  key={workflow.id}
+                  workflow={workflow}
+                  isSelected={selectedWorkflow?.id === workflow.id}
+                  onSelect={() =>
+                    onWorkflowSelect(
+                      selectedWorkflow?.id === workflow.id ? null : workflow.id
+                    )
+                  }
+                />
+              ))}
+            </Grid>
+          </Stack>
+        )}
+
         {/* Quick action cards */}
-        <Grid columns={[1, 2, 3]} gap={4}>
-          {DEFAULT_QUICK_ACTIONS.map((action) => (
-            <QuickActionCard
-              key={action.id}
-              action={action}
-              onSelect={() => onActionSelect(action)}
-            />
-          ))}
-        </Grid>
+        <Stack space={3}>
+          <Text size={1} weight="semibold" muted>
+            Quick Actions
+          </Text>
+          <Grid columns={[1, 2, 3]} gap={4}>
+            {DEFAULT_QUICK_ACTIONS.map((action) => (
+              <QuickActionCard
+                key={action.id}
+                action={action}
+                onSelect={() => onActionSelect(action)}
+              />
+            ))}
+          </Grid>
+        </Stack>
 
         {/* Tips section */}
         <Card padding={4} radius={2} tone="primary" style={{backgroundColor: 'var(--card-badge-default-bg-color)'}}>
