@@ -10,10 +10,11 @@
  * - No conversation sidebar (simplified UX)
  * - Works across Structure, Presentation, and other tools
  * - Persists state across tool navigation
+ * - Shares settings with main Claude tool via localStorage
  */
 
 import React, {useCallback, useState, useRef, useEffect, useMemo} from 'react'
-import {Box, Card, Flex, Stack, Text, Button, Tooltip, Spinner} from '@sanity/ui'
+import {Box, Card, Flex, Stack, Text, Button, Tooltip, useToast} from '@sanity/ui'
 import {CloseIcon, AddIcon, TrashIcon, ResetIcon} from '@sanity/icons'
 import {useClient, useCurrentUser, useSchema} from 'sanity'
 import {MessageList} from './MessageList'
@@ -22,6 +23,7 @@ import {useClaudeChat} from '../hooks/useClaudeChat'
 import {useConversations} from '../hooks/useConversations'
 import {useContentOperations} from '../hooks/useContentOperations'
 import {useWorkflows, buildWorkflowContext} from '../hooks/useWorkflows'
+import {useInstructions} from '../hooks/useInstructions'
 import {extractSchemaContext} from '../lib/schema-context'
 import {DEFAULT_SETTINGS} from '../types'
 import type {Message, ParsedAction, PluginSettings, SchemaContext} from '../types'
@@ -83,20 +85,55 @@ interface FloatingChatProps {
 }
 
 /**
+ * Hook to sync settings from localStorage (listens for changes from main tool)
+ */
+function useSharedSettings(): PluginSettings {
+  const [settings, setSettings] = useState<PluginSettings>(loadSettings)
+
+  useEffect(() => {
+    // Listen for storage events (when main tool saves settings)
+    const handleStorageChange = (event: StorageEvent) => {
+      if (event.key === SETTINGS_STORAGE_KEY && event.newValue) {
+        try {
+          const newSettings = {...DEFAULT_SETTINGS, ...JSON.parse(event.newValue)}
+          setSettings(newSettings)
+        } catch {
+          console.warn('Failed to parse settings from storage event')
+        }
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [])
+
+  // Also reload settings when component mounts (in case they changed while unmounted)
+  useEffect(() => {
+    setSettings(loadSettings())
+  }, [])
+
+  return settings
+}
+
+/**
  * Floating Chat Panel - The actual chat interface
  */
 function FloatingChatPanel({
   apiEndpoint,
   onClose,
 }: FloatingChatProps & {onClose: () => void}) {
-  const client = useClient({apiVersion: '2024-01-01'})
   const schema = useSchema()
   const currentUser = useCurrentUser()
+  const toast = useToast()
 
-  const [settings] = useState<PluginSettings>(loadSettings)
+  // Use shared settings that sync with main tool
+  const settings = useSharedSettings()
   const [schemaContext, setSchemaContext] = useState<SchemaContext | null>(null)
 
   const {executeAction} = useContentOperations()
+
+  // Instructions hook - same as main tool
+  const {activeInstruction} = useInstructions()
 
   const {
     conversations,
@@ -142,6 +179,8 @@ function FloatingChatPanel({
 
   const handleAction = useCallback(
     async (action: ParsedAction) => {
+      // Note: confirmBeforeExecute is respected - ActionCard handles inline confirmation
+      // for modifying actions, while read-only actions (query, navigate, explain) auto-execute
       updateActionStatus(action.id, 'executing')
 
       const result = await executeAction(action)
@@ -153,12 +192,20 @@ function FloatingChatPanel({
         result.success ? undefined : result.message
       )
 
-      // Auto-follow-up for query results
-      if (action.type === 'query' && result.success && result.data && sendMessageRef.current) {
-        const resultJson = JSON.stringify(result.data, null, 2)
-        const resultCount = Array.isArray(result.data) ? result.data.length : 1
+      // Show toast notifications (same as main tool)
+      if (result.success) {
+        toast.push({
+          status: 'success',
+          title: 'Action completed',
+          description: result.message,
+        })
 
-        const followUpMessage = `Here are the query results (${resultCount} result${resultCount !== 1 ? 's' : ''}):
+        // Auto-follow-up for query results
+        if (action.type === 'query' && result.data && sendMessageRef.current) {
+          const resultJson = JSON.stringify(result.data, null, 2)
+          const resultCount = Array.isArray(result.data) ? result.data.length : 1
+
+          const followUpMessage = `Here are the query results (${resultCount} result${resultCount !== 1 ? 's' : ''}):
 
 \`\`\`json
 ${resultJson}
@@ -166,12 +213,19 @@ ${resultJson}
 
 Now that you have the real document structure with _id and _key values, please proceed with the update action using the exact _key values from these results.`
 
-        setTimeout(() => {
-          sendMessageRef.current?.(followUpMessage)
-        }, 500)
+          setTimeout(() => {
+            sendMessageRef.current?.(followUpMessage)
+          }, 500)
+        }
+      } else {
+        toast.push({
+          status: 'error',
+          title: 'Action failed',
+          description: result.message,
+        })
       }
     },
-    [executeAction, updateActionStatus]
+    [executeAction, updateActionStatus, toast]
   )
 
   const workflowContext = selectedWorkflow
