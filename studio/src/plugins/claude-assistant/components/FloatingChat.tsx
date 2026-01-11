@@ -15,7 +15,7 @@
 
 import React, {useCallback, useState, useRef, useEffect, useMemo} from 'react'
 import {Box, Card, Flex, Stack, Text, Button, Tooltip, useToast} from '@sanity/ui'
-import {CloseIcon, AddIcon, TrashIcon, ResetIcon} from '@sanity/icons'
+import {CloseIcon, AddIcon, TrashIcon, ResetIcon, ExpandIcon} from '@sanity/icons'
 import {useClient, useCurrentUser, useSchema} from 'sanity'
 import {MessageList} from './MessageList'
 import {MessageInput, WorkflowOption} from './MessageInput'
@@ -139,10 +139,28 @@ function FloatingChatPanel({
     conversations,
     activeConversation,
     createConversation,
+    selectConversation,
+    loadConversation,
     addMessage,
     updateMessage,
     generateTitle,
   } = useConversations({apiEndpoint})
+
+  // Check for pending conversation from main tool (when user clicks "Continue in Presentation/Structure")
+  useEffect(() => {
+    try {
+      const pendingConversationId = localStorage.getItem('claude-floating-pending-conversation')
+      if (pendingConversationId) {
+        // Clear it so we don't re-select on subsequent mounts
+        localStorage.removeItem('claude-floating-pending-conversation')
+        // Select and load the conversation
+        selectConversation(pendingConversationId)
+        loadConversation(pendingConversationId)
+      }
+    } catch {
+      // Ignore storage errors
+    }
+  }, [selectConversation, loadConversation])
 
   const {workflows, selectedWorkflow, selectWorkflow} = useWorkflows()
 
@@ -287,6 +305,23 @@ Now that you have the real document structure with _id and _key values, please p
     // Model changes handled by settings in main tool
   }, [])
 
+  // Open full Claude tool with current conversation
+  const handleOpenFullTool = useCallback(() => {
+    // Navigate to Claude tool - the conversation will be available there
+    // since they share the same Sanity storage
+    const conversationId = activeConversation?.id
+    if (conversationId) {
+      // Store the conversation ID to auto-select when Claude tool loads
+      try {
+        localStorage.setItem('claude-assistant-pending-conversation', conversationId)
+      } catch {
+        // Ignore storage errors
+      }
+    }
+    // Navigate to Claude tool
+    window.location.href = '/claude'
+  }, [activeConversation?.id])
+
   return (
     <Card
       shadow={4}
@@ -335,6 +370,20 @@ Now that you have the real document structure with _id and _key values, please p
                 tone="primary"
                 onClick={handleNewChat}
                 disabled={isLoading}
+                fontSize={1}
+                padding={2}
+              />
+            </Tooltip>
+
+            <Tooltip
+              content={<Box padding={2}><Text size={1}>Open full view</Text></Box>}
+              placement="top"
+              portal
+            >
+              <Button
+                icon={ExpandIcon}
+                mode="bleed"
+                onClick={handleOpenFullTool}
                 fontSize={1}
                 padding={2}
               />
