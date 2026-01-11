@@ -16,7 +16,7 @@
  */
 
 import React, {useCallback, useState, useRef, useEffect, Suspense, useMemo} from 'react'
-import {Box, Card, Flex, Stack, Text, Button, Tooltip, Spinner} from '@sanity/ui'
+import {Box, Card, Flex, Stack, Text, Button, Tooltip, Spinner, Menu, MenuButton, MenuItem, MenuDivider} from '@sanity/ui'
 import {
   CogIcon,
   TrashIcon,
@@ -24,6 +24,9 @@ import {
   MenuIcon,
   AddIcon,
   ChevronLeftIcon,
+  EllipsisVerticalIcon,
+  DesktopIcon,
+  DocumentsIcon,
 } from '@sanity/icons'
 import type {SanityClient, Schema, CurrentUser} from 'sanity'
 import type {
@@ -344,6 +347,23 @@ export function ChatInterface({
   // API is always considered configured since key is server-side only
   const isConfigured = true
 
+  // Navigate to a different mode with floating chat
+  const handleContinueInMode = useCallback((mode: 'presentation' | 'structure') => {
+    // Store the current conversation ID for the floating chat to pick up
+    const conversationId = activeConversation?.id
+    if (conversationId) {
+      try {
+        localStorage.setItem('claude-floating-pending-conversation', conversationId)
+        // Also ensure floating chat will be open
+        localStorage.setItem('claude-floating-chat-open', 'true')
+      } catch {
+        // Ignore storage errors
+      }
+    }
+    // Navigate to the selected mode
+    window.location.href = `/${mode}`
+  }, [activeConversation?.id])
+
   // Register keyboard shortcuts
   useKeyboardShortcuts({
     enabled: true,
@@ -527,6 +547,36 @@ export function ChatInterface({
                   aria-haspopup="dialog"
                 />
               </Tooltip>
+
+              {/* More options menu */}
+              <MenuButton
+                id="chat-more-options"
+                button={
+                  <Button
+                    icon={EllipsisVerticalIcon}
+                    mode="bleed"
+                    aria-label="More options"
+                  />
+                }
+                menu={
+                  <Menu>
+                    <MenuItem
+                      icon={DesktopIcon}
+                      text="Continue in Presentation"
+                      onClick={() => handleContinueInMode('presentation')}
+                      disabled={!activeConversation}
+                    />
+                    <MenuItem
+                      icon={DocumentsIcon}
+                      text="Continue in Structure"
+                      onClick={() => handleContinueInMode('structure')}
+                      disabled={!activeConversation}
+                    />
+                  </Menu>
+                }
+                placement="bottom-end"
+                popover={{portal: true}}
+              />
             </Flex>
           </Flex>
         </Card>

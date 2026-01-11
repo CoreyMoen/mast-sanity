@@ -32,6 +32,8 @@ export interface MessageListProps {
   onActionExecute?: (action: ParsedAction) => void
   /** Max width for the message content area */
   maxWidth?: number
+  /** Compact mode for floating chat */
+  compact?: boolean
 }
 
 export function MessageList({
@@ -40,6 +42,7 @@ export function MessageList({
   onActionClick,
   onActionExecute,
   maxWidth = 900,
+  compact = false,
 }: MessageListProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -146,7 +149,7 @@ export function MessageList({
       ref={scrollContainerRef}
       onScroll={handleScroll}
       style={{
-        padding: 16,
+        padding: compact ? 12 : 16,
       }}
       role="log"
       aria-label="Conversation with Claude"
@@ -155,7 +158,7 @@ export function MessageList({
       tabIndex={0}
     >
       <Stack
-        space={4}
+        space={compact ? 3 : 4}
         style={{maxWidth, margin: '0 auto'}}
         role="list"
         aria-label={`${totalCount} message${totalCount !== 1 ? 's' : ''} in conversation`}

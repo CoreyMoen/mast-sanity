@@ -117,6 +117,22 @@ export function ClaudeTool(props: ClaudeToolProps) {
     }
   }, [schema])
 
+  // Check for pending conversation from floating chat
+  useEffect(() => {
+    try {
+      const pendingConversationId = localStorage.getItem('claude-assistant-pending-conversation')
+      if (pendingConversationId) {
+        // Clear it so we don't re-select on subsequent mounts
+        localStorage.removeItem('claude-assistant-pending-conversation')
+        // Select and load the conversation
+        selectConversation(pendingConversationId)
+        loadConversation(pendingConversationId)
+      }
+    } catch {
+      // Ignore storage errors
+    }
+  }, [selectConversation, loadConversation])
+
   // Ref to hold setMessages function (to break circular dependency)
   const setMessagesRef = useRef<React.Dispatch<React.SetStateAction<Message[]>> | null>(null)
 
