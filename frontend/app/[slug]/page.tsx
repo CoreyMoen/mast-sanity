@@ -1,5 +1,6 @@
 import type {Metadata} from 'next'
 import {draftMode} from 'next/headers'
+import {redirect} from 'next/navigation'
 
 import PageBuilderPage from '@/app/components/PageBuilder'
 import {sanityFetch} from '@/sanity/lib/live'
@@ -22,7 +23,8 @@ export async function generateStaticParams() {
     perspective: 'published',
     stega: false,
   })
-  return data
+  // Exclude 'home' slug since it's handled by the root route
+  return data.filter((item: {slug: string}) => item.slug !== 'home')
 }
 
 /**
@@ -45,6 +47,12 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
 
 export default async function Page(props: Props) {
   const params = await props.params
+
+  // Redirect /home to / since home page is handled by the root route
+  if (params.slug === 'home') {
+    redirect('/')
+  }
+
   const {isEnabled: isDraftMode} = await draftMode()
   const [{data: page}] = await Promise.all([sanityFetch({query: getPageQuery, params})])
 

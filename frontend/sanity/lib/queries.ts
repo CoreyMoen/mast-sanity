@@ -81,11 +81,11 @@ const postFields = /* groq */ `
   "author": author->{firstName, lastName, picture},
 `
 
+// Resolve page/post references in link objects
+// Note: We always try to resolve these since object fields may not have _type set
 const linkReference = /* groq */ `
-  _type == "link" => {
-    "page": page->slug.current,
-    "post": post->slug.current
-  }
+  "page": page->slug.current,
+  "post": post->slug.current
 `
 
 const linkFields = /* groq */ `
@@ -102,6 +102,32 @@ const richTextFields = /* groq */ `
     markDefs[]{
       ...,
       ${linkReference}
+    }
+  }
+`
+
+// Nested row content blocks (for rows inside columns)
+// Handles 2 levels deep of nesting for button links
+const nestedContentBlockFields = /* groq */ `
+  content[]{
+    ...,
+    _type == "buttonBlock" => {
+      ${linkFields}
+    },
+    _type == "richTextBlock" => {
+      ${richTextFields}
+    },
+    _type == "inlineVideoBlock" => {
+      ...,
+      videoFile {
+        asset-> {
+          url
+        }
+      },
+      poster {
+        ...,
+        asset->
+      }
     }
   }
 `
@@ -126,6 +152,13 @@ const contentBlockFields = /* groq */ `
       poster {
         ...,
         asset->
+      }
+    },
+    _type == "row" => {
+      ...,
+      columns[]{
+        ...,
+        ${nestedContentBlockFields}
       }
     }
   }

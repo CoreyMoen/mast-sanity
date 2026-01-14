@@ -25,7 +25,8 @@
     "import-sample-data": "cd studio && sanity dataset import sample-data.tar.gz --replace",
     "lint": "npm run lint --workspace=frontend",
     "seed-layouts": "npx tsx scripts/seed-layout-pages.ts",
-    "seed-mast-sanity": "node scripts/seed-mast-sanity-page.mjs",
+    "seed-mast-sanity": "node --env-file=.env scripts/seed-mast-sanity-page.mjs",
+    "seed-home": "node --env-file=.env scripts/seed-home-page.mjs",
     "seed-with-images": "npx tsx scripts/upload-images-and-seed.ts",
     "type-check": "npm run type-check --workspaces"
   },
