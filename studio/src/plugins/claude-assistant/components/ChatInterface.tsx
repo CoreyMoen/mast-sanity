@@ -37,11 +37,13 @@ import type {
   PluginSettings,
   QuickAction,
   SchemaContext,
+  ImageAttachment,
 } from '../types'
 import {MessageList} from './MessageList'
 import {MessageInput, WorkflowOption} from './MessageInput'
 import {QuickActions} from './QuickActions'
 import {ConversationSidebar} from './ConversationSidebar'
+import {ImagePickerDialog} from './ImagePickerDialog'
 import {useKeyboardShortcuts, announceToScreenReader} from '../hooks/useKeyboardShortcuts'
 import type {Workflow} from '../hooks/useWorkflows'
 
@@ -106,14 +108,14 @@ export interface ChatInterfaceProps {
   conversations: Conversation[]
   activeConversation: Conversation | null
   onCreateConversation: () => void | Promise<void>
-  onSelectConversation: (id: string) => void
+  onSelectConversation: (id: string | null) => void
   onDeleteConversation: (id: string) => void | Promise<void>
   onRenameConversation?: (id: string, newTitle: string) => void | Promise<void>
   // Chat state
   messages: Message[]
   isLoading: boolean
   error: string | null
-  onSendMessage: (content: string) => Promise<void>
+  onSendMessage: (content: string, images?: ImageAttachment[]) => Promise<void>
   onClearMessages: () => void
   onRetryLastMessage: () => Promise<void>
   // Actions
@@ -177,6 +179,87 @@ function getGreeting(userName?: string): string {
   return greeting
 }
 
+/**
+ * Document context extracted from conversation actions
+ */
+interface DocumentContext {
+  documentId: string
+  documentType?: string
+  slug?: string
+}
+
+/**
+ * Strip the 'drafts.' prefix from a Sanity document ID
+ */
+function stripDraftsPrefix(id: string): string {
+  return id.replace(/^drafts\./, '')
+}
+
+/**
+ * Extract the most recently referenced document from conversation messages
+ * Looks through actions (completed ones first) to find document references
+ */
+function extractDocumentContext(messages: Message[]): DocumentContext | null {
+  // Iterate through messages in reverse order (most recent first)
+  for (let i = messages.length - 1; i >= 0; i--) {
+    const message = messages[i]
+    if (!message.actions) continue
+
+    // Look through actions in reverse order
+    for (let j = message.actions.length - 1; j >= 0; j--) {
+      const action = message.actions[j]
+
+      // Prefer completed actions with results
+      if (action.status === 'completed' && action.result?.documentId) {
+        const resultData = action.result.data as Record<string, unknown> | undefined
+        const slugData = resultData?.slug as {current?: string} | undefined
+        // Try to get document type from result data, then fall back to payload
+        const docType = (resultData?._type as string) || action.payload.documentType
+
+        return {
+          documentId: stripDraftsPrefix(action.result.documentId),
+          documentType: docType,
+          slug: slugData?.current,
+        }
+      }
+
+      // For completed query actions, extract document info from result data
+      if (action.status === 'completed' && action.type === 'query' && action.result?.data) {
+        const resultData = action.result.data as Record<string, unknown> | unknown[]
+        // Handle single object result
+        const doc = Array.isArray(resultData) ? resultData[0] as Record<string, unknown> : resultData
+        if (doc && typeof doc === 'object' && doc._id) {
+          const slugData = doc.slug as {current?: string} | undefined
+          // Try to get type from result data, or infer from query string
+          let docType = doc._type as string | undefined
+          if (!docType && action.payload.query) {
+            // Try to extract type from query filter like: _type == "page"
+            const typeMatch = action.payload.query.match(/_type\s*==\s*["'](\w+)["']/)
+            if (typeMatch) {
+              docType = typeMatch[1]
+            }
+          }
+          return {
+            documentId: stripDraftsPrefix(doc._id as string),
+            documentType: docType,
+            slug: slugData?.current,
+          }
+        }
+      }
+
+      // Fall back to payload documentId if available
+      if (action.payload.documentId) {
+        return {
+          documentId: stripDraftsPrefix(action.payload.documentId),
+          documentType: action.payload.documentType,
+        }
+      }
+    }
+  }
+
+  return null
+}
+
 export function ChatInterface({
   className,
   // Sanity context (optional, for potential future use)
@@ -220,6 +303,10 @@ export function ChatInterface({
   const [sidebarOpen, setSidebarOpen] = useState(loadSidebarState)
   // State for pre-populated input from quick actions
   const [pendingInput, setPendingInput] = useState('')
+  // State for pending image attachments
+  const [pendingImages, setPendingImages] = useState<ImageAttachment[]>([])
+  // State for image picker dialog
+  const [imagePickerOpen, setImagePickerOpen] = useState(false)
 
   // Refs for focus management
   const messageInputRef = useRef<HTMLTextAreaElement>(null)
@@ -255,6 +342,9 @@ export function ChatInterface({
     return true
   }, [messages.length, isLoading, activeConversation])
 
+  // Extract document context from conversation for "Continue in..." navigation
+  const documentContext = useMemo(() => extractDocumentContext(messages), [messages])
+
   // Handle quick action selection - pre-populates the input instead of sending immediately
   const handleQuickAction = useCallback(
     (action: QuickAction) => {
@@ -269,13 +359,24 @@ export function ChatInterface({
 
   // Handle send message
   const handleSend = useCallback(
-    (content: string) => {
-      onSendMessage(content)
-      // Clear pending input after sending
+    (content: string, images?: ImageAttachment[]) => {
+      onSendMessage(content, images)
+      // Clear pending input and images after sending
       setPendingInput('')
+      setPendingImages([])
     },
     [onSendMessage]
   )
+
+  // Handle image selection from picker
+  const handleImageSelect = useCallback((image: ImageAttachment) => {
+    setPendingImages((prev) => [...prev, image])
+  }, [])
+
+  // Handle removing a pending image
+  const handleRemovePendingImage = useCallback((imageId: string) => {
+    setPendingImages((prev) => prev.filter((img) => img.id !== imageId))
+  }, [])
 
   // Handle model change
   const handleModelChange = useCallback(
@@ -322,6 +423,8 @@ export function ChatInterface({
 
   // Handle new chat
   const handleNewChat = useCallback(() => {
+    // Deselect conversation FIRST (synchronously) to ensure home screen shows immediately
+    onSelectConversation(null)
     onClearMessages()
     onCreateConversation()
     // Quick actions visibility is computed automatically via useMemo
@@ -330,7 +433,7 @@ export function ChatInterface({
     setTimeout(() => {
       messageInputRef.current?.focus()
     }, 100)
-  }, [onClearMessages, onCreateConversation])
+  }, [onSelectConversation, onClearMessages, onCreateConversation])
 
   // Handle clear chat (shows quick actions again)
   const handleClearChat = useCallback(() => {
@@ -347,7 +450,7 @@ export function ChatInterface({
   // API is always considered configured since key is server-side only
   const isConfigured = true
 
-  // Navigate to a different mode with floating chat
+  // Navigate to a different mode with floating chat, opening the relevant document
   const handleContinueInMode = useCallback((mode: 'presentation' | 'structure') => {
     // Store the current conversation ID for the floating chat to pick up
     const conversationId = activeConversation?.id
@@ -360,9 +463,28 @@ export function ChatInterface({
         // Ignore storage errors
       }
     }
-    // Navigate to the selected mode
-    window.location.href = `/${mode}`
-  }, [activeConversation?.id])
+
+    // Build the URL with document context if available
+    let url = `/${mode}`
+
+    if (documentContext && documentContext.documentType) {
+      if (mode === 'structure') {
+        // Structure URL: /structure/{type};{id}
+        url = `/structure/${documentContext.documentType};${documentContext.documentId}`
+      } else if (mode === 'presentation') {
+        // Presentation URL: /presentation?preview={slug} for pages
+        if (documentContext.documentType === 'page' && documentContext.slug) {
+          const slugPath = documentContext.slug === 'index' ? '/' : `/${documentContext.slug}`
+          url = `/presentation?preview=${encodeURIComponent(slugPath)}`
+        } else {
+          // For non-pages or pages without slug, fall back to structure mode
+          url = `/structure/${documentContext.documentType};${documentContext.documentId}`
+        }
+      }
+    }
+
+    window.location.href = url
+  }, [activeConversation?.id, documentContext])
 
   // Register keyboard shortcuts
   useKeyboardShortcuts({
@@ -562,16 +684,23 @@ export function ChatInterface({
                   <Menu>
                     <MenuItem
                       icon={DesktopIcon}
-                      text="Continue in Presentation"
+                      text={documentContext ? `Continue in Presentation` : 'Continue in Presentation'}
                       onClick={() => handleContinueInMode('presentation')}
-                      disabled={!activeConversation}
+                      disabled={!documentContext}
                     />
                     <MenuItem
                       icon={DocumentsIcon}
-                      text="Continue in Structure"
+                      text={documentContext ? `Continue in Structure` : 'Continue in Structure'}
                       onClick={() => handleContinueInMode('structure')}
-                      disabled={!activeConversation}
+                      disabled={!documentContext}
                     />
+                    {!documentContext && (
+                      <Box padding={2} paddingTop={1}>
+                        <Text size={0} muted>
+                          Reference a document to enable navigation
+                        </Text>
+                      </Box>
+                    )}
                   </Menu>
                 }
                 placement="bottom-end"
@@ -647,6 +776,9 @@ export function ChatInterface({
                 variant="centered"
                 workflows={workflowOptions}
                 onWorkflowSelect={handleWorkflowSelectFromMenu}
+                onUploadImage={() => setImagePickerOpen(true)}
+                pendingImages={pendingImages}
+                onRemovePendingImage={handleRemovePendingImage}
               />
 
               {/* Quick action buttons - closer to input */}
@@ -689,6 +821,9 @@ export function ChatInterface({
                   variant="default"
                   workflows={workflowOptions}
                   onWorkflowSelect={handleWorkflowSelectFromMenu}
+                  onUploadImage={() => setImagePickerOpen(true)}
+                  pendingImages={pendingImages}
+                  onRemovePendingImage={handleRemovePendingImage}
                 />
               </Box>
             </Box>
@@ -708,6 +843,14 @@ export function ChatInterface({
           />
         </Suspense>
       )}
+
+      {/* Image Picker Dialog */}
+      <ImagePickerDialog
+        isOpen={imagePickerOpen}
+        onClose={() => setImagePickerOpen(false)}
+        onSelect={handleImageSelect}
+        client={client}
+      />
     </Flex>
   )
 }

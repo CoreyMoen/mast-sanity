@@ -13,6 +13,9 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Disable the dev indicator (Next.js logo button in bottom-left corner)
+  // Errors still show in console and error overlay
+  devIndicators: false,
 }
 
 export default nextConfig

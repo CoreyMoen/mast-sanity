@@ -171,16 +171,23 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
    */
   const navigateToStructure = useCallback(
     (documentId: string, documentType?: string) => {
+      // Strip drafts. prefix from document ID for navigation
+      const cleanId = documentId.replace(/^drafts\./, '')
+
+      if (!documentType) {
+        console.warn('[ContentOperations] Cannot navigate without document type')
+        return
+      }
+
       // Use Sanity router to navigate within the Studio
       try {
         router.navigateIntent('edit', {
-          id: documentId,
-          type: documentType || 'document',
+          id: cleanId,
+          type: documentType,
         })
       } catch {
         // Fallback to direct URL navigation
-        const typeSegment = documentType || 'document'
-        window.location.href = `/structure/${typeSegment};${documentId}`
+        window.location.href = `/structure/${documentType};${cleanId}`
       }
     },
     [router]

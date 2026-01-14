@@ -11,8 +11,9 @@
  */
 
 import {useState, useCallback, useRef, useEffect, KeyboardEvent, forwardRef, useImperativeHandle} from 'react'
-import {Box, Flex, Button, Text, Tooltip, Menu, MenuButton, MenuItem, MenuDivider} from '@sanity/ui'
-import {ArrowUpIcon, AddIcon, ChevronDownIcon, ImageIcon, PlayIcon} from '@sanity/icons'
+import {Box, Flex, Button, Text, Tooltip, Menu, MenuButton, MenuItem, MenuDivider, Card} from '@sanity/ui'
+import {ArrowUpIcon, AddIcon, ChevronDownIcon, ImageIcon, PlayIcon, CloseIcon} from '@sanity/icons'
+import type {ImageAttachment} from '../types'
 
 /** Available Claude models - must match SettingsPanel.tsx AVAILABLE_MODELS */
 const CLAUDE_MODELS = [
@@ -28,7 +29,7 @@ export interface WorkflowOption {
 }
 
 export interface MessageInputProps {
-  onSend: (content: string) => void
+  onSend: (content: string, images?: ImageAttachment[]) => void
   isLoading: boolean
   placeholder?: string
   disabled?: boolean
@@ -39,6 +40,8 @@ export interface MessageInputProps {
   onModelChange?: (model: string) => void
   /** Whether to show the model selector */
   showModelSelector?: boolean
+  /** Whether to show the add/plus button */
+  showAddButton?: boolean
   /** Variant: 'default' for bottom-fixed, 'centered' for home screen, 'compact' for floating chat */
   variant?: 'default' | 'centered' | 'compact'
   /** Available workflows for selection */
@@ -47,6 +50,10 @@ export interface MessageInputProps {
   onWorkflowSelect?: (workflow: WorkflowOption) => void
   /** Callback when upload image is clicked */
   onUploadImage?: () => void
+  /** Currently attached images (pending send) */
+  pendingImages?: ImageAttachment[]
+  /** Callback to remove a pending image */
+  onRemovePendingImage?: (imageId: string) => void
 }
 
 export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(function MessageInput(
@@ -59,10 +66,13 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
     model = 'claude-opus-4-5-20251101',
     onModelChange,
     showModelSelector = true,
+    showAddButton = true,
     variant = 'default',
     workflows = [],
     onWorkflowSelect,
     onUploadImage,
+    pendingImages = [],
+    onRemovePendingImage,
   },
   ref
 ) {
@@ -101,15 +111,16 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
   }, [value, adjustTextAreaHeight])
 
   const handleSend = useCallback(() => {
-    if (value.trim() && !isLoading && !disabled) {
-      onSend(value.trim())
+    const hasContent = value.trim() || pendingImages.length > 0
+    if (hasContent && !isLoading && !disabled) {
+      onSend(value.trim(), pendingImages.length > 0 ? pendingImages : undefined)
       setValue('')
       if (textAreaRef.current) {
         textAreaRef.current.style.height = '24px'
         textAreaRef.current.focus()
       }
     }
-  }, [value, isLoading, disabled, onSend])
+  }, [value, isLoading, disabled, onSend, pendingImages])
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -128,7 +139,7 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
     setValue(event.currentTarget.value)
   }, [])
 
-  const canSend = value.trim().length > 0 && !isLoading && !disabled
+  const canSend = (value.trim().length > 0 || pendingImages.length > 0) && !isLoading && !disabled
   const currentModelLabel = CLAUDE_MODELS.find(m => m.id === model)?.label || 'Opus 4.5'
 
   const handleModelSelect = useCallback((modelId: string) => {
@@ -165,6 +176,73 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
         cursor: 'text',
       }}
     >
+      {/* Pending images preview */}
+      {pendingImages.length > 0 && (
+        <Flex
+          gap={3}
+          wrap="wrap"
+          style={{
+            padding: isCompact ? '12px 12px 0 12px' : '14px 16px 0 16px',
+          }}
+        >
+          {pendingImages.map((image) => (
+            <Card
+              key={image.id}
+              radius={2}
+              shadow={1}
+              style={{
+                position: 'relative',
+                width: isCompact ? 80 : 100,
+                height: isCompact ? 80 : 100,
+                overflow: 'hidden',
+                flexShrink: 0,
+                border: '1px solid var(--card-border-color)',
+              }}
+            >
+              <img
+                src={image.url}
+                alt={image.name}
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
+              />
+              {/* Always visible close button */}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onRemovePendingImage?.(image.id)
+                }}
+                aria-label={`Remove ${image.name}`}
+                style={{
+                  position: 'absolute',
+                  top: 4,
+                  right: 4,
+                  width: 22,
+                  height: 22,
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                  color: 'white',
+                  border: 'none',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0,
+                  transition: 'background-color 150ms ease',
+                }}
+                onMouseOver={(e) => (e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.85)')}
+                onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'rgba(0, 0, 0, 0.7)')}
+              >
+                <CloseIcon style={{fontSize: 14}} />
+              </button>
+            </Card>
+          ))}
+        </Flex>
+      )}
+
       {/* Text input area */}
       <div data-input-area style={{padding: isCompact ? '10px 12px 6px 12px' : '16px 16px 8px 16px'}}>
         <textarea
@@ -204,54 +282,58 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
           padding: isCompact ? '6px 10px 10px 10px' : '8px 12px 12px 12px',
         }}
       >
-        {/* Left side: Plus dropdown */}
+        {/* Left side: Plus dropdown and image button */}
         <Flex align="center" gap={1}>
-          <MenuButton
-            id="add-menu"
-            button={
-              <Button
-                icon={AddIcon}
-                mode="bleed"
-                style={{opacity: 0.7, borderRadius: 8}}
-                aria-label="Add content"
-              />
-            }
-            menu={
-              <Menu>
-                <MenuItem
-                  icon={ImageIcon}
-                  text="Upload image"
-                  disabled={!onUploadImage}
-                  onClick={() => onUploadImage?.()}
+          {showAddButton && hasWorkflows && (
+            <MenuButton
+              id="add-menu"
+              button={
+                <Button
+                  icon={AddIcon}
+                  mode="bleed"
+                  style={{opacity: 0.7, borderRadius: 8}}
+                  aria-label="Add content"
                 />
-                {hasWorkflows && (
-                  <>
-                    <MenuDivider />
-                    <Box padding={2} paddingBottom={1}>
-                      <Text size={0} weight="semibold" muted>
-                        Workflows
-                      </Text>
-                    </Box>
-                    {workflows.map((workflow) => (
-                      <MenuItem
-                        key={workflow._id}
-                        icon={PlayIcon}
-                        text={workflow.name}
-                        onClick={() => onWorkflowSelect?.(workflow)}
-                      />
-                    ))}
-                  </>
-                )}
-                {!hasWorkflows && !onUploadImage && (
-                  <Box padding={3}>
-                    <Text size={1} muted>No options available</Text>
+              }
+              menu={
+                <Menu>
+                  <Box padding={2} paddingBottom={1}>
+                    <Text size={0} weight="semibold" muted>
+                      Workflows
+                    </Text>
                   </Box>
-                )}
-              </Menu>
+                  {workflows.map((workflow) => (
+                    <MenuItem
+                      key={workflow._id}
+                      icon={PlayIcon}
+                      text={workflow.name}
+                      onClick={() => onWorkflowSelect?.(workflow)}
+                    />
+                  ))}
+                </Menu>
+              }
+              placement="top-start"
+              popover={{portal: true}}
+            />
+          )}
+          {/* Image upload button */}
+          <Tooltip
+            content={
+              <Box padding={2}>
+                <Text size={1}>Add image</Text>
+              </Box>
             }
-            placement="top-start"
-            popover={{portal: true}}
-          />
+            placement="top"
+            portal
+          >
+            <Button
+              icon={ImageIcon}
+              mode="bleed"
+              style={{opacity: 0.7, borderRadius: 8}}
+              aria-label="Add image"
+              onClick={() => onUploadImage?.()}
+            />
+          </Tooltip>
         </Flex>
 
         {/* Right side: model selector and send button */}
@@ -313,8 +395,9 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
                 minWidth: 32,
                 padding: 0,
                 borderRadius: 8,
-                opacity: canSend ? 1 : 0.35,
-                backgroundColor: canSend ? undefined : 'var(--card-bg2-color)',
+                opacity: canSend ? 1 : 0.5,
+                backgroundColor: canSend ? undefined : 'var(--card-border-color)',
+                color: canSend ? undefined : 'var(--card-fg-color)',
                 transition: 'all 150ms ease',
               }}
               aria-label="Send message"

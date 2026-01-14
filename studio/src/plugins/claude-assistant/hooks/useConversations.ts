@@ -231,13 +231,31 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
 
         const converted = results.map(sanityToConversation)
 
-        // Update cache
-        conversationsCacheRef.current = {
-          data: converted,
-          timestamp: Date.now(),
-        }
+        // Preserve the active conversation if it's not in the results
+        // This prevents losing a newly created conversation due to Sanity's eventual consistency
+        // or because the query filters out conversations with 0 messages
+        setConversations((prev) => {
+          let finalConversations = converted
 
-        setConversations(converted)
+          if (activeConversationId) {
+            const activeInResults = converted.find((c) => c.id === activeConversationId)
+            if (!activeInResults) {
+              // Active conversation isn't in results, preserve it from previous state
+              const activeFromPrev = prev.find((c) => c.id === activeConversationId)
+              if (activeFromPrev) {
+                finalConversations = [activeFromPrev, ...converted]
+              }
+            }
+          }
+
+          // Update cache with the final list (including preserved conversation)
+          conversationsCacheRef.current = {
+            data: finalConversations,
+            timestamp: Date.now(),
+          }
+
+          return finalConversations
+        })
 
         // Don't auto-select a conversation - always start fresh on the home screen
         // Users can select a conversation from the sidebar if they want
@@ -289,6 +307,9 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
       throw new Error('User must be logged in to create a conversation')
     }
 
+    // Immediately clear active conversation to show home screen while creating
+    setActiveConversationId(null)
+
     const now = new Date().toISOString()
 
     // Set flag to skip subscription updates during conversation creation
@@ -327,9 +348,9 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
   }, [client, currentUser?.id])
 
   /**
-   * Select a conversation
+   * Select a conversation (or deselect by passing null)
    */
-  const selectConversation = useCallback((id: string) => {
+  const selectConversation = useCallback((id: string | null) => {
     setActiveConversationId(id)
   }, [])
 

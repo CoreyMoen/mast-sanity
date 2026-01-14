@@ -18,6 +18,7 @@ import {
   LinkIcon,
   InfoOutlineIcon,
   PlayIcon,
+  UploadIcon,
   CloseIcon,
   CheckmarkIcon,
   WarningOutlineIcon,
@@ -55,6 +56,7 @@ function getActionIcon(type: ActionType) {
     query: <SearchIcon />,
     navigate: <LinkIcon />,
     explain: <InfoOutlineIcon />,
+    uploadImage: <UploadIcon />,
   }
   return icons[type]
 }
@@ -124,11 +126,14 @@ export function ActionCard({
                      (isCompleted && action.result?.success)
   const needsConfirmation = canExecute && isDestructive && !hasBeenExecuted
 
-  // Get the document ID and slug from result or payload
-  const documentId = action.result?.documentId || action.payload.documentId
-  const documentType = action.payload.documentType
-  // Extract slug from result data if available (for pages)
+  // Extract result data for document info
   const resultData = action.result?.data as Record<string, unknown> | undefined
+  // Get the document ID (strip drafts. prefix for Structure URLs)
+  const rawDocumentId = action.result?.documentId || action.payload.documentId
+  const documentId = rawDocumentId?.replace(/^drafts\./, '')
+  // Get document type from result data _type, then fall back to payload
+  const documentType = (resultData?._type as string) || action.payload.documentType
+  // Extract slug from result data if available (for pages)
   const documentSlug = resultData?.slug as {current?: string} | undefined
 
   // Check if message is recent (within last 10 seconds) to prevent auto-executing old actions
@@ -170,10 +175,9 @@ export function ActionCard({
       e.stopPropagation()
       if (documentId && onOpenInStructure) {
         onOpenInStructure(documentId, documentType)
-      } else if (documentId) {
-        // Navigate to Structure tool using relative URL
-        const typeSegment = documentType || 'document'
-        window.location.href = `/structure/${typeSegment};${documentId}`
+      } else if (documentId && documentType) {
+        // Navigate to Structure tool using relative URL (requires both type and id)
+        window.location.href = `/structure/${documentType};${documentId}`
       }
     },
     [documentId, documentType, onOpenInStructure]
@@ -189,9 +193,9 @@ export function ActionCard({
         // For pages, open in Presentation tool using the slug path
         const slugPath = documentSlug?.current ? `/${documentSlug.current}` : '/'
         window.location.href = `/presentation?preview=${encodeURIComponent(slugPath)}`
-      } else if (documentId) {
-        // For other document types, open in Structure tool
-        window.location.href = `/structure/${documentType || 'document'};${documentId}`
+      } else if (documentId && documentType) {
+        // For other document types, open in Structure tool (requires both type and id)
+        window.location.href = `/structure/${documentType};${documentId}`
       }
     },
     [documentId, documentType, documentSlug, onOpenInPreview]
@@ -245,25 +249,25 @@ export function ActionCard({
 
         {/* Payload preview */}
         {showPreview && action.payload && (
-          <Card padding={2} radius={2} tone="transparent">
+          <Card padding={2} radius={2} tone="transparent" style={{overflow: 'hidden'}}>
             <Stack space={2}>
               {action.payload.documentType && (
-                <Text size={0} muted>
+                <Text size={0} muted style={{wordBreak: 'break-all'}}>
                   Type: <code>{action.payload.documentType}</code>
                 </Text>
               )}
               {action.payload.documentId && (
-                <Text size={0} muted>
+                <Text size={0} muted style={{wordBreak: 'break-all'}}>
                   ID: <code>{action.payload.documentId}</code>
                 </Text>
               )}
               {action.payload.query && (
-                <Text size={0} muted style={{fontFamily: 'monospace'}}>
+                <Text size={0} muted style={{fontFamily: 'monospace', wordBreak: 'break-all'}}>
                   {action.payload.query}
                 </Text>
               )}
               {action.payload.fields && Object.keys(action.payload.fields).length > 0 && (
-                <Text size={0} muted>
+                <Text size={0} muted style={{wordBreak: 'break-all'}}>
                   Fields: {Object.keys(action.payload.fields).join(', ')}
                 </Text>
               )}

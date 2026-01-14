@@ -6,7 +6,7 @@
  */
 
 import type {SanityClient, SanityDocument} from 'sanity'
-import type {ActionPayload, ActionResult, ParsedAction} from '../types'
+import type {ActionPayload, ActionResult, ParsedAction, ImageAttachment} from '../types'
 
 /**
  * Interface for page structure used in incremental creation
@@ -212,6 +212,9 @@ export class ContentOperations {
             success: true,
             message: action.payload.explanation || 'No explanation provided',
           }
+          break
+        case 'uploadImage':
+          result = await this.uploadImageToSanity(action.payload)
           break
         default:
           result = {
@@ -815,6 +818,71 @@ export class ContentOperations {
         message: error instanceof Error
           ? `Failed to publish: ${error.message}`
           : 'Failed to publish: Unknown error',
+      }
+    }
+  }
+
+  /**
+   * Upload an image to Sanity's media library
+   * Takes base64 image data and uploads it as an asset
+   */
+  async uploadImageToSanity(payload: ActionPayload): Promise<ActionResult> {
+    const imageAttachment = payload.imageAttachment
+
+    if (!imageAttachment) {
+      return {
+        success: false,
+        message: 'No image attachment provided. Include imageAttachment in the payload.',
+      }
+    }
+
+    if (!imageAttachment.base64) {
+      return {
+        success: false,
+        message: 'No base64 image data. The image must have base64 data to upload.',
+      }
+    }
+
+    try {
+      // Convert base64 to buffer
+      const imageBuffer = Buffer.from(imageAttachment.base64, 'base64')
+
+      // Create a Blob for the upload
+      const blob = new Blob([imageBuffer], {type: imageAttachment.mimeType})
+
+      // Determine the filename
+      const filename = payload.filename || imageAttachment.name || 'uploaded-image'
+
+      // Upload to Sanity
+      const asset = await this.client.assets.upload('image', blob, {
+        filename,
+        contentType: imageAttachment.mimeType,
+      })
+
+      return {
+        success: true,
+        documentId: asset._id,
+        message: `Image uploaded successfully to Sanity media library`,
+        data: {
+          assetId: asset._id,
+          assetRef: {
+            _type: 'reference',
+            _ref: asset._id,
+          },
+          url: asset.url,
+          originalFilename: asset.originalFilename,
+          mimeType: asset.mimeType,
+          dimensions: asset.metadata?.dimensions,
+          // Provide usage instructions for Claude
+          usage: `To use this image in a document, set the image field to: { "_type": "image", "asset": { "_type": "reference", "_ref": "${asset._id}" } }`,
+        },
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error instanceof Error
+          ? `Failed to upload image: ${error.message}`
+          : 'Failed to upload image: Unknown error',
       }
     }
   }

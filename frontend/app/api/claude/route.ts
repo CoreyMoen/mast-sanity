@@ -40,11 +40,36 @@ const MODEL = 'claude-sonnet-4-20250514'
 const MAX_TOKENS = 4096
 
 /**
+ * Image content block for multimodal messages
+ */
+interface ImageContentBlock {
+  type: 'image'
+  source: {
+    type: 'base64'
+    media_type: string
+    data: string
+  }
+}
+
+/**
+ * Text content block for multimodal messages
+ */
+interface TextContentBlock {
+  type: 'text'
+  text: string
+}
+
+/**
+ * Content can be a string or array of content blocks (for multimodal)
+ */
+type MessageContent = string | (ImageContentBlock | TextContentBlock)[]
+
+/**
  * Message type from the client
  */
 interface Message {
   role: 'user' | 'assistant'
-  content: string
+  content: MessageContent
 }
 
 /**
@@ -136,6 +161,31 @@ After successful creation or update, I'll provide links for the user to:
 }
 
 /**
+ * Validates a content block in multimodal messages
+ */
+function isValidContentBlock(block: unknown): boolean {
+  if (!block || typeof block !== 'object') return false
+
+  const b = block as Record<string, unknown>
+
+  if (b.type === 'text') {
+    return typeof b.text === 'string'
+  }
+
+  if (b.type === 'image') {
+    const source = b.source as Record<string, unknown> | undefined
+    return !!(
+      source &&
+      source.type === 'base64' &&
+      typeof source.media_type === 'string' &&
+      typeof source.data === 'string'
+    )
+  }
+
+  return false
+}
+
+/**
  * Validates the request body
  */
 function validateRequest(body: unknown): body is ClaudeChatRequest {
@@ -154,9 +204,25 @@ function validateRequest(body: unknown): body is ClaudeChatRequest {
     if (!message.role || !['user', 'assistant'].includes(message.role)) {
       return false
     }
-    if (typeof message.content !== 'string') {
-      return false
+
+    // Content can be a string or an array of content blocks
+    if (typeof message.content === 'string') {
+      // Valid string content
+      continue
     }
+
+    if (Array.isArray(message.content)) {
+      // Validate each content block
+      for (const block of message.content) {
+        if (!isValidContentBlock(block)) {
+          return false
+        }
+      }
+      continue
+    }
+
+    // Invalid content type
+    return false
   }
 
   return true
@@ -209,13 +275,15 @@ export async function POST(request: NextRequest) {
 
   try {
     // Create streaming response from Anthropic
+    // The content can be a string or an array of content blocks (for multimodal)
     const stream = await anthropic.messages.stream({
       model: MODEL,
       max_tokens: MAX_TOKENS,
       system: systemPrompt,
       messages: messages.map((m) => ({
         role: m.role,
-        content: m.content,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        content: m.content as any, // SDK accepts both string and content blocks
       })),
     })
 

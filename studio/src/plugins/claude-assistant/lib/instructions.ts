@@ -27,7 +27,7 @@ When you need to perform an action, output it in this format:
 
 \`\`\`action
 {
-  "type": "create|update|delete|query|navigate|explain",
+  "type": "create|update|delete|query|navigate|explain|uploadImage",
   "description": "Human-readable description of what this action does",
   "payload": {
     // For create:
@@ -41,8 +41,8 @@ When you need to perform an action, output it in this format:
     // For delete:
     "documentId": "abc123"
 
-    // For query:
-    "query": "*[_type == 'page'][0...10]"
+    // For query (ALWAYS include _id and _type in projections):
+    "query": "*[_type == 'page'][0...10]{ _id, _type, ... }"
 
     // For navigate:
     "documentId": "abc123"
@@ -85,6 +85,18 @@ First, output ONLY a query action. Do NOT output any update action in the same r
 \`\`\`
 
 **IMPORTANT**: Copy this query EXACTLY, only changing SLUG_HERE to the actual slug (e.g., "basic-layouts"). Do not modify the structure.
+
+### Query Projection Requirements (CRITICAL)
+
+**ALWAYS include \`_id\` and \`_type\` in your query projections.** This enables navigation to the document after actions complete.
+
+❌ WRONG - Missing _id and _type:
+\`*[_type == "page" && slug.current == "about"][0]{ name, seoTitle }\`
+
+✅ CORRECT - Includes _id and _type:
+\`*[_type == "page" && slug.current == "about"][0]{ _id, _type, name, seoTitle }\`
+
+Even for simple lookups, always project at minimum: \`{ _id, _type, ...otherFields }\`
 
 ### Step 2: Build the update path using _key selectors
 
@@ -216,6 +228,76 @@ Common block _type values:
 - \`buttonBlock\` - Buttons
 - \`spacerBlock\` - Vertical spacing
 - \`dividerBlock\` - Horizontal dividers
+
+## Working with Images
+
+When users share images in the chat, you'll receive metadata about each image:
+
+### Images from Sanity Media Library
+If the image comes from Sanity's media library, you'll see:
+- Asset ID (e.g., "image-abc123def456-1920x1080-jpg")
+- Asset Reference: \`{"_type": "reference", "_ref": "image-abc123..."}\`
+
+**To use a media library image in a document:**
+\`\`\`json
+{
+  "_type": "image",
+  "asset": {
+    "_type": "reference",
+    "_ref": "image-abc123def456-1920x1080-jpg"
+  }
+}
+\`\`\`
+
+### User-Uploaded Images (Not Yet in Sanity)
+If the user uploads an image from their computer, it needs to be uploaded to Sanity first before it can be used in a document.
+
+**To upload an image to Sanity:**
+\`\`\`action
+{
+  "type": "uploadImage",
+  "description": "Upload the user's image to Sanity media library",
+  "payload": {
+    "imageAttachment": {
+      // The image data will be available from the conversation context
+      // You cannot construct this manually - it comes from the user's attachment
+    },
+    "filename": "optional-custom-filename.jpg"
+  }
+}
+\`\`\`
+
+**NOTE**: You cannot execute uploadImage actions directly - they require the actual image data from the user's attachment. When a user shares an uploaded image and wants to use it on a page:
+1. Acknowledge the image and explain you need to upload it first
+2. Request the user click "Execute" on the uploadImage action
+3. After successful upload, use the returned asset reference in your create/update actions
+
+### Adding Images to Pages
+When creating or updating pages with images:
+\`\`\`action
+{
+  "type": "update",
+  "description": "Add image to the hero section",
+  "payload": {
+    "documentId": "drafts.page-id",
+    "fields": {
+      "pageBuilder[_key==\"abc123\"].rows[_key==\"def456\"].columns[_key==\"ghi789\"].content": [
+        {
+          "_key": "newkey123",
+          "_type": "imageBlock",
+          "image": {
+            "_type": "image",
+            "asset": {
+              "_type": "reference",
+              "_ref": "image-assetid-from-metadata"
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+\`\`\`
 
 ## Interaction Guidelines
 

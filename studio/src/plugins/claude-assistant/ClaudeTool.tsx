@@ -18,7 +18,7 @@ import {useContentOperations} from './hooks/useContentOperations'
 import {useWorkflows, buildWorkflowContext} from './hooks/useWorkflows'
 import {extractSchemaContext} from './lib/schema-context'
 import type {ClaudeAssistantOptions} from './index'
-import type {Message, ParsedAction, PluginSettings, SchemaContext} from './types'
+import type {Message, ParsedAction, PluginSettings, SchemaContext, ImageAttachment} from './types'
 import {DEFAULT_SETTINGS} from './types'
 
 const SETTINGS_STORAGE_KEY = 'claude-assistant-settings'
@@ -137,7 +137,11 @@ export function ClaudeTool(props: ClaudeToolProps) {
   const setMessagesRef = useRef<React.Dispatch<React.SetStateAction<Message[]>> | null>(null)
 
   // Ref to hold sendMessage function for auto-follow-up after query results
+  // This uses sendMessage directly (not handleSendMessage) to avoid creating duplicate conversations
   const sendMessageRef = useRef<((content: string) => Promise<void>) | null>(null)
+
+  // Ref to hold handleSendMessage for user-initiated messages (with conversation creation)
+  const handleSendMessageRef = useRef<((content: string, images?: ImageAttachment[]) => Promise<void>) | null>(null)
 
   // Helper to update action status in messages
   const updateActionStatus = useCallback(
@@ -278,9 +282,44 @@ Now that you have the real document structure with _id and _key values, please p
     setMessagesRef.current = setMessages
   }, [setMessages])
 
+  // sendMessageRef is for follow-up messages (query results) - uses sendMessage directly
+  // to avoid creating duplicate conversations
   useEffect(() => {
     sendMessageRef.current = sendMessage
   }, [sendMessage])
+
+  // Track pending message that needs to be sent after conversation is created
+  const pendingMessageRef = useRef<{content: string, images?: ImageAttachment[]} | null>(null)
+
+  // Effect to send pending message once conversation is ready
+  useEffect(() => {
+    if (activeConversation && pendingMessageRef.current) {
+      const messageToSend = pendingMessageRef.current
+      pendingMessageRef.current = null
+      // Small delay to ensure state is fully settled
+      setTimeout(() => {
+        sendMessage(messageToSend.content, messageToSend.images)
+      }, 100)
+    }
+  }, [activeConversation, sendMessage])
+
+  // Wrap sendMessage to auto-create conversation if needed
+  const handleSendMessage = useCallback(async (content: string, images?: ImageAttachment[]) => {
+    // If no active conversation, create one first and queue the message
+    if (!activeConversation) {
+      pendingMessageRef.current = {content, images}
+      await createConversation()
+      // The useEffect above will send the message once activeConversation updates
+    } else {
+      // Already have a conversation, send directly
+      await sendMessage(content, images)
+    }
+  }, [activeConversation, createConversation, sendMessage])
+
+  // Update handleSendMessageRef for user-initiated messages (with conversation creation)
+  useEffect(() => {
+    handleSendMessageRef.current = handleSendMessage
+  }, [handleSendMessage])
 
   // Handle settings change
   const handleSettingsChange = useCallback((newSettings: PluginSettings) => {
@@ -294,12 +333,14 @@ Now that you have the real document structure with _id and _key values, please p
     await createConversation()
   }, [clearMessages, createConversation])
 
-  // Handle conversation selection
+  // Handle conversation selection (or deselection when null)
   const handleSelectConversation = useCallback(
-    async (id: string) => {
+    async (id: string | null) => {
       selectConversation(id)
-      // Load the full conversation with messages from Sanity
-      await loadConversation(id)
+      // Load the full conversation with messages from Sanity (only if selecting, not deselecting)
+      if (id) {
+        await loadConversation(id)
+      }
     },
     [selectConversation, loadConversation]
   )
@@ -353,7 +394,7 @@ Now that you have the real document structure with _id and _key values, please p
         messages={messages}
         isLoading={isLoading}
         error={error}
-        onSendMessage={sendMessage}
+        onSendMessage={handleSendMessage}
         onClearMessages={clearMessages}
         onRetryLastMessage={retryLastMessage}
         // Actions

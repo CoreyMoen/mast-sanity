@@ -17,7 +17,6 @@
 
 import {useEffect, useRef, useCallback, useMemo, useState} from 'react'
 import {Box, Card, Stack, Text, Flex, Button} from '@sanity/ui'
-import {RobotIcon} from '@sanity/icons'
 import type {Message as MessageType, ParsedAction} from '../types'
 import {MemoizedMessage} from './Message'
 
@@ -99,49 +98,10 @@ export function MessageList({
     }
   }, [isLoading])
 
-  // Empty state - this shouldn't show when QuickActions is visible
+  // Empty state is handled by ChatInterface with QuickActions home screen
+  // Return null here to avoid showing a duplicate/old intro screen
   if (messages.length === 0 && !isLoading) {
-    return (
-      <Box
-        padding={4}
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          height: '100%',
-          textAlign: 'center',
-        }}
-        role="status"
-        aria-label="No messages yet"
-      >
-        <Box
-          style={{
-            width: 72,
-            height: 72,
-            borderRadius: '50%',
-            backgroundColor: 'var(--card-badge-primary-bg-color)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginBottom: 16,
-          }}
-          aria-hidden="true"
-        >
-          <Text size={4} style={{display: 'flex', color: 'var(--card-badge-primary-fg-color)'}}>
-            <RobotIcon />
-          </Text>
-        </Box>
-        <Stack space={2}>
-          <Text size={3} weight="bold">
-            Claude Assistant
-          </Text>
-          <Text size={2} muted style={{maxWidth: 400}}>
-            Ask me anything about your content. I can help you create, update, query, and manage documents in Sanity.
-          </Text>
-        </Stack>
-      </Box>
-    )
+    return null
   }
 
   return (

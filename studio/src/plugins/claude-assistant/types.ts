@@ -14,6 +14,34 @@ export type MessageRole = 'user' | 'assistant' | 'system'
 
 export type MessageStatus = 'pending' | 'streaming' | 'complete' | 'error'
 
+/**
+ * Represents an image attachment in a message
+ */
+export interface ImageAttachment {
+  /** Unique identifier for this attachment */
+  id: string
+  /** Display name of the image (original filename) */
+  name: string
+  /** MIME type (image/jpeg, image/png, etc.) */
+  mimeType: string
+  /** Base64-encoded image data for sending to Claude */
+  base64?: string
+  /** URL for displaying the image (Sanity CDN URL or data URL) */
+  url: string
+  /** Sanity asset reference ID if from media library (e.g., "image-abc123-1920x1080-jpg") */
+  sanityAssetId?: string
+  /** Full Sanity asset reference for use in documents */
+  sanityAssetRef?: {
+    _type: 'reference'
+    _ref: string
+  }
+  /** Image dimensions if known */
+  width?: number
+  height?: number
+  /** Source of the image: 'upload' for user-uploaded, 'library' for Sanity media library */
+  source?: 'upload' | 'library'
+}
+
 export interface Message {
   id: string
   role: MessageRole
@@ -22,6 +50,8 @@ export interface Message {
   status: MessageStatus
   actions?: ParsedAction[]
   metadata?: MessageMetadata
+  /** Image attachments for this message */
+  images?: ImageAttachment[]
 }
 
 export interface MessageMetadata {
@@ -41,6 +71,7 @@ export type ActionType =
   | 'query'
   | 'navigate'
   | 'explain'
+  | 'uploadImage'
 
 export type ActionStatus = 'pending' | 'executing' | 'completed' | 'failed' | 'cancelled'
 
@@ -61,6 +92,10 @@ export interface ActionPayload {
   query?: string
   path?: string
   explanation?: string
+  /** For uploadImage action: the image attachment to upload */
+  imageAttachment?: ImageAttachment
+  /** For uploadImage action: optional filename override */
+  filename?: string
 }
 
 export interface ActionResult {
@@ -235,7 +270,7 @@ export interface UseConversationsReturn {
   conversations: Conversation[]
   activeConversation: Conversation | null
   createConversation: () => Promise<Conversation>
-  selectConversation: (id: string) => void
+  selectConversation: (id: string | null) => void
   deleteConversation: (id: string) => Promise<void>
   updateConversationTitle: (id: string, title: string) => Promise<void>
   addMessage?: (conversationId: string, message: Message) => Promise<void>

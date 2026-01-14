@@ -376,6 +376,40 @@ export function Message({message, onActionClick, onActionExecute}: MessageProps)
             )}
           </Flex>
 
+          {/* Images */}
+          {message.images && message.images.length > 0 && (
+            <Flex gap={2} wrap="wrap" marginBottom={2}>
+              {message.images.map((image) => (
+                <Card
+                  key={image.id}
+                  radius={2}
+                  shadow={1}
+                  style={{
+                    overflow: 'hidden',
+                    width: 120,
+                    height: 120,
+                    flexShrink: 0,
+                    cursor: 'pointer',
+                    border: '1px solid var(--card-border-color)',
+                  }}
+                  onClick={() => window.open(image.url, '_blank')}
+                  title={`${image.name}${image.sanityAssetId ? ` (${image.sanityAssetId})` : ''}`}
+                >
+                  <img
+                    src={image.url}
+                    alt={image.name}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                    }}
+                  />
+                </Card>
+              ))}
+            </Flex>
+          )}
+
           {/* Message content */}
           <Box>
             {parsedContent}
@@ -517,6 +551,11 @@ export const MemoizedMessage = React.memo(Message, (prevProps, nextProps) => {
 
   // Re-render if status changed (e.g., streaming -> complete)
   if (prevProps.message.status !== nextProps.message.status) {
+    return false
+  }
+
+  // Re-render if images changed
+  if (prevProps.message.images?.length !== nextProps.message.images?.length) {
     return false
   }
 

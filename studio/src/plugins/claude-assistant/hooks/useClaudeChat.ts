@@ -6,7 +6,7 @@
  */
 
 import React, {useState, useCallback, useRef, useEffect, useMemo} from 'react'
-import type {Message, ParsedAction, SchemaContext, UseClaudeChatReturn} from '../types'
+import type {Message, ParsedAction, SchemaContext, UseClaudeChatReturn, ImageAttachment} from '../types'
 import {parseActions, extractTextContent} from '../lib/actions'
 import {buildSystemPrompt} from '../lib/instructions'
 import type {Conversation} from '../types'
@@ -163,7 +163,8 @@ function parseSSEChunk(chunk: string): Array<{text?: string; done?: boolean; err
 /**
  * Hook for managing Claude chat interactions with streaming support
  */
-export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatReturn & {
+export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChatReturn, 'sendMessage'> & {
+  sendMessage: (content: string, images?: ImageAttachment[]) => Promise<void>
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>
   cancelStream: () => void
 } {
@@ -213,16 +214,42 @@ export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatRetur
         isFirstMessageRef.current = activeConversation.messages.length === 0
       }
 
-      // Only sync if IDs don't match (conversation changed or messages were loaded from server)
+      // Only sync when server has more OR equal messages than local
+      // NEVER overwrite local messages that haven't been persisted yet
       const localMessageIds = messages.map(m => m.id).join(',')
+      const serverMessageCount = activeConversation.messages.length
+      const localMessageCount = messages.length
 
-      if (localMessageIds !== conversationMessageIds) {
+      // Critical: If local has MORE messages than server, local is authoritative
+      // This means we have pending messages that haven't been persisted yet
+      // We should NEVER overwrite these, even if conversationChanged is true
+      // (conversationChanged can be true even for the same conversation due to ref being cleared)
+      const localIsAhead = localMessageCount > serverMessageCount
+
+      // Sync when:
+      // 1. Server has more messages than local (messages were loaded from server or another client)
+      // 2. Server has same count but different messages (rare edge case)
+      // NEVER sync when local is ahead - those are pending persistence
+      const shouldSync = !localIsAhead && (
+        (serverMessageCount > localMessageCount) ||
+        (serverMessageCount === localMessageCount && localMessageIds !== conversationMessageIds)
+      )
+
+      if (shouldSync && localMessageIds !== conversationMessageIds) {
         console.log('[useClaudeChat] Syncing messages from activeConversation:', {
           conversationId: activeConversation.id,
-          localCount: messages.length,
-          conversationCount: activeConversation.messages.length,
+          localCount: localMessageCount,
+          conversationCount: serverMessageCount,
+          reason: serverMessageCount > localMessageCount ? 'server has more messages' : 'same count but different messages',
         })
         setMessages(activeConversation.messages)
+      } else if (localMessageIds !== conversationMessageIds) {
+        console.log('[useClaudeChat] Skipping sync - local messages are ahead:', {
+          conversationId: activeConversation.id,
+          localCount: localMessageCount,
+          conversationCount: serverMessageCount,
+          localIsAhead,
+        })
       }
     } else {
       setMessages([])
@@ -242,8 +269,8 @@ export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatRetur
    * Send a message to Claude
    */
   const sendMessage = useCallback(
-    async (content: string) => {
-      if (!content.trim()) return
+    async (content: string, images?: ImageAttachment[]) => {
+      if (!content.trim() && (!images || images.length === 0)) return
       if (!apiEndpoint) {
         setError('API endpoint is not configured')
         return
@@ -256,13 +283,14 @@ export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatRetur
       // This ensures we have it even if activeConversation becomes null during processing
       const conversationId = activeConversation?.id || null
 
-      // Create user message
+      // Create user message with optional images
       const userMessage: Message = {
         id: generateMessageId(),
         role: 'user',
         content: content.trim(),
         timestamp: new Date(),
         status: 'complete',
+        images: images && images.length > 0 ? images : undefined,
       }
 
       // Add user message to local state immediately
@@ -305,10 +333,78 @@ export function useClaudeChat(options: UseClaudeChatOptions): UseClaudeChatRetur
         })
 
         // Build conversation history for API
-        const conversationHistory = [...messages, userMessage].map((msg) => ({
-          role: msg.role as 'user' | 'assistant',
-          content: msg.content,
-        }))
+        // Handle messages with images by using the Claude multimodal format
+        const conversationHistory = [...messages, userMessage].map((msg) => {
+          // If message has images, use multimodal content format
+          if (msg.images && msg.images.length > 0) {
+            const contentParts: Array<{type: string; text?: string; source?: {type: string; media_type: string; data: string}}> = []
+
+            // Build image metadata context for Claude
+            const imageMetadataLines: string[] = ['[Image Attachments Metadata]']
+            for (let i = 0; i < msg.images.length; i++) {
+              const image = msg.images[i]
+              console.log('[useClaudeChat] Image metadata:', {
+                name: image.name,
+                source: image.source,
+                sanityAssetId: image.sanityAssetId,
+                sanityAssetRef: image.sanityAssetRef,
+                hasSource: 'source' in image,
+                hasAssetId: 'sanityAssetId' in image,
+              })
+              const lines: string[] = [`Image ${i + 1}:`]
+              lines.push(`  - Filename: ${image.name}`)
+              if (image.width && image.height) {
+                lines.push(`  - Dimensions: ${image.width}x${image.height}`)
+              }
+              lines.push(`  - Type: ${image.mimeType}`)
+              if (image.source === 'library' && image.sanityAssetId) {
+                lines.push(`  - Source: Sanity Media Library`)
+                lines.push(`  - Asset ID: ${image.sanityAssetId}`)
+                lines.push(`  - Asset Reference: {"_type": "reference", "_ref": "${image.sanityAssetId}"}`)
+                lines.push(`  - NOTE: This image is already in Sanity. Use the asset reference above directly in image blocks.`)
+              } else {
+                lines.push(`  - Source: User Upload (not yet in Sanity)`)
+                lines.push(`  - NOTE: To use this image on a page, you must first upload it to Sanity using an uploadImage action.`)
+              }
+              imageMetadataLines.push(lines.join('\n'))
+            }
+            const imageMetadataText = imageMetadataLines.join('\n\n')
+
+            // Add images first
+            for (const image of msg.images) {
+              if (image.base64) {
+                contentParts.push({
+                  type: 'image',
+                  source: {
+                    type: 'base64',
+                    media_type: image.mimeType,
+                    data: image.base64,
+                  },
+                })
+              }
+            }
+
+            // Add image metadata and user text content
+            const textContent = msg.content
+              ? `${imageMetadataText}\n\n[User Message]\n${msg.content}`
+              : imageMetadataText
+            contentParts.push({
+              type: 'text',
+              text: textContent,
+            })
+
+            return {
+              role: msg.role as 'user' | 'assistant',
+              content: contentParts,
+            }
+          }
+
+          // Regular text-only message
+          return {
+            role: msg.role as 'user' | 'assistant',
+            content: msg.content,
+          }
+        })
 
         // Safely serialize schema context to avoid circular references
         const safeSchema = safeSerialize(schemaContext)

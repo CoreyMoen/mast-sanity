@@ -13,12 +13,12 @@
  * - Shares settings with main Claude tool via localStorage
  */
 
-import React, {useCallback, useState, useRef, useEffect, useMemo} from 'react'
+import React, {useCallback, useState, useRef, useEffect} from 'react'
 import {Box, Card, Flex, Stack, Text, Button, Tooltip, useToast} from '@sanity/ui'
 import {CloseIcon, AddIcon, TrashIcon, ResetIcon, ExpandIcon} from '@sanity/icons'
 import {useClient, useCurrentUser, useSchema} from 'sanity'
 import {MessageList} from './MessageList'
-import {MessageInput, WorkflowOption} from './MessageInput'
+import {MessageInput} from './MessageInput'
 import {useClaudeChat} from '../hooks/useClaudeChat'
 import {useConversations} from '../hooks/useConversations'
 import {useContentOperations} from '../hooks/useContentOperations'
@@ -26,8 +26,8 @@ import {useWorkflows, buildWorkflowContext} from '../hooks/useWorkflows'
 import {useInstructions} from '../hooks/useInstructions'
 import {extractSchemaContext} from '../lib/schema-context'
 import {DEFAULT_SETTINGS} from '../types'
-import type {Message, ParsedAction, PluginSettings, SchemaContext} from '../types'
-import type {Workflow} from '../hooks/useWorkflows'
+import type {Message, ParsedAction, PluginSettings, SchemaContext, ImageAttachment} from '../types'
+import {ImagePickerDialog} from './ImagePickerDialog'
 
 const SETTINGS_STORAGE_KEY = 'claude-assistant-settings'
 const FLOATING_CHAT_OPEN_KEY = 'claude-floating-chat-open'
@@ -69,25 +69,25 @@ function saveFloatingChatState(isOpen: boolean): void {
   }
 }
 
-/**
- * Transform Workflow to WorkflowOption for MessageInput
- */
-function toWorkflowOption(workflow: Workflow): WorkflowOption {
-  return {
-    _id: workflow.id,
-    name: workflow.name,
-    description: workflow.description,
-  }
-}
-
 interface FloatingChatProps {
   apiEndpoint?: string
 }
 
 /**
- * Hook to sync settings from localStorage (listens for changes from main tool)
+ * Save settings to localStorage (shared with main tool)
  */
-function useSharedSettings(): PluginSettings {
+function saveSettings(settings: PluginSettings): void {
+  try {
+    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings))
+  } catch {
+    console.warn('Failed to save settings to localStorage')
+  }
+}
+
+/**
+ * Hook to sync settings with localStorage (bidirectional sync with main tool)
+ */
+function useSharedSettings(): [PluginSettings, (settings: PluginSettings) => void] {
   const [settings, setSettings] = useState<PluginSettings>(loadSettings)
 
   useEffect(() => {
@@ -112,7 +112,13 @@ function useSharedSettings(): PluginSettings {
     setSettings(loadSettings())
   }, [])
 
-  return settings
+  // Update settings both locally and in localStorage
+  const updateSettings = useCallback((newSettings: PluginSettings) => {
+    setSettings(newSettings)
+    saveSettings(newSettings)
+  }, [])
+
+  return [settings, updateSettings]
 }
 
 /**
@@ -124,11 +130,17 @@ function FloatingChatPanel({
 }: FloatingChatProps & {onClose: () => void}) {
   const schema = useSchema()
   const currentUser = useCurrentUser()
+  const client = useClient({apiVersion: '2024-01-01'})
   const toast = useToast()
 
-  // Use shared settings that sync with main tool
-  const settings = useSharedSettings()
+  // Use shared settings that sync with main tool (bidirectional)
+  const [settings, updateSettings] = useSharedSettings()
   const [schemaContext, setSchemaContext] = useState<SchemaContext | null>(null)
+
+  // State for pending image attachments
+  const [pendingImages, setPendingImages] = useState<ImageAttachment[]>([])
+  // State for image picker dialog
+  const [imagePickerOpen, setImagePickerOpen] = useState(false)
 
   const {executeAction} = useContentOperations()
 
@@ -162,7 +174,7 @@ function FloatingChatPanel({
     }
   }, [selectConversation, loadConversation])
 
-  const {workflows, selectedWorkflow, selectWorkflow} = useWorkflows()
+  const {selectedWorkflow} = useWorkflows()
 
   // Extract schema context on mount
   useEffect(() => {
@@ -278,32 +290,57 @@ Now that you have the real document structure with _id and _key values, please p
     sendMessageRef.current = sendMessage
   }, [sendMessage])
 
+  // Track pending message that needs to be sent after conversation is created
+  const pendingMessageRef = useRef<{content: string; images?: ImageAttachment[]} | null>(null)
+
+  // Effect to send pending message once conversation is ready
+  useEffect(() => {
+    if (activeConversation && pendingMessageRef.current) {
+      const messageToSend = pendingMessageRef.current
+      pendingMessageRef.current = null
+      // Small delay to ensure state is fully settled
+      setTimeout(() => {
+        sendMessage(messageToSend.content, messageToSend.images)
+      }, 100)
+    }
+  }, [activeConversation, sendMessage])
+
+  // Wrap sendMessage to auto-create conversation if needed
+  const handleSendMessage = useCallback(async (content: string, images?: ImageAttachment[]) => {
+    // If no active conversation, create one first and queue the message
+    if (!activeConversation) {
+      pendingMessageRef.current = {content, images}
+      await createConversation()
+      // The useEffect above will send the message once activeConversation updates
+    } else {
+      // Already have a conversation, send directly
+      await sendMessage(content, images)
+    }
+    // Clear pending images after sending
+    setPendingImages([])
+  }, [activeConversation, createConversation, sendMessage])
+
+  // Handle image selection from picker
+  const handleImageSelect = useCallback((image: ImageAttachment) => {
+    setPendingImages((prev) => [...prev, image])
+  }, [])
+
+  // Handle removing a pending image
+  const handleRemovePendingImage = useCallback((imageId: string) => {
+    setPendingImages((prev) => prev.filter((img) => img.id !== imageId))
+  }, [])
+
+  // Update sendMessageRef to use the wrapped version
+  useEffect(() => {
+    sendMessageRef.current = handleSendMessage
+  }, [handleSendMessage])
+
   const handleNewChat = useCallback(async () => {
     clearMessages()
     await createConversation()
   }, [clearMessages, createConversation])
 
   const messageInputRef = useRef<HTMLTextAreaElement>(null)
-
-  // Transform workflows for MessageInput
-  const workflowOptions: WorkflowOption[] = useMemo(
-    () => workflows?.map(toWorkflowOption) || [],
-    [workflows]
-  )
-
-  const handleWorkflowSelectFromMenu = useCallback(
-    (workflowOption: WorkflowOption) => {
-      const workflow = workflows?.find(w => w.id === workflowOption._id)
-      if (workflow) {
-        selectWorkflow(workflow.id)
-      }
-    },
-    [workflows, selectWorkflow]
-  )
-
-  const handleModelChange = useCallback(() => {
-    // Model changes handled by settings in main tool
-  }, [])
 
   // Open full Claude tool with current conversation
   const handleOpenFullTool = useCallback(() => {
@@ -485,16 +522,25 @@ Now that you have the real document structure with _id and _key values, please p
       >
         <MessageInput
           ref={messageInputRef}
-          onSend={sendMessage}
+          onSend={handleSendMessage}
           isLoading={isLoading}
           placeholder="Ask Claude..."
-          model={settings.model}
-          onModelChange={handleModelChange}
           variant="compact"
-          workflows={workflowOptions}
-          onWorkflowSelect={handleWorkflowSelectFromMenu}
+          showAddButton={false}
+          showModelSelector={false}
+          onUploadImage={() => setImagePickerOpen(true)}
+          pendingImages={pendingImages}
+          onRemovePendingImage={handleRemovePendingImage}
         />
       </Box>
+
+      {/* Image Picker Dialog */}
+      <ImagePickerDialog
+        isOpen={imagePickerOpen}
+        onClose={() => setImagePickerOpen(false)}
+        onSelect={handleImageSelect}
+        client={client}
+      />
     </Card>
   )
 }
@@ -513,31 +559,26 @@ function FloatingChatButton({onClick}: {onClick: () => void}) {
       placement="left"
       portal
     >
-      <Button
+      <button
         onClick={onClick}
-        mode="default"
-        tone="primary"
         style={{
-          width: 56,
-          height: 56,
-          borderRadius: '50%',
+          background: 'none',
+          border: 'none',
           padding: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          cursor: 'pointer',
+          display: 'block',
         }}
       >
         <img
           src="/static/claude-logo.png"
           alt="Claude"
           style={{
-            width: 32,
-            height: 32,
-            borderRadius: 8,
+            width: 40,
+            height: 40,
+            display: 'block',
           }}
         />
-      </Button>
+      </button>
     </Tooltip>
   )
 }
@@ -614,7 +655,7 @@ export function FloatingChat({apiEndpoint}: FloatingChatProps) {
       style={{
         position: 'fixed',
         bottom: 24,
-        right: 24,
+        left: 24,
         zIndex: 10000,
       }}
     >

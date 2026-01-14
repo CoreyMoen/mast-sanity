@@ -270,6 +270,7 @@ function getDefaultDescription(type: ActionType): string {
     query: 'Query documents',
     navigate: 'Navigate to a document',
     explain: 'Explanation',
+    uploadImage: 'Upload image to Sanity',
   }
   return descriptions[type]
 }
