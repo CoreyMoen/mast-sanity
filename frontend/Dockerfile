@@ -15,4 +15,4 @@ COPY . .
 EXPOSE 3000
 
 # Start the dev server (skip typegen predev script in Docker)
-CMD ["npx", "next", "dev", "--turbopack", "-p", "3000"]
+CMD ["npx", "next", "dev", "--turbopack", "-p", "3000", "--hostname", "0.0.0.0"]

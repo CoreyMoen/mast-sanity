@@ -1,5 +1,6 @@
-import {BlockElementIcon, CogIcon, MenuIcon} from '@sanity/icons'
+import {BlockElementIcon, CogIcon, DocumentIcon, MenuIcon} from '@sanity/icons'
 import type {StructureBuilder, StructureResolver} from 'sanity/structure'
+import {orderableDocumentListDeskItem} from '@sanity/orderable-document-list'
 import pluralize from 'pluralize-esm'
 
 /**
@@ -16,12 +17,23 @@ const DISABLED_TYPES = [
   // Claude Assistant schemas - accessed via Claude tool only
   'claudeConversation',
   'claudeInstructions',
+  // Page is handled separately with orderable list
+  'page',
 ]
 
-export const structure: StructureResolver = (S: StructureBuilder) =>
+export const structure: StructureResolver = (S: StructureBuilder, context) =>
   S.list()
     .title('Website Content')
     .items([
+      // Pages with drag-and-drop ordering
+      orderableDocumentListDeskItem({
+        type: 'page',
+        title: 'Pages',
+        icon: DocumentIcon,
+        S,
+        context,
+      }),
+      S.divider(),
       ...S.documentTypeListItems()
         // Remove singleton and internal types from the list of content types
         .filter((listItem: any) => !DISABLED_TYPES.includes(listItem.getId()))

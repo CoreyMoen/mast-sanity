@@ -1,5 +1,6 @@
 import {defineField, defineType} from 'sanity'
 import {DocumentIcon} from '@sanity/icons'
+import {orderRankField} from '@sanity/orderable-document-list'
 import {PageFormInput} from '../components/PageFormInput'
 
 /**
@@ -21,6 +22,9 @@ export const page = defineType({
     {name: 'metadata', title: 'Metadata'},
   ],
   fields: [
+    // Hidden field for drag-and-drop ordering in Structure view
+    orderRankField({type: 'page'}),
+
     defineField({
       name: 'name',
       title: 'Name',

@@ -21,6 +21,7 @@
     "@phosphor-icons/react": "^2.1.10",
     "@sanity/assist": "^5.0.2",
     "@sanity/icons": "^3.7.4",
+    "@sanity/orderable-document-list": "^1.4.2",
     "@sanity/vision": "^4.20.0",
     "date-fns": "^4.1.0",
     "pluralize-esm": "^9.0.5",
