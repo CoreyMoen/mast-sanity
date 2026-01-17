@@ -27,6 +27,8 @@ export interface UseContentOperationsExtendedReturn extends UseContentOperations
   publishDocument: (documentId: string) => Promise<ActionResult>
   /** Unpublish a document */
   unpublishDocument: (documentId: string) => Promise<ActionResult>
+  /** Undo a previously executed action */
+  undoAction: (action: ParsedAction) => Promise<ActionResult>
 }
 
 /**
@@ -116,6 +118,28 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
       }
     },
     [pendingActions]
+  )
+
+  /**
+   * Undo a previously executed action by restoring pre-execution state
+   */
+  const undoAction = useCallback(
+    async (action: ParsedAction): Promise<ActionResult> => {
+      setIsExecuting(true)
+      try {
+        const operations = getOperations()
+        const result = await operations.undoAction(action)
+        return result
+      } catch (err) {
+        return {
+          success: false,
+          message: err instanceof Error ? err.message : 'Undo failed',
+        }
+      } finally {
+        setIsExecuting(false)
+      }
+    },
+    [getOperations]
   )
 
   /**
@@ -271,6 +295,7 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
     executeAction,
     previewAction,
     cancelAction,
+    undoAction,
     isExecuting,
     createPageIncrementally,
     addSectionToPage,

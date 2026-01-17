@@ -386,6 +386,28 @@ export function buildSystemPrompt(context: SystemPromptContext): string {
     parts.push(context.workflowContext)
   }
 
+  // Add selected document contexts
+  if (context.documentContexts && context.documentContexts.length > 0) {
+    parts.push('\n## Selected Document Context\n')
+    parts.push('The user has selected the following documents as context for this conversation:')
+    for (const doc of context.documentContexts) {
+      parts.push(`- **${doc.name}** (${doc._type}, ID: \`${doc._id}\`${doc.slug ? `, slug: "${doc.slug}"` : ''})`)
+    }
+    parts.push('\n**IMPORTANT**: When the user asks questions about the CONTENT of these documents (e.g., "what is the H1 heading?", "what text is on this page?", "show me the content"), you MUST FIRST query the document to retrieve its actual content. You only have metadata (name, type, ID) - not the page content itself.')
+    parts.push('\nTo answer content questions, first execute a query action like:')
+    parts.push('```action')
+    parts.push('{')
+    parts.push('  "type": "query",')
+    parts.push('  "description": "Fetch the content of the selected document",')
+    parts.push('  "payload": {')
+    parts.push('    "query": "*[_id == \\"DOCUMENT_ID_HERE\\"][0]{ _id, _type, name, pageBuilder[]{ _key, _type, label, rows[]{ _key, columns[]{ _key, content[]{ _key, _type, text, level, ... } } } } }"')
+    parts.push('  }')
+    parts.push('}')
+    parts.push('```')
+    parts.push('\nReplace DOCUMENT_ID_HERE with the actual document ID from above. After the query executes, you can answer the user\'s question about the content.')
+    parts.push('\nFocus your assistance on these documents unless the user asks about something else. When updating these documents, use the provided IDs directly.')
+  }
+
   return parts.join('\n')
 }
 

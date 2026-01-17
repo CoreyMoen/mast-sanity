@@ -25,6 +25,7 @@ import {
   LaunchIcon,
   DocumentIcon,
   RefreshIcon,
+  UndoIcon,
 } from '@sanity/icons'
 import type {ParsedAction, ActionType, ActionStatus} from '../types'
 import {isDestructiveAction, shouldAutoExecute} from '../lib/actions'
@@ -34,6 +35,7 @@ export interface ActionCardProps {
   onExecute?: () => void | Promise<void>
   onCancel?: () => void
   onClick?: () => void
+  onUndo?: () => void | Promise<void>
   showPreview?: boolean
   /** Called when user wants to open document in Structure tool */
   onOpenInStructure?: (documentId: string, documentType?: string) => void
@@ -43,6 +45,8 @@ export interface ActionCardProps {
   autoExecuteEnabled?: boolean
   /** Message timestamp - used to prevent auto-execution of old actions */
   messageTimestamp?: Date
+  /** Hide navigation links (Open in Structure/Preview) - used in floating chat */
+  hideNavigationLinks?: boolean
 }
 
 /**
@@ -98,11 +102,13 @@ export function ActionCard({
   onExecute,
   onCancel,
   onClick,
+  onUndo,
   showPreview = true,
   onOpenInStructure,
   onOpenInPreview,
   autoExecuteEnabled = true,
   messageTimestamp,
+  hideNavigationLinks = false,
 }: ActionCardProps) {
   const hasAutoExecuted = useRef(false)
 
@@ -125,6 +131,18 @@ export function ActionCard({
   const canExecute = (isPending && action.type !== 'explain') ||
                      (isCompleted && action.result?.success)
   const needsConfirmation = canExecute && isDestructive && !hasBeenExecuted
+
+  // Undo is available if:
+  // - Action completed successfully
+  // - Pre-state was captured
+  // - onUndo callback is provided
+  // - Action type is undoable (update, delete, create)
+  const undoableTypes: ActionType[] = ['update', 'delete', 'create']
+  const canUndo = isCompleted &&
+                  action.result?.success &&
+                  action.result?.preState !== undefined &&
+                  onUndo &&
+                  undoableTypes.includes(action.type)
 
   // Extract result data for document info
   const resultData = action.result?.data as Record<string, unknown> | undefined
@@ -300,8 +318,8 @@ export function ActionCard({
           </Card>
         )}
 
-        {/* Success state with navigation links */}
-        {isCompleted && action.result?.success && documentId && (
+        {/* Success state with navigation links (hidden in floating chat) */}
+        {!hideNavigationLinks && isCompleted && action.result?.success && documentId && (
           <Flex gap={2} wrap="wrap">
             <Button
               mode="ghost"
@@ -327,7 +345,7 @@ export function ActionCard({
         )}
 
         {/* Action buttons for pending actions */}
-        {(canExecute || canCancel) && (
+        {(canExecute || canCancel || canUndo) && (
           <Flex gap={2} justify="flex-end">
             {canCancel && (
               <Button
@@ -341,13 +359,25 @@ export function ActionCard({
                 }}
               />
             )}
+            {canUndo && (
+              <Button
+                text="Undo"
+                tone="caution"
+                mode="ghost"
+                icon={UndoIcon}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onUndo?.()
+                }}
+              />
+            )}
             {canExecute && (
               <Button
                 text={
                   needsConfirmation
                     ? 'Confirm & Execute'
                     : hasBeenExecuted
-                    ? 'Execute Again'
+                    ? 'Retry'
                     : 'Execute'
                 }
                 tone={isDestructive ? 'critical' : 'primary'}

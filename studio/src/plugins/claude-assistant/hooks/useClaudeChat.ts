@@ -6,7 +6,7 @@
  */
 
 import React, {useState, useCallback, useRef, useEffect, useMemo} from 'react'
-import type {Message, ParsedAction, SchemaContext, UseClaudeChatReturn, ImageAttachment} from '../types'
+import type {Message, ParsedAction, SchemaContext, UseClaudeChatReturn, ImageAttachment, DocumentContext} from '../types'
 import {parseActions, extractTextContent} from '../lib/actions'
 import {buildSystemPrompt} from '../lib/instructions'
 import type {Conversation} from '../types'
@@ -34,6 +34,11 @@ export interface UseClaudeChatOptions {
    * Workflow context to append to system prompt
    */
   workflowContext?: string
+
+  /**
+   * Selected documents as context for the conversation
+   */
+  documentContexts?: DocumentContext[]
 
   /**
    * Active conversation to sync messages with
@@ -173,6 +178,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
     schemaContext,
     customInstructions,
     workflowContext,
+    documentContexts,
     activeConversation,
     onAddMessage,
     onUpdateMessage,
@@ -330,6 +336,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
           },
           customInstructions,
           workflowContext,
+          documentContexts,
         })
 
         // Build conversation history for API
@@ -576,6 +583,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
       schemaContext,
       customInstructions,
       workflowContext,
+      documentContexts,
       activeConversation,
       onAddMessage,
       onGenerateTitle,

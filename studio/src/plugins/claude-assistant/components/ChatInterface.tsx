@@ -38,12 +38,14 @@ import type {
   QuickAction,
   SchemaContext,
   ImageAttachment,
+  DocumentContext as DocumentContextType,
 } from '../types'
 import {MessageList} from './MessageList'
 import {MessageInput, WorkflowOption} from './MessageInput'
 import {QuickActions} from './QuickActions'
 import {ConversationSidebar} from './ConversationSidebar'
 import {ImagePickerDialog} from './ImagePickerDialog'
+import {DocumentPickerDialog} from './DocumentPicker'
 import {useKeyboardShortcuts, announceToScreenReader} from '../hooks/useKeyboardShortcuts'
 import type {Workflow} from '../hooks/useWorkflows'
 
@@ -120,6 +122,7 @@ export interface ChatInterfaceProps {
   onRetryLastMessage: () => Promise<void>
   // Actions
   onActionExecute: (action: ParsedAction) => Promise<void>
+  onActionUndo?: (action: ParsedAction) => Promise<void>
   // Instructions
   instructions?: InstructionSet[]
   activeInstruction?: InstructionSet | null
@@ -128,6 +131,10 @@ export interface ChatInterfaceProps {
   workflows?: Workflow[]
   selectedWorkflow?: Workflow | null
   onWorkflowSelect?: (workflowId: string | null) => void
+  // Document context
+  pendingDocuments?: DocumentContextType[]
+  onDocumentsChange?: (documents: DocumentContextType[]) => void
+  onRemoveDocument?: (documentId: string) => void
   // API config
   apiEndpoint?: string
 }
@@ -289,6 +296,7 @@ export function ChatInterface({
   onRetryLastMessage,
   // Actions
   onActionExecute,
+  onActionUndo,
   // Instructions (optional)
   instructions,
   activeInstruction,
@@ -297,6 +305,10 @@ export function ChatInterface({
   workflows,
   selectedWorkflow,
   onWorkflowSelect,
+  // Document context (optional, lifted from parent)
+  pendingDocuments: pendingDocumentsProp,
+  onDocumentsChange: onDocumentsChangeProp,
+  onRemoveDocument: onRemoveDocumentProp,
   // API config (optional)
   apiEndpoint,
 }: ChatInterfaceProps) {
@@ -307,6 +319,14 @@ export function ChatInterface({
   const [pendingImages, setPendingImages] = useState<ImageAttachment[]>([])
   // State for image picker dialog
   const [imagePickerOpen, setImagePickerOpen] = useState(false)
+  // State for selected documents as context (local fallback if not controlled)
+  const [localPendingDocuments, setLocalPendingDocuments] = useState<DocumentContextType[]>([])
+  // State for document picker dialog
+  const [documentPickerOpen, setDocumentPickerOpen] = useState(false)
+
+  // Use controlled or uncontrolled mode for document context
+  const pendingDocuments = pendingDocumentsProp ?? localPendingDocuments
+  const setPendingDocuments = onDocumentsChangeProp ?? setLocalPendingDocuments
 
   // Refs for focus management
   const messageInputRef = useRef<HTMLTextAreaElement>(null)
@@ -377,6 +397,20 @@ export function ChatInterface({
   const handleRemovePendingImage = useCallback((imageId: string) => {
     setPendingImages((prev) => prev.filter((img) => img.id !== imageId))
   }, [])
+
+  // Handle document selection change
+  const handleDocumentsChange = useCallback((documents: DocumentContextType[]) => {
+    setPendingDocuments(documents)
+  }, [setPendingDocuments])
+
+  // Handle removing a document from context
+  const handleRemoveDocument = useCallback((documentId: string) => {
+    if (onRemoveDocumentProp) {
+      onRemoveDocumentProp(documentId)
+    } else {
+      setLocalPendingDocuments((prev) => prev.filter((doc) => doc._id !== documentId))
+    }
+  }, [onRemoveDocumentProp])
 
   // Handle model change
   const handleModelChange = useCallback(
@@ -779,6 +813,9 @@ export function ChatInterface({
                 onUploadImage={() => setImagePickerOpen(true)}
                 pendingImages={pendingImages}
                 onRemovePendingImage={handleRemovePendingImage}
+                onOpenDocumentPicker={() => setDocumentPickerOpen(true)}
+                pendingDocuments={pendingDocuments}
+                onRemoveDocument={handleRemoveDocument}
               />
 
               {/* Quick action buttons - closer to input */}
@@ -800,6 +837,7 @@ export function ChatInterface({
                 messages={messages}
                 isLoading={isLoading}
                 onActionExecute={onActionExecute}
+                onActionUndo={onActionUndo}
                 maxWidth={680}
               />
             </Box>
@@ -824,6 +862,9 @@ export function ChatInterface({
                   onUploadImage={() => setImagePickerOpen(true)}
                   pendingImages={pendingImages}
                   onRemovePendingImage={handleRemovePendingImage}
+                  onOpenDocumentPicker={() => setDocumentPickerOpen(true)}
+                  pendingDocuments={pendingDocuments}
+                  onRemoveDocument={handleRemoveDocument}
                 />
               </Box>
             </Box>
@@ -850,6 +891,15 @@ export function ChatInterface({
         onClose={() => setImagePickerOpen(false)}
         onSelect={handleImageSelect}
         client={client}
+      />
+
+      {/* Document Picker Dialog */}
+      <DocumentPickerDialog
+        isOpen={documentPickerOpen}
+        onClose={() => setDocumentPickerOpen(false)}
+        client={client}
+        selectedDocuments={pendingDocuments}
+        onDocumentsChange={handleDocumentsChange}
       />
     </Flex>
   )

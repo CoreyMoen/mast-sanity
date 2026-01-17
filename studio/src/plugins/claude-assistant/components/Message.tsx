@@ -26,49 +26,94 @@ import {ActionCard} from './ActionCard'
  * - More than 10 lines
  * - More than 500 characters
  * - Language is JSON (always start collapsed)
+ * - Streaming (always start collapsed with streaming indicator)
  */
-function CollapsibleCodeBlock({language, code}: {language: string; code: string}) {
+function CollapsibleCodeBlock({language, code, isStreaming = false}: {language: string; code: string; isStreaming?: boolean}) {
   const lines = code.trim().split('\n')
   const isLongByLines = lines.length > 10
   const isLongByChars = code.length > 500
   const isJSON = language.toLowerCase() === 'json'
 
   // Determine if the block should be collapsible
-  const shouldCollapse = isLongByLines || isLongByChars || isJSON
+  // Streaming blocks are always collapsible
+  const shouldCollapse = isLongByLines || isLongByChars || isJSON || isStreaming
 
-  // JSON should start collapsed, others based on length
+  // Start collapsed when streaming, JSON, or long content
   const [isExpanded, setIsExpanded] = useState(!shouldCollapse)
   const previewLines = 8
 
+  // For streaming, show the last few lines as a preview of activity
+  const getStreamingPreview = () => {
+    if (!isStreaming || lines.length === 0) return ''
+    // Show last 3 lines or all lines if fewer
+    const previewCount = Math.min(3, lines.length)
+    const lastLines = lines.slice(-previewCount)
+    return lastLines.join('\n')
+  }
+
   const displayCode = isExpanded
     ? code.trim()
+    : isStreaming && !isExpanded
+    ? getStreamingPreview()
     : lines.slice(0, previewLines).join('\n') + (lines.length > previewLines ? '\n...' : '')
 
   return (
     <Box marginY={3}>
       <Card padding={3} radius={2} tone="transparent" border style={{backgroundColor: 'var(--card-code-bg-color)'}}>
         <Flex align="center" justify="space-between" marginBottom={2}>
-          <Text size={0} muted style={{fontFamily: 'monospace', textTransform: 'uppercase'}}>
-            {language}
-          </Text>
+          <Flex align="center" gap={2}>
+            <Text size={0} muted style={{fontFamily: 'monospace', textTransform: 'uppercase'}}>
+              {language}
+            </Text>
+            {isStreaming && (
+              <Flex align="center" gap={1}>
+                <Box
+                  style={{
+                    width: 6,
+                    height: 6,
+                    borderRadius: '50%',
+                    backgroundColor: 'var(--card-badge-caution-bg-color, #f5a623)',
+                    animation: 'pulse 1.5s ease-in-out infinite',
+                  }}
+                />
+                <Text size={0} muted style={{fontStyle: 'italic'}}>
+                  generating...
+                </Text>
+              </Flex>
+            )}
+          </Flex>
           {shouldCollapse && (
             <Button
               mode="bleed"
               tone="primary"
               fontSize={0}
               padding={1}
-              text={isExpanded ? 'Collapse' : `Expand (${lines.length} lines)`}
+              text={isExpanded ? 'Collapse' : isStreaming ? `Expand (${lines.length} lines)` : `Expand (${lines.length} lines)`}
               icon={isExpanded ? ChevronUpIcon : ChevronDownIcon}
               onClick={() => setIsExpanded(!isExpanded)}
             />
           )}
         </Flex>
-        <Box style={{maxHeight: isExpanded ? 'none' : '300px', overflow: 'auto'}}>
-          <Code size={1} style={{display: 'block', whiteSpace: 'pre-wrap', overflowX: 'auto'}}>
+        <Box style={{maxHeight: isExpanded ? 'none' : '120px', overflow: 'hidden', position: 'relative'}}>
+          <Code size={0} style={{display: 'block', whiteSpace: 'pre-wrap', overflowX: 'auto', opacity: isStreaming && !isExpanded ? 0.7 : 1}}>
             {displayCode}
           </Code>
+          {/* Fade overlay when collapsed and streaming */}
+          {!isExpanded && isStreaming && (
+            <Box
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: '40px',
+                background: 'linear-gradient(transparent, var(--card-code-bg-color, #1a1a1a))',
+                pointerEvents: 'none',
+              }}
+            />
+          )}
         </Box>
-        {!isExpanded && shouldCollapse && lines.length > previewLines && (
+        {!isExpanded && shouldCollapse && !isStreaming && lines.length > previewLines && (
           <Box marginTop={2} style={{textAlign: 'center'}}>
             <Text size={0} muted>
               {lines.length - previewLines} more lines hidden
@@ -76,6 +121,13 @@ function CollapsibleCodeBlock({language, code}: {language: string; code: string}
           </Box>
         )}
       </Card>
+      {/* CSS for pulse animation */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+      `}</style>
     </Box>
   )
 }
@@ -84,19 +136,55 @@ export interface MessageProps {
   message: MessageType
   onActionClick?: (action: ParsedAction) => void
   onActionExecute?: (action: ParsedAction) => void
+  onActionUndo?: (action: ParsedAction) => void
+  /** Hide navigation links in action cards (used in floating chat) */
+  hideNavigationLinks?: boolean
 }
 
 /**
  * Simple markdown parser for common patterns
  * Handles: bold, italic, inline code, code blocks, links, lists
+ * Supports streaming detection for incomplete code blocks
  */
-function parseMarkdown(content: string): React.ReactNode[] {
+function parseMarkdown(content: string, isStreaming: boolean = false): React.ReactNode[] {
   const elements: React.ReactNode[] = []
   let key = 0
 
-  // Split by code blocks first
+  // Check for incomplete code block at the end (streaming case)
+  // Pattern: ``` followed by optional language and content, but no closing ```
+  const incompleteCodeBlockMatch = content.match(/```(\w+)?\n([\s\S]*)$/)
+  const hasIncompleteBlock = isStreaming && incompleteCodeBlockMatch && !content.endsWith('```')
+
+  // If there's an incomplete block, we need to handle it separately
+  let contentToParseNormally = content
+  let incompleteBlockLanguage = ''
+  let incompleteBlockCode = ''
+
+  if (hasIncompleteBlock) {
+    // Find the position of the last incomplete code block
+    const lastOpeningIndex = content.lastIndexOf('```')
+    if (lastOpeningIndex !== -1) {
+      // Check if this opening ``` has a matching closing ```
+      const afterOpening = content.slice(lastOpeningIndex + 3)
+      const hasClosing = afterOpening.includes('```')
+
+      if (!hasClosing) {
+        // This is an incomplete block - parse content before it normally
+        contentToParseNormally = content.slice(0, lastOpeningIndex)
+
+        // Extract language and code from the incomplete block
+        const incompleteMatch = afterOpening.match(/^(\w+)?\n?([\s\S]*)$/)
+        if (incompleteMatch) {
+          incompleteBlockLanguage = incompleteMatch[1] || 'code'
+          incompleteBlockCode = incompleteMatch[2] || ''
+        }
+      }
+    }
+  }
+
+  // Split by complete code blocks first
   const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g
-  const parts = content.split(codeBlockRegex)
+  const parts = contentToParseNormally.split(codeBlockRegex)
 
   let i = 0
   while (i < parts.length) {
@@ -107,9 +195,9 @@ function parseMarkdown(content: string): React.ReactNode[] {
       // This is a language identifier, next part is code
       const language = parts[i] || 'text'
       const code = parts[i + 1] || ''
-      // Use collapsible component for code blocks
+      // Use collapsible component for complete code blocks
       elements.push(
-        <CollapsibleCodeBlock key={key++} language={language} code={code} />
+        <CollapsibleCodeBlock key={key++} language={language} code={code} isStreaming={false} />
       )
       i += 2
       continue
@@ -121,6 +209,18 @@ function parseMarkdown(content: string): React.ReactNode[] {
       key += 100 // Increment to avoid key collisions
     }
     i++
+  }
+
+  // Add the incomplete/streaming code block at the end
+  if (hasIncompleteBlock && incompleteBlockCode) {
+    elements.push(
+      <CollapsibleCodeBlock
+        key={key++}
+        language={incompleteBlockLanguage}
+        code={incompleteBlockCode}
+        isStreaming={true}
+      />
+    )
   }
 
   return elements
@@ -321,19 +421,20 @@ function BlinkingCursor() {
   )
 }
 
-export function Message({message, onActionClick, onActionExecute}: MessageProps) {
+export function Message({message, onActionClick, onActionExecute, onActionUndo, hideNavigationLinks}: MessageProps) {
   const isUser = message.role === 'user'
   const isStreaming = message.status === 'streaming'
   const isError = message.status === 'error'
 
   // Parse markdown for all messages (both user and assistant)
   // This ensures code blocks are collapsible in both directions
+  // Pass isStreaming to detect and render incomplete code blocks
   const parsedContent = useMemo(() => {
     if (!message.content) {
       return null
     }
-    return parseMarkdown(message.content)
-  }, [message.content])
+    return parseMarkdown(message.content, isStreaming)
+  }, [message.content, isStreaming])
 
   // Create accessible label for the message
   const accessibleLabel = useMemo(() => {
@@ -430,7 +531,9 @@ export function Message({message, onActionClick, onActionExecute}: MessageProps)
                   action={action}
                   onExecute={() => onActionExecute?.(action)}
                   onClick={() => onActionClick?.(action)}
+                  onUndo={() => onActionUndo?.(action)}
                   messageTimestamp={message.timestamp}
+                  hideNavigationLinks={hideNavigationLinks}
                 />
               ))}
             </Stack>
@@ -564,6 +667,16 @@ export const MemoizedMessage = React.memo(Message, (prevProps, nextProps) => {
     return false
   }
   if (prevProps.onActionClick !== nextProps.onActionClick) {
+    return false
+  }
+
+  // Re-render if hideNavigationLinks changed
+  if (prevProps.hideNavigationLinks !== nextProps.hideNavigationLinks) {
+    return false
+  }
+
+  // Re-render if onActionUndo changed
+  if (prevProps.onActionUndo !== nextProps.onActionUndo) {
     return false
   }
 

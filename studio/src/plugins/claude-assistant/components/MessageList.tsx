@@ -29,10 +29,13 @@ export interface MessageListProps {
   isLoading: boolean
   onActionClick?: (action: ParsedAction) => void
   onActionExecute?: (action: ParsedAction) => void
+  onActionUndo?: (action: ParsedAction) => void
   /** Max width for the message content area */
   maxWidth?: number
   /** Compact mode for floating chat */
   compact?: boolean
+  /** Hide navigation links in action cards (used in floating chat) */
+  hideNavigationLinks?: boolean
 }
 
 export function MessageList({
@@ -40,8 +43,10 @@ export function MessageList({
   isLoading,
   onActionClick,
   onActionExecute,
+  onActionUndo,
   maxWidth = 900,
   compact = false,
+  hideNavigationLinks = false,
 }: MessageListProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -144,6 +149,8 @@ export function MessageList({
                 message={message}
                 onActionClick={onActionClick}
                 onActionExecute={onActionExecute}
+                onActionUndo={onActionUndo}
+                hideNavigationLinks={hideNavigationLinks}
               />
             </div>
           )

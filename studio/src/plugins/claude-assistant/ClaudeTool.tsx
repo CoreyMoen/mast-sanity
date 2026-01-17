@@ -18,7 +18,7 @@ import {useContentOperations} from './hooks/useContentOperations'
 import {useWorkflows, buildWorkflowContext} from './hooks/useWorkflows'
 import {extractSchemaContext} from './lib/schema-context'
 import type {ClaudeAssistantOptions} from './index'
-import type {Message, ParsedAction, PluginSettings, SchemaContext, ImageAttachment} from './types'
+import type {Message, ParsedAction, PluginSettings, SchemaContext, ImageAttachment, DocumentContext} from './types'
 import {DEFAULT_SETTINGS} from './types'
 
 const SETTINGS_STORAGE_KEY = 'claude-assistant-settings'
@@ -77,9 +77,11 @@ export function ClaudeTool(props: ClaudeToolProps) {
   const [settings, setSettings] = useState<PluginSettings>(loadSettings)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [schemaContext, setSchemaContext] = useState<SchemaContext | null>(null)
+  // Selected documents as context for Claude
+  const [pendingDocuments, setPendingDocuments] = useState<DocumentContext[]>([])
 
   // Content operations hook
-  const {executeAction} = useContentOperations()
+  const {executeAction, undoAction} = useContentOperations()
 
   // Conversation management hook
   const {
@@ -220,14 +222,11 @@ export function ClaudeTool(props: ClaudeToolProps) {
           const resultCount = Array.isArray(result.data) ? result.data.length : 1
 
           // Send the query results as a user message so Claude sees them
-          // and can now formulate the update action with real _key values
           const followUpMessage = `Here are the query results (${resultCount} result${resultCount !== 1 ? 's' : ''}):
 
 \`\`\`json
 ${resultJson}
-\`\`\`
-
-Now that you have the real document structure with _id and _key values, please proceed with the update action using the exact _key values from these results.`
+\`\`\``
 
           // Small delay to ensure UI updates first
           setTimeout(() => {
@@ -245,6 +244,42 @@ Now that you have the real document structure with _id and _key values, please p
       }
     },
     [settings.confirmBeforeExecute, executeAction, toast, updateActionStatus]
+  )
+
+  // Handle undo of a previously executed action
+  const handleUndo = useCallback(
+    async (action: ParsedAction) => {
+      console.log('[ClaudeTool] handleUndo called:', {
+        actionId: action.id,
+        actionType: action.type,
+        hasPreState: !!action.result?.preState,
+      })
+
+      const result = await undoAction(action)
+      console.log('[ClaudeTool] Undo result:', result)
+
+      if (result.success) {
+        // Clear the preState so Undo button disappears
+        updateActionStatus(action.id, 'completed', {
+          success: true,
+          ...action.result,
+          preState: undefined,
+        })
+        toast.push({
+          status: 'success',
+          title: 'Undo successful',
+          description: result.message,
+        })
+      } else {
+        console.error('[ClaudeTool] Undo failed:', result.message)
+        toast.push({
+          status: 'error',
+          title: 'Undo failed',
+          description: result.message,
+        })
+      }
+    },
+    [undoAction, toast, updateActionStatus]
   )
 
   // Build workflow context from selected workflow
@@ -268,6 +303,7 @@ Now that you have the real document structure with _id and _key values, please p
     schemaContext,
     customInstructions: settings.customInstructions,
     workflowContext,
+    documentContexts: pendingDocuments,
     activeConversation,
     onAddMessage: addMessage,
     onUpdateMessage: updateMessage,
@@ -363,6 +399,16 @@ Now that you have the real document structure with _id and _key values, please p
     setSettingsOpen(false)
   }, [])
 
+  // Handle document context changes
+  const handleDocumentsChange = useCallback((documents: DocumentContext[]) => {
+    setPendingDocuments(documents)
+  }, [])
+
+  // Handle removing a document from context
+  const handleRemoveDocument = useCallback((documentId: string) => {
+    setPendingDocuments((prev) => prev.filter((doc) => doc._id !== documentId))
+  }, [])
+
   return (
     <Card
       style={{
@@ -399,6 +445,7 @@ Now that you have the real document structure with _id and _key values, please p
         onRetryLastMessage={retryLastMessage}
         // Actions
         onActionExecute={handleAction}
+        onActionUndo={handleUndo}
         // Instructions
         instructions={instructions}
         activeInstruction={activeInstruction}
@@ -407,6 +454,10 @@ Now that you have the real document structure with _id and _key values, please p
         workflows={workflows}
         selectedWorkflow={selectedWorkflow}
         onWorkflowSelect={selectWorkflow}
+        // Document context
+        pendingDocuments={pendingDocuments}
+        onDocumentsChange={handleDocumentsChange}
+        onRemoveDocument={handleRemoveDocument}
         // API config
         apiEndpoint={apiEndpoint}
       />

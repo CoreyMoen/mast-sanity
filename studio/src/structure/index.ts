@@ -1,4 +1,4 @@
-import {BlockElementIcon, CogIcon, DocumentIcon, MenuIcon} from '@sanity/icons'
+import {BlockElementIcon, CogIcon, DocumentIcon, MenuIcon, PlayIcon} from '@sanity/icons'
 import type {StructureBuilder, StructureResolver} from 'sanity/structure'
 import {orderableDocumentListDeskItem} from '@sanity/orderable-document-list'
 import pluralize from 'pluralize-esm'
@@ -17,6 +17,7 @@ const DISABLED_TYPES = [
   // Claude Assistant schemas - accessed via Claude tool only
   'claudeConversation',
   'claudeInstructions',
+  'claudeWorkflow', // Manually positioned after Site Settings
   // Page is handled separately with orderable list
   'page',
 ]
@@ -58,4 +59,9 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
         .title('Site Settings')
         .child(S.document().schemaType('settings').documentId('siteSettings'))
         .icon(CogIcon),
+      // Claude Workflows - templates for Claude Assistant
+      S.listItem()
+        .title('Claude Workflows')
+        .child(S.documentTypeList('claudeWorkflow').title('Claude Workflows'))
+        .icon(PlayIcon),
     ])

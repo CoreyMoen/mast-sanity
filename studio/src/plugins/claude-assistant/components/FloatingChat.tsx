@@ -15,7 +15,7 @@
 
 import React, {useCallback, useState, useRef, useEffect} from 'react'
 import {Box, Card, Flex, Stack, Text, Button, Tooltip, useToast} from '@sanity/ui'
-import {CloseIcon, AddIcon, TrashIcon, ResetIcon, ExpandIcon} from '@sanity/icons'
+import {CloseIcon, AddIcon, TrashIcon, ResetIcon, ExpandIcon, DragHandleIcon} from '@sanity/icons'
 import {useClient, useCurrentUser, useSchema} from 'sanity'
 import {MessageList} from './MessageList'
 import {MessageInput} from './MessageInput'
@@ -24,13 +24,22 @@ import {useConversations} from '../hooks/useConversations'
 import {useContentOperations} from '../hooks/useContentOperations'
 import {useWorkflows, buildWorkflowContext} from '../hooks/useWorkflows'
 import {useInstructions} from '../hooks/useInstructions'
+import {useCurrentDocument} from '../hooks/useCurrentDocument'
 import {extractSchemaContext} from '../lib/schema-context'
 import {DEFAULT_SETTINGS} from '../types'
-import type {Message, ParsedAction, PluginSettings, SchemaContext, ImageAttachment} from '../types'
+import type {Message, ParsedAction, PluginSettings, SchemaContext, ImageAttachment, DocumentContext} from '../types'
 import {ImagePickerDialog} from './ImagePickerDialog'
+import {DocumentPickerDialog} from './DocumentPicker'
 
 const SETTINGS_STORAGE_KEY = 'claude-assistant-settings'
 const FLOATING_CHAT_OPEN_KEY = 'claude-floating-chat-open'
+const FLOATING_CHAT_POSITION_KEY = 'claude-floating-chat-position'
+const FLOATING_CHAT_CONVERSATION_KEY = 'claude-floating-active-conversation'
+
+interface Position {
+  x: number
+  y: number
+}
 
 /**
  * Load settings from localStorage
@@ -66,6 +75,76 @@ function saveFloatingChatState(isOpen: boolean): void {
     localStorage.setItem(FLOATING_CHAT_OPEN_KEY, String(isOpen))
   } catch {
     console.warn('Failed to save floating chat state')
+  }
+}
+
+/**
+ * Load floating chat position from localStorage
+ */
+function loadFloatingChatPosition(): Position | null {
+  try {
+    const stored = localStorage.getItem(FLOATING_CHAT_POSITION_KEY)
+    if (stored) {
+      return JSON.parse(stored)
+    }
+  } catch {
+    // Ignore storage errors
+  }
+  return null
+}
+
+/**
+ * Save floating chat position to localStorage
+ */
+function saveFloatingChatPosition(position: Position): void {
+  try {
+    localStorage.setItem(FLOATING_CHAT_POSITION_KEY, JSON.stringify(position))
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+/**
+ * Clear floating chat position from localStorage
+ */
+function clearFloatingChatPosition(): void {
+  try {
+    localStorage.removeItem(FLOATING_CHAT_POSITION_KEY)
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+/**
+ * Load floating chat active conversation from localStorage
+ */
+function loadFloatingChatConversation(): string | null {
+  try {
+    return localStorage.getItem(FLOATING_CHAT_CONVERSATION_KEY)
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Save floating chat active conversation to localStorage
+ */
+function saveFloatingChatConversation(conversationId: string): void {
+  try {
+    localStorage.setItem(FLOATING_CHAT_CONVERSATION_KEY, conversationId)
+  } catch {
+    // Ignore storage errors
+  }
+}
+
+/**
+ * Clear floating chat active conversation from localStorage
+ */
+function clearFloatingChatConversation(): void {
+  try {
+    localStorage.removeItem(FLOATING_CHAT_CONVERSATION_KEY)
+  } catch {
+    // Ignore storage errors
   }
 }
 
@@ -127,7 +206,17 @@ function useSharedSettings(): [PluginSettings, (settings: PluginSettings) => voi
 function FloatingChatPanel({
   apiEndpoint,
   onClose,
-}: FloatingChatProps & {onClose: () => void}) {
+  onDragStart,
+  onDrag,
+  onDragEnd,
+  isDragging,
+}: FloatingChatProps & {
+  onClose: () => void
+  onDragStart: (e: React.MouseEvent) => void
+  onDrag: (e: MouseEvent) => void
+  onDragEnd: () => void
+  isDragging: boolean
+}) {
   const schema = useSchema()
   const currentUser = useCurrentUser()
   const client = useClient({apiVersion: '2024-01-01'})
@@ -141,8 +230,42 @@ function FloatingChatPanel({
   const [pendingImages, setPendingImages] = useState<ImageAttachment[]>([])
   // State for image picker dialog
   const [imagePickerOpen, setImagePickerOpen] = useState(false)
+  // State for selected documents as context
+  const [pendingDocuments, setPendingDocuments] = useState<DocumentContext[]>([])
+  // State for document picker dialog
+  const [documentPickerOpen, setDocumentPickerOpen] = useState(false)
+  // Track if user has manually selected documents (disables auto-detection)
+  const [hasManualSelection, setHasManualSelection] = useState(false)
 
-  const {executeAction} = useContentOperations()
+  // Auto-detect current document from URL (Structure or Presentation mode)
+  const {currentDocument, mode: currentMode} = useCurrentDocument({
+    client,
+    enabled: !hasManualSelection,
+    pollInterval: 500,
+  })
+
+  // Sync auto-detected document to pending documents when not in manual mode
+  useEffect(() => {
+    if (hasManualSelection) return
+
+    if (currentDocument) {
+      // Only update if different from current pending
+      setPendingDocuments((prev) => {
+        if (prev.length === 1 && prev[0]._id === currentDocument._id) {
+          return prev // Same document, no update needed
+        }
+        return [currentDocument]
+      })
+    } else {
+      // No document detected, clear pending (only if we had auto-detected ones)
+      setPendingDocuments((prev) => {
+        if (prev.length === 0) return prev
+        return []
+      })
+    }
+  }, [currentDocument, hasManualSelection])
+
+  const {executeAction, undoAction} = useContentOperations()
 
   // Instructions hook - same as main tool
   const {activeInstruction} = useInstructions()
@@ -158,9 +281,10 @@ function FloatingChatPanel({
     generateTitle,
   } = useConversations({apiEndpoint})
 
-  // Check for pending conversation from main tool (when user clicks "Continue in Presentation/Structure")
+  // Check for pending conversation from main tool OR restore last active conversation
   useEffect(() => {
     try {
+      // First priority: pending conversation from main tool (when user clicks "Continue in Presentation/Structure")
       const pendingConversationId = localStorage.getItem('claude-floating-pending-conversation')
       if (pendingConversationId) {
         // Clear it so we don't re-select on subsequent mounts
@@ -168,11 +292,26 @@ function FloatingChatPanel({
         // Select and load the conversation
         selectConversation(pendingConversationId)
         loadConversation(pendingConversationId)
+        return
+      }
+
+      // Second priority: restore last active conversation (when reopening floating chat)
+      const savedConversationId = loadFloatingChatConversation()
+      if (savedConversationId) {
+        selectConversation(savedConversationId)
+        loadConversation(savedConversationId)
       }
     } catch {
       // Ignore storage errors
     }
   }, [selectConversation, loadConversation])
+
+  // Save active conversation ID whenever it changes
+  useEffect(() => {
+    if (activeConversation?.id) {
+      saveFloatingChatConversation(activeConversation.id)
+    }
+  }, [activeConversation?.id])
 
   const {selectedWorkflow} = useWorkflows()
 
@@ -239,9 +378,7 @@ function FloatingChatPanel({
 
 \`\`\`json
 ${resultJson}
-\`\`\`
-
-Now that you have the real document structure with _id and _key values, please proceed with the update action using the exact _key values from these results.`
+\`\`\``
 
           setTimeout(() => {
             sendMessageRef.current?.(followUpMessage)
@@ -256,6 +393,33 @@ Now that you have the real document structure with _id and _key values, please p
       }
     },
     [executeAction, updateActionStatus, toast]
+  )
+
+  const handleUndo = useCallback(
+    async (action: ParsedAction) => {
+      const result = await undoAction(action)
+
+      if (result.success) {
+        // Clear the preState after successful undo so the button disappears
+        updateActionStatus(action.id, 'completed', {
+          success: true,
+          ...action.result,
+          preState: undefined,
+        })
+        toast.push({
+          status: 'success',
+          title: 'Undo successful',
+          description: result.message,
+        })
+      } else {
+        toast.push({
+          status: 'error',
+          title: 'Undo failed',
+          description: result.message,
+        })
+      }
+    },
+    [undoAction, updateActionStatus, toast]
   )
 
   const workflowContext = selectedWorkflow
@@ -275,6 +439,7 @@ Now that you have the real document structure with _id and _key values, please p
     schemaContext,
     customInstructions: settings.customInstructions,
     workflowContext,
+    documentContexts: pendingDocuments,
     activeConversation,
     onAddMessage: addMessage,
     onUpdateMessage: updateMessage,
@@ -330,6 +495,18 @@ Now that you have the real document structure with _id and _key values, please p
     setPendingImages((prev) => prev.filter((img) => img.id !== imageId))
   }, [])
 
+  // Handle document selection change (from manual picker interaction)
+  const handleDocumentsChange = useCallback((documents: DocumentContext[]) => {
+    setPendingDocuments(documents)
+    // Mark as manual selection to disable auto-detection
+    setHasManualSelection(true)
+  }, [])
+
+  // Handle removing a document from context
+  const handleRemoveDocument = useCallback((documentId: string) => {
+    setPendingDocuments((prev) => prev.filter((doc) => doc._id !== documentId))
+  }, [])
+
   // Update sendMessageRef to use the wrapped version
   useEffect(() => {
     sendMessageRef.current = handleSendMessage
@@ -337,6 +514,9 @@ Now that you have the real document structure with _id and _key values, please p
 
   const handleNewChat = useCallback(async () => {
     clearMessages()
+    // Reset manual selection so auto-detection resumes
+    setHasManualSelection(false)
+    setPendingDocuments([])
     await createConversation()
   }, [clearMessages, createConversation])
 
@@ -371,16 +551,23 @@ Now that you have the real document structure with _id and _key values, please p
         overflow: 'hidden',
       }}
     >
-      {/* Header */}
+      {/* Header - Draggable */}
       <Card
         padding={3}
         style={{
           borderBottom: '1px solid var(--card-border-color)',
           flexShrink: 0,
+          cursor: isDragging ? 'grabbing' : 'grab',
+          userSelect: 'none',
         }}
+        onMouseDown={onDragStart}
       >
         <Flex align="center" justify="space-between">
           <Flex align="center" gap={2}>
+            {/* Drag handle indicator */}
+            <Box style={{opacity: 0.4, pointerEvents: 'none'}}>
+              <DragHandleIcon style={{width: 16, height: 16}} />
+            </Box>
             <img
               src="/static/claude-logo.png"
               alt="Claude"
@@ -388,9 +575,10 @@ Now that you have the real document structure with _id and _key values, please p
                 width: 24,
                 height: 24,
                 borderRadius: 6,
+                pointerEvents: 'none',
               }}
             />
-            <Text size={1} weight="semibold">
+            <Text size={1} weight="semibold" style={{pointerEvents: 'none'}}>
               Claude Assistant
             </Text>
           </Flex>
@@ -506,8 +694,10 @@ Now that you have the real document structure with _id and _key values, please p
             messages={messages}
             isLoading={isLoading}
             onActionExecute={handleAction}
+            onActionUndo={handleUndo}
             maxWidth={380}
             compact
+            hideNavigationLinks
           />
         )}
       </Box>
@@ -531,6 +721,9 @@ Now that you have the real document structure with _id and _key values, please p
           onUploadImage={() => setImagePickerOpen(true)}
           pendingImages={pendingImages}
           onRemovePendingImage={handleRemovePendingImage}
+          onOpenDocumentPicker={() => setDocumentPickerOpen(true)}
+          pendingDocuments={pendingDocuments}
+          onRemoveDocument={handleRemoveDocument}
         />
       </Box>
 
@@ -540,6 +733,15 @@ Now that you have the real document structure with _id and _key values, please p
         onClose={() => setImagePickerOpen(false)}
         onSelect={handleImageSelect}
         client={client}
+      />
+
+      {/* Document Picker Dialog */}
+      <DocumentPickerDialog
+        isOpen={documentPickerOpen}
+        onClose={() => setDocumentPickerOpen(false)}
+        client={client}
+        selectedDocuments={pendingDocuments}
+        onDocumentsChange={handleDocumentsChange}
       />
     </Card>
   )
@@ -591,6 +793,11 @@ function FloatingChatButton({onClick}: {onClick: () => void}) {
 export function FloatingChat({apiEndpoint}: FloatingChatProps) {
   const [isOpen, setIsOpen] = useState(loadFloatingChatState)
 
+  // Drag state
+  const [position, setPosition] = useState<Position | null>(loadFloatingChatPosition)
+  const [isDragging, setIsDragging] = useState(false)
+  const dragStartRef = useRef<{mouseX: number; mouseY: number; posX: number; posY: number} | null>(null)
+
   const handleOpen = useCallback(() => {
     setIsOpen(true)
     saveFloatingChatState(true)
@@ -599,6 +806,9 @@ export function FloatingChat({apiEndpoint}: FloatingChatProps) {
   const handleClose = useCallback(() => {
     setIsOpen(false)
     saveFloatingChatState(false)
+    // Reset position to default bottom-left corner
+    setPosition(null)
+    clearFloatingChatPosition()
   }, [])
 
   const handleToggle = useCallback(() => {
@@ -608,6 +818,74 @@ export function FloatingChat({apiEndpoint}: FloatingChatProps) {
       return newState
     })
   }, [])
+
+  // Drag handlers
+  const handleDragStart = useCallback((e: React.MouseEvent) => {
+    // Don't start drag if clicking on buttons
+    if ((e.target as HTMLElement).closest('button')) {
+      return
+    }
+
+    e.preventDefault()
+    setIsDragging(true)
+
+    // Calculate current position (default to bottom-left if not set)
+    const currentX = position?.x ?? 24
+    const currentY = position?.y ?? 24
+
+    dragStartRef.current = {
+      mouseX: e.clientX,
+      mouseY: e.clientY,
+      posX: currentX,
+      posY: currentY,
+    }
+  }, [position])
+
+  const handleDrag = useCallback((e: MouseEvent) => {
+    if (!isDragging || !dragStartRef.current) return
+
+    const deltaX = e.clientX - dragStartRef.current.mouseX
+    const deltaY = e.clientY - dragStartRef.current.mouseY
+
+    // Calculate new position (position is from bottom-left, so invert Y delta)
+    let newX = dragStartRef.current.posX + deltaX
+    let newY = dragStartRef.current.posY - deltaY
+
+    // Constrain to viewport bounds
+    const panelWidth = 420
+    const panelHeight = 560
+    const margin = 10
+
+    // Ensure panel stays within viewport
+    newX = Math.max(margin, Math.min(window.innerWidth - panelWidth - margin, newX))
+    newY = Math.max(margin, Math.min(window.innerHeight - panelHeight - margin, newY))
+
+    setPosition({x: newX, y: newY})
+  }, [isDragging])
+
+  const handleDragEnd = useCallback(() => {
+    if (isDragging && position) {
+      saveFloatingChatPosition(position)
+    }
+    setIsDragging(false)
+    dragStartRef.current = null
+  }, [isDragging, position])
+
+  // Add global mouse event listeners for drag
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleDrag)
+      window.addEventListener('mouseup', handleDragEnd)
+      // Prevent text selection while dragging
+      document.body.style.userSelect = 'none'
+
+      return () => {
+        window.removeEventListener('mousemove', handleDrag)
+        window.removeEventListener('mouseup', handleDragEnd)
+        document.body.style.userSelect = ''
+      }
+    }
+  }, [isDragging, handleDrag, handleDragEnd])
 
   // Global keyboard shortcut: Cmd/Ctrl + Shift + K to toggle chat
   useEffect(() => {
@@ -650,17 +928,28 @@ export function FloatingChat({apiEndpoint}: FloatingChatProps) {
     return null
   }
 
+  // Calculate position styles
+  const positionStyle = position
+    ? {left: position.x, bottom: position.y}
+    : {left: 24, bottom: 24}
+
   return (
     <div
       style={{
         position: 'fixed',
-        bottom: 24,
-        left: 24,
+        ...positionStyle,
         zIndex: 10000,
       }}
     >
       {isOpen ? (
-        <FloatingChatPanel apiEndpoint={apiEndpoint} onClose={handleClose} />
+        <FloatingChatPanel
+          apiEndpoint={apiEndpoint}
+          onClose={handleClose}
+          onDragStart={handleDragStart}
+          onDrag={handleDrag}
+          onDragEnd={handleDragEnd}
+          isDragging={isDragging}
+        />
       ) : (
         <FloatingChatButton onClick={handleOpen} />
       )}

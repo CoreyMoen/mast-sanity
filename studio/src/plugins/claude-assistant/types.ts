@@ -15,6 +15,20 @@ export type MessageRole = 'user' | 'assistant' | 'system'
 export type MessageStatus = 'pending' | 'streaming' | 'complete' | 'error'
 
 /**
+ * Represents a document selected as context for the conversation
+ */
+export interface DocumentContext {
+  /** Sanity document ID */
+  _id: string
+  /** Document type (e.g., 'page', 'post') */
+  _type: string
+  /** Display name/title of the document */
+  name: string
+  /** URL slug if applicable */
+  slug?: string
+}
+
+/**
  * Represents an image attachment in a message
  */
 export interface ImageAttachment {
@@ -103,6 +117,8 @@ export interface ActionResult {
   data?: unknown
   message?: string
   documentId?: string
+  /** Pre-execution state of the document (for undo functionality) */
+  preState?: unknown
 }
 
 // ============================================================================
@@ -212,6 +228,8 @@ export interface SystemPromptContext {
   currentDocument?: SanityDocument
   recentActions?: ParsedAction[]
   workflowContext?: string
+  /** Selected documents as context for the conversation */
+  documentContexts?: DocumentContext[]
 }
 
 // ============================================================================

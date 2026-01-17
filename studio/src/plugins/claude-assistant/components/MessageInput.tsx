@@ -12,8 +12,9 @@
 
 import {useState, useCallback, useRef, useEffect, KeyboardEvent, forwardRef, useImperativeHandle} from 'react'
 import {Box, Flex, Button, Text, Tooltip, Menu, MenuButton, MenuItem, MenuDivider, Card} from '@sanity/ui'
-import {ArrowUpIcon, AddIcon, ChevronDownIcon, ImageIcon, PlayIcon, CloseIcon} from '@sanity/icons'
-import type {ImageAttachment} from '../types'
+import {ArrowUpIcon, AddIcon, ChevronDownIcon, ImageIcon, PlayIcon, CloseIcon, DocumentIcon} from '@sanity/icons'
+import type {ImageAttachment, DocumentContext} from '../types'
+import {DocumentPills} from './DocumentPicker'
 
 /** Available Claude models - must match SettingsPanel.tsx AVAILABLE_MODELS */
 const CLAUDE_MODELS = [
@@ -54,6 +55,14 @@ export interface MessageInputProps {
   pendingImages?: ImageAttachment[]
   /** Callback to remove a pending image */
   onRemovePendingImage?: (imageId: string) => void
+  /** Callback when document picker is clicked */
+  onOpenDocumentPicker?: () => void
+  /** Currently selected documents as context */
+  pendingDocuments?: DocumentContext[]
+  /** Callback to remove a document from context */
+  onRemoveDocument?: (documentId: string) => void
+  /** Whether to show the document picker button */
+  showDocumentPicker?: boolean
 }
 
 export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(function MessageInput(
@@ -73,6 +82,10 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
     onUploadImage,
     pendingImages = [],
     onRemovePendingImage,
+    onOpenDocumentPicker,
+    pendingDocuments = [],
+    onRemoveDocument,
+    showDocumentPicker = true,
   },
   ref
 ) {
@@ -243,6 +256,21 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
         </Flex>
       )}
 
+      {/* Selected documents pills */}
+      {pendingDocuments.length > 0 && (
+        <Box
+          style={{
+            padding: isCompact ? '12px 12px 0 12px' : '14px 16px 0 16px',
+          }}
+        >
+          <DocumentPills
+            documents={pendingDocuments}
+            onRemove={(docId) => onRemoveDocument?.(docId)}
+            compact={isCompact}
+          />
+        </Box>
+      )}
+
       {/* Text input area */}
       <div data-input-area style={{padding: isCompact ? '10px 12px 6px 12px' : '16px 16px 8px 16px'}}>
         <textarea
@@ -334,6 +362,29 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
               onClick={() => onUploadImage?.()}
             />
           </Tooltip>
+          {/* Document picker button */}
+          {showDocumentPicker && (
+            <Tooltip
+              content={
+                <Box padding={2}>
+                  <Text size={1}>Add document context</Text>
+                </Box>
+              }
+              placement="top"
+              portal
+            >
+              <Button
+                icon={DocumentIcon}
+                mode="bleed"
+                style={{
+                  opacity: pendingDocuments.length > 0 ? 1 : 0.7,
+                  borderRadius: 8,
+                }}
+                aria-label="Add document context"
+                onClick={() => onOpenDocumentPicker?.()}
+              />
+            </Tooltip>
+          )}
         </Flex>
 
         {/* Right side: model selector and send button */}

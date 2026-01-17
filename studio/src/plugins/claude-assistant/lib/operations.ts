@@ -234,6 +234,80 @@ export class ContentOperations {
   }
 
   /**
+   * Undo a previously executed action by restoring the pre-execution state
+   */
+  async undoAction(action: ParsedAction): Promise<ActionResult> {
+    console.log('[ContentOperations] undoAction called:', action.type, action.id)
+
+    if (!action.result?.preState) {
+      return {
+        success: false,
+        message: 'Cannot undo: no pre-execution state available',
+      }
+    }
+
+    const preState = action.result.preState as Record<string, unknown>
+
+    try {
+      switch (action.type) {
+        case 'update': {
+          // Restore the document to its pre-update state
+          const documentId = preState._id as string
+          if (!documentId) {
+            return {success: false, message: 'Cannot undo: no document ID in pre-state'}
+          }
+
+          // Use createOrReplace to restore the exact pre-state
+          const result = await this.client.createOrReplace(preState as Parameters<typeof this.client.createOrReplace>[0])
+          return {
+            success: true,
+            documentId: result._id,
+            message: 'Undo successful: document restored to previous state',
+            data: result,
+          }
+        }
+
+        case 'delete': {
+          // Recreate the deleted document from pre-state
+          const result = await this.client.createOrReplace(preState as Parameters<typeof this.client.createOrReplace>[0])
+          return {
+            success: true,
+            documentId: result._id,
+            message: 'Undo successful: deleted document has been restored',
+            data: result,
+          }
+        }
+
+        case 'create': {
+          // Delete the created document
+          const documentId = action.result?.documentId
+          if (!documentId) {
+            return {success: false, message: 'Cannot undo create: no document ID available'}
+          }
+          await this.client.delete(documentId)
+          return {
+            success: true,
+            documentId,
+            message: 'Undo successful: created document has been deleted',
+          }
+        }
+
+        default:
+          return {
+            success: false,
+            message: `Cannot undo action type: ${action.type}`,
+          }
+      }
+    } catch (error) {
+      console.error('[ContentOperations] undoAction error:', error)
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Undo failed',
+      }
+    }
+  }
+
+  /**
    * Create a new document
    */
   async createDocument(payload: ActionPayload): Promise<ActionResult> {
@@ -353,6 +427,9 @@ export class ContentOperations {
       console.log('[Claude Assistant] Updating document:', draftId)
       console.log('[Claude Assistant] Fields:', JSON.stringify(payload.fields, null, 2))
 
+      // Capture pre-execution state for undo functionality (deep clone)
+      const preState = JSON.parse(JSON.stringify(draft))
+
       // Apply the patch with the provided fields
       const result = await this.client
         .patch(draftId)
@@ -364,6 +441,7 @@ export class ContentOperations {
         documentId: result._id,
         message: `Updated document successfully. Changes saved to draft - remember to publish when ready.`,
         data: result,
+        preState, // Include pre-execution state for undo
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to update document'
@@ -383,12 +461,17 @@ export class ContentOperations {
       return {success: false, message: 'Document ID is required'}
     }
 
+    // Capture pre-execution state for undo functionality
+    const document = await this.client.getDocument(payload.documentId)
+    const preState = document ? JSON.parse(JSON.stringify(document)) : null
+
     await this.client.delete(payload.documentId)
 
     return {
       success: true,
       documentId: payload.documentId,
       message: `Deleted document ${payload.documentId}`,
+      preState, // Include pre-execution state for undo (restore)
     }
   }
 
