@@ -6,6 +6,7 @@
 
 import type {SystemPromptContext, SchemaContext, ParsedAction} from '../types'
 import {formatSchemaForPrompt} from './schema-context'
+import {formatInstructionsForClaude, type SanityClaudeInstructions} from './format-instructions'
 
 /**
  * Base system prompt for the Claude assistant
@@ -348,6 +349,9 @@ When providing links to documents or pages:
 
 /**
  * Build the complete system prompt with context
+ *
+ * When context.userMessage and context.rawInstructions are provided,
+ * uses conditional instruction inclusion to optimize prompt size.
  */
 export function buildSystemPrompt(context: SystemPromptContext): string {
   const parts: string[] = [BASE_SYSTEM_PROMPT]
@@ -374,8 +378,19 @@ export function buildSystemPrompt(context: SystemPromptContext): string {
     }
   }
 
-  // Add custom instructions
-  if (context.customInstructions) {
+  // Add custom instructions - use conditional formatting if raw instructions and user message available
+  if (context.rawInstructions && context.userMessage) {
+    // Use conditional instruction inclusion for better performance
+    const conditionalInstructions = formatInstructionsForClaude(
+      context.rawInstructions as SanityClaudeInstructions,
+      { userMessage: context.userMessage }
+    )
+    if (conditionalInstructions) {
+      parts.push('\n## Custom Instructions\n')
+      parts.push(conditionalInstructions)
+    }
+  } else if (context.customInstructions) {
+    // Fall back to pre-formatted instructions
     parts.push('\n## Custom Instructions\n')
     parts.push(context.customInstructions)
   }

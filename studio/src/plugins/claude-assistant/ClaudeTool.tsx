@@ -9,45 +9,19 @@ import {useCallback, useEffect, useState, useRef} from 'react'
 import './styles.css'
 import {Card, useToast} from '@sanity/ui'
 import {useClient, useCurrentUser, useSchema} from 'sanity'
+import {useRouter} from 'sanity/router'
 import type {Tool} from 'sanity'
 import {ChatInterface} from './components/ChatInterface'
+import {WorkflowOption} from './components/MessageInput'
 import {useConversations} from './hooks/useConversations'
 import {useClaudeChat} from './hooks/useClaudeChat'
 import {useInstructions} from './hooks/useInstructions'
+import {useApiSettings} from './hooks/useApiSettings'
 import {useContentOperations} from './hooks/useContentOperations'
-import {useWorkflows, buildWorkflowContext} from './hooks/useWorkflows'
+import {useWorkflows} from './hooks/useWorkflows'
 import {extractSchemaContext} from './lib/schema-context'
 import type {ClaudeAssistantOptions} from './index'
-import type {Message, ParsedAction, PluginSettings, SchemaContext, ImageAttachment, DocumentContext} from './types'
-import {DEFAULT_SETTINGS} from './types'
-
-const SETTINGS_STORAGE_KEY = 'claude-assistant-settings'
-
-/**
- * Load settings from localStorage
- */
-function loadSettings(): PluginSettings {
-  try {
-    const stored = localStorage.getItem(SETTINGS_STORAGE_KEY)
-    if (stored) {
-      return {...DEFAULT_SETTINGS, ...JSON.parse(stored)}
-    }
-  } catch {
-    console.warn('Failed to load settings from localStorage')
-  }
-  return DEFAULT_SETTINGS
-}
-
-/**
- * Save settings to localStorage
- */
-function saveSettings(settings: PluginSettings): void {
-  try {
-    localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(settings))
-  } catch {
-    console.warn('Failed to save settings to localStorage')
-  }
-}
+import type {Message, ParsedAction, SchemaContext, ImageAttachment, DocumentContext} from './types'
 
 /**
  * Props passed to the tool component from Sanity
@@ -72,13 +46,17 @@ export function ClaudeTool(props: ClaudeToolProps) {
   const schema = useSchema()
   const currentUser = useCurrentUser()
   const toast = useToast()
+  const router = useRouter()
+
+  // API settings from Sanity (published documents only)
+  const {settings} = useApiSettings()
 
   // Local state
-  const [settings, setSettings] = useState<PluginSettings>(loadSettings)
-  const [settingsOpen, setSettingsOpen] = useState(false)
   const [schemaContext, setSchemaContext] = useState<SchemaContext | null>(null)
   // Selected documents as context for Claude
   const [pendingDocuments, setPendingDocuments] = useState<DocumentContext[]>([])
+  // Selected workflows as context for Claude
+  const [pendingWorkflows, setPendingWorkflows] = useState<WorkflowOption[]>([])
 
   // Content operations hook
   const {executeAction, undoAction} = useContentOperations()
@@ -102,13 +80,13 @@ export function ClaudeTool(props: ClaudeToolProps) {
     instructions,
     activeInstruction,
     setActiveInstruction,
+    rawInstructions,
   } = useInstructions()
 
   // Workflows hook
   const {
     workflows,
-    selectedWorkflow,
-    selectWorkflow,
+    isLoading: workflowsLoading,
   } = useWorkflows()
 
   // Extract schema context on mount
@@ -179,17 +157,6 @@ export function ClaudeTool(props: ClaudeToolProps) {
         payload: action.payload,
       })
 
-      // Read-only actions execute immediately without confirmation
-      const readOnlyActions = ['query', 'navigate', 'explain']
-      const isReadOnly = readOnlyActions.includes(action.type)
-
-      // If confirmBeforeExecute is enabled, only confirm for modifying actions
-      if (settings.confirmBeforeExecute && !isReadOnly) {
-        // For destructive actions (delete), we'll let ActionCard handle inline confirmation
-        // For now, skip the browser confirm for all actions - ActionCard has inline buttons
-        // This allows the user to see the action details before confirming
-      }
-
       // Update status to executing
       updateActionStatus(action.id, 'executing')
       console.log('[ClaudeTool] Executing action...')
@@ -243,7 +210,7 @@ ${resultJson}
         })
       }
     },
-    [settings.confirmBeforeExecute, executeAction, toast, updateActionStatus]
+    [executeAction, toast, updateActionStatus]
   )
 
   // Handle undo of a previously executed action
@@ -282,9 +249,12 @@ ${resultJson}
     [undoAction, toast, updateActionStatus]
   )
 
-  // Build workflow context from selected workflow
-  const workflowContext = selectedWorkflow
-    ? buildWorkflowContext(selectedWorkflow)
+  // Build workflow context from pending workflows
+  const workflowContext = pendingWorkflows.length > 0
+    ? pendingWorkflows
+        .filter(w => w.systemInstructions)
+        .map(w => `## Workflow: ${w.name}\n\n${w.systemInstructions}`)
+        .join('\n\n')
     : undefined
 
   // Initialize chat hook with apiEndpoint from options
@@ -301,9 +271,10 @@ ${resultJson}
   } = useClaudeChat({
     apiEndpoint: apiEndpoint || '/api/claude',
     schemaContext,
-    customInstructions: settings.customInstructions,
+    customInstructions: activeInstruction?.content || settings.customInstructions,
     workflowContext,
     documentContexts: pendingDocuments,
+    rawInstructions: rawInstructions || undefined,
     activeConversation,
     onAddMessage: addMessage,
     onUpdateMessage: updateMessage,
@@ -311,6 +282,9 @@ ${resultJson}
     // onAction is intentionally not set - action execution happens via ActionCard's
     // auto-execute useEffect (for read-only actions) or manual button click (for modifying actions)
     enableStreaming: settings.enableStreaming,
+    model: settings.model,
+    maxTokens: settings.maxTokens,
+    temperature: settings.temperature,
   })
 
   // Update refs when functions are available
@@ -357,11 +331,10 @@ ${resultJson}
     handleSendMessageRef.current = handleSendMessage
   }, [handleSendMessage])
 
-  // Handle settings change
-  const handleSettingsChange = useCallback((newSettings: PluginSettings) => {
-    setSettings(newSettings)
-    saveSettings(newSettings)
-  }, [])
+  // Navigate to Claude Settings in Structure mode
+  const handleOpenSettings = useCallback(() => {
+    router.navigateUrl({path: '/structure/claudeSettings'})
+  }, [router])
 
   // Handle new chat creation
   const handleNewChat = useCallback(async () => {
@@ -389,15 +362,6 @@ ${resultJson}
     [updateConversationTitle]
   )
 
-  // Handle settings panel open
-  const handleOpenSettings = useCallback(() => {
-    setSettingsOpen(true)
-  }, [])
-
-  // Handle settings panel close
-  const handleCloseSettings = useCallback(() => {
-    setSettingsOpen(false)
-  }, [])
 
   // Handle document context changes
   const handleDocumentsChange = useCallback((documents: DocumentContext[]) => {
@@ -407,6 +371,16 @@ ${resultJson}
   // Handle removing a document from context
   const handleRemoveDocument = useCallback((documentId: string) => {
     setPendingDocuments((prev) => prev.filter((doc) => doc._id !== documentId))
+  }, [])
+
+  // Handle workflow context changes
+  const handleWorkflowsChange = useCallback((newWorkflows: WorkflowOption[]) => {
+    setPendingWorkflows(newWorkflows)
+  }, [])
+
+  // Handle removing a workflow from context
+  const handleRemoveWorkflow = useCallback((workflowId: string) => {
+    setPendingWorkflows((prev) => prev.filter((w) => w._id !== workflowId))
   }, [])
 
   return (
@@ -423,12 +397,9 @@ ${resultJson}
         schema={schema}
         currentUser={currentUser}
         schemaContext={schemaContext}
-        // Settings
+        // Settings (from Sanity - published documents only)
         settings={settings}
-        onSettingsChange={handleSettingsChange}
-        settingsOpen={settingsOpen}
         onOpenSettings={handleOpenSettings}
-        onCloseSettings={handleCloseSettings}
         // Conversations
         conversations={conversations}
         activeConversation={activeConversation}
@@ -452,8 +423,10 @@ ${resultJson}
         onSetActiveInstruction={setActiveInstruction}
         // Workflows
         workflows={workflows}
-        selectedWorkflow={selectedWorkflow}
-        onWorkflowSelect={selectWorkflow}
+        pendingWorkflows={pendingWorkflows}
+        onWorkflowsChange={handleWorkflowsChange}
+        onRemoveWorkflow={handleRemoveWorkflow}
+        workflowsLoading={workflowsLoading}
         // Document context
         pendingDocuments={pendingDocuments}
         onDocumentsChange={handleDocumentsChange}

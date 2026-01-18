@@ -230,6 +230,10 @@ export interface SystemPromptContext {
   workflowContext?: string
   /** Selected documents as context for the conversation */
   documentContexts?: DocumentContext[]
+  /** User's message content for conditional instruction inclusion */
+  userMessage?: string
+  /** Raw instructions from Sanity for conditional filtering */
+  rawInstructions?: unknown
 }
 
 // ============================================================================
@@ -257,18 +261,14 @@ export interface PluginSettings {
   temperature: number
   customInstructions: string
   enableStreaming: boolean
-  showActionPreviews: boolean
-  confirmBeforeExecute: boolean
 }
 
 export const DEFAULT_SETTINGS: PluginSettings = {
-  model: 'claude-opus-4-5-20251101',
+  model: 'claude-sonnet-4-20250514',
   maxTokens: 4096,
   temperature: 0.7,
   customInstructions: '',
   enableStreaming: true,
-  showActionPreviews: true,
-  confirmBeforeExecute: true,
 }
 
 // ============================================================================

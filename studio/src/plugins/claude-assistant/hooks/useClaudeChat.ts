@@ -41,6 +41,11 @@ export interface UseClaudeChatOptions {
   documentContexts?: DocumentContext[]
 
   /**
+   * Raw instructions from Sanity for conditional filtering
+   */
+  rawInstructions?: unknown
+
+  /**
    * Active conversation to sync messages with
    */
   activeConversation?: Conversation | null
@@ -69,6 +74,21 @@ export interface UseClaudeChatOptions {
    * Whether streaming is enabled
    */
   enableStreaming?: boolean
+
+  /**
+   * Claude model to use (e.g., 'claude-sonnet-4-20250514')
+   */
+  model?: string
+
+  /**
+   * Maximum tokens for Claude's response
+   */
+  maxTokens?: number
+
+  /**
+   * Temperature for response generation (0-1)
+   */
+  temperature?: number
 }
 
 /**
@@ -179,12 +199,16 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
     customInstructions,
     workflowContext,
     documentContexts,
+    rawInstructions,
     activeConversation,
     onAddMessage,
     onUpdateMessage,
     onGenerateTitle,
     onAction,
     enableStreaming = true,
+    model,
+    maxTokens,
+    temperature,
   } = options
 
   const [messages, setMessages] = useState<Message[]>([])
@@ -327,7 +351,8 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
       abortControllerRef.current = new AbortController()
 
       try {
-        // Build system prompt
+        // Build system prompt with conditional instruction inclusion
+        // Pass user message and raw instructions to enable keyword-based filtering
         const systemPrompt = buildSystemPrompt({
           schemaContext: schemaContext || {
             documentTypes: [],
@@ -337,6 +362,8 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
           customInstructions,
           workflowContext,
           documentContexts,
+          userMessage: content,
+          rawInstructions,
         })
 
         // Build conversation history for API
@@ -425,6 +452,9 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
             system: systemPrompt,
             schema: safeSchema,
             stream: enableStreaming,
+            model,
+            maxTokens,
+            temperature,
           }),
           signal: abortControllerRef.current.signal,
         })
@@ -584,11 +614,15 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
       customInstructions,
       workflowContext,
       documentContexts,
+      rawInstructions,
       activeConversation,
       onAddMessage,
       onGenerateTitle,
       onAction,
       enableStreaming,
+      model,
+      maxTokens,
+      temperature,
     ]
   )
 

@@ -716,8 +716,7 @@ ${resultJson}
           isLoading={isLoading}
           placeholder="Ask Claude..."
           variant="compact"
-          showAddButton={false}
-          showModelSelector={false}
+          showWorkflowPicker={false}
           onUploadImage={() => setImagePickerOpen(true)}
           pendingImages={pendingImages}
           onRemovePendingImage={handleRemovePendingImage}

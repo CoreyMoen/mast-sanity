@@ -1,13 +1,24 @@
 /**
  * QuickActions Component
  *
- * Simple pill-style quick action buttons that pre-populate the message input
- * Matches the native Claude UI style
+ * Simple pill-style quick action buttons that pre-populate the message input.
+ * Loads actions from Sanity with fallback to defaults.
  */
 
-import {Flex, Button} from '@sanity/ui'
-import {EditIcon, SearchIcon, DocumentIcon, BulbOutlineIcon} from '@sanity/icons'
+import {Flex, Button, Spinner} from '@sanity/ui'
+import {
+  EditIcon,
+  SearchIcon,
+  DocumentIcon,
+  BulbOutlineIcon,
+  TrashIcon,
+  CopyIcon,
+  ImageIcon,
+  CogIcon,
+  CodeBlockIcon,
+} from '@sanity/icons'
 import type {QuickAction} from '../types'
+import {useQuickActions, DEFAULT_QUICK_ACTIONS} from '../hooks/useQuickActions'
 
 export interface QuickActionsProps {
   /** Callback when a quick action is selected - passes the prompt to pre-populate */
@@ -15,49 +26,12 @@ export interface QuickActionsProps {
 }
 
 /**
- * Default quick actions with detailed prompts
- */
-const DEFAULT_QUICK_ACTIONS: QuickAction[] = [
-  {
-    id: 'create',
-    label: 'Create',
-    description: 'Create new content',
-    icon: 'add',
-    prompt: 'I want to create a new page or document. Help me set up ',
-    category: 'content',
-  },
-  {
-    id: 'find',
-    label: 'Find',
-    description: 'Search for content',
-    icon: 'search',
-    prompt: 'Search my content and find all documents that ',
-    category: 'query',
-  },
-  {
-    id: 'edit',
-    label: 'Edit',
-    description: 'Modify existing content',
-    icon: 'edit',
-    prompt: 'I need to update some existing content. Help me modify ',
-    category: 'content',
-  },
-  {
-    id: 'explain',
-    label: 'Explain',
-    description: 'Learn about the schema',
-    icon: 'help',
-    prompt: 'Explain how the content schema works, specifically ',
-    category: 'help',
-  },
-]
-
-/**
  * Get icon component for action
  */
 function getActionIcon(iconName: string) {
   switch (iconName) {
     case 'add':
+    case 'document':
       return DocumentIcon
     case 'search':
       return SearchIcon
@@ -65,21 +39,42 @@ function getActionIcon(iconName: string) {
       return EditIcon
     case 'help':
       return BulbOutlineIcon
+    case 'trash':
+      return TrashIcon
+    case 'copy':
+      return CopyIcon
+    case 'image':
+      return ImageIcon
+    case 'settings':
+      return CogIcon
+    case 'code':
+      return CodeBlockIcon
     default:
       return DocumentIcon
   }
 }
 
 export function QuickActions({onActionSelect}: QuickActionsProps) {
+  const {quickActions, isLoading} = useQuickActions()
+
+  if (isLoading) {
+    return (
+      <Flex justify="center" padding={2}>
+        <Spinner muted />
+      </Flex>
+    )
+  }
+
   return (
     <Flex wrap="wrap" gap={2} justify="center">
-      {DEFAULT_QUICK_ACTIONS.map((action) => (
+      {quickActions.map((action) => (
         <Button
           key={action.id}
           mode="ghost"
           tone="default"
           icon={getActionIcon(action.icon)}
           text={action.label}
+          title={action.description}
           onClick={() => onActionSelect(action)}
           style={{
             borderRadius: 8,
@@ -91,6 +86,6 @@ export function QuickActions({onActionSelect}: QuickActionsProps) {
 }
 
 /**
- * Export default actions for use elsewhere
+ * Export default actions for use elsewhere (seed scripts, testing)
  */
 export {DEFAULT_QUICK_ACTIONS}

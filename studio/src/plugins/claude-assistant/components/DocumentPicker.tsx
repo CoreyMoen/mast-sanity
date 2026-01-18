@@ -15,6 +15,7 @@ import {useState, useCallback, useEffect, useRef, useMemo} from 'react'
 import {
   Box,
   Card,
+  Checkbox,
   Flex,
   Stack,
   Text,
@@ -695,40 +696,34 @@ export function DocumentPickerDialog({
                   return (
                     <Card
                       key={doc._id}
-                      as="button"
                       padding={3}
                       radius={2}
-                      tone={isSelected ? 'primary' : 'default'}
+                      tone={isSelected ? 'positive' : 'default'}
                       style={{
                         cursor: 'pointer',
-                        border: 'none',
-                        width: '100%',
-                        textAlign: 'left',
+                        transition: 'background-color 150ms ease',
                       }}
                       onClick={() => handleToggleDocument(doc)}
                     >
-                      <Flex align="center" gap={3}>
-                        <Box style={{color: isSelected ? 'inherit' : 'var(--card-muted-fg-color)'}}>
-                          <DocumentIcon />
-                        </Box>
-                        <Stack space={1} style={{flex: 1, minWidth: 0}}>
+                      <Flex align="flex-start" gap={3}>
+                        <Checkbox
+                          checked={isSelected}
+                          onChange={() => handleToggleDocument(doc)}
+                          style={{marginTop: 2}}
+                        />
+                        <Stack space={2} style={{flex: 1, minWidth: 0}}>
                           <Text
                             size={1}
-                            weight={isSelected ? 'semibold' : 'regular'}
+                            weight="medium"
                             textOverflow="ellipsis"
                           >
                             {displayName}
                           </Text>
-                          <Text size={0} muted>
+                          <Text muted style={{fontSize: '0.75rem'}}>
                             {getDocTypeLabel(doc._type)}
                             {doc.slug?.current && ` · /${doc.slug.current}`}
                           </Text>
                         </Stack>
-                        {isSelected && (
-                          <Text size={1} weight="semibold" style={{color: 'var(--card-focus-ring-color)'}}>
-                            ✓
-                          </Text>
-                        )}
                       </Flex>
                     </Card>
                   )

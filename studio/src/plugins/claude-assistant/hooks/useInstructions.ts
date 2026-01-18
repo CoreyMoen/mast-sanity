@@ -2,6 +2,7 @@
  * useInstructions Hook
  *
  * Fetches and manages Claude instructions from the Sanity claudeInstructions document.
+ * Only fetches **published** documents (not drafts).
  * Replaces localStorage with Sanity for centralized instruction management.
  */
 
@@ -85,7 +86,9 @@ export function useInstructions(): UseInstructionsReturn & {
     setIsLoading(true)
 
     try {
-      const query = `*[_type == "claudeInstructions"][0] {
+      // Query for published document only (exclude drafts)
+      // Published documents don't have 'drafts.' prefix in their _id
+      const query = `*[_type == "claudeInstructions" && !(_id in path("drafts.**"))][0] {
         _id,
         writingGuidelines,
         brandVoice,
@@ -96,7 +99,9 @@ export function useInstructions(): UseInstructionsReturn & {
         technicalConstraints,
         maxNestingDepth,
         requiredFields,
-        examplePrompts
+        writingKeywords,
+        designKeywords,
+        technicalKeywords
       }`
 
       const result = await client.fetch<SanityClaudeInstructions | null>(query)

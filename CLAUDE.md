@@ -17,6 +17,15 @@ The `npx tsx` command does not work due to esbuild issues. When creating seed sc
 - Run with plain `node scripts/filename.mjs`
 - Avoid TypeScript for scripts that need to run directly
 
+### Dev Servers via Docker/OrbStack
+**IMPORTANT**: Dev servers cannot be started directly from the terminal on this machine. They must be run via Docker containers in the OrbStack app.
+
+- **Do NOT** attempt to run `npm run dev`, `npm run dev:next`, or `npm run dev:studio` directly
+- The user manages dev servers through OrbStack's Docker interface
+- Frontend runs in Docker on port 4000, Studio on port 3333
+- For verification, use TypeScript compilation (`npx tsc --noEmit`) instead of starting dev servers
+- If the user needs to restart servers, they will do it manually via OrbStack
+
 ## Sanity Content Architecture
 
 ### Page Structure Hierarchy

@@ -1,4 +1,4 @@
-import {PlayIcon} from '@sanity/icons'
+import {BoltIcon} from '@sanity/icons'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
 /**
@@ -10,7 +10,7 @@ export const claudeWorkflow = defineType({
   name: 'claudeWorkflow',
   title: 'Claude Workflow',
   type: 'document',
-  icon: PlayIcon,
+  icon: BoltIcon,
   fields: [
     defineField({
       name: 'name',
@@ -39,26 +39,6 @@ export const claudeWorkflow = defineType({
       type: 'text',
       description: 'Optional prompt that auto-fills when user selects this workflow (user can edit before sending)',
       rows: 4,
-    }),
-    defineField({
-      name: 'icon',
-      title: 'Icon',
-      type: 'string',
-      description: 'Phosphor icon name for display (e.g., "file-text", "layout", "magnifying-glass")',
-      options: {
-        list: [
-          {title: 'File Text', value: 'file-text'},
-          {title: 'Layout', value: 'layout'},
-          {title: 'Magnifying Glass', value: 'magnifying-glass'},
-          {title: 'Pencil', value: 'pencil'},
-          {title: 'Sparkle', value: 'sparkle'},
-          {title: 'Lightning', value: 'lightning'},
-          {title: 'Gear', value: 'gear'},
-          {title: 'Chart Line', value: 'chart-line'},
-          {title: 'Users', value: 'users'},
-          {title: 'Image', value: 'image'},
-        ],
-      },
     }),
     defineField({
       name: 'order',
@@ -112,7 +92,7 @@ export const claudeWorkflow = defineType({
       return {
         title: title || 'Untitled Workflow',
         subtitle: active === false ? '(Inactive) ' + (subtitle || '') : subtitle || '',
-        media: PlayIcon,
+        media: BoltIcon,
       }
     },
   },

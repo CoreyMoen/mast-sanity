@@ -33,11 +33,14 @@ function jsonResponse(data: object, status: number = 200) {
   })
 }
 
-// Model to use as specified in the spec
-const MODEL = 'claude-sonnet-4-20250514'
+// Default model to use
+const DEFAULT_MODEL = 'claude-sonnet-4-20250514'
 
-// Maximum tokens for response
-const MAX_TOKENS = 4096
+// Default maximum tokens for response
+const DEFAULT_MAX_TOKENS = 4096
+
+// Default temperature
+const DEFAULT_TEMPERATURE = 0.7
 
 /**
  * Image content block for multimodal messages
@@ -81,6 +84,14 @@ interface ClaudeChatRequest {
   instructions?: string
   /** Pre-built system prompt from studio (preferred over schema/instructions) */
   system?: string
+  /** Whether to stream the response */
+  stream?: boolean
+  /** Claude model to use */
+  model?: string
+  /** Maximum tokens for response */
+  maxTokens?: number
+  /** Temperature for response generation (0-1) */
+  temperature?: number
 }
 
 /**
@@ -260,7 +271,7 @@ export async function POST(request: NextRequest) {
     )
   }
 
-  const { messages, schema, instructions, system } = body as ClaudeChatRequest & { system?: string }
+  const { messages, schema, instructions, system, model, maxTokens, temperature } = body as ClaudeChatRequest
 
   // Ensure there's at least one message
   if (messages.length === 0) {
@@ -273,12 +284,18 @@ export async function POST(request: NextRequest) {
   // Use pre-built system prompt from studio if provided, otherwise build fallback
   const systemPrompt = system || buildSystemPrompt(schema, instructions)
 
+  // Use provided values or defaults
+  const selectedModel = model || DEFAULT_MODEL
+  const selectedMaxTokens = maxTokens || DEFAULT_MAX_TOKENS
+  const selectedTemperature = temperature ?? DEFAULT_TEMPERATURE
+
   try {
     // Create streaming response from Anthropic
     // The content can be a string or an array of content blocks (for multimodal)
     const stream = await anthropic.messages.stream({
-      model: MODEL,
-      max_tokens: MAX_TOKENS,
+      model: selectedModel,
+      max_tokens: selectedMaxTokens,
+      temperature: selectedTemperature,
       system: systemPrompt,
       messages: messages.map((m) => ({
         role: m.role,

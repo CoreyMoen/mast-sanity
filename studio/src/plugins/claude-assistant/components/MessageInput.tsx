@@ -11,22 +11,19 @@
  */
 
 import {useState, useCallback, useRef, useEffect, KeyboardEvent, forwardRef, useImperativeHandle} from 'react'
-import {Box, Flex, Button, Text, Tooltip, Menu, MenuButton, MenuItem, MenuDivider, Card} from '@sanity/ui'
-import {ArrowUpIcon, AddIcon, ChevronDownIcon, ImageIcon, PlayIcon, CloseIcon, DocumentIcon} from '@sanity/icons'
+import {Box, Flex, Button, Text, Tooltip, Card} from '@sanity/ui'
+import {ArrowUpIcon, ImageIcon, CloseIcon, DocumentIcon, BoltIcon} from '@sanity/icons'
 import type {ImageAttachment, DocumentContext} from '../types'
 import {DocumentPills} from './DocumentPicker'
+import {WorkflowPills} from './WorkflowPicker'
 
-/** Available Claude models - must match SettingsPanel.tsx AVAILABLE_MODELS */
-const CLAUDE_MODELS = [
-  {id: 'claude-opus-4-5-20251101', label: 'Opus 4.5', description: 'Most capable'},
-  {id: 'claude-sonnet-4-5-20250514', label: 'Sonnet 4.5', description: 'Balanced'},
-] as const
-
-/** Workflow type for the dropdown */
+/** Workflow type for the picker */
 export interface WorkflowOption {
   _id: string
   name: string
   description?: string
+  systemInstructions?: string
+  starterPrompt?: string
 }
 
 export interface MessageInputProps {
@@ -35,20 +32,8 @@ export interface MessageInputProps {
   placeholder?: string
   disabled?: boolean
   initialValue?: string
-  /** Current model selection */
-  model?: string
-  /** Callback when model changes */
-  onModelChange?: (model: string) => void
-  /** Whether to show the model selector */
-  showModelSelector?: boolean
-  /** Whether to show the add/plus button */
-  showAddButton?: boolean
   /** Variant: 'default' for bottom-fixed, 'centered' for home screen, 'compact' for floating chat */
   variant?: 'default' | 'centered' | 'compact'
-  /** Available workflows for selection */
-  workflows?: WorkflowOption[]
-  /** Callback when a workflow is selected */
-  onWorkflowSelect?: (workflow: WorkflowOption) => void
   /** Callback when upload image is clicked */
   onUploadImage?: () => void
   /** Currently attached images (pending send) */
@@ -63,6 +48,14 @@ export interface MessageInputProps {
   onRemoveDocument?: (documentId: string) => void
   /** Whether to show the document picker button */
   showDocumentPicker?: boolean
+  /** Callback when workflow picker is clicked */
+  onOpenWorkflowPicker?: () => void
+  /** Currently selected workflows as context */
+  pendingWorkflows?: WorkflowOption[]
+  /** Callback to remove a workflow from context */
+  onRemoveWorkflow?: (workflowId: string) => void
+  /** Whether to show the workflow picker button */
+  showWorkflowPicker?: boolean
 }
 
 export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(function MessageInput(
@@ -72,13 +65,7 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
     placeholder = 'How can I help you today?',
     disabled = false,
     initialValue = '',
-    model = 'claude-opus-4-5-20251101',
-    onModelChange,
-    showModelSelector = true,
-    showAddButton = true,
     variant = 'default',
-    workflows = [],
-    onWorkflowSelect,
     onUploadImage,
     pendingImages = [],
     onRemovePendingImage,
@@ -86,6 +73,10 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
     pendingDocuments = [],
     onRemoveDocument,
     showDocumentPicker = true,
+    onOpenWorkflowPicker,
+    pendingWorkflows = [],
+    onRemoveWorkflow,
+    showWorkflowPicker = true,
   },
   ref
 ) {
@@ -153,15 +144,9 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
   }, [])
 
   const canSend = (value.trim().length > 0 || pendingImages.length > 0) && !isLoading && !disabled
-  const currentModelLabel = CLAUDE_MODELS.find(m => m.id === model)?.label || 'Opus 4.5'
-
-  const handleModelSelect = useCallback((modelId: string) => {
-    onModelChange?.(modelId)
-  }, [onModelChange])
 
   const isCentered = variant === 'centered'
   const isCompact = variant === 'compact'
-  const hasWorkflows = workflows.length > 0
 
   // Click container to focus textarea
   const handleContainerClick = useCallback((e: React.MouseEvent) => {
@@ -271,6 +256,21 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
         </Box>
       )}
 
+      {/* Selected workflows pills */}
+      {pendingWorkflows.length > 0 && (
+        <Box
+          style={{
+            padding: isCompact ? '12px 12px 0 12px' : '14px 16px 0 16px',
+          }}
+        >
+          <WorkflowPills
+            workflows={pendingWorkflows}
+            onRemove={(workflowId) => onRemoveWorkflow?.(workflowId)}
+            compact={isCompact}
+          />
+        </Box>
+      )}
+
       {/* Text input area */}
       <div data-input-area style={{padding: isCompact ? '10px 12px 6px 12px' : '16px 16px 8px 16px'}}>
         <textarea
@@ -310,39 +310,30 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
           padding: isCompact ? '6px 10px 10px 10px' : '8px 12px 12px 12px',
         }}
       >
-        {/* Left side: Plus dropdown and image button */}
+        {/* Left side: workflow, image, and document buttons */}
         <Flex align="center" gap={1}>
-          {showAddButton && hasWorkflows && (
-            <MenuButton
-              id="add-menu"
-              button={
-                <Button
-                  icon={AddIcon}
-                  mode="bleed"
-                  style={{opacity: 0.7, borderRadius: 8}}
-                  aria-label="Add content"
-                />
+          {/* Workflow picker button */}
+          {showWorkflowPicker && (
+            <Tooltip
+              content={
+                <Box padding={2}>
+                  <Text size={1}>Add workflow</Text>
+                </Box>
               }
-              menu={
-                <Menu>
-                  <Box padding={2} paddingBottom={1}>
-                    <Text size={0} weight="semibold" muted>
-                      Workflows
-                    </Text>
-                  </Box>
-                  {workflows.map((workflow) => (
-                    <MenuItem
-                      key={workflow._id}
-                      icon={PlayIcon}
-                      text={workflow.name}
-                      onClick={() => onWorkflowSelect?.(workflow)}
-                    />
-                  ))}
-                </Menu>
-              }
-              placement="top-start"
-              popover={{portal: true}}
-            />
+              placement="top"
+              portal
+            >
+              <Button
+                icon={BoltIcon}
+                mode="bleed"
+                style={{
+                  opacity: pendingWorkflows.length > 0 ? 1 : 0.7,
+                  borderRadius: 8,
+                }}
+                aria-label="Add workflow"
+                onClick={() => onOpenWorkflowPicker?.()}
+              />
+            </Tooltip>
           )}
           {/* Image upload button */}
           <Tooltip
@@ -387,42 +378,8 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
           )}
         </Flex>
 
-        {/* Right side: model selector and send button */}
+        {/* Right side: send button */}
         <Flex align="center" gap={2}>
-          {showModelSelector && (
-            <MenuButton
-              id="model-selector"
-              button={
-                <Button
-                  mode="bleed"
-                  style={{
-                    height: 32,
-                    borderRadius: 8,
-                    opacity: 0.8,
-                  }}
-                >
-                  <Flex align="center" gap={1}>
-                    <Text size={1} weight="medium">{currentModelLabel}</Text>
-                    <ChevronDownIcon style={{fontSize: 12}} />
-                  </Flex>
-                </Button>
-              }
-              menu={
-                <Menu>
-                  {CLAUDE_MODELS.map((m) => (
-                    <MenuItem
-                      key={m.id}
-                      text={m.label}
-                      onClick={() => handleModelSelect(m.id)}
-                      selected={model === m.id}
-                    />
-                  ))}
-                </Menu>
-              }
-              placement="top-end"
-              popover={{portal: true}}
-            />
-          )}
           <Tooltip
             content={
               <Box padding={2}>
@@ -459,6 +416,3 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
     </div>
   )
 })
-
-/** Export model options for use elsewhere */
-export {CLAUDE_MODELS}

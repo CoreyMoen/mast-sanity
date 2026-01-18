@@ -19,7 +19,6 @@ export interface Workflow {
   description?: string
   systemInstructions?: string
   starterPrompt?: string
-  icon?: string
   order: number
   roles?: string[]
   active: boolean
@@ -62,13 +61,12 @@ export function useWorkflows(): UseWorkflowsReturn {
     setError(null)
 
     try {
-      const query = `*[_type == "claudeWorkflow" && active == true] | order(order asc) {
+      const query = `*[_type == "claudeWorkflow" && active == true && !(_id in path("drafts.**"))] | order(order asc) {
         "id": _id,
         name,
         description,
         systemInstructions,
         starterPrompt,
-        icon,
         order,
         roles,
         active

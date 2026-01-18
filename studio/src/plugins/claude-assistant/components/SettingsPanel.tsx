@@ -14,6 +14,8 @@
 
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import {useClient, useCurrentUser} from 'sanity'
+import {useRouter} from 'sanity/router'
+import {contentToMarkdown} from '../lib/portable-text-to-markdown'
 import {
   Box,
   Button,
@@ -32,9 +34,10 @@ import {
   TextArea,
   TextInput,
 } from '@sanity/ui'
-import {CogIcon, EditIcon, LockIcon, WarningOutlineIcon} from '@sanity/icons'
+import {BoltIcon, CogIcon, EditIcon, LockIcon, WarningOutlineIcon} from '@sanity/icons'
 import type {PluginSettings} from '../types'
 import {useFocusTrap} from '../hooks/useKeyboardShortcuts'
+import {useQuickActions} from '../hooks/useQuickActions'
 
 // ============================================================================
 // Types
@@ -52,21 +55,21 @@ export interface SettingsPanelProps {
 interface ClaudeInstructions {
   _id: string
   _type: 'claudeInstructions'
-  writingGuidelines?: string
-  brandVoice?: string
+  // Portable Text fields (rich text stored as arrays)
+  writingGuidelines?: unknown[]
+  brandVoice?: unknown[]
+  designSystemRules?: unknown[]
+  technicalConstraints?: unknown[]
+  // Simple fields
   forbiddenTerms?: string[]
   preferredTerms?: Array<{avoid: string; useInstead: string}>
-  designSystemRules?: string
   componentGuidelines?: Array<{component: string; guidelines: string; doNot: string}>
-  technicalConstraints?: string
   maxNestingDepth?: number
   requiredFields?: Array<{component: string; fields: string[]}>
-  examplePrompts?: Array<{
-    category: string
-    userPrompt: string
-    idealResponse?: string
-    notes?: string
-  }>
+  // Configurable trigger keywords for conditional instruction inclusion
+  writingKeywords?: string
+  designKeywords?: string
+  technicalKeywords?: string
 }
 
 interface InstructionFieldProps {
@@ -89,7 +92,7 @@ const ADMIN_ROLES = ['administrator']
 
 const AVAILABLE_MODELS = [
   {value: 'claude-opus-4-5-20251101', title: 'Claude Opus 4.5 (Most Capable)'},
-  {value: 'claude-sonnet-4-5-20250514', title: 'Claude Sonnet 4.5'},
+  {value: 'claude-sonnet-4-20250514', title: 'Claude Sonnet 4 (Recommended)'},
 ]
 
 const DEBOUNCE_DELAY = 1000
@@ -234,20 +237,77 @@ function ArrayFieldDisplay({label, description, items, emptyMessage = 'None'}: A
 }
 
 // ============================================================================
+// RichTextPreview Component (Read-only display for Portable Text fields)
+// ============================================================================
+
+interface RichTextPreviewProps {
+  label: string
+  description: string
+  content: unknown[] | undefined
+  emptyMessage?: string
+}
+
+function RichTextPreview({label, description, content, emptyMessage = 'Not configured'}: RichTextPreviewProps) {
+  const markdown = contentToMarkdown(content)
+
+  return (
+    <Stack space={2}>
+      <Text size={1} weight="semibold">
+        {label}
+      </Text>
+      <Text size={0} muted>
+        {description}
+      </Text>
+      <Card padding={3} radius={2} tone="transparent" border style={{maxHeight: '200px', overflow: 'auto'}}>
+        {markdown ? (
+          <Text size={1} style={{whiteSpace: 'pre-wrap'}}>
+            {markdown}
+          </Text>
+        ) : (
+          <Text size={1} muted>
+            {emptyMessage}
+          </Text>
+        )}
+      </Card>
+    </Stack>
+  )
+}
+
+// ============================================================================
 // Main SettingsPanel Component
 // ============================================================================
 
 export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, triggerRef}: SettingsPanelProps) {
   const currentUser = useCurrentUser()
   const client = useClient({apiVersion: '2024-01-01'})
+  const router = useRouter()
   const dialogRef = useRef<HTMLDivElement>(null)
+
+  // Navigate to Instructions document in Structure mode
+  // Sanity uses semicolon (;) to separate nested pane segments in URLs
+  const navigateToInstructions = useCallback((tab?: 'writing' | 'design' | 'technical') => {
+    // Close the dialog first
+    onClose()
+    // Navigate to the Instructions document (semicolon opens the nested pane)
+    // The tab parameter is informational - Sanity doesn't support URL-based tab selection
+    router.navigateUrl({path: '/structure/claudeSettings;claudeInstructions'})
+  }, [router, onClose])
+
+  // Navigate to Quick Actions list in Structure mode
+  const navigateToQuickActions = useCallback(() => {
+    onClose()
+    router.navigateUrl({path: '/structure/claudeSettings;claudeQuickActions'})
+  }, [router, onClose])
 
   // State
   const [instructions, setInstructions] = useState<ClaudeInstructions | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'settings' | 'writing' | 'design' | 'technical' | 'examples'>('settings')
+  const [activeTab, setActiveTab] = useState<'settings' | 'writing' | 'design' | 'technical' | 'quickActions'>('settings')
+
+  // Fetch quick actions from Sanity
+  const {quickActions, isLoading: isLoadingQuickActions, isUsingDefaults} = useQuickActions()
 
   // Apply focus trap when dialog is open
   useFocusTrap(dialogRef, isOpen)
@@ -327,16 +387,16 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
     try {
       const newDoc = await client.create({
         _type: 'claudeInstructions',
-        writingGuidelines: '',
-        brandVoice: '',
-        designSystemRules: '',
-        technicalConstraints: '',
+        // Portable Text fields use empty arrays (not strings)
+        writingGuidelines: [],
+        brandVoice: [],
+        designSystemRules: [],
+        technicalConstraints: [],
         maxNestingDepth: 12,
         forbiddenTerms: [],
         preferredTerms: [],
         componentGuidelines: [],
         requiredFields: [],
-        examplePrompts: [],
       })
       setInstructions(newDoc as ClaudeInstructions)
     } catch (err) {
@@ -477,11 +537,11 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
               selected={activeTab === 'technical'}
             />
             <Tab
-              aria-controls="examples-panel"
-              id="examples-tab"
-              label="Examples"
-              onClick={() => setActiveTab('examples')}
-              selected={activeTab === 'examples'}
+              aria-controls="quick-actions-panel"
+              id="quick-actions-tab"
+              label="Quick Actions"
+              onClick={() => setActiveTab('quickActions')}
+              selected={activeTab === 'quickActions'}
             />
           </TabList>
 
@@ -552,82 +612,24 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
                   />
                 </Flex>
               </Card>
-
-              {/* Action Previews */}
-              <Card padding={3} radius={2} border>
-                <Flex align="center" justify="space-between">
-                  <Stack space={2}>
-                    <Text size={1} weight="semibold">
-                      Show Action Previews
-                    </Text>
-                    <Text size={0} muted>
-                      Display details of actions before execution
-                    </Text>
-                  </Stack>
-                  <Switch
-                    checked={settings.showActionPreviews}
-                    onChange={() => updateSetting('showActionPreviews', !settings.showActionPreviews)}
-                  />
-                </Flex>
-              </Card>
-
-              {/* Confirm Before Execute */}
-              <Card padding={3} radius={2} border>
-                <Flex align="center" justify="space-between">
-                  <Stack space={2}>
-                    <Text size={1} weight="semibold">
-                      Confirm Before Execute
-                    </Text>
-                    <Text size={0} muted>
-                      Require confirmation before executing actions
-                    </Text>
-                  </Stack>
-                  <Switch
-                    checked={settings.confirmBeforeExecute}
-                    onChange={() => updateSetting('confirmBeforeExecute', !settings.confirmBeforeExecute)}
-                  />
-                </Flex>
-              </Card>
-
-              {/* Custom Instructions */}
-              <Stack space={3}>
-                <Label>Custom Instructions</Label>
-                <TextArea
-                  value={settings.customInstructions}
-                  onChange={(e) => updateSetting('customInstructions', e.currentTarget.value)}
-                  placeholder="Add custom instructions for Claude..."
-                  rows={4}
-                />
-                <Text size={0} muted>
-                  Additional instructions that will be included in every conversation.
-                </Text>
-              </Stack>
             </Stack>
           </TabPanel>
 
           {/* Writing Tab */}
           <TabPanel aria-labelledby="writing-tab" hidden={activeTab !== 'writing'} id="writing-panel">
             <Stack space={5}>
-              <InstructionField
+              <RichTextPreview
                 label="Writing Guidelines"
-                description="General guidelines for writing style, tone, and voice"
-                value={instructions?.writingGuidelines || ''}
-                onChange={(value) => handleSaveField('writingGuidelines', value)}
-                readOnly={!isAdmin}
-                multiline
-                rows={8}
-                placeholder="e.g., Use active voice. Keep sentences concise. Avoid jargon..."
+                description="General guidelines for writing style, tone, and voice (edit in Studio for rich text formatting)"
+                content={instructions?.writingGuidelines}
+                emptyMessage="No writing guidelines configured"
               />
 
-              <InstructionField
+              <RichTextPreview
                 label="Brand Voice"
                 description="Description of the brand voice and personality"
-                value={instructions?.brandVoice || ''}
-                onChange={(value) => handleSaveField('brandVoice', value)}
-                readOnly={!isAdmin}
-                multiline
-                rows={6}
-                placeholder="e.g., Professional yet approachable. Confident but not arrogant..."
+                content={instructions?.brandVoice}
+                emptyMessage="No brand voice defined"
               />
 
               <ArrayFieldDisplay
@@ -672,15 +674,20 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
 
               {isAdmin && (
                 <Card padding={3} tone="transparent" border radius={2}>
-                  <Flex align="center" gap={2}>
-                    <EditIcon />
-                    <Text size={1}>
-                      To edit forbidden terms and preferred terms, use the{' '}
-                      <a href="/structure/claudeInstructions" style={{textDecoration: 'underline'}}>
-                        full document editor
-                      </a>
-                    </Text>
-                  </Flex>
+                  <Stack space={3}>
+                    <Flex align="center" gap={2}>
+                      <EditIcon />
+                      <Text size={1}>
+                        To edit forbidden terms and preferred terms, open the full editor and select the <strong>Writing</strong> tab.
+                      </Text>
+                    </Flex>
+                    <Button
+                      text="Edit Writing Instructions"
+                      mode="ghost"
+                      icon={EditIcon}
+                      onClick={() => navigateToInstructions('writing')}
+                    />
+                  </Stack>
                 </Card>
               )}
             </Stack>
@@ -689,15 +696,11 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
           {/* Design Tab */}
           <TabPanel aria-labelledby="design-tab" hidden={activeTab !== 'design'} id="design-panel">
             <Stack space={5}>
-              <InstructionField
+              <RichTextPreview
                 label="Design System Rules"
-                description="General rules for the design system and visual consistency"
-                value={instructions?.designSystemRules || ''}
-                onChange={(value) => handleSaveField('designSystemRules', value)}
-                readOnly={!isAdmin}
-                multiline
-                rows={8}
-                placeholder="e.g., Always use the primary color for CTAs. Maintain consistent spacing..."
+                description="General rules for the design system and visual consistency (edit in Studio for rich text formatting)"
+                content={instructions?.designSystemRules}
+                emptyMessage="No design system rules configured"
               />
 
               {/* Component Guidelines Display */}
@@ -743,15 +746,20 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
 
               {isAdmin && (
                 <Card padding={3} tone="transparent" border radius={2}>
-                  <Flex align="center" gap={2}>
-                    <EditIcon />
-                    <Text size={1}>
-                      To add or edit component guidelines, use the{' '}
-                      <a href="/structure/claudeInstructions" style={{textDecoration: 'underline'}}>
-                        full document editor
-                      </a>
-                    </Text>
-                  </Flex>
+                  <Stack space={3}>
+                    <Flex align="center" gap={2}>
+                      <EditIcon />
+                      <Text size={1}>
+                        To add or edit component guidelines, open the full editor and select the <strong>Design</strong> tab.
+                      </Text>
+                    </Flex>
+                    <Button
+                      text="Edit Design Instructions"
+                      mode="ghost"
+                      icon={EditIcon}
+                      onClick={() => navigateToInstructions('design')}
+                    />
+                  </Stack>
                 </Card>
               )}
             </Stack>
@@ -760,15 +768,11 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
           {/* Technical Tab */}
           <TabPanel aria-labelledby="technical-tab" hidden={activeTab !== 'technical'} id="technical-panel">
             <Stack space={5}>
-              <InstructionField
+              <RichTextPreview
                 label="Technical Constraints"
-                description="Technical limitations and constraints Claude should be aware of"
-                value={instructions?.technicalConstraints || ''}
-                onChange={(value) => handleSaveField('technicalConstraints', value)}
-                readOnly={!isAdmin}
-                multiline
-                rows={8}
-                placeholder="e.g., Sanity has a max nesting depth of 20 levels. Build pages incrementally..."
+                description="Technical limitations and constraints Claude should be aware of (edit in Studio for rich text formatting)"
+                content={instructions?.technicalConstraints}
+                emptyMessage="No technical constraints configured"
               />
 
               <InstructionField
@@ -814,72 +818,87 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
 
               {isAdmin && (
                 <Card padding={3} tone="transparent" border radius={2}>
-                  <Flex align="center" gap={2}>
-                    <EditIcon />
-                    <Text size={1}>
-                      To add or edit required field rules, use the{' '}
-                      <a href="/structure/claudeInstructions" style={{textDecoration: 'underline'}}>
-                        full document editor
-                      </a>
-                    </Text>
-                  </Flex>
+                  <Stack space={3}>
+                    <Flex align="center" gap={2}>
+                      <EditIcon />
+                      <Text size={1}>
+                        To add or edit required field rules, open the full editor and select the <strong>Technical</strong> tab.
+                      </Text>
+                    </Flex>
+                    <Button
+                      text="Edit Technical Instructions"
+                      mode="ghost"
+                      icon={EditIcon}
+                      onClick={() => navigateToInstructions('technical')}
+                    />
+                  </Stack>
                 </Card>
               )}
             </Stack>
           </TabPanel>
 
-          {/* Examples Tab */}
-          <TabPanel aria-labelledby="examples-tab" hidden={activeTab !== 'examples'} id="examples-panel">
+          {/* Quick Actions Tab */}
+          <TabPanel aria-labelledby="quick-actions-tab" hidden={activeTab !== 'quickActions'} id="quick-actions-panel">
             <Stack space={4}>
               <Text size={1} muted>
-                Example prompts help Claude understand expected behavior and responses.
+                Quick Actions are shortcut buttons that pre-populate the chat input with common prompts.
               </Text>
+
+              {isUsingDefaults && (
+                <Card padding={3} tone="caution" radius={2}>
+                  <Text size={1}>
+                    Using default quick actions. Create custom actions in the Studio to override these.
+                  </Text>
+                </Card>
+              )}
 
               <Card padding={3} radius={2} tone="transparent" border>
                 <Flex align="center" justify="space-between">
                   <Text size={1}>
-                    <strong>{instructions?.examplePrompts?.length || 0}</strong> example prompts configured
+                    <strong>{quickActions.length}</strong> quick actions {isUsingDefaults ? '(defaults)' : 'configured'}
                   </Text>
                 </Flex>
               </Card>
 
-              {/* Example Prompts List */}
-              {instructions?.examplePrompts && instructions.examplePrompts.length > 0 && (
+              {/* Quick Actions List */}
+              {isLoadingQuickActions ? (
+                <Flex justify="center" padding={4}>
+                  <Spinner muted />
+                </Flex>
+              ) : (
                 <Stack space={3}>
-                  {instructions.examplePrompts.map((example, index) => (
-                    <Card key={index} padding={3} radius={2} border>
-                      <Stack space={3}>
-                        <Flex align="center" gap={2}>
-                          <Card padding={1} paddingX={2} radius={2} tone="primary">
-                            <Text size={0}>{example.category || 'Uncategorized'}</Text>
+                  {quickActions.map((action, index) => (
+                    <Card key={action.id} padding={3} radius={2} border>
+                      <Flex align="center" gap={3}>
+                        <Box style={{flexShrink: 0}}>
+                          <Card padding={2} radius={2} tone="primary">
+                            <BoltIcon />
                           </Card>
-                        </Flex>
-                        <Box>
-                          <Text size={0} muted>
-                            User prompt:
-                          </Text>
-                          <Text size={1}>{example.userPrompt}</Text>
                         </Box>
-                        {example.idealResponse && (
-                          <Box>
-                            <Text size={0} muted>
-                              Ideal response:
+                        <Stack space={2} style={{flex: 1}}>
+                          <Flex align="center" gap={2}>
+                            <Text size={1} weight="semibold">
+                              {action.label}
                             </Text>
-                            <Text size={1} style={{whiteSpace: 'pre-wrap'}}>
-                              {example.idealResponse.length > 200
-                                ? `${example.idealResponse.substring(0, 200)}...`
-                                : example.idealResponse}
-                            </Text>
-                          </Box>
-                        )}
-                        {example.notes && (
-                          <Card padding={2} radius={2} tone="transparent" border>
-                            <Text size={0} muted>
-                              Notes: {example.notes}
-                            </Text>
-                          </Card>
-                        )}
-                      </Stack>
+                            <Card padding={1} paddingX={2} radius={2} tone="transparent">
+                              <Text size={0} muted>
+                                {action.category}
+                              </Text>
+                            </Card>
+                          </Flex>
+                          <Text size={1} muted>
+                            {action.description}
+                          </Text>
+                          <Text size={0} style={{fontStyle: 'italic'}}>
+                            "{action.prompt}"
+                          </Text>
+                        </Stack>
+                        <Box style={{flexShrink: 0}}>
+                          <Text size={0} muted>
+                            #{index + 1}
+                          </Text>
+                        </Box>
+                      </Flex>
                     </Card>
                   ))}
                 </Stack>
@@ -887,19 +906,17 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
 
               {isAdmin && (
                 <Button
-                  text="Manage Examples in Full Editor"
+                  text="Edit Quick Actions in Studio"
                   mode="ghost"
                   icon={EditIcon}
-                  onClick={() => {
-                    window.location.href = '/structure/claudeInstructions'
-                  }}
+                  onClick={navigateToQuickActions}
                 />
               )}
 
               {!isAdmin && (
                 <Card padding={3} tone="transparent" border radius={2}>
                   <Text size={1} muted>
-                    Contact an administrator to add or modify example prompts.
+                    Contact an administrator to add or modify quick actions.
                   </Text>
                 </Card>
               )}

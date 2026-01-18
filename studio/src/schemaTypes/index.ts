@@ -3,6 +3,8 @@ import {page} from './documents/page'
 import {post} from './documents/post'
 import {claudeConversation} from './documents/claudeConversation'
 import {claudeInstructions} from './documents/claudeInstructions'
+import {claudeApiSettings} from './documents/claudeApiSettings'
+import {claudeQuickAction} from './documents/claudeQuickAction'
 import {claudeWorkflow} from './documents/claudeWorkflow'
 import {callToAction} from './objects/callToAction'
 import {infoSection} from './objects/infoSection'
@@ -49,6 +51,8 @@ export const schemaTypes = [
   person,
   claudeConversation,
   claudeInstructions,
+  claudeApiSettings,
+  claudeQuickAction,
   claudeWorkflow,
   // Objects
   blockContent,

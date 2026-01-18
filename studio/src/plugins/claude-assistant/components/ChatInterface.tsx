@@ -9,14 +9,10 @@
  * - Live regions for new messages and status updates
  * - Keyboard shortcuts for common actions
  * - Focus management
- *
- * Performance optimizations:
- * - Lazy-loaded SettingsPanel with React.lazy
- * - Suspense boundary with loading fallback
  */
 
-import React, {useCallback, useState, useRef, useEffect, Suspense, useMemo} from 'react'
-import {Box, Card, Flex, Stack, Text, Button, Tooltip, Spinner, Menu, MenuButton, MenuItem, MenuDivider} from '@sanity/ui'
+import React, {useCallback, useState, useRef, useEffect, useMemo} from 'react'
+import {Box, Card, Flex, Stack, Text, Button, Tooltip, Spinner, Menu, MenuButton, MenuItem} from '@sanity/ui'
 import {
   CogIcon,
   TrashIcon,
@@ -46,6 +42,7 @@ import {QuickActions} from './QuickActions'
 import {ConversationSidebar} from './ConversationSidebar'
 import {ImagePickerDialog} from './ImagePickerDialog'
 import {DocumentPickerDialog} from './DocumentPicker'
+import {WorkflowPickerDialog} from './WorkflowPicker'
 import {useKeyboardShortcuts, announceToScreenReader} from '../hooks/useKeyboardShortcuts'
 import type {Workflow} from '../hooks/useWorkflows'
 
@@ -57,37 +54,11 @@ function toWorkflowOption(workflow: Workflow): WorkflowOption {
     _id: workflow.id,
     name: workflow.name,
     description: workflow.description,
+    systemInstructions: workflow.systemInstructions,
+    starterPrompt: workflow.starterPrompt,
   }
 }
 
-// Lazy-loaded SettingsPanel for better initial load performance
-const SettingsPanel = React.lazy(() => import('./SettingsPanel').then(module => ({default: module.SettingsPanel})))
-
-/**
- * Loading fallback for lazy-loaded SettingsPanel
- */
-function SettingsPanelLoader() {
-  return (
-    <Card
-      style={{
-        position: 'fixed',
-        inset: 0,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.3)',
-        zIndex: 1000,
-      }}
-    >
-      <Card padding={4} radius={2} shadow={2}>
-        <Flex align="center" gap={3}>
-          <Spinner muted />
-          <Text muted>Loading settings...</Text>
-        </Flex>
-      </Card>
-    </Card>
-  )
-}
 
 /**
  * Props for ChatInterface component
@@ -100,12 +71,9 @@ export interface ChatInterfaceProps {
   schema?: Schema
   currentUser?: CurrentUser | null
   schemaContext?: SchemaContext | null
-  // Settings
+  // Settings (from Sanity - published documents only)
   settings: PluginSettings
-  onSettingsChange: (settings: PluginSettings) => void
-  settingsOpen: boolean
   onOpenSettings: () => void
-  onCloseSettings: () => void
   // Conversations
   conversations: Conversation[]
   activeConversation: Conversation | null
@@ -129,8 +97,10 @@ export interface ChatInterfaceProps {
   onSetActiveInstruction?: (id: string) => void
   // Workflows
   workflows?: Workflow[]
-  selectedWorkflow?: Workflow | null
-  onWorkflowSelect?: (workflowId: string | null) => void
+  pendingWorkflows?: WorkflowOption[]
+  onWorkflowsChange?: (workflows: WorkflowOption[]) => void
+  onRemoveWorkflow?: (workflowId: string) => void
+  workflowsLoading?: boolean
   // Document context
   pendingDocuments?: DocumentContextType[]
   onDocumentsChange?: (documents: DocumentContextType[]) => void
@@ -274,12 +244,9 @@ export function ChatInterface({
   schema,
   currentUser,
   schemaContext,
-  // Settings
+  // Settings (from Sanity - published documents only)
   settings,
-  onSettingsChange,
-  settingsOpen,
   onOpenSettings,
-  onCloseSettings,
   // Conversations
   conversations,
   activeConversation,
@@ -303,8 +270,10 @@ export function ChatInterface({
   onSetActiveInstruction,
   // Workflows (optional)
   workflows,
-  selectedWorkflow,
-  onWorkflowSelect,
+  pendingWorkflows: pendingWorkflowsProp,
+  onWorkflowsChange: onWorkflowsChangeProp,
+  onRemoveWorkflow: onRemoveWorkflowProp,
+  workflowsLoading,
   // Document context (optional, lifted from parent)
   pendingDocuments: pendingDocumentsProp,
   onDocumentsChange: onDocumentsChangeProp,
@@ -323,14 +292,21 @@ export function ChatInterface({
   const [localPendingDocuments, setLocalPendingDocuments] = useState<DocumentContextType[]>([])
   // State for document picker dialog
   const [documentPickerOpen, setDocumentPickerOpen] = useState(false)
+  // State for selected workflows as context (local fallback if not controlled)
+  const [localPendingWorkflows, setLocalPendingWorkflows] = useState<WorkflowOption[]>([])
+  // State for workflow picker dialog
+  const [workflowPickerOpen, setWorkflowPickerOpen] = useState(false)
 
   // Use controlled or uncontrolled mode for document context
   const pendingDocuments = pendingDocumentsProp ?? localPendingDocuments
   const setPendingDocuments = onDocumentsChangeProp ?? setLocalPendingDocuments
 
+  // Use controlled or uncontrolled mode for workflow context
+  const pendingWorkflows = pendingWorkflowsProp ?? localPendingWorkflows
+  const setPendingWorkflows = onWorkflowsChangeProp ?? setLocalPendingWorkflows
+
   // Refs for focus management
   const messageInputRef = useRef<HTMLTextAreaElement>(null)
-  const settingsButtonRef = useRef<HTMLButtonElement>(null)
   const liveRegionRef = useRef<HTMLDivElement>(null)
 
   // Track previous message count for announcements
@@ -412,35 +388,32 @@ export function ChatInterface({
     }
   }, [onRemoveDocumentProp])
 
-  // Handle model change
-  const handleModelChange = useCallback(
-    (model: string) => {
-      onSettingsChange({...settings, model})
-    },
-    [settings, onSettingsChange]
-  )
 
-  // Handle workflow selection from the + menu
-  const handleWorkflowSelectFromMenu = useCallback(
-    (workflowOption: WorkflowOption) => {
-      // Find the full workflow to get the starterPrompt
-      const workflow = workflows?.find(w => w.id === workflowOption._id)
-      if (workflow) {
-        // Set the workflow as active
-        onWorkflowSelect?.(workflow.id)
-        // Pre-populate input with starter prompt if available
-        if (workflow.starterPrompt) {
-          setPendingInput(workflow.starterPrompt)
-          setTimeout(() => {
-            messageInputRef.current?.focus()
-          }, 50)
-        }
+  // Handle workflow selection change from picker
+  const handleWorkflowsChange = useCallback((newWorkflows: WorkflowOption[]) => {
+    setPendingWorkflows(newWorkflows)
+    // If a new workflow was added and it has a starter prompt, pre-populate input
+    if (newWorkflows.length > pendingWorkflows.length) {
+      const addedWorkflow = newWorkflows[newWorkflows.length - 1]
+      if (addedWorkflow?.starterPrompt && !pendingInput) {
+        setPendingInput(addedWorkflow.starterPrompt)
+        setTimeout(() => {
+          messageInputRef.current?.focus()
+        }, 50)
       }
-    },
-    [workflows, onWorkflowSelect]
-  )
+    }
+  }, [setPendingWorkflows, pendingWorkflows.length, pendingInput])
 
-  // Transform workflows for MessageInput
+  // Handle removing a workflow from context
+  const handleRemoveWorkflow = useCallback((workflowId: string) => {
+    if (onRemoveWorkflowProp) {
+      onRemoveWorkflowProp(workflowId)
+    } else {
+      setLocalPendingWorkflows((prev) => prev.filter((w) => w._id !== workflowId))
+    }
+  }, [onRemoveWorkflowProp])
+
+  // Transform workflows for WorkflowPicker
   const workflowOptions: WorkflowOption[] = useMemo(
     () => workflows?.map(toWorkflowOption) || [],
     [workflows]
@@ -534,16 +507,6 @@ export function ChatInterface({
         key: '/',
         handler: focusMessageInput,
         description: 'Focus message input',
-      },
-      {
-        key: 'Escape',
-        handler: () => {
-          if (settingsOpen) {
-            onCloseSettings()
-          }
-        },
-        description: 'Close settings dialog',
-        allowInInput: true,
       },
     ],
   })
@@ -688,19 +651,17 @@ export function ChatInterface({
               <Tooltip
                 content={
                   <Box padding={2}>
-                    <Text size={1}>Settings</Text>
+                    <Text size={1}>Claude Settings</Text>
                   </Box>
                 }
                 placement="bottom"
                 portal
               >
                 <Button
-                  ref={settingsButtonRef}
                   icon={CogIcon}
                   mode="bleed"
                   onClick={onOpenSettings}
-                  aria-label="Settings"
-                  aria-haspopup="dialog"
+                  aria-label="Open Claude Settings"
                 />
               </Tooltip>
 
@@ -805,17 +766,16 @@ export function ChatInterface({
                 onSend={handleSend}
                 isLoading={isLoading}
                 initialValue={pendingInput}
-                model={settings.model}
-                onModelChange={handleModelChange}
                 variant="centered"
-                workflows={workflowOptions}
-                onWorkflowSelect={handleWorkflowSelectFromMenu}
                 onUploadImage={() => setImagePickerOpen(true)}
                 pendingImages={pendingImages}
                 onRemovePendingImage={handleRemovePendingImage}
                 onOpenDocumentPicker={() => setDocumentPickerOpen(true)}
                 pendingDocuments={pendingDocuments}
                 onRemoveDocument={handleRemoveDocument}
+                onOpenWorkflowPicker={() => setWorkflowPickerOpen(true)}
+                pendingWorkflows={pendingWorkflows}
+                onRemoveWorkflow={handleRemoveWorkflow}
               />
 
               {/* Quick action buttons - closer to input */}
@@ -854,36 +814,22 @@ export function ChatInterface({
                   onSend={handleSend}
                   isLoading={isLoading}
                   placeholder="Reply..."
-                  model={settings.model}
-                  onModelChange={handleModelChange}
                   variant="default"
-                  workflows={workflowOptions}
-                  onWorkflowSelect={handleWorkflowSelectFromMenu}
                   onUploadImage={() => setImagePickerOpen(true)}
                   pendingImages={pendingImages}
                   onRemovePendingImage={handleRemovePendingImage}
                   onOpenDocumentPicker={() => setDocumentPickerOpen(true)}
                   pendingDocuments={pendingDocuments}
                   onRemoveDocument={handleRemoveDocument}
+                  onOpenWorkflowPicker={() => setWorkflowPickerOpen(true)}
+                  pendingWorkflows={pendingWorkflows}
+                  onRemoveWorkflow={handleRemoveWorkflow}
                 />
               </Box>
             </Box>
           </>
         )}
       </Flex>
-
-      {/* Settings Panel - Lazy loaded with Suspense */}
-      {settingsOpen && (
-        <Suspense fallback={<SettingsPanelLoader />}>
-          <SettingsPanel
-            settings={settings}
-            onSettingsChange={onSettingsChange}
-            isOpen={settingsOpen}
-            onClose={onCloseSettings}
-            triggerRef={settingsButtonRef}
-          />
-        </Suspense>
-      )}
 
       {/* Image Picker Dialog */}
       <ImagePickerDialog
@@ -900,6 +846,16 @@ export function ChatInterface({
         client={client}
         selectedDocuments={pendingDocuments}
         onDocumentsChange={handleDocumentsChange}
+      />
+
+      {/* Workflow Picker Dialog */}
+      <WorkflowPickerDialog
+        isOpen={workflowPickerOpen}
+        onClose={() => setWorkflowPickerOpen(false)}
+        availableWorkflows={workflowOptions}
+        selectedWorkflows={pendingWorkflows}
+        onWorkflowsChange={handleWorkflowsChange}
+        isLoading={workflowsLoading}
       />
     </Flex>
   )
