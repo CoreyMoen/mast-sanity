@@ -15,6 +15,7 @@ import {
   defineLocations,
   type DocumentLocation,
 } from 'sanity/presentation'
+import {PageNavigator} from './src/presentation/PageNavigator'
 import {assist} from '@sanity/assist'
 import {claudeAssistant, createStudioLayout} from './src/plugins/claude-assistant'
 
@@ -60,6 +61,12 @@ export default defineConfig({
         origin: SANITY_STUDIO_PREVIEW_URL,
         previewMode: {
           enable: '/api/draft-mode/enable',
+        },
+      },
+      // Custom header with page navigator
+      components: {
+        unstable_header: {
+          component: PageNavigator,
         },
       },
       resolve: {
