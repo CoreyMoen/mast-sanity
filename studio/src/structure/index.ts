@@ -28,6 +28,7 @@ const DISABLED_TYPES = [
   'page',
   'post',
   'person',
+  'category',
 ]
 
 export const structure: StructureResolver = (S: StructureBuilder, context) =>
@@ -57,7 +58,8 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
             .id('collectionsList')
             .title('Collections')
             .items([
-              S.documentTypeListItem('post').title('Posts'),
+              S.documentTypeListItem('post').title('Blogs'),
+              S.documentTypeListItem('category').title('Categories'),
               S.documentTypeListItem('person').title('People'),
             ])
         ),

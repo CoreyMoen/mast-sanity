@@ -42,8 +42,8 @@ export const post = defineType({
       type: 'blockContent',
     }),
     defineField({
-      name: 'excerpt',
-      title: 'Excerpt',
+      name: 'summary',
+      title: 'Summary',
       type: 'text',
     }),
     defineField({
@@ -85,6 +85,13 @@ export const post = defineType({
       title: 'Author',
       type: 'reference',
       to: [{type: 'person'}],
+    }),
+    defineField({
+      name: 'categories',
+      title: 'Categories',
+      type: 'array',
+      of: [{type: 'reference', to: [{type: 'category'}]}],
+      description: 'Assign one or more categories to this blog post',
     }),
   ],
   // List preview configuration. https://www.sanity.io/docs/previews-list-views

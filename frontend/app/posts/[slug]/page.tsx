@@ -50,7 +50,7 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
         ? [{name: `${post.author.firstName} ${post.author.lastName}`}]
         : [],
     title: post?.title,
-    description: post?.excerpt,
+    description: post?.summary,
     openGraph: {
       images: ogImage ? [ogImage, ...previousImages] : previousImages,
     },

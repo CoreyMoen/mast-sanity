@@ -8,7 +8,7 @@ import OnBoarding from '@/app/components/Onboarding'
 import Avatar from '@/app/components/Avatar'
 
 const Post = ({post}: {post: AllPostsQueryResult[number]}) => {
-  const {_id, title, slug, excerpt, date, author} = post
+  const {_id, title, slug, summary, date, author} = post
 
   return (
     <article
@@ -21,7 +21,7 @@ const Post = ({post}: {post: AllPostsQueryResult[number]}) => {
       <div>
         <h3 className="text-2xl font-bold mb-4 leading-tight">{title}</h3>
 
-        <p className="line-clamp-3 text-sm leading-6 text-muted-foreground max-w-[70ch]">{excerpt}</p>
+        <p className="line-clamp-3 text-sm leading-6 text-muted-foreground max-w-[70ch]">{summary}</p>
       </div>
       <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
         {author && author.firstName && author.lastName && (
