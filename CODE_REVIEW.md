@@ -3,12 +3,24 @@
 **Review Date:** January 2026
 **Reviewer:** Claude (AI-assisted review)
 **Project:** Mast Design System with Next.js + Sanity CMS
+**Best Practices:** Verified against [Vercel React Best Practices](https://github.com/vercel-labs/agent-skills) and [Sanity Agent Toolkit](https://github.com/sanity-io/agent-toolkit)
 
 ---
 
 ## Executive Summary
 
 This is a **production-grade headless CMS implementation** combining Next.js 15 (App Router) with Sanity Studio v3. The project implements the "Mast" design system and features a sophisticated page builder, real-time visual editing, and a custom Claude AI assistant integration.
+
+### Best Practices Compliance
+
+This codebase has been audited against industry best practices:
+
+- **Vercel React Best Practices** (45+ rules) - React/Next.js performance optimization patterns
+- **Sanity Agent Toolkit** (20+ rules) - CMS schema design, GROQ queries, visual editing, and TypeGen patterns
+
+The best practices rule files are installed in:
+- `.claude/skills/react-best-practices/` - React/Next.js optimization rules
+- `.cursor/rules/` - Sanity CMS best practices
 
 ### Key Strengths
 - Comprehensive TypeScript coverage with generated types
@@ -126,11 +138,11 @@ PageBuilder
 - `ButtonBlock` - Button with variant, colorScheme, icon
 - `IconBlock` - Phosphor icons with size and color
 
-**Interactive Blocks:**
+**Interactive Blocks:** *(dynamically imported for bundle optimization)*
 - `AccordionBlock` - Collapsible sections
-- `TabsBlock` - Tabbed content panels
-- `SliderBlock` - Image carousel (Swiper)
-- `ModalBlock` - Dialog/modal trigger
+- `TabsBlock` - Tabbed content panels (dynamic import)
+- `SliderBlock` - Image carousel using Swiper (dynamic import)
+- `ModalBlock` - Dialog/modal trigger (dynamic import)
 
 **Utility Blocks:**
 - `SpacerBlock` - Vertical spacing
@@ -406,13 +418,17 @@ interface RowProps {
 
 ### Areas for Improvement
 
-| Area | Issue | Recommendation |
-|------|-------|----------------|
-| **Loose Typing** | Some components use `any` for props | Use generated types consistently |
-| **CSS Parsing** | Row.tsx parses custom CSS with regex | Consider safer parsing or validation |
-| **Overlay Selectors** | Visual editing overlays use fragile DOM selectors | Abstract into constants, add tests |
-| **API Security** | Claude endpoint uses `Access-Control-Allow-Origin: *` | Restrict to known origins |
-| **Nesting Depth** | Sanity 20-level limit could be hit with deep structures | Monitor and add validation |
+| Area | Issue | Recommendation | Status |
+|------|-------|----------------|--------|
+| **Loose Typing** | Some components use `any` for props | Use generated types consistently | Open |
+| **CSS Parsing** | Row.tsx parses custom CSS with regex | Consider safer parsing or validation | Open |
+| **Overlay Selectors** | Visual editing overlays use fragile DOM selectors | Abstract into constants, add tests | Open |
+| **API Security** | Claude endpoint uses `Access-Control-Allow-Origin: *` | Restrict to known origins | Open |
+| **Nesting Depth** | Sanity 20-level limit could be hit with deep structures | Monitor and add validation | Open |
+| **Bundle Size** | Heavy components loaded eagerly | Use dynamic imports | ✅ Done |
+| **Image Loading** | No blur placeholders for images | Add LQIP support | ✅ Done |
+| **Icon Imports** | Barrel imports increase bundle | Use SSR-specific paths | ✅ Done |
+| **Schema Types** | Missing defineArrayMember wrappers | Add for TypeGen | ✅ Done |
 
 ### Specific Recommendations
 
@@ -474,12 +490,16 @@ headers: {
 - Next.js Image component for image optimization
 - Turbopack for fast development builds
 - CSS-first Tailwind (smaller CSS output)
+- **Dynamic imports** for heavy components (SliderBlock, TabsBlock, ModalBlock) - reduces initial bundle
+- **Blur placeholders (LQIP)** on images - provides visual feedback during image loading
+- **Optimized icon imports** using `@phosphor-icons/react/dist/ssr` for better tree-shaking
+- **defineArrayMember wrappers** in schemas for improved TypeGen type generation
 
 ### Potential Improvements
 - Consider ISR (Incremental Static Regeneration) for frequently updated pages
 - Add `loading.tsx` files for streaming SSR
-- Implement image placeholders (blur hash)
 - Consider preloading critical fonts
+- Implement tag-based revalidation with webhooks for granular cache control
 
 ---
 
@@ -576,13 +596,27 @@ SANITY_API_TOKEN="token" npm run seed-home
 
 This project demonstrates **professional-grade architecture** for a headless CMS implementation. The combination of Next.js App Router patterns, comprehensive TypeScript coverage, and a flexible page builder creates a solid foundation for content-driven websites.
 
+The codebase has been optimized following Vercel React and Sanity best practices, with particular focus on:
+- Bundle size optimization through dynamic imports
+- Image loading experience with blur placeholders
+- Schema type safety with defineArrayMember patterns
+- Efficient icon imports for reduced client bundle size
+
 **Recommended next steps:**
-1. Tighten TypeScript types in block components
+1. Tighten TypeScript types in block components (some use `any` for props)
 2. Add unit tests for critical utilities
 3. Document the page builder block options for content editors
 4. Consider adding Storybook for component documentation
 5. Review and restrict CORS configuration before production deployment
+6. Consider implementing tag-based revalidation for granular cache control
+
+**Completed optimizations (January 2026):**
+- ✅ Dynamic imports for heavy block components
+- ✅ Image blur placeholders (LQIP)
+- ✅ Optimized icon imports (SSR-specific paths)
+- ✅ Schema defineArrayMember wrappers
+- ✅ Best practices toolkits installed
 
 ---
 
-*This review was generated with AI assistance. Manual verification of specific code paths is recommended before making architectural decisions.*
+*This review was generated with AI assistance and verified against Vercel React Best Practices and Sanity Agent Toolkit guidelines. Manual verification of specific code paths is recommended before making architectural decisions.*
