@@ -38,6 +38,39 @@ export const urlForImage = (source: any) => {
   return imageBuilder?.image(source).auto('format')
 }
 
+/**
+ * Generate a tiny blurred placeholder image URL for use with next/image blur placeholder
+ * This creates a small, heavily blurred version of the image that loads instantly
+ */
+export function getBlurDataUrl(source: any): string | undefined {
+  if (!source?.asset?._ref) {
+    return undefined
+  }
+
+  // Generate a tiny 20px wide, heavily blurred image as a data URL placeholder
+  // The blur and small size make it load very fast while providing a preview
+  return urlForImage(source)?.width(20).blur(50).quality(30).url()
+}
+
+/**
+ * Get image data with blur placeholder for use with next/image
+ * Returns both the main image URL builder and a blur data URL
+ */
+export function getImageWithBlur(source: any) {
+  if (!source?.asset?._ref) {
+    return undefined
+  }
+
+  const imageRef = source?.asset?._ref
+  const {width, height} = getImageDimensions(imageRef)
+
+  return {
+    urlBuilder: urlForImage(source),
+    blurDataUrl: getBlurDataUrl(source),
+    dimensions: {width, height},
+  }
+}
+
 export function resolveOpenGraphImage(image: any, width = 1200, height = 627) {
   if (!image) return
   const url = urlForImage(image)?.width(1200).height(627).fit('crop').url()
@@ -45,8 +78,17 @@ export function resolveOpenGraphImage(image: any, width = 1200, height = 627) {
   return {url, alt: image?.alt as string, width, height}
 }
 
+// Link-like object that may or may not have _type (navigation links don't have it)
+type LinkLike = {
+  linkType?: string
+  href?: string
+  openInNewTab?: boolean
+  page?: string | { _ref: string; _type: 'reference' }
+  post?: string | { _ref: string; _type: 'reference' }
+}
+
 // Depending on the type of link, we need to fetch the corresponding page, post, or URL.  Otherwise return null.
-export function linkResolver(link: Link | undefined) {
+export function linkResolver(link: Link | LinkLike | undefined) {
   if (!link) return null
 
   // If linkType is not set but href is, lets set linkType to "href".  This comes into play when pasting links into the portable text editor because a link type is not assumed.
@@ -54,7 +96,9 @@ export function linkResolver(link: Link | undefined) {
     link.linkType = 'href'
   }
 
-  switch (link.linkType) {
+  // Cast to string for runtime comparison (handles legacy 'external' values)
+  const linkType = link.linkType as string
+  switch (linkType) {
     case 'href':
     case 'external': // Legacy alias for 'href'
       return link.href || null

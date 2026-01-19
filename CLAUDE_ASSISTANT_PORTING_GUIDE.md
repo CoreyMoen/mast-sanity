@@ -455,6 +455,17 @@ This plugin was custom-built for this project. For issues:
 2. Review the [Sanity Studio plugin docs](https://www.sanity.io/docs/plugin-development)
 3. Examine the source code in the plugin folder
 
+## Additional Resources
+
+This project includes best practices toolkits that may be helpful when building with Next.js and Sanity:
+
+- **Vercel React Best Practices** (`.claude/skills/react-best-practices/`) - 45+ React/Next.js performance optimization rules
+- **Sanity Agent Toolkit** (`.cursor/rules/`) - 20+ Sanity CMS best practices for schemas, GROQ, visual editing, and more
+
+These were sourced from:
+- [Vercel Agent Skills](https://github.com/vercel-labs/agent-skills)
+- [Sanity Agent Toolkit](https://github.com/sanity-io/agent-toolkit)
+
 ---
 
 ## Version Compatibility

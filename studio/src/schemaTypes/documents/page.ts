@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import {defineArrayMember, defineField, defineType} from 'sanity'
 import {DocumentIcon} from '@sanity/icons'
 import {orderRankField} from '@sanity/orderable-document-list'
 import {PageFormInput} from '../components/PageFormInput'
@@ -50,9 +50,9 @@ export const page = defineType({
       type: 'array',
       group: 'content',
       of: [
-        {type: 'section', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'callToAction', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'infoSection', options: {modal: {type: 'dialog', width: 'auto'}}},
+        defineArrayMember({type: 'section', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'callToAction', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'infoSection', options: {modal: {type: 'dialog', width: 'auto'}}}),
       ],
       options: {
         insertMenu: {

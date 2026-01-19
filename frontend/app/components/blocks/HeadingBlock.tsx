@@ -1,5 +1,6 @@
 import {createElement} from 'react'
 import {stegaClean} from 'next-sanity'
+import {parseCustomStyle} from '@/app/lib/parseCustomStyle'
 
 type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 
@@ -16,26 +17,6 @@ interface HeadingBlockProps {
     customStyle?: string
   }
   index: number
-}
-
-// Parse CSS string to React style object
-function parseCustomStyle(cssString?: string): React.CSSProperties | undefined {
-  if (!cssString) return undefined
-  try {
-    return Object.fromEntries(
-      cssString
-        .split(';')
-        .filter((s) => s.trim())
-        .map((s) => {
-          const [key, ...valueParts] = s.split(':')
-          const value = valueParts.join(':').trim()
-          const camelKey = key.trim().replace(/-([a-z])/g, (g) => g[1].toUpperCase())
-          return [camelKey, value]
-        })
-    )
-  } catch {
-    return undefined
-  }
 }
 
 // Size mapping for visual appearance using fluid typography (Mast-style)

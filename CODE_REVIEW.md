@@ -3,12 +3,41 @@
 **Review Date:** January 2026
 **Reviewer:** Claude (AI-assisted review)
 **Project:** Mast Design System with Next.js + Sanity CMS
+**Best Practices:** Verified against [Vercel React Best Practices](https://github.com/vercel-labs/agent-skills) and [Sanity Agent Toolkit](https://github.com/sanity-io/agent-toolkit)
 
 ---
 
 ## Executive Summary
 
 This is a **production-grade headless CMS implementation** combining Next.js 15 (App Router) with Sanity Studio v3. The project implements the "Mast" design system and features a sophisticated page builder, real-time visual editing, and a custom Claude AI assistant integration.
+
+### Best Practices Compliance
+
+This codebase has been audited against industry best practices:
+
+- **Vercel React Best Practices** (45+ rules) - React/Next.js performance optimization patterns
+- **Sanity Agent Toolkit** (20+ rules) - CMS schema design, GROQ queries, visual editing, and TypeGen patterns
+
+The best practices rule files are installed in:
+- `.claude/skills/react-best-practices/` - React/Next.js optimization rules
+- `.cursor/rules/` - Sanity CMS best practices
+
+#### Compliance Summary (January 2026)
+
+| Category | Next.js/React | Sanity |
+|----------|---------------|--------|
+| Component Architecture | ✅ Excellent | - |
+| Server vs Client Split | ✅ ~60/40 split | - |
+| Image Optimization | ✅ LQIP implemented | - |
+| Bundle Optimization | ✅ Dynamic imports | - |
+| Icon Optimization | ✅ SSR-specific paths | - |
+| Data Fetching | ✅ Promise.all, Suspense | ✅ defineQuery |
+| Hydration Safety | ✅ Proper patterns | - |
+| Schema Design | - | ✅ Semantic naming |
+| Validation | - | ✅ Cross-field validation |
+| GROQ Queries | - | ✅ Fragment strategy |
+| Visual Editing | - | ✅ Stega cleanup |
+| TypeGen | - | ✅ Automated |
 
 ### Key Strengths
 - Comprehensive TypeScript coverage with generated types
@@ -126,11 +155,11 @@ PageBuilder
 - `ButtonBlock` - Button with variant, colorScheme, icon
 - `IconBlock` - Phosphor icons with size and color
 
-**Interactive Blocks:**
+**Interactive Blocks:** *(dynamically imported for bundle optimization)*
 - `AccordionBlock` - Collapsible sections
-- `TabsBlock` - Tabbed content panels
-- `SliderBlock` - Image carousel (Swiper)
-- `ModalBlock` - Dialog/modal trigger
+- `TabsBlock` - Tabbed content panels (dynamic import)
+- `SliderBlock` - Image carousel using Swiper (dynamic import)
+- `ModalBlock` - Dialog/modal trigger (dynamic import)
 
 **Utility Blocks:**
 - `SpacerBlock` - Vertical spacing
@@ -406,62 +435,52 @@ interface RowProps {
 
 ### Areas for Improvement
 
-| Area | Issue | Recommendation |
-|------|-------|----------------|
-| **Loose Typing** | Some components use `any` for props | Use generated types consistently |
-| **CSS Parsing** | Row.tsx parses custom CSS with regex | Consider safer parsing or validation |
-| **Overlay Selectors** | Visual editing overlays use fragile DOM selectors | Abstract into constants, add tests |
-| **API Security** | Claude endpoint uses `Access-Control-Allow-Origin: *` | Restrict to known origins |
-| **Nesting Depth** | Sanity 20-level limit could be hit with deep structures | Monitor and add validation |
+| Area | Issue | Recommendation | Status |
+|------|-------|----------------|--------|
+| **Loose Typing** | Some components use `any` for props | Created block type definitions in `frontend/app/types/blocks.ts` | ✅ Done |
+| **CSS Parsing** | Row.tsx parses custom CSS with regex | Added CSS property whitelist in `frontend/app/lib/parseCustomStyle.ts` | ✅ Done |
+| **Overlay Selectors** | Visual editing overlays use fragile DOM selectors | Centralized in `frontend/app/components/overlays/constants.ts` | ✅ Done |
+| **API Security** | Claude endpoint uses `Access-Control-Allow-Origin: *` | Implemented CORS validation with `ALLOWED_CORS_ORIGINS` env var | ✅ Done |
+| **Nesting Depth** | Sanity 20-level limit could be hit with deep structures | Expanded documentation in CLAUDE.md with depth calculator | ✅ Done |
+| **Bundle Size** | Heavy components loaded eagerly | Use dynamic imports | ✅ Done |
+| **Image Loading** | No blur placeholders for images | Add LQIP support | ✅ Done |
+| **Icon Imports** | Barrel imports increase bundle | Use SSR-specific paths | ✅ Done |
+| **Schema Types** | Missing defineArrayMember wrappers | Add for TypeGen | ✅ Done |
 
-### Specific Recommendations
+### Specific Recommendations (Future Improvements)
 
-**1. Tighten Component Props**
+**1. Implement React.cache() for Data Fetching**
+
+Per-request deduplication would prevent duplicate data fetches in `generateMetadata()` and page components:
+
+```typescript
+// sanity/lib/queries.ts
+import { cache } from 'react';
+
+export const getPageBySlug = cache(async (slug: string) => {
+  return sanityFetch({ query: getPageQuery, params: { slug } });
+});
+```
+
+**2. Add Memoization to Pure Components**
+
+Large recursive renderers could benefit from memoization:
 
 ```typescript
 // Before
-interface RowProps {
-  row: any;
-}
+export default function BlockRenderer({ block, index }) { ... }
 
 // After
-import { Row } from '@/sanity.types';
-interface RowProps {
-  row: Row;
-  pageId?: string;
-  pageType?: string;
-}
+export default React.memo(function BlockRenderer({ block, index }) { ... });
 ```
 
-**2. Improve Custom CSS Handling**
+**3. Consider Cursor-Based Pagination**
+
+For very large datasets, cursor-based pagination is more efficient than deep slicing:
 
 ```typescript
-// Before (fragile regex parsing)
-const gridClasses = customStyle?.match(/grid-template-columns[^;]+/);
-
-// After (structured approach)
-interface CustomStyles {
-  gridTemplateColumns?: string;
-  gap?: string;
-}
-// Or use a CSS parser library
-```
-
-**3. Restrict CORS Origins**
-
-```typescript
-// Before
-headers: { 'Access-Control-Allow-Origin': '*' }
-
-// After
-const allowedOrigins = [
-  'http://localhost:3333',
-  'https://your-studio.sanity.studio'
-];
-const origin = request.headers.get('origin');
-headers: {
-  'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : ''
-}
+// Current: [0...$limit]
+// Better for scale: _id > $lastId | order(_id asc)[0...$limit]
 ```
 
 ---
@@ -474,12 +493,16 @@ headers: {
 - Next.js Image component for image optimization
 - Turbopack for fast development builds
 - CSS-first Tailwind (smaller CSS output)
+- **Dynamic imports** for heavy components (SliderBlock, TabsBlock, ModalBlock) - reduces initial bundle
+- **Blur placeholders (LQIP)** on images - provides visual feedback during image loading
+- **Optimized icon imports** using `@phosphor-icons/react/dist/ssr` for better tree-shaking
+- **defineArrayMember wrappers** in schemas for improved TypeGen type generation
 
 ### Potential Improvements
 - Consider ISR (Incremental Static Regeneration) for frequently updated pages
 - Add `loading.tsx` files for streaming SSR
-- Implement image placeholders (blur hash)
 - Consider preloading critical fonts
+- Implement tag-based revalidation with webhooks for granular cache control
 
 ---
 
@@ -487,12 +510,13 @@ headers: {
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Environment variables | Check `.env.local` is gitignored | Studio `.env` may have tokens |
-| API token exposure | Frontend token has limited scope | Verify read-only |
-| CORS configuration | Currently allows all origins | Should be restricted |
-| Input validation | API routes validate inputs | Good |
-| XSS prevention | React handles by default | Portable text is safe |
-| Draft mode auth | Uses Sanity's built-in auth | Good |
+| Environment variables | ✅ | `.env.local` is gitignored |
+| API token exposure | ✅ | Frontend token has limited scope |
+| CORS configuration | ✅ | Configurable via `ALLOWED_CORS_ORIGINS` env var |
+| Input validation | ✅ | API routes validate inputs |
+| CSS injection | ✅ | `parseCustomStyle` uses property whitelist |
+| XSS prevention | ✅ | React handles by default, Portable text is safe |
+| Draft mode auth | ✅ | Uses Sanity's built-in auth |
 
 ---
 
@@ -576,13 +600,36 @@ SANITY_API_TOKEN="token" npm run seed-home
 
 This project demonstrates **professional-grade architecture** for a headless CMS implementation. The combination of Next.js App Router patterns, comprehensive TypeScript coverage, and a flexible page builder creates a solid foundation for content-driven websites.
 
+The codebase has been optimized following Vercel React and Sanity best practices, with particular focus on:
+- Bundle size optimization through dynamic imports
+- Image loading experience with blur placeholders
+- Schema type safety with defineArrayMember patterns
+- Efficient icon imports for reduced client bundle size
+
 **Recommended next steps:**
-1. Tighten TypeScript types in block components
+1. Consider implementing `React.cache()` for per-request deduplication in data fetching
 2. Add unit tests for critical utilities
 3. Document the page builder block options for content editors
 4. Consider adding Storybook for component documentation
-5. Review and restrict CORS configuration before production deployment
+5. Consider adding memoization (`React.memo`) to pure components like BlockRenderer
+6. Consider implementing tag-based revalidation for granular cache control
+
+**Completed optimizations (January 2026):**
+
+*Round 1 - Performance:*
+- ✅ Dynamic imports for heavy block components (SliderBlock, TabsBlock, ModalBlock)
+- ✅ Image blur placeholders (LQIP) via `getBlurDataUrl()` utility
+- ✅ Optimized icon imports using `@phosphor-icons/react/dist/ssr`
+- ✅ Schema defineArrayMember wrappers for TypeGen
+
+*Round 2 - Security & Maintainability:*
+- ✅ CORS validation with `ALLOWED_CORS_ORIGINS` environment config
+- ✅ Centralized overlay constants (`constants.ts`) with block type labels/icons
+- ✅ CSS property whitelist in `parseCustomStyle.ts` for security
+- ✅ Comprehensive block type definitions (`frontend/app/types/blocks.ts`)
+- ✅ Expanded nesting depth documentation with depth calculator in CLAUDE.md
+- ✅ Best practices toolkits installed (Vercel React + Sanity Agent Toolkit)
 
 ---
 
-*This review was generated with AI assistance. Manual verification of specific code paths is recommended before making architectural decisions.*
+*This review was generated with AI assistance and verified against Vercel React Best Practices and Sanity Agent Toolkit guidelines. Manual verification of specific code paths is recommended before making architectural decisions.*

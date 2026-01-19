@@ -1,5 +1,6 @@
 import {type PortableTextBlock, stegaClean} from 'next-sanity'
 import PortableText from '@/app/components/PortableText'
+import {parseCustomStyle} from '@/app/lib/parseCustomStyle'
 
 interface RichTextBlockProps {
   block: {
@@ -13,26 +14,6 @@ interface RichTextBlockProps {
     customStyle?: string
   }
   index: number
-}
-
-// Parse CSS string to React style object
-function parseCustomStyle(cssString?: string): React.CSSProperties | undefined {
-  if (!cssString) return undefined
-  try {
-    return Object.fromEntries(
-      cssString
-        .split(';')
-        .filter((s) => s.trim())
-        .map((s) => {
-          const [key, ...valueParts] = s.split(':')
-          const value = valueParts.join(':').trim()
-          const camelKey = key.trim().replace(/-([a-z])/g, (g) => g[1].toUpperCase())
-          return [camelKey, value]
-        })
-    )
-  } catch {
-    return undefined
-  }
 }
 
 // Text alignment

@@ -6,30 +6,65 @@ const anthropic = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 })
 
-// CORS headers for cross-origin requests from Sanity Studio
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+/**
+ * Get allowed CORS origins from environment variable
+ * In development, defaults to '*' for convenience
+ * In production, set ALLOWED_CORS_ORIGINS to comma-separated list of allowed origins
+ * Example: ALLOWED_CORS_ORIGINS=https://your-studio.sanity.studio,http://localhost:3333
+ */
+function getAllowedOrigins(): string[] {
+  const originsEnv = process.env.ALLOWED_CORS_ORIGINS
+  if (!originsEnv) {
+    // Default to allowing all origins in development
+    return ['*']
+  }
+  return originsEnv.split(',').map(origin => origin.trim())
+}
+
+/**
+ * Get CORS headers with origin validation
+ * Only allows requests from configured origins
+ */
+function getCorsHeaders(requestOrigin?: string | null): Record<string, string> {
+  const allowedOrigins = getAllowedOrigins()
+
+  let origin: string
+  if (allowedOrigins.includes('*')) {
+    // Allow all origins (development mode)
+    origin = '*'
+  } else if (requestOrigin && allowedOrigins.includes(requestOrigin)) {
+    // Request origin is in allowed list
+    origin = requestOrigin
+  } else {
+    // Origin not allowed - return empty string (browser will block)
+    origin = ''
+  }
+
+  return {
+    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+  }
 }
 
 /**
  * OPTIONS handler for CORS preflight requests
  */
-export async function OPTIONS() {
+export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get('origin')
   return new Response(null, {
     status: 204,
-    headers: corsHeaders,
+    headers: getCorsHeaders(origin),
   })
 }
 
 /**
  * Helper to create JSON response with CORS headers
  */
-function jsonResponse(data: object, status: number = 200) {
+function jsonResponse(data: object, status: number = 200, requestOrigin?: string | null) {
   return NextResponse.json(data, {
     status,
-    headers: corsHeaders,
+    headers: getCorsHeaders(requestOrigin),
   })
 }
 
@@ -244,11 +279,15 @@ function validateRequest(body: unknown): body is ClaudeChatRequest {
  * Returns Server-Sent Events (SSE) stream
  */
 export async function POST(request: NextRequest) {
+  // Extract origin for CORS validation
+  const origin = request.headers.get('origin')
+
   // Check for API key
   if (!process.env.ANTHROPIC_API_KEY) {
     return jsonResponse(
       { error: 'ANTHROPIC_API_KEY environment variable is not configured' },
-      500
+      500,
+      origin
     )
   }
 
@@ -259,7 +298,8 @@ export async function POST(request: NextRequest) {
   } catch {
     return jsonResponse(
       { error: 'Invalid JSON in request body' },
-      400
+      400,
+      origin
     )
   }
 
@@ -267,7 +307,8 @@ export async function POST(request: NextRequest) {
   if (!validateRequest(body)) {
     return jsonResponse(
       { error: 'Invalid request body. Expected { messages: Array<{ role: "user" | "assistant", content: string }>, schema?: object, instructions?: string }' },
-      400
+      400,
+      origin
     )
   }
 
@@ -277,7 +318,8 @@ export async function POST(request: NextRequest) {
   if (messages.length === 0) {
     return jsonResponse(
       { error: 'At least one message is required' },
-      400
+      400,
+      origin
     )
   }
 
@@ -299,8 +341,7 @@ export async function POST(request: NextRequest) {
       system: systemPrompt,
       messages: messages.map((m) => ({
         role: m.role,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        content: m.content as any, // SDK accepts both string and content blocks
+        content: m.content as Anthropic.MessageParam['content'], // SDK accepts both string and content blocks
       })),
     })
 
@@ -346,7 +387,7 @@ export async function POST(request: NextRequest) {
         'Cache-Control': 'no-cache, no-transform',
         'Connection': 'keep-alive',
         'X-Accel-Buffering': 'no', // Disable nginx buffering
-        ...corsHeaders,
+        ...getCorsHeaders(origin),
       },
     })
   } catch (error) {
@@ -361,7 +402,8 @@ export async function POST(request: NextRequest) {
       if (statusCode === 429) {
         return jsonResponse(
           { error: 'Rate limit exceeded. Please wait a moment and try again.' },
-          429
+          429,
+          origin
         )
       }
 
@@ -369,17 +411,19 @@ export async function POST(request: NextRequest) {
       if (statusCode === 401) {
         return jsonResponse(
           { error: 'Invalid API key. Please check your ANTHROPIC_API_KEY configuration.' },
-          401
+          401,
+          origin
         )
       }
 
-      return jsonResponse({ error: message }, statusCode)
+      return jsonResponse({ error: message }, statusCode, origin)
     }
 
     // Generic error response
     return jsonResponse(
       { error: 'An unexpected error occurred while processing your request' },
-      500
+      500,
+      origin
     )
   }
 }

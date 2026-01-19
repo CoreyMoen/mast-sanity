@@ -2,7 +2,7 @@
 
 import {stegaClean} from 'next-sanity'
 import Image from 'next/image'
-import {urlForImage} from '@/sanity/lib/utils'
+import {urlForImage, getBlurDataUrl} from '@/sanity/lib/utils'
 import {Slider, SliderSlide} from '../ui/slider'
 
 /**
@@ -101,6 +101,7 @@ export default function SliderBlock({block}: SliderBlockProps) {
       >
         {slides.map((slide) => {
           const imageUrl = urlForImage(slide.image)?.url()
+          const blurDataUrl = getBlurDataUrl(slide.image)
 
           if (!imageUrl) {
             return (
@@ -127,6 +128,8 @@ export default function SliderBlock({block}: SliderBlockProps) {
                     height={aspectStyle ? undefined : 800}
                     className={aspectStyle ? 'object-cover' : 'w-full h-auto'}
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    placeholder={blurDataUrl ? 'blur' : 'empty'}
+                    blurDataURL={blurDataUrl}
                   />
                 </div>
                 {slide.caption && (

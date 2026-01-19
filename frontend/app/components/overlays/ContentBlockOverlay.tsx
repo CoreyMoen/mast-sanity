@@ -3,50 +3,7 @@
 import {useState, useEffect, useRef, useId, type ReactNode} from 'react'
 import {useIsPresentationTool} from 'next-sanity/hooks'
 import {useOverlayHover} from './OverlayHoverContext'
-
-// Map schema types to friendly display names
-const typeLabels: Record<string, string> = {
-  headingBlock: 'Heading',
-  richTextBlock: 'Rich Text',
-  imageBlock: 'Image',
-  buttonBlock: 'Button',
-  spacerBlock: 'Spacer',
-  dividerBlock: 'Divider',
-  sliderBlock: 'Slider',
-  tabsBlock: 'Tabs',
-  row: 'Row',
-  eyebrowBlock: 'Eyebrow',
-  cardBlock: 'Card',
-  iconBlock: 'Icon',
-  accordionBlock: 'Accordion',
-  breadcrumbBlock: 'Breadcrumb',
-  tableBlock: 'Table',
-  modalBlock: 'Modal',
-  inlineVideoBlock: 'Video',
-  marqueeBlock: 'Marquee',
-}
-
-// Map types to icons
-const typeIcons: Record<string, string> = {
-  Heading: 'H',
-  'Rich Text': '\u00B6',
-  Image: '\uD83D\uDDBC',
-  Button: '\u2B1A',
-  Spacer: '\u2195',
-  Divider: '\u2500',
-  Slider: '\u25C0\u25B6',
-  Tabs: '\u2630',
-  Row: '\u2261',
-  Eyebrow: '\u2022',
-  Card: '\u25A1',
-  Icon: '\u2605',
-  Accordion: '\u25BC',
-  Breadcrumb: '\u27A1',
-  Table: '\u2630',
-  Modal: '\u25A2',
-  Video: '\u25B6',
-  Marquee: '\u21C4',
-}
+import {SANITY_SELECTORS, getBlockLabel, getBlockIcon} from './constants'
 
 interface ContentBlockOverlayProps {
   blockType: string
@@ -60,22 +17,22 @@ export default function ContentBlockOverlay({blockType, children}: ContentBlockO
   const isPresentationTool = useIsPresentationTool()
   const {activeOverlayId, setActiveOverlay} = useOverlayHover()
 
-  const label = typeLabels[blockType] || blockType
-  const icon = typeIcons[label] || '\u25C7'
+  const label = getBlockLabel(blockType)
+  const icon = getBlockIcon(label)
 
   // Watch for Sanity's selection state on the parent data-sanity element
   useEffect(() => {
     if (!containerRef.current) return
 
     // Find the parent element with data-sanity attribute
-    const sanityParent = containerRef.current.closest('[data-sanity]')
+    const sanityParent = containerRef.current.closest(SANITY_SELECTORS.SANITY_ATTRIBUTE)
     if (!sanityParent) return
 
     // Create a mutation observer to watch for Sanity's overlay selection
     const observer = new MutationObserver(() => {
       // Check if this element has an active overlay (Sanity adds overlay elements)
-      const hasActiveOverlay = sanityParent.querySelector('[data-sanity-overlay-element]') !== null
-      const parentHasOverlay = sanityParent.closest('[data-sanity-overlay-element]') !== null
+      const hasActiveOverlay = sanityParent.querySelector(SANITY_SELECTORS.OVERLAY_ELEMENT) !== null
+      const parentHasOverlay = sanityParent.closest(SANITY_SELECTORS.OVERLAY_ELEMENT) !== null
       setIsSelected(hasActiveOverlay || parentHasOverlay)
     })
 

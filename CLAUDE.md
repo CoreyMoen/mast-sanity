@@ -43,10 +43,79 @@ Page
 ```
 
 ### Sanity API Nesting Limit
-**CRITICAL**: Sanity has a **maximum attribute depth of 20 levels**. When creating pages programmatically:
-- Avoid deeply nested structures like tabs containing rows containing columns containing complex blocks
-- Card blocks add extra nesting depth - use flat column layouts with icons instead when possible
-- Test complex layouts by running the seed script before finalizing
+**CRITICAL**: Sanity has a **maximum attribute depth of 20 levels**. When creating pages programmatically, you must carefully track nesting depth to avoid hitting this limit.
+
+#### Depth Calculation Reference
+Here's how nesting depth accumulates in this page builder:
+
+```
+Level 1:  page
+Level 2:  └── pageBuilder (array)
+Level 3:      └── section
+Level 4:          └── rows (array)
+Level 5:              └── row
+Level 6:                  └── columns (array)
+Level 7:                      └── column
+Level 8:                          └── content (array)
+Level 9:                              └── [block]
+```
+
+**Base path to a simple block: 9 levels**
+
+Block types add additional depth based on their internal structure:
+| Block Type | Additional Depth | Total from Page | Notes |
+|------------|------------------|-----------------|-------|
+| headingBlock | +1 (text field) | 10 | Safe |
+| richTextBlock | +4 (content→block→children→text) | 13 | Safe |
+| buttonBlock | +3 (link→href/page/post) | 12 | Safe |
+| imageBlock | +3 (image→asset→_ref) | 12 | Safe |
+| cardBlock | +2 (content array + block) | 11+ | ⚠️ Adds nesting |
+| tabsBlock | +4 (tabs→tab→content→block) | 13+ | ⚠️ Risky |
+| accordionBlock | +3 (items→item→content) | 12+ | ⚠️ Adds nesting |
+| sliderBlock | +3 (slides→slide→image) | 12 | Safe |
+
+#### Safe Nesting Patterns
+```
+✅ section → row → column → headingBlock (10 levels)
+✅ section → row → column → richTextBlock (13 levels)
+✅ section → row → column → imageBlock (12 levels)
+✅ section → row → column → accordionBlock → richTextBlock (16 levels)
+```
+
+#### Unsafe Nesting Patterns
+```
+❌ section → row → column → tabsBlock → row → column → cardBlock → richTextBlock (19+ levels)
+❌ section → row → column → cardBlock → tabsBlock → content (18+ levels)
+❌ Deeply nested Portable Text with multiple marks and annotations
+```
+
+#### Best Practices
+1. **Avoid nesting containers**: Don't put tabsBlock inside cardBlock or vice versa
+2. **Prefer flat layouts**: Use multiple columns with icons instead of nested cards
+3. **Limit accordion/tab content**: Keep content inside accordions/tabs simple (headings, text, buttons)
+4. **Test before deploying**: Always run seed scripts to verify complex layouts don't exceed limits
+5. **Use the validation helper**: When writing seed scripts, consider adding depth tracking
+
+#### Depth Validation Helper (Optional)
+For complex seed scripts, you can add a depth checker:
+```javascript
+function checkDepth(obj, maxDepth = 20, currentDepth = 0, path = '') {
+  if (currentDepth > maxDepth) {
+    console.warn(`⚠️ Depth ${currentDepth} exceeds ${maxDepth} at: ${path}`)
+    return false
+  }
+  if (obj && typeof obj === 'object') {
+    for (const [key, value] of Object.entries(obj)) {
+      if (!checkDepth(value, maxDepth, currentDepth + 1, `${path}.${key}`)) {
+        return false
+      }
+    }
+  }
+  return true
+}
+
+// Usage: checkDepth(pageDocument)
+```
 
 ### Creating Pages via Script
 

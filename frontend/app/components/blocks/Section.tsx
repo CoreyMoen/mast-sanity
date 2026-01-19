@@ -1,6 +1,6 @@
 import {stegaClean} from 'next-sanity'
 import Image from 'next/image'
-import {dataAttr, urlForImage} from '@/sanity/lib/utils'
+import {dataAttr, urlForImage, getBlurDataUrl} from '@/sanity/lib/utils'
 import Row from './Row'
 import ContentBlockRenderer from './ContentBlockRenderer'
 import ContentBlockOverlay from '@/app/components/overlays/ContentBlockOverlay'
@@ -128,6 +128,7 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
   // Determine if text should be light on dark backgrounds or with background image
   // Primary/secondary backgrounds use theme-aware colors, so no override needed
   const backgroundImageUrl = urlForImage(backgroundImage)?.url()
+  const backgroundBlurUrl = getBlurDataUrl(backgroundImage)
   const isDarkBg = ['gray-800', 'black', 'brand', 'blue'].includes(cleanBgColor) || (backgroundImageUrl && cleanOverlay >= 40)
 
   // Only add data-sanity attributes when pageId is provided (draft mode)
@@ -155,6 +156,8 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
             className="object-cover"
             sizes="100vw"
             priority={index === 0}
+            placeholder={backgroundBlurUrl ? 'blur' : 'empty'}
+            blurDataURL={backgroundBlurUrl}
           />
           {/* Overlay */}
           {cleanOverlay > 0 && (

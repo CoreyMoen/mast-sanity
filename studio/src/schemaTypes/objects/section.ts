@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import {defineArrayMember, defineField, defineType} from 'sanity'
 import {BlockElementIcon} from '@sanity/icons'
 
 /**
@@ -30,16 +30,16 @@ export const section = defineType({
       description: 'Add rows for complex layouts, or add content blocks directly for simpler sections',
       of: [
         // Layout
-        {type: 'row', options: {modal: {type: 'dialog', width: 'auto'}}},
+        defineArrayMember({type: 'row', options: {modal: {type: 'dialog', width: 'auto'}}}),
         // Content blocks - can be added directly without row/column wrapper
-        {type: 'headingBlock'},
-        {type: 'richTextBlock'},
-        {type: 'imageBlock'},
-        {type: 'spacerBlock'},
-        {type: 'dividerBlock'},
-        {type: 'sliderBlock'},
-        {type: 'tabsBlock'},
-        {type: 'buttonBlock'},
+        defineArrayMember({type: 'headingBlock'}),
+        defineArrayMember({type: 'richTextBlock'}),
+        defineArrayMember({type: 'imageBlock'}),
+        defineArrayMember({type: 'spacerBlock'}),
+        defineArrayMember({type: 'dividerBlock'}),
+        defineArrayMember({type: 'sliderBlock'}),
+        defineArrayMember({type: 'tabsBlock'}),
+        defineArrayMember({type: 'buttonBlock'}),
       ],
       group: 'content',
     }),

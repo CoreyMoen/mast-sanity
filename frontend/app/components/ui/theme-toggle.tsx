@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from 'react'
-import {Moon, Sun} from '@phosphor-icons/react'
+import {Moon, Sun} from '@phosphor-icons/react/dist/ssr'
 import {cn} from '@/lib/utils'
 
 type Theme = 'light' | 'dark' | 'system'

@@ -4,6 +4,7 @@ import ContentBlockRenderer from './ContentBlockRenderer'
 import ContentBlockOverlay from '@/app/components/overlays/ContentBlockOverlay'
 import ColumnOverlay from '@/app/components/overlays/ColumnOverlay'
 import Row from './Row'
+import {parseCustomStyle} from '@/app/lib/parseCustomStyle'
 
 interface ColumnProps {
   block: {
@@ -23,29 +24,6 @@ interface ColumnProps {
   sectionKey?: string
   rowKey?: string
   gap?: string // Gap value from Row for Bootstrap-style gutters
-}
-
-// Parse CSS string to React style object
-function parseCustomStyle(cssString?: string): React.CSSProperties | undefined {
-  if (!cssString) return undefined
-  try {
-    const entries = cssString
-      .split(';')
-      .filter((s) => s.trim())
-      .map((s) => {
-        const [key, ...valueParts] = s.split(':')
-        const value = valueParts.join(':').trim()
-        // Clean the key: remove trailing hyphens and convert to camelCase
-        const cleanKey = key.trim().replace(/-+$/, '') // Remove trailing hyphens
-        if (!cleanKey || !value) return null // Skip invalid entries
-        const camelKey = cleanKey.replace(/-([a-z])/g, (g) => g[1].toUpperCase())
-        return [camelKey, value]
-      })
-      .filter((entry): entry is [string, string] => entry !== null)
-    return Object.fromEntries(entries)
-  } catch {
-    return undefined
-  }
 }
 
 // Desktop width classes (lg breakpoint) - percentage based

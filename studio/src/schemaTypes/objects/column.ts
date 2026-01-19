@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import {defineArrayMember, defineField, defineType} from 'sanity'
 import {SquareIcon} from '@sanity/icons'
 
 /**
@@ -24,27 +24,27 @@ export const column = defineType({
       description: 'Add content blocks or a nested row for additional layout flexibility',
       of: [
         // Layout - nested row for additional flexibility (one level deep)
-        {type: 'row', options: {modal: {type: 'dialog', width: 'auto'}}},
+        defineArrayMember({type: 'row', options: {modal: {type: 'dialog', width: 'auto'}}}),
         // Content grouping
-        {type: 'contentWrap', options: {modal: {type: 'dialog', width: 'auto'}}},
+        defineArrayMember({type: 'contentWrap', options: {modal: {type: 'dialog', width: 'auto'}}}),
         // Content blocks
-        {type: 'headingBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'richTextBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'imageBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'buttonBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'spacerBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'dividerBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'cardBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'eyebrowBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'iconBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'accordionBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'breadcrumbBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'tableBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'sliderBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'tabsBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'modalBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'inlineVideoBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
-        {type: 'marqueeBlock', options: {modal: {type: 'dialog', width: 'auto'}}},
+        defineArrayMember({type: 'headingBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'richTextBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'imageBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'buttonBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'spacerBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'dividerBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'cardBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'eyebrowBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'iconBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'accordionBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'breadcrumbBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'tableBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'sliderBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'tabsBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'modalBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'inlineVideoBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'marqueeBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
       ],
       group: 'content',
     }),
