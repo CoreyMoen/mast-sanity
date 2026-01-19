@@ -1,20 +1,7 @@
 'use client'
 
 import {defineOverlayPlugin} from '@sanity/visual-editing/unstable_overlay-components'
-
-// Map schema types to friendly display names
-const typeLabels: Record<string, string> = {
-  section: 'Section',
-  row: 'Row',
-  column: 'Column',
-  headingBlock: 'Heading',
-  richTextBlock: 'Rich Text',
-  imageBlock: 'Image',
-  buttonBlock: 'Button',
-  spacerBlock: 'Spacer',
-  callToAction: 'Call to Action',
-  infoSection: 'Info Section',
-}
+import {BLOCK_TYPE_LABELS, getBlockLabel, getBlockIcon} from './constants'
 
 // Extract the last component type from a Sanity path
 // e.g., "pageBuilder[_key=="abc"].rows[_key=="def"].columns[_key=="ghi"]" -> "columns"
@@ -39,7 +26,7 @@ function getComponentTypeFromPath(path: string): string | null {
 }
 
 // Get a friendly label for the component being edited
-function getComponentLabel(context: {
+function getComponentLabelFromContext(context: {
   type?: string
   field?: {name?: string; value?: {type?: string}}
   node?: {path?: string; type?: string}
@@ -47,20 +34,22 @@ function getComponentLabel(context: {
   const {type, field, node} = context
 
   // First, try to get the type from the schema type
-  if (type && typeLabels[type]) {
-    return typeLabels[type]
+  if (type && BLOCK_TYPE_LABELS[type as keyof typeof BLOCK_TYPE_LABELS]) {
+    return getBlockLabel(type)
   }
 
   // Check field value type
-  if (field?.value?.type && typeLabels[field.value.type]) {
-    return typeLabels[field.value.type]
+  if (field?.value?.type) {
+    const label = getBlockLabel(field.value.type)
+    if (label !== field.value.type) return label
   }
 
   // Try to extract from the path
   if (node?.path) {
     const pathType = getComponentTypeFromPath(node.path)
-    if (pathType && typeLabels[pathType]) {
-      return typeLabels[pathType]
+    if (pathType) {
+      const label = getBlockLabel(pathType)
+      if (label !== pathType) return label
     }
   }
 
@@ -73,7 +62,8 @@ export const ComponentLabelPlugin = defineOverlayPlugin(() => ({
   name: 'component-label',
   title: 'Component Label',
   component: function ComponentLabelOverlay(props) {
-    const label = getComponentLabel(props)
+    const label = getComponentLabelFromContext(props)
+    const icon = getBlockIcon(label)
 
     return (
       <div
@@ -90,28 +80,9 @@ export const ComponentLabelPlugin = defineOverlayPlugin(() => ({
           fontFamily: 'system-ui, sans-serif',
         }}
       >
-        <ComponentIcon type={label} />
+        <span style={{fontSize: '14px'}}>{icon}</span>
         <span>{label}</span>
       </div>
     )
   },
 }))
-
-// Simple icon component based on type
-function ComponentIcon({type}: {type: string}) {
-  const iconMap: Record<string, string> = {
-    Section: '▭',
-    Row: '≡',
-    Column: '▯',
-    Heading: 'H',
-    'Rich Text': '¶',
-    Image: '🖼',
-    Button: '⬚',
-    Spacer: '↕',
-    'Call to Action': '📣',
-    'Info Section': 'ℹ',
-    Element: '◇',
-  }
-
-  return <span style={{fontSize: '14px'}}>{iconMap[type] || '◇'}</span>
-}

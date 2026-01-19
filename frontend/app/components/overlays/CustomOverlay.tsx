@@ -5,21 +5,14 @@ import {
   defineOverlayComponents,
   type OverlayComponentProps,
 } from '@sanity/visual-editing/unstable_overlay-components'
-
-// Inject global CSS to hide the default Sanity overlay labels
-const HIDE_DEFAULT_LABEL_CSS = `
-  /* Hide the default Sanity visual editing label */
-  [data-sanity-overlay-element] > [data-ui="Flex"]:first-child,
-  [data-sanity-overlay] [data-ui="Label"],
-  [data-sanity-overlay-element-label],
-  [data-overlay-element] > div:first-child > div:first-child,
-  .sanity-overlay__element-label,
-  [data-sanity] + div[style*="position: absolute"][style*="top:"] {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-  }
-`
+import {
+  BLOCK_TYPE_LABELS,
+  BLOCK_TYPE_ICONS,
+  HIDE_DEFAULT_LABEL_CSS,
+  SANITY_SELECTORS,
+  getBlockLabel,
+  getBlockIcon,
+} from './constants'
 
 let styleInjected = false
 function injectHideDefaultLabelStyles() {
@@ -31,74 +24,49 @@ function injectHideDefaultLabelStyles() {
   styleInjected = true
 }
 
-// Map schema types to friendly display names
-const typeLabels: Record<string, string> = {
-  section: 'Section',
-  row: 'Row',
-  column: 'Column',
-  headingBlock: 'Heading',
-  richTextBlock: 'Rich Text',
-  imageBlock: 'Image',
-  buttonBlock: 'Button',
-  spacerBlock: 'Spacer',
-  callToAction: 'Call to Action',
-  infoSection: 'Info Section',
-}
-
-// Map types to icons (using simple unicode for now, could be replaced with actual icon components)
-const typeIcons: Record<string, string> = {
-  Section: '▭',
-  Row: '≡',
-  Column: '▯',
-  Heading: 'H',
-  'Rich Text': '¶',
-  Image: '🖼',
-  Button: '⬚',
-  Spacer: '↕',
-  'Call to Action': '📣',
-  'Info Section': 'ℹ',
-}
-
 // Get component label from various context sources
 function getComponentLabel(props: OverlayComponentProps): string {
   const {type, field, node} = props
 
   // Try schema type first (but skip generic types like 'object' and document types like 'page')
-  if (type && type !== 'object' && type !== 'page' && typeLabels[type]) {
-    return typeLabels[type]
+  if (type && type !== 'object' && type !== 'page' && BLOCK_TYPE_LABELS[type as keyof typeof BLOCK_TYPE_LABELS]) {
+    return BLOCK_TYPE_LABELS[type as keyof typeof BLOCK_TYPE_LABELS]
   }
 
   // Try field value _type (Sanity documents have _type property)
   const fieldValue = field?.value as Record<string, unknown> | undefined
-  if (fieldValue?._type && typeof fieldValue._type === 'string' && typeLabels[fieldValue._type]) {
-    return typeLabels[fieldValue._type]
+  if (fieldValue?._type && typeof fieldValue._type === 'string') {
+    const label = getBlockLabel(fieldValue._type)
+    if (label !== fieldValue._type) return label
   }
 
   // Try field value type property
-  if (field?.value?.type && field.value.type !== 'object' && typeLabels[field.value.type]) {
-    return typeLabels[field.value.type]
+  if (field?.value?.type && field.value.type !== 'object') {
+    const label = getBlockLabel(field.value.type)
+    if (label !== field.value.type) return label
   }
 
   // Try node.type if available
   if (node && 'type' in node && typeof node.type === 'string' && node.type !== 'object') {
-    if (typeLabels[node.type]) {
-      return typeLabels[node.type]
-    }
+    const label = getBlockLabel(node.type)
+    if (label !== node.type) return label
   }
 
   // Try to get element from DOM and check its data attributes for block type
   if (node && 'element' in node && node.element instanceof HTMLElement) {
     // Check the element itself first
     const blockType = node.element.getAttribute('data-block-type')
-    if (blockType && typeLabels[blockType]) {
-      return typeLabels[blockType]
+    if (blockType) {
+      const label = getBlockLabel(blockType)
+      if (label !== blockType) return label
     }
     // Then check for nested block type indicator
-    const blockTypeEl = node.element.querySelector('[data-block-type]')
+    const blockTypeEl = node.element.querySelector(SANITY_SELECTORS.BLOCK_TYPE)
     if (blockTypeEl) {
       const nestedBlockType = blockTypeEl.getAttribute('data-block-type')
-      if (nestedBlockType && typeLabels[nestedBlockType]) {
-        return typeLabels[nestedBlockType]
+      if (nestedBlockType) {
+        const label = getBlockLabel(nestedBlockType)
+        if (label !== nestedBlockType) return label
       }
     }
   }
@@ -151,7 +119,7 @@ function getComponentLabel(props: OverlayComponentProps): string {
 function EnhancedOverlay(props: OverlayComponentProps) {
   const {PointerEvents} = props
   const label = getComponentLabel(props)
-  const icon = typeIcons[label] || '◇'
+  const icon = getBlockIcon(label)
 
   // Inject CSS to hide default labels on mount
   useEffect(() => {

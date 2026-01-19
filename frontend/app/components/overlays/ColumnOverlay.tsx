@@ -3,6 +3,7 @@
 import {useState, useEffect, useRef, useId, type ReactNode} from 'react'
 import {useIsPresentationTool} from 'next-sanity/hooks'
 import {useOverlayHover} from './OverlayHoverContext'
+import {SANITY_SELECTORS} from './constants'
 
 // Map gap values to pixel widths (half of gap on each side)
 const gapToPixels: Record<string, number> = {
@@ -45,14 +46,14 @@ export default function ColumnOverlay({gap = '6', verticalAlign = 'start', child
     if (!containerRef.current) return
 
     // Find the parent element with data-sanity attribute
-    const sanityParent = containerRef.current.closest('[data-sanity]')
+    const sanityParent = containerRef.current.closest(SANITY_SELECTORS.SANITY_ATTRIBUTE)
     if (!sanityParent) return
 
     // Create a mutation observer to watch for Sanity's overlay selection
     const observer = new MutationObserver(() => {
       // Check if this element has an active overlay (Sanity adds overlay elements)
-      const hasActiveOverlay = sanityParent.querySelector('[data-sanity-overlay-element]') !== null
-      const parentHasOverlay = sanityParent.closest('[data-sanity-overlay-element]') !== null
+      const hasActiveOverlay = sanityParent.querySelector(SANITY_SELECTORS.OVERLAY_ELEMENT) !== null
+      const parentHasOverlay = sanityParent.closest(SANITY_SELECTORS.OVERLAY_ELEMENT) !== null
       setIsSelected(hasActiveOverlay || parentHasOverlay)
     })
 
