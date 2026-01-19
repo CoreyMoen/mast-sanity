@@ -182,7 +182,7 @@ export function getBlockInfo(blockType: string): { label: string; icon: string }
 export const HIDE_DEFAULT_LABEL_CSS = `
   /* Hide the default Sanity visual editing label */
   /* WARNING: These selectors depend on @sanity/visual-editing internal structure */
-  ${SANITY_INTERNAL_SELECTORS.OVERLAY_ELEMENT} > ${SANITY_INTERNAL_SELECTORS.FLEX_COMPONENT}:first-child,
+  ${SANITY_SELECTORS.OVERLAY_ELEMENT} > ${SANITY_INTERNAL_SELECTORS.FLEX_COMPONENT}:first-child,
   ${SANITY_SELECTORS.OVERLAY_CONTAINER} ${SANITY_INTERNAL_SELECTORS.LABEL_COMPONENT},
   ${SANITY_INTERNAL_SELECTORS.OVERLAY_ELEMENT_LABEL_ATTR},
   ${SANITY_INTERNAL_SELECTORS.OVERLAY_ELEMENT_INTERNAL} > div:first-child > div:first-child,

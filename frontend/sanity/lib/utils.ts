@@ -78,8 +78,17 @@ export function resolveOpenGraphImage(image: any, width = 1200, height = 627) {
   return {url, alt: image?.alt as string, width, height}
 }
 
+// Link-like object that may or may not have _type (navigation links don't have it)
+type LinkLike = {
+  linkType?: string
+  href?: string
+  openInNewTab?: boolean
+  page?: string | { _ref: string; _type: 'reference' }
+  post?: string | { _ref: string; _type: 'reference' }
+}
+
 // Depending on the type of link, we need to fetch the corresponding page, post, or URL.  Otherwise return null.
-export function linkResolver(link: Link | undefined) {
+export function linkResolver(link: Link | LinkLike | undefined) {
   if (!link) return null
 
   // If linkType is not set but href is, lets set linkType to "href".  This comes into play when pasting links into the portable text editor because a link type is not assumed.
@@ -87,7 +96,9 @@ export function linkResolver(link: Link | undefined) {
     link.linkType = 'href'
   }
 
-  switch (link.linkType) {
+  // Cast to string for runtime comparison (handles legacy 'external' values)
+  const linkType = link.linkType as string
+  switch (linkType) {
     case 'href':
     case 'external': // Legacy alias for 'href'
       return link.href || null

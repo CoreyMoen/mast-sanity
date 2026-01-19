@@ -148,7 +148,7 @@ export default function Header({navigation}: HeaderProps) {
             {showCta && ctaLabel && ctaLink && (
               <Button
                 asChild
-                variant={ctaStyle === 'secondary' ? 'secondary' : 'default'}
+                variant={ctaStyle === 'secondary' ? 'secondary' : 'primary'}
               >
                 <Link
                   href={linkResolver(ctaLink) || '#'}
@@ -242,7 +242,7 @@ export default function Header({navigation}: HeaderProps) {
               <div className="mt-4">
                 <Button
                   asChild
-                  variant={ctaStyle === 'secondary' ? 'secondary' : 'default'}
+                  variant={ctaStyle === 'secondary' ? 'secondary' : 'primary'}
                   className="w-full"
                 >
                   <Link
