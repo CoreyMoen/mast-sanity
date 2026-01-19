@@ -341,8 +341,7 @@ export async function POST(request: NextRequest) {
       system: systemPrompt,
       messages: messages.map((m) => ({
         role: m.role,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        content: m.content as any, // SDK accepts both string and content blocks
+        content: m.content as Anthropic.MessageParam['content'], // SDK accepts both string and content blocks
       })),
     })
 
