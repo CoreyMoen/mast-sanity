@@ -3,7 +3,7 @@
 import * as React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import {CaretDown} from '@phosphor-icons/react'
+import {CaretDown} from '@phosphor-icons/react/dist/ssr'
 import {urlForImage} from '@/sanity/lib/utils'
 import {Button} from './ui/button'
 import {cn} from '@/lib/utils'

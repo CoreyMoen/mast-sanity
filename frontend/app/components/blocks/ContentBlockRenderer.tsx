@@ -1,5 +1,7 @@
 import React from 'react'
+import dynamic from 'next/dynamic'
 
+// Static imports for lightweight, frequently-used blocks
 import HeadingBlock from './HeadingBlock'
 import RichTextBlock from './RichTextBlock'
 import ImageBlock from './ImageBlock'
@@ -13,15 +15,26 @@ import AccordionBlock from './AccordionBlock'
 import Row from './Row'
 import BreadcrumbBlock from './BreadcrumbBlock'
 import TableBlock from './TableBlock'
-import SliderBlock from './SliderBlock'
-import TabsBlock from './TabsBlock'
-import ModalBlock from './ModalBlock'
 import InlineVideoBlock from './InlineVideoBlock'
 import MarqueeBlock from './MarqueeBlock'
 import ContentWrap from './ContentWrap'
 
+// Dynamic imports for heavy components (Swiper, Radix libraries)
+// These are code-split into separate bundles and loaded on demand
+const SliderBlock = dynamic(() => import('./SliderBlock'), {
+  loading: () => <div className="w-full aspect-video bg-muted-background animate-pulse rounded" />,
+})
+
+const TabsBlock = dynamic(() => import('./TabsBlock'), {
+  loading: () => <div className="w-full h-48 bg-muted-background animate-pulse rounded" />,
+})
+
+const ModalBlock = dynamic(() => import('./ModalBlock'), {
+  loading: () => null, // Modals are typically hidden initially
+})
+
 type ContentBlocksType = {
-  [key: string]: React.FC<any>
+  [key: string]: React.ComponentType<any>
 }
 
 interface ContentBlockProps {

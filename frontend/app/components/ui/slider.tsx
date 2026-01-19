@@ -4,7 +4,7 @@ import * as React from 'react'
 import {Swiper, SwiperSlide} from 'swiper/react'
 import {Navigation, Pagination, Autoplay, EffectFade} from 'swiper/modules'
 import type {Swiper as SwiperType} from 'swiper'
-import {CaretLeft, CaretRight} from '@phosphor-icons/react'
+import {CaretLeft, CaretRight} from '@phosphor-icons/react/dist/ssr'
 import {cn} from '@/lib/utils'
 
 // Import Swiper styles

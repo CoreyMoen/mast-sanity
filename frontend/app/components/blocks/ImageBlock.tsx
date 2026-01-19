@@ -1,6 +1,6 @@
 import {stegaClean} from 'next-sanity'
 import Image from 'next/image'
-import {urlForImage} from '@/sanity/lib/utils'
+import {urlForImage, getBlurDataUrl} from '@/sanity/lib/utils'
 
 interface ImageBlockProps {
   block: {
@@ -57,6 +57,7 @@ export default function ImageBlock({block}: ImageBlockProps) {
   } = block
 
   const imageUrl = urlForImage(image)?.url()
+  const blurDataUrl = getBlurDataUrl(image)
 
   if (!imageUrl) {
     return (
@@ -90,6 +91,8 @@ export default function ImageBlock({block}: ImageBlockProps) {
           height={aspectStyle ? undefined : 800}
           className={`${aspectStyle ? 'object-cover' : 'w-full h-auto'} ${roundedClass}`}
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 80vw, 1200px"
+          placeholder={blurDataUrl ? 'blur' : 'empty'}
+          blurDataURL={blurDataUrl}
         />
       </div>
       {caption && (

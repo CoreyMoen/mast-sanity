@@ -2,7 +2,7 @@
 
 import * as React from 'react'
 import * as TabsPrimitive from '@radix-ui/react-tabs'
-import {Pause, Play, CaretDown} from '@phosphor-icons/react'
+import {Pause, Play, CaretDown} from '@phosphor-icons/react/dist/ssr'
 import {cn} from '@/lib/utils'
 
 // Context for tabs configuration

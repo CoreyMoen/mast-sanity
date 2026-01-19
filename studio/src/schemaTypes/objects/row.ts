@@ -1,4 +1,4 @@
-import {defineField, defineType} from 'sanity'
+import {defineArrayMember, defineField, defineType} from 'sanity'
 import {InlineIcon} from '@sanity/icons'
 
 /**
@@ -20,7 +20,7 @@ export const row = defineType({
       name: 'columns',
       title: 'Columns',
       type: 'array',
-      of: [{type: 'column', options: {modal: {type: 'dialog', width: 'auto'}}}],
+      of: [defineArrayMember({type: 'column', options: {modal: {type: 'dialog', width: 'auto'}}})],
       group: 'content',
     }),
     // Settings Group

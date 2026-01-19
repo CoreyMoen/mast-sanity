@@ -1,6 +1,5 @@
 import {stegaClean} from 'next-sanity'
 import {Card, type CardPadding, type CardVariant} from '@/app/components/ui/card'
-import {urlForImage} from '@/sanity/lib/utils'
 import ContentBlockRenderer from './ContentBlockRenderer'
 
 interface CardBlockProps {
@@ -46,9 +45,6 @@ export default function CardBlock({block}: CardBlockProps) {
   const cleanHoverEffect = stegaClean(hoverEffect)
   const cleanOverlay = stegaClean(backgroundOverlay)
 
-  // Get background image URL
-  const backgroundImageUrl = urlForImage(backgroundImage)?.url()
-
   return (
     <Card
       padding={cleanPadding}
@@ -56,7 +52,7 @@ export default function CardBlock({block}: CardBlockProps) {
       href={cleanHref}
       openInNewTab={cleanOpenInNewTab}
       hoverEffect={cleanHoverEffect}
-      backgroundImage={backgroundImageUrl}
+      backgroundImage={backgroundImage}
       backgroundOverlay={cleanOverlay}
     >
       {contentItems.map((contentBlock, contentIndex) => (

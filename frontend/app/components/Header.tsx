@@ -3,7 +3,7 @@
 import {useState} from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import {List, X, CaretDown} from '@phosphor-icons/react'
+import {List, X, CaretDown} from '@phosphor-icons/react/dist/ssr'
 
 import {linkResolver, urlForImage} from '@/sanity/lib/utils'
 import {Button} from './ui/button'

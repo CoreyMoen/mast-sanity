@@ -2,6 +2,7 @@ import * as React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import {cn} from '@/lib/utils'
+import {urlForImage, getBlurDataUrl} from '@/sanity/lib/utils'
 
 /**
  * Card component - Mast design system card container
@@ -44,8 +45,8 @@ interface CardProps {
   openInNewTab?: boolean
   /** Show hover effect (background change) */
   hoverEffect?: boolean
-  /** Background image URL */
-  backgroundImage?: string
+  /** Background image (Sanity image source) */
+  backgroundImage?: any
   /** Background overlay opacity (0-100) */
   backgroundOverlay?: number
   /** Additional CSS classes */
@@ -79,7 +80,9 @@ export function Card({
   backgroundOverlay = 0,
   className,
 }: CardProps) {
-  const hasBackgroundImage = !!backgroundImage
+  const backgroundImageUrl = urlForImage(backgroundImage)?.url()
+  const blurDataUrl = getBlurDataUrl(backgroundImage)
+  const hasBackgroundImage = !!backgroundImageUrl
   const isDarkBg = hasBackgroundImage && backgroundOverlay >= 40
 
   const baseClasses = cn(
@@ -97,11 +100,13 @@ export function Card({
   const backgroundElements = hasBackgroundImage ? (
     <>
       <Image
-        src={backgroundImage}
+        src={backgroundImageUrl}
         alt=""
         fill
         className="object-cover"
         sizes="(max-width: 768px) 100vw, 50vw"
+        placeholder={blurDataUrl ? 'blur' : 'empty'}
+        blurDataURL={blurDataUrl}
       />
       {backgroundOverlay > 0 && (
         <div
