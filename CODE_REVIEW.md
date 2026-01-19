@@ -22,6 +22,23 @@ The best practices rule files are installed in:
 - `.claude/skills/react-best-practices/` - React/Next.js optimization rules
 - `.cursor/rules/` - Sanity CMS best practices
 
+#### Compliance Summary (January 2026)
+
+| Category | Next.js/React | Sanity |
+|----------|---------------|--------|
+| Component Architecture | ✅ Excellent | - |
+| Server vs Client Split | ✅ ~60/40 split | - |
+| Image Optimization | ✅ LQIP implemented | - |
+| Bundle Optimization | ✅ Dynamic imports | - |
+| Icon Optimization | ✅ SSR-specific paths | - |
+| Data Fetching | ✅ Promise.all, Suspense | ✅ defineQuery |
+| Hydration Safety | ✅ Proper patterns | - |
+| Schema Design | - | ✅ Semantic naming |
+| Validation | - | ✅ Cross-field validation |
+| GROQ Queries | - | ✅ Fragment strategy |
+| Visual Editing | - | ✅ Stega cleanup |
+| TypeGen | - | ✅ Automated |
+
 ### Key Strengths
 - Comprehensive TypeScript coverage with generated types
 - Flexible page builder with hierarchical layout system
@@ -420,64 +437,50 @@ interface RowProps {
 
 | Area | Issue | Recommendation | Status |
 |------|-------|----------------|--------|
-| **Loose Typing** | Some components use `any` for props | Use generated types consistently | Open |
-| **CSS Parsing** | Row.tsx parses custom CSS with regex | Consider safer parsing or validation | Open |
-| **Overlay Selectors** | Visual editing overlays use fragile DOM selectors | Abstract into constants, add tests | Open |
-| **API Security** | Claude endpoint uses `Access-Control-Allow-Origin: *` | Restrict to known origins | Open |
-| **Nesting Depth** | Sanity 20-level limit could be hit with deep structures | Monitor and add validation | Open |
+| **Loose Typing** | Some components use `any` for props | Created block type definitions in `frontend/app/types/blocks.ts` | ✅ Done |
+| **CSS Parsing** | Row.tsx parses custom CSS with regex | Added CSS property whitelist in `frontend/app/lib/parseCustomStyle.ts` | ✅ Done |
+| **Overlay Selectors** | Visual editing overlays use fragile DOM selectors | Centralized in `frontend/app/components/overlays/constants.ts` | ✅ Done |
+| **API Security** | Claude endpoint uses `Access-Control-Allow-Origin: *` | Implemented CORS validation with `ALLOWED_CORS_ORIGINS` env var | ✅ Done |
+| **Nesting Depth** | Sanity 20-level limit could be hit with deep structures | Expanded documentation in CLAUDE.md with depth calculator | ✅ Done |
 | **Bundle Size** | Heavy components loaded eagerly | Use dynamic imports | ✅ Done |
 | **Image Loading** | No blur placeholders for images | Add LQIP support | ✅ Done |
 | **Icon Imports** | Barrel imports increase bundle | Use SSR-specific paths | ✅ Done |
 | **Schema Types** | Missing defineArrayMember wrappers | Add for TypeGen | ✅ Done |
 
-### Specific Recommendations
+### Specific Recommendations (Future Improvements)
 
-**1. Tighten Component Props**
+**1. Implement React.cache() for Data Fetching**
+
+Per-request deduplication would prevent duplicate data fetches in `generateMetadata()` and page components:
+
+```typescript
+// sanity/lib/queries.ts
+import { cache } from 'react';
+
+export const getPageBySlug = cache(async (slug: string) => {
+  return sanityFetch({ query: getPageQuery, params: { slug } });
+});
+```
+
+**2. Add Memoization to Pure Components**
+
+Large recursive renderers could benefit from memoization:
 
 ```typescript
 // Before
-interface RowProps {
-  row: any;
-}
+export default function BlockRenderer({ block, index }) { ... }
 
 // After
-import { Row } from '@/sanity.types';
-interface RowProps {
-  row: Row;
-  pageId?: string;
-  pageType?: string;
-}
+export default React.memo(function BlockRenderer({ block, index }) { ... });
 ```
 
-**2. Improve Custom CSS Handling**
+**3. Consider Cursor-Based Pagination**
+
+For very large datasets, cursor-based pagination is more efficient than deep slicing:
 
 ```typescript
-// Before (fragile regex parsing)
-const gridClasses = customStyle?.match(/grid-template-columns[^;]+/);
-
-// After (structured approach)
-interface CustomStyles {
-  gridTemplateColumns?: string;
-  gap?: string;
-}
-// Or use a CSS parser library
-```
-
-**3. Restrict CORS Origins**
-
-```typescript
-// Before
-headers: { 'Access-Control-Allow-Origin': '*' }
-
-// After
-const allowedOrigins = [
-  'http://localhost:3333',
-  'https://your-studio.sanity.studio'
-];
-const origin = request.headers.get('origin');
-headers: {
-  'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : ''
-}
+// Current: [0...$limit]
+// Better for scale: _id > $lastId | order(_id asc)[0...$limit]
 ```
 
 ---
@@ -507,12 +510,13 @@ headers: {
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Environment variables | Check `.env.local` is gitignored | Studio `.env` may have tokens |
-| API token exposure | Frontend token has limited scope | Verify read-only |
-| CORS configuration | Currently allows all origins | Should be restricted |
-| Input validation | API routes validate inputs | Good |
-| XSS prevention | React handles by default | Portable text is safe |
-| Draft mode auth | Uses Sanity's built-in auth | Good |
+| Environment variables | ✅ | `.env.local` is gitignored |
+| API token exposure | ✅ | Frontend token has limited scope |
+| CORS configuration | ✅ | Configurable via `ALLOWED_CORS_ORIGINS` env var |
+| Input validation | ✅ | API routes validate inputs |
+| CSS injection | ✅ | `parseCustomStyle` uses property whitelist |
+| XSS prevention | ✅ | React handles by default, Portable text is safe |
+| Draft mode auth | ✅ | Uses Sanity's built-in auth |
 
 ---
 
@@ -603,19 +607,28 @@ The codebase has been optimized following Vercel React and Sanity best practices
 - Efficient icon imports for reduced client bundle size
 
 **Recommended next steps:**
-1. Tighten TypeScript types in block components (some use `any` for props)
+1. Consider implementing `React.cache()` for per-request deduplication in data fetching
 2. Add unit tests for critical utilities
 3. Document the page builder block options for content editors
 4. Consider adding Storybook for component documentation
-5. Review and restrict CORS configuration before production deployment
+5. Consider adding memoization (`React.memo`) to pure components like BlockRenderer
 6. Consider implementing tag-based revalidation for granular cache control
 
 **Completed optimizations (January 2026):**
-- ✅ Dynamic imports for heavy block components
-- ✅ Image blur placeholders (LQIP)
-- ✅ Optimized icon imports (SSR-specific paths)
-- ✅ Schema defineArrayMember wrappers
-- ✅ Best practices toolkits installed
+
+*Round 1 - Performance:*
+- ✅ Dynamic imports for heavy block components (SliderBlock, TabsBlock, ModalBlock)
+- ✅ Image blur placeholders (LQIP) via `getBlurDataUrl()` utility
+- ✅ Optimized icon imports using `@phosphor-icons/react/dist/ssr`
+- ✅ Schema defineArrayMember wrappers for TypeGen
+
+*Round 2 - Security & Maintainability:*
+- ✅ CORS validation with `ALLOWED_CORS_ORIGINS` environment config
+- ✅ Centralized overlay constants (`constants.ts`) with block type labels/icons
+- ✅ CSS property whitelist in `parseCustomStyle.ts` for security
+- ✅ Comprehensive block type definitions (`frontend/app/types/blocks.ts`)
+- ✅ Expanded nesting depth documentation with depth calculator in CLAUDE.md
+- ✅ Best practices toolkits installed (Vercel React + Sanity Agent Toolkit)
 
 ---
 
