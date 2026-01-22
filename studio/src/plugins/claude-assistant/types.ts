@@ -132,6 +132,8 @@ export interface Conversation {
   createdAt: Date
   updatedAt: Date
   context?: ConversationContext
+  /** IDs of workflows applied to this conversation */
+  workflowIds?: string[]
 }
 
 export interface ConversationContext {

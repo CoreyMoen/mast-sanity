@@ -242,24 +242,30 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
 
         // Initialize isFirstMessageRef based on whether this conversation has messages
         isFirstMessageRef.current = activeConversation.messages.length === 0
+
+        // ALWAYS sync messages when switching to a different conversation
+        // This ensures clicking on a past conversation loads its messages
+        console.log('[useClaudeChat] Syncing messages due to conversation change:', {
+          conversationId: activeConversation.id,
+          messageCount: activeConversation.messages.length,
+        })
+        setMessages(activeConversation.messages)
+        return // Exit early, no need to run additional sync logic
       }
 
-      // Only sync when server has more OR equal messages than local
-      // NEVER overwrite local messages that haven't been persisted yet
+      // For the SAME conversation, only sync when server has more or equal messages
+      // This prevents overwriting local messages that haven't been persisted yet (e.g., during streaming)
       const localMessageIds = messages.map(m => m.id).join(',')
       const serverMessageCount = activeConversation.messages.length
       const localMessageCount = messages.length
 
-      // Critical: If local has MORE messages than server, local is authoritative
-      // This means we have pending messages that haven't been persisted yet
-      // We should NEVER overwrite these, even if conversationChanged is true
-      // (conversationChanged can be true even for the same conversation due to ref being cleared)
+      // If local has MORE messages than server, local is authoritative
+      // (pending messages that haven't been persisted yet)
       const localIsAhead = localMessageCount > serverMessageCount
 
       // Sync when:
-      // 1. Server has more messages than local (messages were loaded from server or another client)
+      // 1. Server has more messages than local (messages loaded from server or another client)
       // 2. Server has same count but different messages (rare edge case)
-      // NEVER sync when local is ahead - those are pending persistence
       const shouldSync = !localIsAhead && (
         (serverMessageCount > localMessageCount) ||
         (serverMessageCount === localMessageCount && localMessageIds !== conversationMessageIds)

@@ -90,6 +90,7 @@ interface SanityConversation {
   messages: SanityMessage[]
   lastActivity: string
   archived: boolean
+  workflowIds?: string[]
 }
 
 /**
@@ -126,6 +127,7 @@ function sanityToConversation(doc: SanityConversation): Conversation {
     })),
     createdAt: new Date(doc.lastActivity || new Date().toISOString()),
     updatedAt: new Date(doc.lastActivity || new Date().toISOString()),
+    workflowIds: doc.workflowIds,
   }
 }
 
@@ -165,6 +167,7 @@ export interface UseConversationsSanityReturn extends Omit<UseConversationsRetur
   updateMessage: (conversationId: string, messageId: string, updates: Partial<Message>) => Promise<void>
   loadConversation: (conversationId: string) => Promise<Conversation | null>
   generateTitle: (conversationId: string, userMessage: string, assistantResponse: string) => Promise<void>
+  updateWorkflowIds: (conversationId: string, workflowIds: string[]) => Promise<void>
   isLoading: boolean
 }
 
@@ -221,6 +224,7 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
           lastActivity,
           userId,
           archived,
+          workflowIds,
           "messageCount": count(messages),
           messages
         }`
@@ -599,6 +603,28 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
     [apiEndpoint, updateConversationTitle]
   )
 
+  /**
+   * Update workflow IDs for a conversation
+   */
+  const updateWorkflowIds = useCallback(
+    async (conversationId: string, workflowIds: string[]) => {
+      try {
+        await client.patch(conversationId).set({workflowIds}).commit()
+
+        setConversations((prev) =>
+          prev.map((conv) =>
+            conv.id === conversationId
+              ? {...conv, workflowIds, updatedAt: new Date()}
+              : conv
+          )
+        )
+      } catch (err) {
+        console.error('Failed to update workflow IDs:', err)
+      }
+    },
+    [client]
+  )
+
   return {
     conversations,
     activeConversation,
@@ -610,6 +636,7 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
     updateMessage,
     loadConversation,
     generateTitle,
+    updateWorkflowIds,
     isLoading,
   }
 }

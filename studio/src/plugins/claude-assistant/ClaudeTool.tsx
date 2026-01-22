@@ -73,6 +73,7 @@ export function ClaudeTool(props: ClaudeToolProps) {
     updateMessage,
     generateTitle,
     updateConversationTitle,
+    updateWorkflowIds,
   } = useConversations({apiEndpoint})
 
   // Instructions hook
@@ -373,15 +374,68 @@ ${resultJson}
     setPendingDocuments((prev) => prev.filter((doc) => doc._id !== documentId))
   }, [])
 
+  // Track last conversation ID for workflow restoration
+  const lastConversationIdForWorkflowsRef = useRef<string | null>(null)
+  // Track if user has manually changed workflows (to prevent auto-restore overwriting)
+  const hasManualWorkflowChangeRef = useRef(false)
+
+  // Restore workflows when conversation changes
+  useEffect(() => {
+    const conversationId = activeConversation?.id || null
+    const conversationChanged = lastConversationIdForWorkflowsRef.current !== conversationId
+
+    if (conversationChanged) {
+      lastConversationIdForWorkflowsRef.current = conversationId
+      hasManualWorkflowChangeRef.current = false
+
+      // Always clear pending workflows when conversation changes
+      setPendingWorkflows([])
+
+      // If the conversation has stored workflow IDs, restore them
+      if (activeConversation?.workflowIds && activeConversation.workflowIds.length > 0 && workflows.length > 0) {
+        const restoredWorkflows = activeConversation.workflowIds
+          .map(wfId => workflows.find(w => w.id === wfId))
+          .filter((w): w is typeof workflows[number] => w !== undefined)
+          .map(w => ({
+            _id: w.id,
+            name: w.name,
+            description: w.description,
+            systemInstructions: w.systemInstructions,
+            starterPrompt: w.starterPrompt,
+          }))
+
+        if (restoredWorkflows.length > 0) {
+          setPendingWorkflows(restoredWorkflows)
+        }
+      }
+    }
+  }, [activeConversation?.id, activeConversation?.workflowIds, workflows])
+
   // Handle workflow context changes
   const handleWorkflowsChange = useCallback((newWorkflows: WorkflowOption[]) => {
     setPendingWorkflows(newWorkflows)
-  }, [])
+    hasManualWorkflowChangeRef.current = true
+
+    // Save workflow IDs to the conversation if we have an active conversation
+    if (activeConversation?.id) {
+      const workflowIds = newWorkflows.map(w => w._id)
+      updateWorkflowIds(activeConversation.id, workflowIds)
+    }
+  }, [activeConversation?.id, updateWorkflowIds])
 
   // Handle removing a workflow from context
   const handleRemoveWorkflow = useCallback((workflowId: string) => {
-    setPendingWorkflows((prev) => prev.filter((w) => w._id !== workflowId))
-  }, [])
+    setPendingWorkflows((prev) => {
+      const newWorkflows = prev.filter((w) => w._id !== workflowId)
+      // Save updated workflow IDs to the conversation
+      if (activeConversation?.id) {
+        const workflowIds = newWorkflows.map(w => w._id)
+        updateWorkflowIds(activeConversation.id, workflowIds)
+      }
+      return newWorkflows
+    })
+    hasManualWorkflowChangeRef.current = true
+  }, [activeConversation?.id, updateWorkflowIds])
 
   return (
     <Card

@@ -139,6 +139,8 @@ export interface MessageProps {
   onActionUndo?: (action: ParsedAction) => void
   /** Hide navigation links in action cards (used in floating chat) */
   hideNavigationLinks?: boolean
+  /** Active conversation ID for continuing conversation when navigating */
+  conversationId?: string
 }
 
 /**
@@ -242,9 +244,9 @@ function parseInlineMarkdown(text: string, startKey: number): React.ReactNode[] 
   const flushParagraph = () => {
     if (currentParagraph.length > 0) {
       elements.push(
-        <Text key={key++} size={2} style={{whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.5, marginBottom: '0.75rem'}}>
+        <div key={key++} style={{whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.5, fontSize: '0.9375rem'}}>
           {currentParagraph}
-        </Text>
+        </div>
       )
       currentParagraph = []
     }
@@ -253,9 +255,9 @@ function parseInlineMarkdown(text: string, startKey: number): React.ReactNode[] 
   const flushList = () => {
     if (listItems.length > 0) {
       elements.push(
-        <Box key={key++} as="ul" style={{margin: '0.75rem 0', paddingLeft: 24, listStyleType: 'disc', listStylePosition: 'outside'}}>
+        <ul key={key++} style={{margin: 0, paddingLeft: 24, listStyleType: 'disc', listStylePosition: 'outside'}}>
           {listItems}
-        </Box>
+        </ul>
       )
       listItems = []
       inList = false
@@ -270,11 +272,9 @@ function parseInlineMarkdown(text: string, startKey: number): React.ReactNode[] 
       flushParagraph()
       inList = true
       listItems.push(
-        <Box key={key++} as="li" style={{marginBottom: 8, display: 'list-item', lineHeight: 1.5}}>
-          <Text size={2} style={{display: 'inline', lineHeight: 'inherit'}}>
-            {parseInlineStyles(listMatch[2], key++)}
-          </Text>
-        </Box>
+        <li key={key++} style={{marginBottom: 4, lineHeight: 1.5, fontSize: '0.9375rem'}}>
+          {parseInlineStyles(listMatch[2], key++)}
+        </li>
       )
     } else {
       if (inList) {
@@ -283,9 +283,7 @@ function parseInlineMarkdown(text: string, startKey: number): React.ReactNode[] 
 
       if (line.trim() === '') {
         flushParagraph()
-        if (lineIndex < lines.length - 1) {
-          elements.push(<Box key={key++} style={{height: '0.75rem'}} />)
-        }
+        // No spacer needed - flexbox gap handles spacing between elements
       } else {
         // Check for headers
         const headerMatch = line.match(/^(#{1,6})\s+(.*)$/)
@@ -294,14 +292,16 @@ function parseInlineMarkdown(text: string, startKey: number): React.ReactNode[] 
           const level = headerMatch[1].length
           const headerText = headerMatch[2]
           elements.push(
-            <Text
+            <div
               key={key++}
-              size={level <= 2 ? 2 : 1}
-              weight="bold"
-              style={{marginTop: level <= 2 ? '1rem' : '0.75rem', marginBottom: '0.5rem'}}
+              style={{
+                fontSize: level <= 2 ? '0.9375rem' : '0.8125rem',
+                fontWeight: 600,
+                lineHeight: 1.4,
+              }}
             >
               {parseInlineStyles(headerText, key++)}
-            </Text>
+            </div>
           )
         } else {
           if (currentParagraph.length > 0) {
@@ -421,7 +421,7 @@ function BlinkingCursor() {
   )
 }
 
-export function Message({message, onActionClick, onActionExecute, onActionUndo, hideNavigationLinks}: MessageProps) {
+export function Message({message, onActionClick, onActionExecute, onActionUndo, hideNavigationLinks, conversationId}: MessageProps) {
   const isUser = message.role === 'user'
   const isStreaming = message.status === 'streaming'
   const isError = message.status === 'error'
@@ -449,33 +449,33 @@ export function Message({message, onActionClick, onActionExecute, onActionUndo, 
 
   return (
     <Card
-      padding={3}
-      radius={2}
       tone={isError ? 'critical' : 'default'}
       style={{
-        backgroundColor: isUser ? 'rgba(255, 255, 255, 0.06)' : undefined,
+        // User messages: slightly less vertical padding, Claude messages: uniform padding
+        padding: isUser ? '0.75rem 1rem' : '1rem',
+        // User messages: visible background in both light and dark modes
+        backgroundColor: isUser ? 'var(--card-hairline-soft-color, rgba(128, 128, 128, 0.15))' : undefined,
+        // User messages: 12px border radius to match chat input
+        borderRadius: isUser ? 12 : 4,
+        // User messages: auto-width based on content, max 85% of container
+        ...(isUser && {
+          width: 'fit-content',
+          maxWidth: '85%',
+        }),
       }}
       aria-label={accessibleLabel}
     >
       {/* Content */}
       <Stack space={3} style={{minWidth: 0}}>
-          {/* Role label with timestamp */}
-          <Flex align="center" gap={2} style={{marginBottom: 4}}>
-            <Text size={1} weight="semibold">
-              {isUser ? 'You' : 'Claude'}
-            </Text>
-            <Text size={0} muted>
-              {formatTimestamp(message.timestamp)}
-            </Text>
-            {isStreaming && (
-              <Flex align="center" gap={1} role="status" aria-live="polite">
-                <Spinner style={{width: 12, height: 12}} aria-hidden="true" />
-                <Text size={0} muted>
-                  typing
-                </Text>
-              </Flex>
-            )}
-          </Flex>
+          {/* Streaming indicator (only shown when actively streaming) */}
+          {isStreaming && (
+            <Flex align="center" gap={1} role="status" aria-live="polite">
+              <Spinner style={{width: 12, height: 12}} aria-hidden="true" />
+              <Text size={0} muted>
+                typing
+              </Text>
+            </Flex>
+          )}
 
           {/* Images */}
           {message.images && message.images.length > 0 && (
@@ -511,8 +511,24 @@ export function Message({message, onActionClick, onActionExecute, onActionUndo, 
             </Flex>
           )}
 
+          {/*
+            Flex layout prevents margin collapsing between sibling elements.
+            Gap provides consistent spacing, and we zero out individual margins.
+            Using !important to override Sanity UI Box component styles.
+          */}
+          <style>{`
+            .message-content {
+              display: flex !important;
+              flex-direction: column !important;
+              gap: 0.75rem !important;
+            }
+            .message-content > * {
+              margin-top: 0 !important;
+              margin-bottom: 0 !important;
+            }
+          `}</style>
           {/* Message content */}
-          <Box>
+          <Box className="message-content">
             {parsedContent}
             {isStreaming && <BlinkingCursor />}
             {isStreaming && !message.content && (
@@ -534,6 +550,7 @@ export function Message({message, onActionClick, onActionExecute, onActionUndo, 
                   onUndo={() => onActionUndo?.(action)}
                   messageTimestamp={message.timestamp}
                   hideNavigationLinks={hideNavigationLinks}
+                  conversationId={conversationId}
                 />
               ))}
             </Stack>

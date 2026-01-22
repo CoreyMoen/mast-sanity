@@ -36,6 +36,8 @@ export interface MessageListProps {
   compact?: boolean
   /** Hide navigation links in action cards (used in floating chat) */
   hideNavigationLinks?: boolean
+  /** Active conversation ID for continuing conversation when navigating */
+  conversationId?: string
 }
 
 export function MessageList({
@@ -47,6 +49,7 @@ export function MessageList({
   maxWidth = 900,
   compact = false,
   hideNavigationLinks = false,
+  conversationId,
 }: MessageListProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -143,16 +146,24 @@ export function MessageList({
 
         {visibleMessages.map((message, index) => {
           const actualIndex = totalCount - visibleMessages.length + index
+          const isUser = message.role === 'user'
           return (
-            <div key={message.id} role="listitem" aria-setsize={totalCount} aria-posinset={actualIndex + 1}>
+            <Flex
+              key={message.id}
+              justify={isUser ? 'flex-end' : 'flex-start'}
+              role="listitem"
+              aria-setsize={totalCount}
+              aria-posinset={actualIndex + 1}
+            >
               <MemoizedMessage
                 message={message}
                 onActionClick={onActionClick}
                 onActionExecute={onActionExecute}
                 onActionUndo={onActionUndo}
                 hideNavigationLinks={hideNavigationLinks}
+                conversationId={conversationId}
               />
-            </div>
+            </Flex>
           )
         })}
 

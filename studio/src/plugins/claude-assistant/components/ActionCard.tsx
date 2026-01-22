@@ -47,6 +47,8 @@ export interface ActionCardProps {
   messageTimestamp?: Date
   /** Hide navigation links (Open in Structure/Preview) - used in floating chat */
   hideNavigationLinks?: boolean
+  /** Active conversation ID - used to continue conversation when navigating to Structure/Presentation */
+  conversationId?: string
 }
 
 /**
@@ -109,6 +111,7 @@ export function ActionCard({
   autoExecuteEnabled = true,
   messageTimestamp,
   hideNavigationLinks = false,
+  conversationId,
 }: ActionCardProps) {
   const hasAutoExecuted = useRef(false)
 
@@ -161,17 +164,6 @@ export function ActionCard({
 
   // Auto-execute non-destructive actions when enabled
   useEffect(() => {
-    console.log('[ActionCard] Auto-execute check:', {
-      actionId: action.id,
-      actionType: action.type,
-      autoExecuteEnabled,
-      isPending,
-      shouldAutoExec,
-      isDestructive,
-      isRecentMessage,
-      hasAutoExecuted: hasAutoExecuted.current,
-      hasOnExecute: !!onExecute,
-    })
     if (
       autoExecuteEnabled &&
       isPending &&
@@ -181,11 +173,22 @@ export function ActionCard({
       !hasAutoExecuted.current &&
       onExecute
     ) {
-      console.log('[ActionCard] Auto-executing action:', action.id, action.type)
       hasAutoExecuted.current = true
       onExecute()
     }
   }, [autoExecuteEnabled, isPending, shouldAutoExec, isDestructive, isRecentMessage, onExecute, action.id, action.type])
+
+  // Save conversation ID to localStorage for floating chat to continue
+  const saveConversationForFloatingChat = useCallback(() => {
+    if (conversationId) {
+      try {
+        localStorage.setItem('claude-floating-pending-conversation', conversationId)
+        localStorage.setItem('claude-floating-chat-open', 'true')
+      } catch {
+        // Ignore storage errors
+      }
+    }
+  }, [conversationId])
 
   // Handle opening in Structure tool
   const handleOpenInStructure = useCallback(
@@ -194,11 +197,13 @@ export function ActionCard({
       if (documentId && onOpenInStructure) {
         onOpenInStructure(documentId, documentType)
       } else if (documentId && documentType) {
+        // Save conversation for continuity
+        saveConversationForFloatingChat()
         // Navigate to Structure tool using relative URL (requires both type and id)
         window.location.href = `/structure/${documentType};${documentId}`
       }
     },
-    [documentId, documentType, onOpenInStructure]
+    [documentId, documentType, onOpenInStructure, saveConversationForFloatingChat]
   )
 
   // Handle opening in Preview/Presentation
@@ -207,16 +212,21 @@ export function ActionCard({
       e.stopPropagation()
       if (documentId && onOpenInPreview) {
         onOpenInPreview(documentId, documentType)
-      } else if (documentType === 'page') {
-        // For pages, open in Presentation tool using the slug path
-        const slugPath = documentSlug?.current ? `/${documentSlug.current}` : '/'
+      } else if (documentType === 'page' && documentSlug?.current) {
+        // Save conversation for continuity
+        saveConversationForFloatingChat()
+        // For pages with a slug, open in Presentation tool
+        const slugPath = documentSlug.current === 'index' ? '/' : `/${documentSlug.current}`
         window.location.href = `/presentation?preview=${encodeURIComponent(slugPath)}`
       } else if (documentId && documentType) {
-        // For other document types, open in Structure tool (requires both type and id)
+        // Save conversation for continuity
+        saveConversationForFloatingChat()
+        // For pages without slug or other document types, open in Structure tool
+        // This is more reliable than guessing the slug
         window.location.href = `/structure/${documentType};${documentId}`
       }
     },
-    [documentId, documentType, documentSlug, onOpenInPreview]
+    [documentId, documentType, documentSlug, onOpenInPreview, saveConversationForFloatingChat]
   )
 
   // Determine card tone based on action type and status

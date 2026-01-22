@@ -281,29 +281,53 @@ function FloatingChatPanel({
     generateTitle,
   } = useConversations({apiEndpoint})
 
-  // Check for pending conversation from main tool OR restore last active conversation
-  useEffect(() => {
-    try {
-      // First priority: pending conversation from main tool (when user clicks "Continue in Presentation/Structure")
-      const pendingConversationId = localStorage.getItem('claude-floating-pending-conversation')
-      if (pendingConversationId) {
-        // Clear it so we don't re-select on subsequent mounts
-        localStorage.removeItem('claude-floating-pending-conversation')
-        // Select and load the conversation
-        selectConversation(pendingConversationId)
-        loadConversation(pendingConversationId)
-        return
-      }
+  // Track if we've already processed the pending conversation
+  const hasPendingConversationBeenHandled = useRef(false)
 
-      // Second priority: restore last active conversation (when reopening floating chat)
-      const savedConversationId = loadFloatingChatConversation()
-      if (savedConversationId) {
-        selectConversation(savedConversationId)
-        loadConversation(savedConversationId)
+  // Check for pending conversation from main tool OR restore last active conversation
+  // This runs once on mount to handle the conversation handoff
+  useEffect(() => {
+    // Only process once per mount
+    if (hasPendingConversationBeenHandled.current) return
+    hasPendingConversationBeenHandled.current = true
+
+    const handlePendingConversation = async () => {
+      try {
+        // First priority: pending conversation from main tool (when user clicks "Continue in Presentation/Structure")
+        const pendingConversationId = localStorage.getItem('claude-floating-pending-conversation')
+        if (pendingConversationId) {
+          // Clear it so we don't re-select on subsequent mounts or page navigations
+          localStorage.removeItem('claude-floating-pending-conversation')
+
+          console.log('[FloatingChat] Loading pending conversation from main tool:', pendingConversationId)
+
+          // Select and load the conversation
+          selectConversation(pendingConversationId)
+          const loaded = await loadConversation(pendingConversationId)
+
+          if (loaded) {
+            console.log('[FloatingChat] Successfully loaded pending conversation:', pendingConversationId)
+            // Save as active conversation for this session
+            saveFloatingChatConversation(pendingConversationId)
+          } else {
+            console.warn('[FloatingChat] Failed to load pending conversation, it may have been deleted')
+          }
+          return
+        }
+
+        // Second priority: restore last active conversation (when reopening floating chat)
+        const savedConversationId = loadFloatingChatConversation()
+        if (savedConversationId) {
+          console.log('[FloatingChat] Restoring last active conversation:', savedConversationId)
+          selectConversation(savedConversationId)
+          await loadConversation(savedConversationId)
+        }
+      } catch (err) {
+        console.error('[FloatingChat] Error handling pending conversation:', err)
       }
-    } catch {
-      // Ignore storage errors
     }
+
+    handlePendingConversation()
   }, [selectConversation, loadConversation])
 
   // Save active conversation ID whenever it changes

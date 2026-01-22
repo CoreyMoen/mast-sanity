@@ -168,6 +168,14 @@ export const claudeConversation = defineType({
       description: 'Whether this conversation is archived',
       initialValue: false,
     }),
+    defineField({
+      name: 'workflowIds',
+      title: 'Workflow IDs',
+      type: 'array',
+      description: 'IDs of workflows applied to this conversation',
+      of: [{type: 'string'}],
+      hidden: true,
+    }),
   ],
   orderings: [
     {
