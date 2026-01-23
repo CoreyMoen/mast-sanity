@@ -19,14 +19,26 @@ const accordionItem = defineArrayMember({
       title: 'Content',
       type: 'array',
       of: [
+        // Layout
+        {type: 'spacerBlock'},
+        {type: 'dividerBlock'},
+        // Content
         {type: 'headingBlock'},
         {type: 'richTextBlock'},
-        {type: 'imageBlock'},
         {type: 'buttonBlock'},
+        // Media
+        {type: 'imageBlock'},
         {type: 'iconBlock'},
-        {type: 'dividerBlock'},
-        {type: 'spacerBlock'},
       ],
+      options: {
+        insertMenu: {
+          groups: [
+            {name: 'layout', title: 'Layout', of: ['spacerBlock', 'dividerBlock']},
+            {name: 'content', title: 'Content', of: ['headingBlock', 'richTextBlock', 'buttonBlock']},
+            {name: 'media', title: 'Media', of: ['imageBlock', 'iconBlock']},
+          ],
+        },
+      },
     }),
     defineField({
       name: 'defaultOpen',
@@ -75,6 +87,22 @@ export const accordionBlock = defineType({
       group: 'items',
       of: [accordionItem],
       validation: (rule) => rule.min(1).error('At least one accordion item is required'),
+      initialValue: () => [
+        {
+          _type: 'accordionItem',
+          _key: crypto.randomUUID().slice(0, 8),
+          title: 'Item 1',
+          content: [],
+          defaultOpen: false,
+        },
+        {
+          _type: 'accordionItem',
+          _key: crypto.randomUUID().slice(0, 8),
+          title: 'Item 2',
+          content: [],
+          defaultOpen: false,
+        },
+      ],
     }),
 
     // Settings

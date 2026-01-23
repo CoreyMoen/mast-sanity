@@ -31,16 +31,28 @@ export const section = defineType({
       of: [
         // Layout
         defineArrayMember({type: 'row', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        // Content blocks - can be added directly without row/column wrapper
-        defineArrayMember({type: 'headingBlock'}),
-        defineArrayMember({type: 'richTextBlock'}),
-        defineArrayMember({type: 'imageBlock'}),
         defineArrayMember({type: 'spacerBlock'}),
         defineArrayMember({type: 'dividerBlock'}),
+        // Content
+        defineArrayMember({type: 'headingBlock'}),
+        defineArrayMember({type: 'richTextBlock'}),
+        defineArrayMember({type: 'buttonBlock'}),
+        // Media
+        defineArrayMember({type: 'imageBlock'}),
+        // Interactive
         defineArrayMember({type: 'sliderBlock'}),
         defineArrayMember({type: 'tabsBlock'}),
-        defineArrayMember({type: 'buttonBlock'}),
       ],
+      options: {
+        insertMenu: {
+          groups: [
+            {name: 'layout', title: 'Layout', of: ['row', 'spacerBlock', 'dividerBlock']},
+            {name: 'content', title: 'Content', of: ['headingBlock', 'richTextBlock', 'buttonBlock']},
+            {name: 'media', title: 'Media', of: ['imageBlock']},
+            {name: 'interactive', title: 'Interactive', of: ['sliderBlock', 'tabsBlock']},
+          ],
+        },
+      },
       group: 'content',
     }),
     // Background Group

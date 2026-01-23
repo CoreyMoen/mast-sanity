@@ -118,6 +118,26 @@ export const tableBlock = defineType({
       description: 'Define the table columns (headers)',
       of: [tableColumn],
       validation: (rule) => rule.min(1).error('At least one column is required'),
+      initialValue: () => [
+        {
+          _type: 'tableColumn',
+          _key: crypto.randomUUID().slice(0, 8),
+          header: 'Column 1',
+          align: 'left',
+        },
+        {
+          _type: 'tableColumn',
+          _key: crypto.randomUUID().slice(0, 8),
+          header: 'Column 2',
+          align: 'left',
+        },
+        {
+          _type: 'tableColumn',
+          _key: crypto.randomUUID().slice(0, 8),
+          header: 'Column 3',
+          align: 'left',
+        },
+      ],
     }),
 
     // Data - add rows
@@ -128,6 +148,26 @@ export const tableBlock = defineType({
       group: 'data',
       description: 'Add data rows. Each row should have a cell for each column.',
       of: [tableRow],
+      initialValue: () => [
+        {
+          _type: 'tableRow',
+          _key: crypto.randomUUID().slice(0, 8),
+          cells: [
+            {_type: 'tableCell', _key: crypto.randomUUID().slice(0, 8), content: ''},
+            {_type: 'tableCell', _key: crypto.randomUUID().slice(0, 8), content: ''},
+            {_type: 'tableCell', _key: crypto.randomUUID().slice(0, 8), content: ''},
+          ],
+        },
+        {
+          _type: 'tableRow',
+          _key: crypto.randomUUID().slice(0, 8),
+          cells: [
+            {_type: 'tableCell', _key: crypto.randomUUID().slice(0, 8), content: ''},
+            {_type: 'tableCell', _key: crypto.randomUUID().slice(0, 8), content: ''},
+            {_type: 'tableCell', _key: crypto.randomUUID().slice(0, 8), content: ''},
+          ],
+        },
+      ],
     }),
 
     // Style options

@@ -22,6 +22,28 @@ export const row = defineType({
       type: 'array',
       of: [defineArrayMember({type: 'column', options: {modal: {type: 'dialog', width: 'auto'}}})],
       group: 'content',
+      initialValue: () => [
+        {
+          _type: 'column',
+          _key: crypto.randomUUID().slice(0, 8),
+          widthDesktop: '6',
+          widthTablet: 'inherit',
+          widthMobile: '12',
+          verticalAlign: 'start',
+          padding: '0',
+          content: [],
+        },
+        {
+          _type: 'column',
+          _key: crypto.randomUUID().slice(0, 8),
+          widthDesktop: '6',
+          widthTablet: 'inherit',
+          widthMobile: '12',
+          verticalAlign: 'start',
+          padding: '0',
+          content: [],
+        },
+      ],
     }),
     // Settings Group
     defineField({

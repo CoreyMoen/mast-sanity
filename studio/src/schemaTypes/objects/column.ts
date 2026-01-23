@@ -23,29 +23,40 @@ export const column = defineType({
       type: 'array',
       description: 'Add content blocks or a nested row for additional layout flexibility',
       of: [
-        // Layout - nested row for additional flexibility (one level deep)
+        // Layout
         defineArrayMember({type: 'row', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        // Content grouping
         defineArrayMember({type: 'contentWrap', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        // Content blocks
-        defineArrayMember({type: 'headingBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'richTextBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'imageBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'buttonBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
         defineArrayMember({type: 'spacerBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
         defineArrayMember({type: 'dividerBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
         defineArrayMember({type: 'cardBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'eyebrowBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'iconBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'accordionBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'breadcrumbBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
         defineArrayMember({type: 'tableBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'sliderBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'tabsBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'modalBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        // Content
+        defineArrayMember({type: 'headingBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'richTextBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'eyebrowBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'buttonBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'breadcrumbBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        // Media
+        defineArrayMember({type: 'imageBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
         defineArrayMember({type: 'inlineVideoBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'iconBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        // Interactive
+        defineArrayMember({type: 'tabsBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'accordionBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'modalBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({type: 'sliderBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
         defineArrayMember({type: 'marqueeBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
       ],
+      options: {
+        insertMenu: {
+          groups: [
+            {name: 'layout', title: 'Layout', of: ['row', 'contentWrap', 'spacerBlock', 'dividerBlock', 'cardBlock', 'tableBlock']},
+            {name: 'content', title: 'Content', of: ['headingBlock', 'richTextBlock', 'eyebrowBlock', 'buttonBlock', 'breadcrumbBlock']},
+            {name: 'media', title: 'Media', of: ['imageBlock', 'inlineVideoBlock', 'iconBlock']},
+            {name: 'interactive', title: 'Interactive', of: ['tabsBlock', 'accordionBlock', 'modalBlock', 'sliderBlock', 'marqueeBlock']},
+          ],
+        },
+      },
       group: 'content',
     }),
     // Width Settings Group - 12 column grid system
