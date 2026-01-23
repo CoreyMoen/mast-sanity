@@ -67,6 +67,20 @@ export const tabsBlock = defineType({
       group: 'tabs',
       of: [tabItem],
       validation: (rule) => rule.min(1).error('At least one tab is required'),
+      initialValue: () => [
+        {
+          _type: 'tabItem',
+          _key: crypto.randomUUID().slice(0, 8),
+          label: 'Tab 1',
+          content: [],
+        },
+        {
+          _type: 'tabItem',
+          _key: crypto.randomUUID().slice(0, 8),
+          label: 'Tab 2',
+          content: [],
+        },
+      ],
     }),
 
     // Settings

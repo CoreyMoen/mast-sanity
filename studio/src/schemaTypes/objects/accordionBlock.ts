@@ -75,6 +75,22 @@ export const accordionBlock = defineType({
       group: 'items',
       of: [accordionItem],
       validation: (rule) => rule.min(1).error('At least one accordion item is required'),
+      initialValue: () => [
+        {
+          _type: 'accordionItem',
+          _key: crypto.randomUUID().slice(0, 8),
+          title: 'Item 1',
+          content: [],
+          defaultOpen: false,
+        },
+        {
+          _type: 'accordionItem',
+          _key: crypto.randomUUID().slice(0, 8),
+          title: 'Item 2',
+          content: [],
+          defaultOpen: false,
+        },
+      ],
     }),
 
     // Settings
