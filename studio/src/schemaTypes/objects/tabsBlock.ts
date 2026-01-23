@@ -19,18 +19,30 @@ const tabItem = defineArrayMember({
       title: 'Tab Content',
       type: 'array',
       of: [
+        // Layout
         {type: 'row'},
+        {type: 'spacerBlock'},
+        {type: 'dividerBlock'},
+        {type: 'cardBlock'},
+        {type: 'tableBlock'},
+        // Content
         {type: 'headingBlock'},
         {type: 'richTextBlock'},
-        {type: 'imageBlock'},
-        {type: 'buttonBlock'},
-        {type: 'cardBlock'},
         {type: 'eyebrowBlock'},
+        {type: 'buttonBlock'},
+        // Media
+        {type: 'imageBlock'},
         {type: 'iconBlock'},
-        {type: 'dividerBlock'},
-        {type: 'spacerBlock'},
-        {type: 'tableBlock'},
       ],
+      options: {
+        insertMenu: {
+          groups: [
+            {name: 'layout', title: 'Layout', of: ['row', 'spacerBlock', 'dividerBlock', 'cardBlock', 'tableBlock']},
+            {name: 'content', title: 'Content', of: ['headingBlock', 'richTextBlock', 'eyebrowBlock', 'buttonBlock']},
+            {name: 'media', title: 'Media', of: ['imageBlock', 'iconBlock']},
+          ],
+        },
+      },
     }),
   ],
   preview: {

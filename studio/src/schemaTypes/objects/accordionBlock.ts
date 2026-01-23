@@ -19,14 +19,26 @@ const accordionItem = defineArrayMember({
       title: 'Content',
       type: 'array',
       of: [
+        // Layout
+        {type: 'spacerBlock'},
+        {type: 'dividerBlock'},
+        // Content
         {type: 'headingBlock'},
         {type: 'richTextBlock'},
-        {type: 'imageBlock'},
         {type: 'buttonBlock'},
+        // Media
+        {type: 'imageBlock'},
         {type: 'iconBlock'},
-        {type: 'dividerBlock'},
-        {type: 'spacerBlock'},
       ],
+      options: {
+        insertMenu: {
+          groups: [
+            {name: 'layout', title: 'Layout', of: ['spacerBlock', 'dividerBlock']},
+            {name: 'content', title: 'Content', of: ['headingBlock', 'richTextBlock', 'buttonBlock']},
+            {name: 'media', title: 'Media', of: ['imageBlock', 'iconBlock']},
+          ],
+        },
+      },
     }),
     defineField({
       name: 'defaultOpen',
