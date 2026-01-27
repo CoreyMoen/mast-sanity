@@ -349,23 +349,6 @@ const componentGuidelines = [
     doNot:
       'Do not put critical information in collapsed state. Do not use for just 1-2 items - list them directly instead.',
   },
-  {
-    _key: generateKey(),
-    _type: 'componentGuideline',
-    component: 'callToAction',
-    guidelines:
-      'Full-width CTA section. Typically includes heading, description, and buttons. Use compelling, action-oriented copy. Set background for visual emphasis.',
-    doNot:
-      'Do not use weak CTAs like "Learn more". Do not overuse - one strong CTA per page is often enough. Do not bury in middle of content.',
-  },
-  {
-    _key: generateKey(),
-    _type: 'componentGuideline',
-    component: 'infoSection',
-    guidelines:
-      'Pre-built section layout for common patterns. Good for features, benefits, or service descriptions. Uses standardized structure for consistency.',
-    doNot: 'Do not customize heavily - use custom sections for complex layouts instead.',
-  },
 ]
 
 // ============================================================================

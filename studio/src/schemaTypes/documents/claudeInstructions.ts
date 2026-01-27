@@ -65,9 +65,6 @@ const COMPONENT_OPTIONS = [
   {title: 'Modal Block', value: 'modalBlock'},
   {title: 'Inline Video Block', value: 'inlineVideoBlock'},
   {title: 'Marquee Block', value: 'marqueeBlock'},
-  // Page-level sections
-  {title: 'Call To Action', value: 'callToAction'},
-  {title: 'Info Section', value: 'infoSection'},
 ]
 
 /**

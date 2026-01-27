@@ -8,8 +8,6 @@ import {claudeInstructions} from './documents/claudeInstructions'
 import {claudeApiSettings} from './documents/claudeApiSettings'
 import {claudeQuickAction} from './documents/claudeQuickAction'
 import {claudeWorkflow} from './documents/claudeWorkflow'
-import {callToAction} from './objects/callToAction'
-import {infoSection} from './objects/infoSection'
 import {settings} from './singletons/settings'
 import {navigation} from './singletons/navigation'
 import {footer} from './singletons/footer'
@@ -60,8 +58,6 @@ export const schemaTypes = [
   claudeWorkflow,
   // Objects
   blockContent,
-  infoSection,
-  callToAction,
   link,
   // Layout blocks (must be in order: content blocks first, then column, row, section)
   headingBlock,

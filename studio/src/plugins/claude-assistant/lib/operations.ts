@@ -69,7 +69,7 @@ const VALID_NESTED_TYPES = new Set([
   'headingBlock', 'richTextBlock', 'eyebrowBlock', 'imageBlock',
   'buttonBlock', 'spacerBlock', 'dividerBlock', 'iconBlock',
   'cardBlock', 'sliderBlock', 'tabsBlock', 'accordionBlock',
-  'callToAction', 'infoSection', 'slug', 'image', 'reference',
+  'slug', 'image', 'reference',
 ])
 
 /**

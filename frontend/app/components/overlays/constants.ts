@@ -72,8 +72,6 @@ export type BlockTypeKey =
   | 'inlineVideoBlock'
   | 'marqueeBlock'
   | 'contentWrap'
-  | 'callToAction'
-  | 'infoSection'
 
 /**
  * Human-readable labels for each block type
@@ -101,8 +99,6 @@ export const BLOCK_TYPE_LABELS: Record<BlockTypeKey, string> = {
   inlineVideoBlock: 'Video',
   marqueeBlock: 'Marquee',
   contentWrap: 'Content Wrap',
-  callToAction: 'Call to Action',
-  infoSection: 'Info Section',
 }
 
 /**
@@ -131,8 +127,6 @@ export const BLOCK_TYPE_ICONS: Record<string, string> = {
   'Video': '▶',
   'Marquee': '⇄',
   'Content Wrap': '⊡',
-  'Call to Action': '📣',
-  'Info Section': 'ℹ',
 }
 
 // =============================================================================

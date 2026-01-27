@@ -1,6 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
 import {DocumentIcon} from '@sanity/icons'
-import {orderRankField} from '@sanity/orderable-document-list'
 import {PageFormInput} from '../components/PageFormInput'
 
 /**
@@ -22,9 +21,6 @@ export const page = defineType({
     {name: 'metadata', title: 'Metadata'},
   ],
   fields: [
-    // Hidden field for drag-and-drop ordering in Structure view
-    orderRankField({type: 'page'}),
-
     defineField({
       name: 'name',
       title: 'Name',
@@ -51,21 +47,7 @@ export const page = defineType({
       group: 'content',
       of: [
         defineArrayMember({type: 'section', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'callToAction', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'infoSection', options: {modal: {type: 'dialog', width: 'auto'}}}),
       ],
-      options: {
-        insertMenu: {
-          // Configure the "Add Item" menu to display a thumbnail preview of the content type. https://www.sanity.io/docs/array-type#efb1fe03459d
-          views: [
-            {
-              name: 'grid',
-              previewImageUrl: (schemaTypeName) =>
-                `/static/page-builder-thumbnails/${schemaTypeName}.webp`,
-            },
-          ],
-        },
-      },
     }),
 
     // Metadata fields

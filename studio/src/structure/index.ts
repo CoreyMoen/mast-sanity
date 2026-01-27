@@ -1,6 +1,5 @@
 import {BlockElementIcon, BoltIcon, BookIcon, CogIcon, ComponentIcon, DocumentIcon, EditIcon, FolderIcon, MenuIcon, RobotIcon} from '@sanity/icons'
 import type {StructureBuilder, StructureResolver} from 'sanity/structure'
-import {orderableDocumentListDeskItem} from '@sanity/orderable-document-list'
 import pluralize from 'pluralize-esm'
 
 /**
@@ -40,14 +39,8 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
       // CONTENT
       // ═══════════════════════════════════════════════════════════════════
 
-      // Pages with drag-and-drop ordering
-      orderableDocumentListDeskItem({
-        type: 'page',
-        title: 'Pages',
-        icon: DocumentIcon,
-        S,
-        context,
-      }),
+      // Pages
+      S.documentTypeListItem('page').title('Pages'),
 
       // Collections folder (Posts, People)
       S.listItem()

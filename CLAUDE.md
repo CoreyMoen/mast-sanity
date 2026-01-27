@@ -32,14 +32,12 @@ The `npx tsx` command does not work due to esbuild issues. When creating seed sc
 ```
 Page
 └── pageBuilder (array)
-    ├── section
-    │   └── rows (array)
-    │       └── row
-    │           └── columns (array)
-    │               └── column
-    │                   └── content (array of blocks)
-    ├── callToAction
-    └── infoSection
+    └── section
+        └── rows (array)
+            └── row
+                └── columns (array)
+                    └── column
+                        └── content (array of blocks)
 ```
 
 ### Sanity API Nesting Limit
