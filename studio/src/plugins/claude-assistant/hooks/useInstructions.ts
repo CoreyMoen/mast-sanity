@@ -18,10 +18,11 @@ import {
   formatInstructionsForClaude,
   getDefaultInstructions,
   type SanityClaudeInstructions,
+  type SectionTemplateForContext,
 } from '../lib/format-instructions'
 
 // Re-export for convenience
-export {formatInstructionsForClaude, type SanityClaudeInstructions} from '../lib/format-instructions'
+export {formatInstructionsForClaude, type SanityClaudeInstructions, type SectionTemplateForContext} from '../lib/format-instructions'
 
 const API_VERSION = '2024-01-01'
 
@@ -56,6 +57,7 @@ const DEFAULT_INSTRUCTION_SETS: InstructionSet[] = [
  */
 export function useInstructions(): UseInstructionsReturn & {
   rawInstructions: SanityClaudeInstructions | null
+  sectionTemplates: SectionTemplateForContext[]
   isLoading: boolean
   refetch: () => Promise<void>
 } {
@@ -63,12 +65,14 @@ export function useInstructions(): UseInstructionsReturn & {
 
   const [instructions, setInstructions] = useState<InstructionSet[]>(DEFAULT_INSTRUCTION_SETS)
   const [rawInstructions, setRawInstructions] = useState<SanityClaudeInstructions | null>(null)
+  const [sectionTemplates, setSectionTemplates] = useState<SectionTemplateForContext[]>([])
   const [activeInstructionId, setActiveInstructionId] = useState<string>('default')
   const [isLoading, setIsLoading] = useState(true)
 
   // Cache ref to avoid refetching
   const cacheRef = useRef<{
     data: SanityClaudeInstructions | null
+    templates: SectionTemplateForContext[]
     timestamp: number
   } | null>(null)
 
@@ -88,7 +92,7 @@ export function useInstructions(): UseInstructionsReturn & {
     try {
       // Query for published document only (exclude drafts)
       // Published documents don't have 'drafts.' prefix in their _id
-      const query = `*[_type == "claudeInstructions" && !(_id in path("drafts.**"))][0] {
+      const instructionsQuery = `*[_type == "claudeInstructions" && !(_id in path("drafts.**"))][0] {
         _id,
         writingGuidelines,
         brandVoice,
@@ -101,18 +105,40 @@ export function useInstructions(): UseInstructionsReturn & {
         requiredFields,
         writingKeywords,
         designKeywords,
-        technicalKeywords
+        technicalKeywords,
+        includeSectionTemplates,
+        sectionTemplateGuidance
       }`
 
-      const result = await client.fetch<SanityClaudeInstructions | null>(query)
+      const result = await client.fetch<SanityClaudeInstructions | null>(instructionsQuery)
+
+      // Fetch section templates if enabled (default to true if not set)
+      let templates: SectionTemplateForContext[] = []
+      if (result?.includeSectionTemplates !== false) {
+        const templatesQuery = `*[_type == "sectionTemplate" && !(_id in path("drafts.**"))] | order(category asc, name asc) {
+          _id,
+          name,
+          description,
+          category,
+          rows,
+          backgroundColor,
+          paddingTop,
+          maxWidth,
+          minHeight,
+          verticalAlign
+        }`
+        templates = await client.fetch<SectionTemplateForContext[]>(templatesQuery)
+      }
 
       // Update cache
       cacheRef.current = {
         data: result,
+        templates,
         timestamp: Date.now(),
       }
 
       setRawInstructions(result)
+      setSectionTemplates(templates)
 
       if (result) {
         const instructionSet = sanityToInstructionSet(result)
@@ -128,6 +154,7 @@ export function useInstructions(): UseInstructionsReturn & {
       // Fall back to defaults on error
       setInstructions(DEFAULT_INSTRUCTION_SETS)
       setActiveInstructionId('default')
+      setSectionTemplates([])
     } finally {
       setIsLoading(false)
     }
@@ -221,6 +248,7 @@ export function useInstructions(): UseInstructionsReturn & {
     setActiveInstruction,
     buildSystemPrompt: buildPrompt,
     rawInstructions,
+    sectionTemplates,
     isLoading,
     refetch,
   }

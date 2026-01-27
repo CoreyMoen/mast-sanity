@@ -82,6 +82,7 @@ export function ClaudeTool(props: ClaudeToolProps) {
     activeInstruction,
     setActiveInstruction,
     rawInstructions,
+    sectionTemplates,
   } = useInstructions()
 
   // Workflows hook
@@ -276,6 +277,7 @@ ${resultJson}
     workflowContext,
     documentContexts: pendingDocuments,
     rawInstructions: rawInstructions || undefined,
+    sectionTemplates: sectionTemplates || undefined,
     activeConversation,
     onAddMessage: addMessage,
     onUpdateMessage: updateMessage,

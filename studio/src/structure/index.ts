@@ -1,4 +1,4 @@
-import {BlockElementIcon, BoltIcon, BookIcon, CogIcon, DocumentIcon, EditIcon, FolderIcon, MenuIcon, RobotIcon} from '@sanity/icons'
+import {BlockElementIcon, BoltIcon, BookIcon, CogIcon, ComponentIcon, DocumentIcon, EditIcon, FolderIcon, MenuIcon, RobotIcon} from '@sanity/icons'
 import type {StructureBuilder, StructureResolver} from 'sanity/structure'
 import {orderableDocumentListDeskItem} from '@sanity/orderable-document-list'
 import pluralize from 'pluralize-esm'
@@ -29,6 +29,7 @@ const DISABLED_TYPES = [
   'post',
   'person',
   'category',
+  'sectionTemplate',
 ]
 
 export const structure: StructureResolver = (S: StructureBuilder, context) =>
@@ -75,6 +76,17 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
         .title('Navigation')
         .child(S.document().schemaType('navigation').documentId('navigation'))
         .icon(MenuIcon),
+
+      // Section Templates - reusable section configurations
+      S.listItem()
+        .id('sectionTemplates')
+        .title('Section Templates')
+        .icon(ComponentIcon)
+        .child(
+          S.documentTypeList('sectionTemplate')
+            .title('Section Templates')
+            .defaultOrdering([{field: 'category', direction: 'asc'}, {field: 'name', direction: 'asc'}])
+        ),
 
       // Footer Singleton
       S.listItem()

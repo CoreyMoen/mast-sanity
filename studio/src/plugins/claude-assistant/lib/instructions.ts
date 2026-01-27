@@ -6,7 +6,7 @@
 
 import type {SystemPromptContext, SchemaContext, ParsedAction} from '../types'
 import {formatSchemaForPrompt} from './schema-context'
-import {formatInstructionsForClaude, type SanityClaudeInstructions} from './format-instructions'
+import {formatInstructionsForClaude, type SanityClaudeInstructions, type SectionTemplateForContext} from './format-instructions'
 
 /**
  * Base system prompt for the Claude assistant
@@ -381,9 +381,13 @@ export function buildSystemPrompt(context: SystemPromptContext): string {
   // Add custom instructions - use conditional formatting if raw instructions and user message available
   if (context.rawInstructions && context.userMessage) {
     // Use conditional instruction inclusion for better performance
+    // Include section templates if available (they'll be filtered by design category detection)
     const conditionalInstructions = formatInstructionsForClaude(
       context.rawInstructions as SanityClaudeInstructions,
-      { userMessage: context.userMessage }
+      {
+        userMessage: context.userMessage,
+        sectionTemplates: context.sectionTemplates as SectionTemplateForContext[] | undefined,
+      }
     )
     if (conditionalInstructions) {
       parts.push('\n## Custom Instructions\n')
