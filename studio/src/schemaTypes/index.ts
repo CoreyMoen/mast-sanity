@@ -2,6 +2,7 @@ import {person} from './documents/person'
 import {page} from './documents/page'
 import {post} from './documents/post'
 import {category} from './documents/category'
+import {sectionTemplate} from './documents/sectionTemplate'
 import {claudeConversation} from './documents/claudeConversation'
 import {claudeInstructions} from './documents/claudeInstructions'
 import {claudeApiSettings} from './documents/claudeApiSettings'
@@ -51,6 +52,7 @@ export const schemaTypes = [
   post,
   person,
   category,
+  sectionTemplate,
   claudeConversation,
   claudeInstructions,
   claudeApiSettings,

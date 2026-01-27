@@ -1,39 +1,76 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
 import {BlockElementIcon} from '@sanity/icons'
-import {SectionFormInput} from '../components/SectionFormInput'
 
 /**
- * Section schema - Top-level layout container for page builder.
- * Contains rows and provides background, padding, and width settings.
- * Includes a "Start from template" option that allows users to apply
- * pre-built section templates managed in the Section Templates collection.
+ * Section Template document type.
+ * Allows editors to create reusable section templates that can be applied
+ * to any section in the page builder. Templates are managed entirely within
+ * Sanity and can be created/edited without code changes.
  */
-export const section = defineType({
-  name: 'section',
-  title: 'Section',
-  type: 'object',
+export const sectionTemplate = defineType({
+  name: 'sectionTemplate',
+  title: 'Section Template',
+  type: 'document',
   icon: BlockElementIcon,
-  components: {
-    input: SectionFormInput,
-  },
   groups: [
-    {name: 'content', title: 'Content', default: true},
-    {name: 'background', title: 'Background'},
-    {name: 'layout', title: 'Layout'},
+    {name: 'template', title: 'Template Info', default: true},
+    {name: 'content', title: 'Content'},
+    {name: 'settings', title: 'Section Settings'},
   ],
   fields: [
+    // Template Info Group
     defineField({
-      name: 'label',
-      title: 'Section Label',
+      name: 'name',
+      title: 'Template Name',
       type: 'string',
-      description: 'Internal label for this section (not displayed on page)',
-      group: 'content',
+      description: 'Display name shown when selecting templates (e.g., "Hero / Center")',
+      group: 'template',
+      validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'description',
+      title: 'Description',
+      type: 'text',
+      rows: 2,
+      description: 'Brief description of when to use this template',
+      group: 'template',
+    }),
+    defineField({
+      name: 'category',
+      title: 'Category',
+      type: 'string',
+      group: 'template',
+      options: {
+        list: [
+          {title: 'Heroes', value: 'heroes'},
+          {title: 'Features', value: 'features'},
+          {title: 'Content', value: 'content'},
+          {title: 'Testimonials', value: 'testimonials'},
+          {title: 'CTAs', value: 'ctas'},
+          {title: 'Pricing', value: 'pricing'},
+          {title: 'FAQ', value: 'faq'},
+          {title: 'Other', value: 'other'},
+        ],
+      },
+      initialValue: 'other',
+    }),
+    defineField({
+      name: 'thumbnail',
+      title: 'Preview Thumbnail',
+      type: 'image',
+      description: 'Screenshot showing what this template looks like (recommended: 400x300px)',
+      group: 'template',
+      options: {
+        hotspot: true,
+      },
+    }),
+
+    // Content Group - Same as section.rows
+    defineField({
       name: 'rows',
-      title: 'Content',
+      title: 'Template Content',
       type: 'array',
-      description: 'Add rows for complex layouts, or add content blocks directly for simpler sections',
+      description: 'Build out the section content that will be copied when this template is applied',
       of: [
         // Layout
         defineArrayMember({type: 'row', options: {modal: {type: 'dialog', width: 'auto'}}}),
@@ -61,12 +98,13 @@ export const section = defineType({
       },
       group: 'content',
     }),
-    // Background Group
+
+    // Section Settings Group - Same as section settings fields
     defineField({
       name: 'backgroundColor',
       title: 'Background Color',
       type: 'string',
-      group: 'background',
+      group: 'settings',
       options: {
         list: [
           {title: 'Primary', value: 'primary'},
@@ -78,40 +116,10 @@ export const section = defineType({
       initialValue: 'primary',
     }),
     defineField({
-      name: 'backgroundImage',
-      title: 'Background Image',
-      type: 'image',
-      group: 'background',
-      description: 'Optional background image for the section',
-      options: {
-        hotspot: true,
-      },
-    }),
-    defineField({
-      name: 'backgroundOverlay',
-      title: 'Background Overlay',
-      type: 'number',
-      group: 'background',
-      description: 'Darken the background image (0 = no overlay, 100 = fully black)',
-      options: {
-        list: [
-          {title: 'None', value: 0},
-          {title: 'Light (20%)', value: 20},
-          {title: 'Medium (40%)', value: 40},
-          {title: 'Dark (60%)', value: 60},
-          {title: 'Very Dark (80%)', value: 80},
-        ],
-      },
-      initialValue: 0,
-      hidden: ({parent}) => !parent?.backgroundImage,
-    }),
-    // Layout Group
-    defineField({
       name: 'minHeight',
       title: 'Minimum Height',
       type: 'string',
-      group: 'layout',
-      description: 'Set a minimum height for the section',
+      group: 'settings',
       options: {
         list: [
           {title: 'Auto (content height)', value: 'auto'},
@@ -119,25 +127,16 @@ export const section = defineType({
           {title: 'Medium (500px)', value: 'medium'},
           {title: 'Large (700px)', value: 'large'},
           {title: 'Full Screen (100vh)', value: 'screen'},
-          {title: 'Custom', value: 'custom'},
         ],
       },
       initialValue: 'auto',
     }),
     defineField({
-      name: 'customMinHeight',
-      title: 'Custom Min Height',
-      type: 'string',
-      group: 'layout',
-      description: 'Enter a CSS value (e.g., "400px", "50vh", "80svh")',
-      hidden: ({parent}) => parent?.minHeight !== 'custom',
-    }),
-    defineField({
       name: 'verticalAlign',
       title: 'Vertical Alignment',
       type: 'string',
-      group: 'layout',
-      description: 'Align content vertically within the section',
+      group: 'settings',
+      description: 'Only applies when Minimum Height is not Auto',
       options: {
         list: [
           {title: 'Top', value: 'start'},
@@ -148,13 +147,12 @@ export const section = defineType({
         direction: 'horizontal',
       },
       initialValue: 'start',
-      hidden: ({parent}) => parent?.minHeight === 'auto',
     }),
     defineField({
       name: 'maxWidth',
       title: 'Max Width',
       type: 'string',
-      group: 'layout',
+      group: 'settings',
       options: {
         list: [
           {title: 'Full Width', value: 'full'},
@@ -172,8 +170,7 @@ export const section = defineType({
       name: 'paddingTop',
       title: 'Vertical Padding',
       type: 'string',
-      group: 'layout',
-      description: 'Default uses fluid padding (48-96px) that scales with viewport',
+      group: 'settings',
       options: {
         list: [
           {title: 'None', value: 'none'},
@@ -188,25 +185,31 @@ export const section = defineType({
   ],
   preview: {
     select: {
-      label: 'label',
+      name: 'name',
+      category: 'category',
+      thumbnail: 'thumbnail',
       rows: 'rows',
-      backgroundImage: 'backgroundImage',
-      minHeight: 'minHeight',
     },
-    prepare({label, rows, backgroundImage, minHeight}) {
+    prepare({name, category, thumbnail, rows}) {
       const itemCount = rows?.length || 0
-      const rowCount = rows?.filter((item: any) => item._type === 'row').length || 0
-      const blockCount = itemCount - rowCount
-      const parts = []
-      if (rowCount > 0) parts.push(`${rowCount} row${rowCount !== 1 ? 's' : ''}`)
-      if (blockCount > 0) parts.push(`${blockCount} block${blockCount !== 1 ? 's' : ''}`)
-      if (backgroundImage) parts.push('bg-image')
-      if (minHeight && minHeight !== 'auto') parts.push(`h:${minHeight}`)
+      const categoryLabel = category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Other'
       return {
-        title: label || 'Section',
-        subtitle: parts.join(' • ') || 'Empty',
-        media: backgroundImage,
+        title: name || 'Untitled Template',
+        subtitle: `${categoryLabel} • ${itemCount} item${itemCount !== 1 ? 's' : ''}`,
+        media: thumbnail || BlockElementIcon,
       }
     },
   },
+  orderings: [
+    {
+      title: 'Category',
+      name: 'categoryAsc',
+      by: [{field: 'category', direction: 'asc'}],
+    },
+    {
+      title: 'Name',
+      name: 'nameAsc',
+      by: [{field: 'name', direction: 'asc'}],
+    },
+  ],
 })
