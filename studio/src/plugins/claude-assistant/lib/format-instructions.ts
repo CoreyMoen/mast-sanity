@@ -196,14 +196,15 @@ function describeTemplateStructure(rows: any[]): string {
   const parts: string[] = []
 
   for (const row of rows) {
-    if (row._type === 'row' && row.columns) {
-      const colCount = row.columns.length
-      const colWidths = row.columns
-        .map((col: any) => col.widthDesktop || 'auto')
+    if (row._type === 'row') {
+      const columns = row.columns || []
+      const colCount = columns.length
+      const colWidths = columns
+        .map((col: any) => col?.widthDesktop || 'auto')
         .join('/')
 
-      const blockTypes = row.columns
-        .flatMap((col: any) => (col.content || []).map((block: any) => block._type))
+      const blockTypes = columns
+        .flatMap((col: any) => (col?.content || []).map((block: any) => block?._type))
         .filter(Boolean)
 
       const uniqueBlocks = [...new Set(blockTypes)]

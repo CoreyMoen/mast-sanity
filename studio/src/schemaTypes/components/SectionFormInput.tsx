@@ -53,6 +53,21 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 const CATEGORY_ORDER = ['heroes', 'features', 'content', 'testimonials', 'ctas', 'pricing', 'faq', 'other']
 
+/** Delay in ms to show success state after applying template */
+const TEMPLATE_APPLICATION_DELAY = 300
+
+/**
+ * Generate a unique key for Sanity array items.
+ * Uses crypto.randomUUID when available, falls back to Math.random for older browsers.
+ */
+function generateUniqueKey(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID().slice(0, 8)
+  }
+  // Fallback for browsers without crypto.randomUUID
+  return Math.random().toString(36).substring(2, 10)
+}
+
 /**
  * Deep clones an object and generates new _key values for all array items.
  * This ensures that when a template is applied, all keys are unique.
@@ -70,7 +85,7 @@ function deepCloneWithNewKeys(obj: any): any {
   for (const key of Object.keys(obj)) {
     if (key === '_key') {
       // Generate a new unique key
-      cloned[key] = crypto.randomUUID().slice(0, 8)
+      cloned[key] = generateUniqueKey()
     } else {
       cloned[key] = deepCloneWithNewKeys(obj[key])
     }
@@ -175,7 +190,7 @@ export function SectionFormInput(props: ObjectInputProps) {
         }
 
         // Brief delay to show success state
-        await new Promise((resolve) => setTimeout(resolve, 800))
+        await new Promise((resolve) => setTimeout(resolve, TEMPLATE_APPLICATION_DELAY))
       } catch (error) {
         console.error('Failed to apply template:', error)
       } finally {
