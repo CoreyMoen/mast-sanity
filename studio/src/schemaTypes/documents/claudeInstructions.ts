@@ -293,6 +293,25 @@ export const claudeInstructions = defineType({
       initialValue: DEFAULT_DESIGN_KEYWORDS,
     }),
 
+    // Section Templates sub-section
+    defineField({
+      name: 'includeSectionTemplates',
+      title: 'Include Section Templates',
+      type: 'boolean',
+      description: 'When enabled, all published section templates will be included in Claude\'s context when design-related prompts are detected',
+      group: 'design',
+      initialValue: true,
+    }),
+    defineField({
+      name: 'sectionTemplateGuidance',
+      title: 'Section Template Guidance',
+      type: 'text',
+      description: 'Additional instructions for how Claude should use section templates (e.g., when to suggest templates vs custom builds)',
+      group: 'design',
+      rows: 4,
+      hidden: ({parent}) => !parent?.includeSectionTemplates,
+    }),
+
     // Technical group
     defineField({
       name: 'technicalConstraints',

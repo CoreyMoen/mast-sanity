@@ -268,7 +268,7 @@ function FloatingChatPanel({
   const {executeAction, undoAction} = useContentOperations()
 
   // Instructions hook - same as main tool
-  const {activeInstruction} = useInstructions()
+  const {activeInstruction, rawInstructions, sectionTemplates} = useInstructions()
 
   const {
     conversations,
@@ -464,6 +464,8 @@ ${resultJson}
     customInstructions: settings.customInstructions,
     workflowContext,
     documentContexts: pendingDocuments,
+    rawInstructions: rawInstructions || undefined,
+    sectionTemplates: sectionTemplates || undefined,
     activeConversation,
     onAddMessage: addMessage,
     onUpdateMessage: updateMessage,

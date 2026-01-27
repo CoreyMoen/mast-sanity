@@ -46,6 +46,11 @@ export interface UseClaudeChatOptions {
   rawInstructions?: unknown
 
   /**
+   * Section templates for design context
+   */
+  sectionTemplates?: unknown[]
+
+  /**
    * Active conversation to sync messages with
    */
   activeConversation?: Conversation | null
@@ -200,6 +205,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
     workflowContext,
     documentContexts,
     rawInstructions,
+    sectionTemplates,
     activeConversation,
     onAddMessage,
     onUpdateMessage,
@@ -359,6 +365,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
       try {
         // Build system prompt with conditional instruction inclusion
         // Pass user message and raw instructions to enable keyword-based filtering
+        // Include section templates for design context when available
         const systemPrompt = buildSystemPrompt({
           schemaContext: schemaContext || {
             documentTypes: [],
@@ -370,6 +377,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
           documentContexts,
           userMessage: content,
           rawInstructions,
+          sectionTemplates,
         })
 
         // Build conversation history for API
@@ -621,6 +629,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
       workflowContext,
       documentContexts,
       rawInstructions,
+      sectionTemplates,
       activeConversation,
       onAddMessage,
       onGenerateTitle,

@@ -236,6 +236,8 @@ export interface SystemPromptContext {
   userMessage?: string
   /** Raw instructions from Sanity for conditional filtering */
   rawInstructions?: unknown
+  /** Section templates for design context */
+  sectionTemplates?: unknown[]
 }
 
 // ============================================================================

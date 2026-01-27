@@ -54,6 +54,25 @@ export interface SanityClaudeInstructions {
   writingKeywords?: string
   designKeywords?: string
   technicalKeywords?: string
+  // Section template settings
+  includeSectionTemplates?: boolean
+  sectionTemplateGuidance?: string
+}
+
+/**
+ * Section template document format (simplified for context)
+ */
+export interface SectionTemplateForContext {
+  _id: string
+  name: string
+  description?: string
+  category?: string
+  rows?: any[]
+  backgroundColor?: string
+  paddingTop?: string
+  maxWidth?: string
+  minHeight?: string
+  verticalAlign?: string
 }
 
 /**
@@ -154,6 +173,125 @@ export function detectRelevantCategories(
 }
 
 /**
+ * Category labels for section templates
+ */
+const TEMPLATE_CATEGORY_LABELS: Record<string, string> = {
+  heroes: 'Heroes',
+  features: 'Features',
+  content: 'Content',
+  testimonials: 'Testimonials',
+  ctas: 'CTAs',
+  pricing: 'Pricing',
+  faq: 'FAQ',
+  other: 'Other',
+}
+
+/**
+ * Describe the structure of a section template's content
+ * Creates a human-readable summary of what's inside
+ */
+function describeTemplateStructure(rows: any[]): string {
+  if (!rows || rows.length === 0) return 'Empty'
+
+  const parts: string[] = []
+
+  for (const row of rows) {
+    if (row._type === 'row' && row.columns) {
+      const colCount = row.columns.length
+      const colWidths = row.columns
+        .map((col: any) => col.widthDesktop || 'auto')
+        .join('/')
+
+      const blockTypes = row.columns
+        .flatMap((col: any) => (col.content || []).map((block: any) => block._type))
+        .filter(Boolean)
+
+      const uniqueBlocks = [...new Set(blockTypes)]
+      const blockSummary = uniqueBlocks.length > 0 ? uniqueBlocks.join(', ') : 'empty'
+
+      parts.push(`Row(${colCount}col ${colWidths}): [${blockSummary}]`)
+    } else if (row._type) {
+      parts.push(row._type)
+    }
+  }
+
+  return parts.join(' → ')
+}
+
+/**
+ * Format section templates for inclusion in Claude's context
+ */
+export function formatSectionTemplatesForClaude(
+  templates: SectionTemplateForContext[],
+  guidance?: string
+): string {
+  if (!templates || templates.length === 0) {
+    return ''
+  }
+
+  const parts: string[] = []
+  parts.push('## Available Section Templates')
+  parts.push('')
+  parts.push('When building new sections, consider using these pre-built templates. You can suggest applying a template by telling the user which template matches their needs, then they can apply it from the Section\'s template selector.')
+  parts.push('')
+
+  // Add custom guidance if provided
+  if (guidance) {
+    parts.push('### Template Usage Guidelines')
+    parts.push(guidance)
+    parts.push('')
+  }
+
+  // Group templates by category
+  const grouped: Record<string, SectionTemplateForContext[]> = {}
+  for (const template of templates) {
+    const category = template.category || 'other'
+    if (!grouped[category]) {
+      grouped[category] = []
+    }
+    grouped[category].push(template)
+  }
+
+  // Output templates by category
+  const categoryOrder = ['heroes', 'features', 'content', 'testimonials', 'ctas', 'pricing', 'faq', 'other']
+  for (const category of categoryOrder) {
+    const categoryTemplates = grouped[category]
+    if (!categoryTemplates || categoryTemplates.length === 0) continue
+
+    const categoryLabel = TEMPLATE_CATEGORY_LABELS[category] || category
+    parts.push(`### ${categoryLabel}`)
+    parts.push('')
+
+    for (const template of categoryTemplates) {
+      parts.push(`**${template.name}**`)
+      if (template.description) {
+        parts.push(`- Description: ${template.description}`)
+      }
+
+      // Settings summary
+      const settings: string[] = []
+      if (template.backgroundColor) settings.push(`bg: ${template.backgroundColor}`)
+      if (template.paddingTop) settings.push(`padding: ${template.paddingTop}`)
+      if (template.maxWidth && template.maxWidth !== 'container') settings.push(`maxWidth: ${template.maxWidth}`)
+      if (template.minHeight && template.minHeight !== 'auto') settings.push(`minHeight: ${template.minHeight}`)
+      if (settings.length > 0) {
+        parts.push(`- Settings: ${settings.join(', ')}`)
+      }
+
+      // Structure summary
+      if (template.rows && template.rows.length > 0) {
+        const structure = describeTemplateStructure(template.rows)
+        parts.push(`- Structure: ${structure}`)
+      }
+
+      parts.push('')
+    }
+  }
+
+  return parts.join('\n')
+}
+
+/**
  * Get default instructions when none are configured
  */
 export function getDefaultInstructions(): string {
@@ -176,6 +314,8 @@ export interface FormatInstructionsOptions {
   userMessage?: string
   /** Force include all categories (bypass conditional logic) */
   includeAll?: boolean
+  /** Section templates to include in context (when design category is relevant) */
+  sectionTemplates?: SectionTemplateForContext[]
 }
 
 /**
@@ -277,6 +417,17 @@ export function formatInstructionsForClaude(
         }
         parts.push('')
       })
+    }
+
+    // Section Templates (when enabled and templates provided)
+    if (instructions.includeSectionTemplates !== false && options?.sectionTemplates && options.sectionTemplates.length > 0) {
+      const templateContext = formatSectionTemplatesForClaude(
+        options.sectionTemplates,
+        instructions.sectionTemplateGuidance
+      )
+      if (templateContext) {
+        parts.push(templateContext)
+      }
     }
   }
 
