@@ -49,17 +49,6 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
         context,
       }),
 
-      // Section Templates - reusable section configurations
-      S.listItem()
-        .id('sectionTemplates')
-        .title('Section Templates')
-        .icon(ComponentIcon)
-        .child(
-          S.documentTypeList('sectionTemplate')
-            .title('Section Templates')
-            .defaultOrdering([{field: 'category', direction: 'asc'}, {field: 'name', direction: 'asc'}])
-        ),
-
       // Collections folder (Posts, People)
       S.listItem()
         .id('collections')
@@ -87,6 +76,17 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
         .title('Navigation')
         .child(S.document().schemaType('navigation').documentId('navigation'))
         .icon(MenuIcon),
+
+      // Section Templates - reusable section configurations
+      S.listItem()
+        .id('sectionTemplates')
+        .title('Section Templates')
+        .icon(ComponentIcon)
+        .child(
+          S.documentTypeList('sectionTemplate')
+            .title('Section Templates')
+            .defaultOrdering([{field: 'category', direction: 'asc'}, {field: 'name', direction: 'asc'}])
+        ),
 
       // Footer Singleton
       S.listItem()
