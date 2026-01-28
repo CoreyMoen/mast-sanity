@@ -1,18 +1,16 @@
 import React, {useState, useEffect, useCallback} from 'react'
-import {BlockElementIcon, ChevronDownIcon, CheckmarkIcon} from '@sanity/icons'
+import {BlockElementIcon} from '@sanity/icons'
 import {
   Button,
   Card,
   Flex,
   Text,
   Stack,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuDivider,
   Box,
   Spinner,
   Badge,
+  Dialog,
+  Grid,
 } from '@sanity/ui'
 import {
   type ObjectInputProps,
@@ -28,6 +26,7 @@ interface SectionTemplate {
   name: string
   description?: string
   category?: string
+  thumbnailUrl?: string
   rows?: any[]
   backgroundColor?: string
   minHeight?: string
@@ -106,6 +105,8 @@ export function SectionFormInput(props: ObjectInputProps) {
   const [loading, setLoading] = useState(true)
   const [applying, setApplying] = useState(false)
   const [appliedTemplate, setAppliedTemplate] = useState<string | null>(null)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const [selectedCategory, setSelectedCategory] = useState<string>('all')
 
   // Check if section already has content
   const rows = useFormValue([...props.path, 'rows']) as any[] | undefined
@@ -121,6 +122,7 @@ export function SectionFormInput(props: ObjectInputProps) {
             name,
             description,
             category,
+            "thumbnailUrl": thumbnail.asset->url,
             rows,
             backgroundColor,
             minHeight,
@@ -152,8 +154,14 @@ export function SectionFormInput(props: ObjectInputProps) {
   // Get sorted categories that have templates
   const sortedCategories = CATEGORY_ORDER.filter((cat) => groupedTemplates[cat]?.length > 0)
 
+  // Get templates for current tab
+  const displayedTemplates = selectedCategory === 'all'
+    ? templates
+    : groupedTemplates[selectedCategory] || []
+
   const applyTemplate = useCallback(
     async (template: SectionTemplate) => {
+      setDialogOpen(false)
       setApplying(true)
       setAppliedTemplate(template.name)
 
@@ -236,41 +244,14 @@ export function SectionFormInput(props: ObjectInputProps) {
               </Text>
             </Flex>
           ) : (
-            <MenuButton
-              button={
-                <Button
-                  text="Choose Template"
-                  tone="primary"
-                  icon={BlockElementIcon}
-                  iconRight={ChevronDownIcon}
-                  mode="ghost"
-                  fontSize={1}
-                  padding={2}
-                />
-              }
-              id="template-menu"
-              menu={
-                <Menu>
-                  {sortedCategories.map((category, categoryIndex) => (
-                    <React.Fragment key={category}>
-                      {categoryIndex > 0 && <MenuDivider />}
-                      <Box padding={2} paddingBottom={1}>
-                        <Text size={0} weight="semibold" muted>
-                          {CATEGORY_LABELS[category] || category}
-                        </Text>
-                      </Box>
-                      {groupedTemplates[category].map((template) => (
-                        <MenuItem
-                          key={template._id}
-                          text={template.name}
-                          onClick={() => applyTemplate(template)}
-                        />
-                      ))}
-                    </React.Fragment>
-                  ))}
-                </Menu>
-              }
-              popover={{portal: true, placement: 'bottom-end'}}
+            <Button
+              text="Choose Template"
+              tone="primary"
+              icon={BlockElementIcon}
+              mode="ghost"
+              fontSize={1}
+              padding={2}
+              onClick={() => setDialogOpen(true)}
             />
           )}
         </Flex>
@@ -283,6 +264,148 @@ export function SectionFormInput(props: ObjectInputProps) {
           </Box>
         )}
       </Card>
+
+      {/* Template Selection Dialog */}
+      {dialogOpen && (
+        <Dialog
+          id="template-picker-dialog"
+          header="Choose a Section Template"
+          onClose={() => setDialogOpen(false)}
+          width={2}
+        >
+          <Box padding={4}>
+            <Stack space={4}>
+              {/* Category Filter */}
+              <Flex gap={2} wrap="wrap">
+                <Button
+                  text="All"
+                  mode={selectedCategory === 'all' ? 'default' : 'ghost'}
+                  tone={selectedCategory === 'all' ? 'primary' : 'default'}
+                  onClick={() => setSelectedCategory('all')}
+                  fontSize={1}
+                  padding={2}
+                />
+                {sortedCategories.map((category) => (
+                  <Button
+                    key={category}
+                    text={CATEGORY_LABELS[category] || category}
+                    mode={selectedCategory === category ? 'default' : 'ghost'}
+                    tone={selectedCategory === category ? 'primary' : 'default'}
+                    onClick={() => setSelectedCategory(category)}
+                    fontSize={1}
+                    padding={2}
+                  />
+                ))}
+              </Flex>
+
+              {/* Template Grid */}
+              <Box style={{maxHeight: '60vh', overflowY: 'auto', padding: '2px'}}>
+                {displayedTemplates.length === 0 ? (
+                  <Card padding={5} tone="transparent">
+                    <Text align="center" muted>
+                      No templates in this category
+                    </Text>
+                  </Card>
+                ) : (
+                  <Grid columns={[1, 2, 3]} gap={3}>
+                    {displayedTemplates.map((template) => (
+                      <Card
+                        key={template._id}
+                        radius={2}
+                        shadow={1}
+                        style={{
+                          cursor: 'pointer',
+                          overflow: 'hidden',
+                          transition: 'box-shadow 0.15s ease, transform 0.15s ease',
+                        }}
+                        onClick={() => applyTemplate(template)}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)'
+                          e.currentTarget.style.transform = 'translateY(-2px)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.boxShadow = ''
+                          e.currentTarget.style.transform = ''
+                        }}
+                      >
+                        {/* Thumbnail */}
+                        <Box
+                          style={{
+                            position: 'relative',
+                            paddingBottom: '66.67%', // 3:2 aspect ratio
+                            backgroundColor: 'var(--card-bg-color)',
+                            overflow: 'hidden',
+                          }}
+                        >
+                          {template.thumbnailUrl ? (
+                            <img
+                              src={`${template.thumbnailUrl}?w=400&h=267&fit=crop`}
+                              alt={template.name}
+                              style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                objectFit: 'cover',
+                              }}
+                            />
+                          ) : (
+                            <Flex
+                              align="center"
+                              justify="center"
+                              style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100%',
+                                backgroundColor: 'var(--card-hairline-soft-color)',
+                              }}
+                            >
+                              <Text muted size={4}>
+                                <BlockElementIcon />
+                              </Text>
+                            </Flex>
+                          )}
+                          {/* Category Badge */}
+                          {template.category && (
+                            <Box
+                              style={{
+                                position: 'absolute',
+                                top: 8,
+                                left: 8,
+                              }}
+                            >
+                              <Badge tone="primary" fontSize={0}>
+                                {CATEGORY_LABELS[template.category] || template.category}
+                              </Badge>
+                            </Box>
+                          )}
+                        </Box>
+
+                        {/* Template Info */}
+                        <Box padding={3}>
+                          <Stack space={2}>
+                            <Text weight="semibold" size={1}>
+                              {template.name}
+                            </Text>
+                            {template.description && (
+                              <Text size={0} muted>
+                                {template.description}
+                              </Text>
+                            )}
+                          </Stack>
+                        </Box>
+                      </Card>
+                    ))}
+                  </Grid>
+                )}
+              </Box>
+            </Stack>
+          </Box>
+        </Dialog>
+      )}
 
       {props.renderDefault(props)}
     </>

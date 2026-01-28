@@ -8,7 +8,7 @@ interface RichTextBlockProps {
     _type: string
     content?: PortableTextBlock[]
     align?: 'left' | 'center' | 'right'
-    size?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'xl' | 'lg' | 'base' | 'sm'
+    size?: 'inherit' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'xl' | 'lg' | 'base' | 'sm'
     maxWidth?: 'none' | 'prose' | 'prose-lg' | 'prose-xl'
     color?: 'default' | 'gray' | 'white' | 'brand' | 'blue'
     customStyle?: string
@@ -25,6 +25,8 @@ const alignClasses: Record<string, string> = {
 
 // Text sizes (using design system heading and paragraph utilities)
 const sizeClasses: Record<string, string> = {
+  // Default - same as base
+  inherit: 'text-body',
   // Heading sizes - use design system heading variables
   h1: 'text-h1',
   h2: 'text-h2',
@@ -60,7 +62,7 @@ export default function RichTextBlock({block}: RichTextBlockProps) {
   const {
     content,
     align = 'left',
-    size = 'base',
+    size = 'inherit',
     maxWidth = 'none',
     color = 'default',
     customStyle,
@@ -77,7 +79,7 @@ export default function RichTextBlock({block}: RichTextBlockProps) {
   const cleanColor = stegaClean(color)
 
   const alignClass = alignClasses[cleanAlign] || alignClasses.left
-  const sizeClass = sizeClasses[cleanSize] || sizeClasses.base
+  const sizeClass = sizeClasses[cleanSize] || sizeClasses.inherit
   const maxWidthClass = maxWidthClasses[cleanMaxWidth] || ''
   const colorClass = colorClasses[cleanColor] || colorClasses.default
   const inlineStyle = parseCustomStyle(customStyle)

@@ -34,12 +34,14 @@ const homeLocation = {
 
 // resolveHref() is a convenience function that resolves the URL
 // path for different document types and used in the presentation tool.
-function resolveHref(documentType?: string, slug?: string): string | undefined {
+function resolveHref(documentType?: string, slug?: string, id?: string): string | undefined {
   switch (documentType) {
     case 'post':
       return slug ? `/posts/${slug}` : undefined
     case 'page':
       return slug ? `/${slug}` : undefined
+    case 'sectionTemplate':
+      return id ? `/preview/template/${id}` : undefined
     default:
       console.warn('Invalid document type:', documentType)
       return undefined
@@ -84,6 +86,10 @@ export default defineConfig({
             route: '/posts/:slug',
             filter: `_type == "post" && slug.current == $slug || _id == $slug`,
           },
+          {
+            route: '/preview/template/:id',
+            filter: `_type == "sectionTemplate" && _id == $id`,
+          },
         ]),
         // Locations Resolver API allows you to define where data is being used in your application. https://www.sanity.io/docs/presentation-resolver-api#8d8bca7bfcd7
         locations: {
@@ -122,6 +128,20 @@ export default defineConfig({
                   href: '/',
                 } satisfies DocumentLocation,
               ].filter(Boolean) as DocumentLocation[],
+            }),
+          }),
+          sectionTemplate: defineLocations({
+            select: {
+              name: 'name',
+              id: '_id',
+            },
+            resolve: (doc) => ({
+              locations: [
+                {
+                  title: doc?.name || 'Untitled Template',
+                  href: resolveHref('sectionTemplate', undefined, doc?.id)!,
+                },
+              ],
             }),
           }),
         },

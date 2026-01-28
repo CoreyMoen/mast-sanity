@@ -1,5 +1,6 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
 import {BlockElementIcon} from '@sanity/icons'
+import {SectionTemplateFormInput} from '../components/SectionTemplateFormInput'
 
 /**
  * Section Template document type.
@@ -12,6 +13,10 @@ export const sectionTemplate = defineType({
   title: 'Section Template',
   type: 'document',
   icon: BlockElementIcon,
+  // Add banner at top of document form for Presentation mode
+  components: {
+    input: SectionTemplateFormInput,
+  },
   groups: [
     {name: 'template', title: 'Template Info', default: true},
     {name: 'content', title: 'Content'},

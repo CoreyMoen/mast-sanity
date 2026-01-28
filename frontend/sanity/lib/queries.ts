@@ -245,3 +245,23 @@ export const pagesSlugs = defineQuery(`
   *[_type == "page" && defined(slug.current)]
   {"slug": slug.current}
 `)
+
+// Section Template query for preview
+export const sectionTemplateQuery = defineQuery(`
+  *[_type == "sectionTemplate" && _id == $id][0]{
+    _id,
+    _type,
+    name,
+    description,
+    category,
+    rows[]{
+      ...,
+      ${columnFields}
+    },
+    backgroundColor,
+    minHeight,
+    verticalAlign,
+    maxWidth,
+    paddingTop
+  }
+`)

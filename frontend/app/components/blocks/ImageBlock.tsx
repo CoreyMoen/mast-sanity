@@ -10,7 +10,7 @@ interface ImageBlockProps {
     alt?: string
     caption?: string
     size?: 'full' | 'lg' | 'md' | 'sm' | 'thumb'
-    aspectRatio?: 'original' | '16/9' | '4/3' | '1/1' | '3/4' | '9/16'
+    aspectRatio?: 'original' | '16/9' | '4/3' | '1/1' | '3/4' | '9/16' | '16×9' | '4×3' | '1×1' | '3×4' | '9×16' | '16x9' | '4x3' | '1x1' | '3x4' | '9x16'
     rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full'
     shadow?: boolean
   }
@@ -34,6 +34,18 @@ const aspectRatioStyles: Record<string, string | undefined> = {
   '1/1': '1/1',
   '3/4': '3/4',
   '9/16': '9/16',
+  // Legacy values (with × multiplication sign) - normalize to standard format
+  '16×9': '16/9',
+  '4×3': '4/3',
+  '1×1': '1/1',
+  '3×4': '3/4',
+  '9×16': '9/16',
+  // Legacy values (with letter x) - normalize to standard format
+  '16x9': '16/9',
+  '4x3': '4/3',
+  '1x1': '1/1',
+  '3x4': '3/4',
+  '9x16': '9/16',
 }
 
 // Rounded corners

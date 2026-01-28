@@ -45,6 +45,7 @@ export const richTextBlock = defineType({
       description: 'Visual size of the text (heading sizes use the design system heading variables)',
       options: {
         list: [
+          {title: 'Base (default)', value: 'inherit'},
           {title: 'H1', value: 'h1'},
           {title: 'H2', value: 'h2'},
           {title: 'H3', value: 'h3'},
@@ -57,7 +58,7 @@ export const richTextBlock = defineType({
           {title: 'Paragraph SM', value: 'sm'},
         ],
       },
-      initialValue: 'base',
+      initialValue: 'inherit',
     }),
     defineField({
       name: 'maxWidth',

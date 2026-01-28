@@ -18,7 +18,7 @@ interface InlineVideoBlockProps {
       asset?: {_ref: string}
       alt?: string
     }
-    aspectRatio?: '16/9' | '4/3' | '1/1' | '9/16' | '21/9'
+    aspectRatio?: '16/9' | '4/3' | '1/1' | '9/16' | '21/9' | '16×9' | '4×3' | '1×1' | '9×16' | '21×9' | '16x9' | '4x3' | '1x1' | '9x16' | '21x9'
     autoplayOnScroll?: boolean
     loop?: boolean
     muted?: boolean

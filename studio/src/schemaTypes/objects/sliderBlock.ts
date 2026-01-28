@@ -145,6 +145,18 @@ export const sliderBlock = defineType({
           {title: '1:1 (Square)', value: '1/1'},
           {title: '3:4 (Portrait)', value: '3/4'},
           {title: '9:16 (Vertical)', value: '9/16'},
+          // Legacy values for clipboard compatibility (multiplication sign ×)
+          {title: '16×9 (Legacy)', value: '16×9'},
+          {title: '4×3 (Legacy)', value: '4×3'},
+          {title: '1×1 (Legacy)', value: '1×1'},
+          {title: '3×4 (Legacy)', value: '3×4'},
+          {title: '9×16 (Legacy)', value: '9×16'},
+          // Legacy values for clipboard compatibility (letter x)
+          {title: '16x9 (Legacy)', value: '16x9'},
+          {title: '4x3 (Legacy)', value: '4x3'},
+          {title: '1x1 (Legacy)', value: '1x1'},
+          {title: '3x4 (Legacy)', value: '3x4'},
+          {title: '9x16 (Legacy)', value: '9x16'},
         ],
         layout: 'radio',
       },

@@ -32,7 +32,7 @@ const buttonVariants = cva(
       { variant: "primary", colorScheme: "black", className: "bg-black text-white hover:bg-dark-gray" },
       { variant: "primary", colorScheme: "white", className: "bg-white text-black hover:bg-gray-100" },
       // Secondary + colorScheme combinations
-      { variant: "secondary", colorScheme: "brand", className: "border-brand text-brand hover:bg-brand/10" },
+      { variant: "secondary", colorScheme: "brand", className: "border-brand text-foreground hover:bg-brand/10" },
       { variant: "secondary", colorScheme: "black", className: "border-black text-black hover:bg-black/10" },
       { variant: "secondary", colorScheme: "white", className: "border-white text-white hover:bg-white/10" },
       // Ghost + colorScheme combinations

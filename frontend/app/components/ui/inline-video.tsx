@@ -5,7 +5,7 @@ import Image from 'next/image'
 import {Pause, Play} from '@phosphor-icons/react/dist/ssr'
 import {cn} from '@/lib/utils'
 
-type AspectRatio = '16/9' | '4/3' | '1/1' | '9/16' | '21/9'
+type AspectRatio = '16/9' | '4/3' | '1/1' | '9/16' | '21/9' | '16×9' | '4×3' | '1×1' | '9×16' | '21×9' | '16x9' | '4x3' | '1x1' | '9x16' | '21x9'
 type ControlPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' | 'center'
 
 interface InlineVideoProps {
@@ -27,6 +27,18 @@ const aspectRatioClasses: Record<AspectRatio, string> = {
   '1/1': 'aspect-square',
   '9/16': 'aspect-[9/16]',
   '21/9': 'aspect-[21/9]',
+  // Legacy values (with × multiplication sign) - normalize to standard format
+  '16×9': 'aspect-video',
+  '4×3': 'aspect-[4/3]',
+  '1×1': 'aspect-square',
+  '9×16': 'aspect-[9/16]',
+  '21×9': 'aspect-[21/9]',
+  // Legacy values (with letter x) - normalize to standard format
+  '16x9': 'aspect-video',
+  '4x3': 'aspect-[4/3]',
+  '1x1': 'aspect-square',
+  '9x16': 'aspect-[9/16]',
+  '21x9': 'aspect-[21/9]',
 }
 
 const controlPositionClasses: Record<ControlPosition, string> = {
