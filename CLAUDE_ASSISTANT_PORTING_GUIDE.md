@@ -47,32 +47,41 @@ studio/src/plugins/claude-assistant/
 │   ├── SettingsPanel.tsx       # Settings UI
 │   ├── FloatingChat.tsx        # Floating chat overlay
 │   ├── StudioLayout.tsx        # Studio layout wrapper
-│   └── ImagePickerDialog.tsx   # Image selection dialog
+│   ├── ImagePickerDialog.tsx   # Image selection dialog
+│   ├── DocumentPicker.tsx      # Document context selector
+│   └── WorkflowPicker.tsx      # Workflow selection UI
 ├── hooks/
 │   ├── useClaudeChat.ts        # Chat messaging & streaming
 │   ├── useConversations.ts     # Conversation persistence
 │   ├── useContentOperations.ts # Document CRUD operations
 │   ├── useInstructions.ts      # Custom instructions
 │   ├── useWorkflows.ts         # Workflow management
-│   └── useKeyboardShortcuts.ts # Keyboard navigation
+│   ├── useKeyboardShortcuts.ts # Keyboard navigation
+│   ├── useApiSettings.ts       # API settings from Sanity
+│   ├── useCurrentDocument.ts   # Auto-detect current document
+│   └── useQuickActions.ts      # Quick action management
 └── lib/
     ├── anthropic.ts            # Anthropic API wrapper
     ├── operations.ts           # Sanity document operations
     ├── actions.ts              # Action parsing & validation
     ├── instructions.ts         # System prompt building
     ├── schema-context.ts       # Schema extraction
-    └── format-instructions.ts  # Instruction formatting
+    ├── format-instructions.ts  # Instruction formatting
+    ├── portable-text-to-markdown.ts  # PT to Markdown conversion
+    └── workflow-icons.tsx      # Workflow icon components
 ```
 
 ### 2. Schema Types
 
-Copy these three schema files:
+Copy these five schema files:
 
 ```
 studio/src/schemaTypes/documents/
 ├── claudeConversation.ts   # Stores chat history
 ├── claudeInstructions.ts   # AI configuration (singleton)
-└── claudeWorkflow.ts       # Workflow templates
+├── claudeWorkflow.ts       # Workflow templates
+├── claudeApiSettings.ts    # API settings (model, tokens, temperature)
+└── claudeQuickAction.ts    # Quick action buttons
 ```
 
 ### 3. API Routes
@@ -100,6 +109,8 @@ cp -r studio/src/plugins/claude-assistant YOUR_PROJECT/studio/src/plugins/
 cp studio/src/schemaTypes/documents/claudeConversation.ts YOUR_PROJECT/studio/src/schemaTypes/documents/
 cp studio/src/schemaTypes/documents/claudeInstructions.ts YOUR_PROJECT/studio/src/schemaTypes/documents/
 cp studio/src/schemaTypes/documents/claudeWorkflow.ts YOUR_PROJECT/studio/src/schemaTypes/documents/
+cp studio/src/schemaTypes/documents/claudeApiSettings.ts YOUR_PROJECT/studio/src/schemaTypes/documents/
+cp studio/src/schemaTypes/documents/claudeQuickAction.ts YOUR_PROJECT/studio/src/schemaTypes/documents/
 
 # Copy API routes
 mkdir -p YOUR_PROJECT/frontend/app/api/claude/generate-title
@@ -132,6 +143,8 @@ Add the Claude schema types to your `studio/src/schemaTypes/index.ts`:
 import {claudeConversation} from './documents/claudeConversation'
 import {claudeInstructions} from './documents/claudeInstructions'
 import {claudeWorkflow} from './documents/claudeWorkflow'
+import {claudeApiSettings} from './documents/claudeApiSettings'
+import {claudeQuickAction} from './documents/claudeQuickAction'
 
 // Add to schemaTypes array
 export const schemaTypes = [
@@ -139,6 +152,8 @@ export const schemaTypes = [
   claudeConversation,
   claudeInstructions,
   claudeWorkflow,
+  claudeApiSettings,
+  claudeQuickAction,
 ]
 ```
 
@@ -175,10 +190,11 @@ export default defineConfig({
   },
 
   // OPTIONAL: Hide Claude documents from "Create new" menu
+  // Note: claudeApiSettings, claudeQuickAction, and claudeWorkflow are managed via the Structure tool
   document: {
     newDocumentOptions: (prev, context) =>
       prev.filter((item) =>
-        !['claudeConversation', 'claudeInstructions', 'claudeWorkflow'].includes(item.templateId)
+        !['claudeConversation', 'claudeInstructions'].includes(item.templateId)
       ),
   },
 })
@@ -234,21 +250,22 @@ Edit the API routes to change models:
 
 **Main chat** (`frontend/app/api/claude/route.ts`):
 ```typescript
-// Line 37 - Main chat model
-const MODEL = 'claude-sonnet-4-20250514'  // Change to your preferred model
+// Line 72 - Main chat model
+const DEFAULT_MODEL = 'claude-sonnet-4-20250514'  // Change to your preferred model
 
-// Line 40 - Response length
-const MAX_TOKENS = 4096  // Adjust as needed
+// Default max tokens and temperature can be overridden via claudeApiSettings in Sanity
 ```
 
 **Title generation** (`frontend/app/api/claude/generate-title/route.ts`):
 ```typescript
-// Line 37 - Uses cheaper/faster model for titles
+// Line 72 - Uses cheaper/faster model for titles
 const MODEL = 'claude-3-5-haiku-20241022'
 
-// Line 40 - Keep short for titles
+// Line 75 - Keep short for titles
 const MAX_TOKENS = 50
 ```
+
+> **Note:** The main chat settings (model, maxTokens, temperature) can be configured via the `claudeApiSettings` document in Sanity Studio, which overrides the defaults in the API route.
 
 ---
 
@@ -274,7 +291,9 @@ your-project/
     │       ├── documents/
     │       │   ├── claudeConversation.ts
     │       │   ├── claudeInstructions.ts
-    │       │   └── claudeWorkflow.ts
+    │       │   ├── claudeWorkflow.ts
+    │       │   ├── claudeApiSettings.ts
+    │       │   └── claudeQuickAction.ts
     │       └── index.ts                  # Register schemas here
     ├── sanity.config.ts                  # Configure plugin here
     ├── .env                              # SANITY_STUDIO_PREVIEW_URL
@@ -290,6 +309,7 @@ your-project/
 - Multimodal support (text + images)
 - Action execution (create/update/delete documents)
 - Conversation history with persistence
+- Document context detection (auto-detects current document in Structure/Presentation mode)
 
 ### Floating Chat
 - Accessible from any Studio tool via keyboard shortcut
@@ -300,11 +320,24 @@ your-project/
 - Configure via the `claudeInstructions` document
 - Set writing guidelines, brand voice, forbidden terms
 - Define component-specific rules
+- Keyword-triggered conditional instructions (only includes relevant instructions based on user's message)
 
 ### Workflows
-- Create reusable workflow templates
+- Create reusable workflow templates via `claudeWorkflow` documents
 - Pre-filled prompts for common tasks
-- Role-based access control
+- Role-based access control (administrator, editor, viewer)
+- System instructions appended to Claude's context
+
+### Quick Actions
+- Configure quick action buttons via `claudeQuickAction` documents
+- Pre-populated prompts for common tasks
+- Categorize actions (content, query, help, navigation)
+- Set display order and icons
+
+### API Settings
+- Configure Claude model, tokens, and temperature via `claudeApiSettings` document
+- Streaming toggle for real-time responses
+- No code changes required to adjust API parameters
 
 ---
 
