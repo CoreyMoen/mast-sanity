@@ -46,6 +46,8 @@ export const column = defineType({
         defineArrayMember({type: 'modalBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
         defineArrayMember({type: 'sliderBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
         defineArrayMember({type: 'marqueeBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        // Dynamic content
+        defineArrayMember({type: 'blogGridBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
       ],
       options: {
         insertMenu: {
@@ -54,6 +56,7 @@ export const column = defineType({
             {name: 'content', title: 'Content', of: ['headingBlock', 'richTextBlock', 'eyebrowBlock', 'buttonBlock', 'breadcrumbBlock']},
             {name: 'media', title: 'Media', of: ['imageBlock', 'inlineVideoBlock', 'iconBlock']},
             {name: 'interactive', title: 'Interactive', of: ['tabsBlock', 'accordionBlock', 'modalBlock', 'sliderBlock', 'marqueeBlock']},
+            {name: 'collections', title: 'Collections', of: ['blogGridBlock']},
           ],
         },
       },

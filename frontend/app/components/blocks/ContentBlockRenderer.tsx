@@ -18,6 +18,7 @@ import TableBlock from './TableBlock'
 import InlineVideoBlock from './InlineVideoBlock'
 import MarqueeBlock from './MarqueeBlock'
 import ContentWrap from './ContentWrap'
+import BlogGridBlock from './BlogGridBlock'
 
 // Dynamic imports for heavy components (Swiper, Radix libraries)
 // These are code-split into separate bundles and loaded on demand
@@ -66,6 +67,7 @@ const ContentBlocks: ContentBlocksType = {
   inlineVideoBlock: InlineVideoBlock,
   marqueeBlock: MarqueeBlock,
   contentWrap: ContentWrap,
+  blogGridBlock: BlogGridBlock,
 }
 
 export default function ContentBlockRenderer({

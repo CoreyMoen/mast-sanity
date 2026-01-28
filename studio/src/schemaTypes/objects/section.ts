@@ -48,6 +48,8 @@ export const section = defineType({
         // Interactive
         defineArrayMember({type: 'sliderBlock'}),
         defineArrayMember({type: 'tabsBlock'}),
+        // Dynamic content
+        defineArrayMember({type: 'blogGridBlock'}),
       ],
       options: {
         insertMenu: {
@@ -56,6 +58,7 @@ export const section = defineType({
             {name: 'content', title: 'Content', of: ['headingBlock', 'richTextBlock', 'buttonBlock']},
             {name: 'media', title: 'Media', of: ['imageBlock']},
             {name: 'interactive', title: 'Interactive', of: ['sliderBlock', 'tabsBlock']},
+            {name: 'collections', title: 'Collections', of: ['blogGridBlock']},
           ],
         },
       },

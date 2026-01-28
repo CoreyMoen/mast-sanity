@@ -246,6 +246,79 @@ export const pagesSlugs = defineQuery(`
   {"slug": slug.current}
 `)
 
+// Blog Grid queries - flexible queries for different selection modes
+// Date sorting - descending (newest first)
+export const blogGridAllPostsDateDescQuery = defineQuery(`
+  *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc) [0...$limit] {
+    ${postFields}
+    "categories": categories[]->{ _id, title, "slug": slug.current }
+  }
+`)
+
+// Date sorting - ascending (oldest first)
+export const blogGridAllPostsDateAscQuery = defineQuery(`
+  *[_type == "post" && defined(slug.current)] | order(date asc, _updatedAt asc) [0...$limit] {
+    ${postFields}
+    "categories": categories[]->{ _id, title, "slug": slug.current }
+  }
+`)
+
+// Title sorting - descending (Z-A)
+export const blogGridAllPostsTitleDescQuery = defineQuery(`
+  *[_type == "post" && defined(slug.current)] | order(title desc) [0...$limit] {
+    ${postFields}
+    "categories": categories[]->{ _id, title, "slug": slug.current }
+  }
+`)
+
+// Title sorting - ascending (A-Z)
+export const blogGridAllPostsTitleAscQuery = defineQuery(`
+  *[_type == "post" && defined(slug.current)] | order(title asc) [0...$limit] {
+    ${postFields}
+    "categories": categories[]->{ _id, title, "slug": slug.current }
+  }
+`)
+
+// Specific posts by IDs (no sorting - respects order in CMS)
+export const blogGridByIdsQuery = defineQuery(`
+  *[_type == "post" && _id in $ids && defined(slug.current)] {
+    ${postFields}
+    "categories": categories[]->{ _id, title, "slug": slug.current }
+  }
+`)
+
+// Category filtering - date descending
+export const blogGridByCategoryDateDescQuery = defineQuery(`
+  *[_type == "post" && defined(slug.current) && $categoryId in categories[]._ref] | order(date desc, _updatedAt desc) [0...$limit] {
+    ${postFields}
+    "categories": categories[]->{ _id, title, "slug": slug.current }
+  }
+`)
+
+// Category filtering - date ascending
+export const blogGridByCategoryDateAscQuery = defineQuery(`
+  *[_type == "post" && defined(slug.current) && $categoryId in categories[]._ref] | order(date asc, _updatedAt asc) [0...$limit] {
+    ${postFields}
+    "categories": categories[]->{ _id, title, "slug": slug.current }
+  }
+`)
+
+// Category filtering - title descending
+export const blogGridByCategoryTitleDescQuery = defineQuery(`
+  *[_type == "post" && defined(slug.current) && $categoryId in categories[]._ref] | order(title desc) [0...$limit] {
+    ${postFields}
+    "categories": categories[]->{ _id, title, "slug": slug.current }
+  }
+`)
+
+// Category filtering - title ascending
+export const blogGridByCategoryTitleAscQuery = defineQuery(`
+  *[_type == "post" && defined(slug.current) && $categoryId in categories[]._ref] | order(title asc) [0...$limit] {
+    ${postFields}
+    "categories": categories[]->{ _id, title, "slug": slug.current }
+  }
+`)
+
 // Section Template query for preview
 export const sectionTemplateQuery = defineQuery(`
   *[_type == "sectionTemplate" && _id == $id][0]{
