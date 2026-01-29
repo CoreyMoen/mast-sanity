@@ -12,6 +12,14 @@
  *
  * Authentication: Requires CLAUDE_REMOTE_API_SECRET in the Authorization header
  *
+ * Required Environment Variables:
+ * - ANTHROPIC_API_KEY: Anthropic API key for Claude calls
+ * - CLAUDE_REMOTE_API_SECRET: Secret for authenticating remote API requests
+ * - SANITY_API_TOKEN: Sanity API token with write access
+ * - SANITY_PROJECT_ID: Sanity project ID (or NEXT_PUBLIC_SANITY_PROJECT_ID)
+ * - SANITY_STUDIO_URL: URL to Sanity Studio for generating links (optional)
+ * - ALLOWED_CORS_ORIGINS: Comma-separated list of allowed CORS origins (optional)
+ *
  * @example
  * POST /api/claude/remote
  * Authorization: Bearer your-secret-key
@@ -23,6 +31,7 @@
  * }
  */
 
+import { createHash, timingSafeEqual } from 'crypto'
 import Anthropic from '@anthropic-ai/sdk'
 import { NextRequest, NextResponse } from 'next/server'
 import {
@@ -41,7 +50,7 @@ import type {
 } from './types'
 
 // Import local utilities for server-side action parsing and execution
-import { parseActions } from './action-parser'
+import { parseActions, extractTextContent } from './action-parser'
 import { executeAction } from './content-operations'
 
 // Initialize Anthropic client
@@ -54,8 +63,23 @@ const DEFAULT_MODEL = 'claude-sonnet-4-20250514'
 const DEFAULT_MAX_TOKENS = 4096
 const DEFAULT_TEMPERATURE = 0.7
 
+// Input size limits
+const MAX_MESSAGE_LENGTH = 50000
+const MAX_CONVERSATION_HISTORY = 50
+const MAX_CONTEXT_DOCUMENTS = 20
+
 /**
- * Validate the API secret
+ * Timing-safe string comparison to prevent timing attacks
+ */
+function secureCompare(a: string, b: string): boolean {
+  // Hash both strings to ensure equal length comparison
+  const hashA = createHash('sha256').update(a).digest()
+  const hashB = createHash('sha256').update(b).digest()
+  return timingSafeEqual(hashA, hashB)
+}
+
+/**
+ * Validate the API secret using timing-safe comparison
  */
 function validateAuth(request: NextRequest): { valid: boolean; error?: string } {
   const authHeader = request.headers.get('authorization')
@@ -74,7 +98,8 @@ function validateAuth(request: NextRequest): { valid: boolean; error?: string } 
     ? authHeader.slice(7)
     : authHeader
 
-  if (token !== secret) {
+  // Use timing-safe comparison to prevent timing attacks
+  if (!secureCompare(token, secret)) {
     return { valid: false, error: 'Invalid API secret' }
   }
 
@@ -82,7 +107,7 @@ function validateAuth(request: NextRequest): { valid: boolean; error?: string } 
 }
 
 /**
- * Validate the request body
+ * Validate the request body with size limits
  */
 function validateRequest(body: unknown): { valid: boolean; error?: string; data?: RemoteClaudeRequest } {
   if (!body || typeof body !== 'object') {
@@ -97,6 +122,11 @@ function validateRequest(body: unknown): { valid: boolean; error?: string; data?
 
   if (request.message.trim().length === 0) {
     return { valid: false, error: 'message cannot be empty' }
+  }
+
+  // Input size limits
+  if (request.message.length > MAX_MESSAGE_LENGTH) {
+    return { valid: false, error: `Message exceeds maximum length of ${MAX_MESSAGE_LENGTH} characters` }
   }
 
   // Validate optional fields
@@ -120,6 +150,9 @@ function validateRequest(body: unknown): { valid: boolean; error?: string; data?
     if (!Array.isArray(request.conversationHistory)) {
       return { valid: false, error: 'conversationHistory must be an array' }
     }
+    if (request.conversationHistory.length > MAX_CONVERSATION_HISTORY) {
+      return { valid: false, error: `Conversation history exceeds maximum of ${MAX_CONVERSATION_HISTORY} messages` }
+    }
     for (const msg of request.conversationHistory) {
       if (!msg.role || !['user', 'assistant'].includes(msg.role)) {
         return { valid: false, error: 'Each message in conversationHistory must have role "user" or "assistant"' }
@@ -130,20 +163,11 @@ function validateRequest(body: unknown): { valid: boolean; error?: string; data?
     }
   }
 
-  return { valid: true, data: request }
-}
+  if (request.context?.documents && request.context.documents.length > MAX_CONTEXT_DOCUMENTS) {
+    return { valid: false, error: `Context documents exceeds maximum of ${MAX_CONTEXT_DOCUMENTS}` }
+  }
 
-/**
- * Extract text content from Claude's response (without action blocks)
- */
-function extractTextContent(content: string): string {
-  // Remove action blocks
-  let text = content.replace(/```action\s*[\s\S]*?```/g, '')
-  // Remove inline actions
-  text = text.replace(/\[ACTION\]\s*{[\s\S]*?}\s*\[\/ACTION\]/g, '')
-  // Clean up extra whitespace
-  text = text.replace(/\n{3,}/g, '\n\n').trim()
-  return text
+  return { valid: true, data: request }
 }
 
 /**
@@ -169,13 +193,35 @@ function generateStudioLinks(
 }
 
 /**
+ * Get allowed CORS origin from environment or request
+ */
+function getAllowedOrigin(requestOrigin: string | null): string {
+  const allowedOrigins = process.env.ALLOWED_CORS_ORIGINS?.split(',').map(o => o.trim())
+
+  // If no restrictions configured, allow all (development mode)
+  if (!allowedOrigins || allowedOrigins.length === 0) {
+    return '*'
+  }
+
+  // Check if request origin is in allowed list
+  if (requestOrigin && allowedOrigins.includes(requestOrigin)) {
+    return requestOrigin
+  }
+
+  // Return first allowed origin as default
+  return allowedOrigins[0]
+}
+
+/**
  * OPTIONS handler for CORS preflight
  */
-export async function OPTIONS() {
+export async function OPTIONS(request: NextRequest) {
+  const origin = request.headers.get('origin')
+
   return new Response(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': getAllowedOrigin(origin),
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     },

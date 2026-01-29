@@ -244,7 +244,41 @@ async function executeDelete(
 }
 
 /**
- * Execute a query action
+ * Validate a GROQ query for safety
+ * Only allows read-only queries that start with standard patterns
+ */
+function validateQuery(query: string): { valid: boolean; error?: string } {
+  const trimmed = query.trim()
+
+  // Must start with a standard GROQ query pattern
+  if (!trimmed.startsWith('*[') && !trimmed.startsWith('count(') && !trimmed.startsWith('coalesce(')) {
+    return { valid: false, error: 'Query must start with *[ or count( or coalesce(' }
+  }
+
+  // Block potentially dangerous patterns
+  const dangerousPatterns = [
+    /\bsanity::/i,        // Internal Sanity functions
+    /_createdAt\s*</,     // Time-based attacks
+    /identity\(\)/i,      // User identity access
+    /\$.*token/i,         // Token parameter access
+  ]
+
+  for (const pattern of dangerousPatterns) {
+    if (pattern.test(trimmed)) {
+      return { valid: false, error: 'Query contains restricted patterns' }
+    }
+  }
+
+  // Limit query length to prevent DoS
+  if (trimmed.length > 5000) {
+    return { valid: false, error: 'Query exceeds maximum length of 5000 characters' }
+  }
+
+  return { valid: true }
+}
+
+/**
+ * Execute a query action with validation
  */
 async function executeQuery(
   client: SanityClient,
@@ -259,8 +293,27 @@ async function executeQuery(
     }
   }
 
+  // Validate query for safety
+  const validation = validateQuery(query)
+  if (!validation.valid) {
+    return {
+      success: false,
+      message: `Query validation failed: ${validation.error}`,
+    }
+  }
+
   try {
     const result = await client.fetch(query)
+
+    // Limit result size to prevent large data exfiltration
+    const resultStr = JSON.stringify(result)
+    if (resultStr.length > 1000000) { // 1MB limit
+      return {
+        success: true,
+        message: 'Query executed successfully (result truncated due to size)',
+        data: { _truncated: true, _message: 'Result exceeds 1MB limit' },
+      }
+    }
 
     return {
       success: true,
