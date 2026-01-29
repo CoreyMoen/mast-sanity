@@ -389,12 +389,289 @@ Assistant's response summary: "${assistantResponse.slice(0, 200)}..."`,
     ],
   })
 
-  const title = response.content[0].type === 'text' 
+  const title = response.content[0].type === 'text'
     ? response.content[0].text.trim()
     : 'New conversation'
 
   return NextResponse.json({ title })
 }
+```
+
+---
+
+## Remote API for External Integrations
+
+A headless API endpoint that enables external services (like Slack, automation tools, or custom integrations) to interact with Claude using the same instructions and workflows as the Sanity Studio Claude Assistant tool.
+
+### Use Cases
+
+- **Slack Integration**: Allow team members to create/edit Sanity content via Slack commands
+- **Automation Workflows**: Trigger content creation from Zapier, Make, or custom scripts
+- **CI/CD Pipelines**: Automatically generate content during deployments
+- **Custom Dashboards**: Build external tools that leverage your Claude instructions
+
+### Endpoint
+
+```
+POST /api/claude/remote
+```
+
+### Authentication
+
+Requires a secret token in the `Authorization` header:
+
+```bash
+Authorization: Bearer your-secret-key
+```
+
+The secret is configured via the `CLAUDE_REMOTE_API_SECRET` environment variable. Uses timing-safe comparison to prevent timing attacks.
+
+### Required Environment Variables
+
+```bash
+# Required
+ANTHROPIC_API_KEY="sk-ant-..."           # Anthropic API key
+CLAUDE_REMOTE_API_SECRET="your-secret"   # Secret for authenticating remote requests
+SANITY_API_TOKEN="sk..."                 # Sanity API token with write access
+SANITY_PROJECT_ID="your-project-id"      # Sanity project ID
+
+# Optional
+SANITY_DATASET="production"              # Dataset (defaults to "production")
+SANITY_STUDIO_URL="https://..."          # Studio URL for generating document links
+ALLOWED_CORS_ORIGINS="https://..."       # Comma-separated allowed CORS origins
+```
+
+### Request Format
+
+```typescript
+interface RemoteClaudeRequest {
+  // Required
+  message: string                    // The natural language request (max 50,000 chars)
+
+  // Optional
+  workflow?: string                  // Workflow name or ID to apply
+  includeInstructions?: Array<       // Categories of instructions to include
+    'writing' | 'design' | 'technical'
+  >
+  context?: {
+    documents?: string[]             // Document IDs to include as context (max 20)
+    additionalContext?: string       // Extra context text
+  }
+  conversationHistory?: Array<{      // Previous messages for multi-turn (max 50)
+    role: 'user' | 'assistant'
+    content: string
+  }>
+  dryRun?: boolean                   // If true, parse actions but don't execute
+  model?: string                     // Override model (default: claude-sonnet-4-20250514)
+  maxTokens?: number                 // Override max tokens (default: 4096)
+  temperature?: number               // Override temperature (default: 0.7)
+}
+```
+
+### Response Format
+
+```typescript
+interface RemoteClaudeResponse {
+  success: boolean
+  response: string                   // Claude's text response (actions stripped)
+  error?: string                     // Error message if success is false
+
+  // Action execution results
+  actions: Array<{
+    action: {
+      id: string
+      type: 'create' | 'update' | 'delete' | 'query'
+      description: string
+      status: 'completed' | 'failed' | 'pending'
+      payload: object
+      error?: string
+    }
+    result: {
+      success: boolean
+      message: string
+      documentId?: string
+      data?: unknown
+    }
+    dryRun: boolean
+  }>
+
+  // Summary of changes
+  summary: {
+    totalActions: number
+    successfulActions: number
+    failedActions: number
+    createdDocuments: string[]
+    updatedDocuments: string[]
+    deletedDocuments: string[]
+  }
+
+  // Links to view/edit affected documents
+  studioLinks?: Array<{
+    documentId: string
+    documentType: string
+    structureUrl: string
+    presentationUrl?: string
+  }>
+
+  // What was applied
+  appliedWorkflow?: { id: string; name: string }
+  includedInstructions: Array<'writing' | 'design' | 'technical'>
+
+  // Metadata
+  metadata: {
+    processingTime: number           // Total time in milliseconds
+    model: string                    // Model used
+    dryRun: boolean
+  }
+}
+```
+
+### Example Usage
+
+#### Basic Request
+
+```bash
+curl -X POST https://your-site.com/api/claude/remote \
+  -H "Authorization: Bearer your-secret-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Create a landing page for our Q1 campaign with a hero section and CTA"
+  }'
+```
+
+#### With Workflow
+
+```bash
+curl -X POST https://your-site.com/api/claude/remote \
+  -H "Authorization: Bearer your-secret-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Create a product announcement page",
+    "workflow": "landing-page-workflow",
+    "includeInstructions": ["writing", "design"]
+  }'
+```
+
+#### Dry Run (Preview Actions)
+
+```bash
+curl -X POST https://your-site.com/api/claude/remote \
+  -H "Authorization: Bearer your-secret-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Delete all draft blog posts from December",
+    "dryRun": true
+  }'
+```
+
+#### Multi-Turn Conversation
+
+```bash
+curl -X POST https://your-site.com/api/claude/remote \
+  -H "Authorization: Bearer your-secret-key" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "Add a testimonials section below the hero",
+    "conversationHistory": [
+      {
+        "role": "user",
+        "content": "Create a landing page for our Q1 campaign"
+      },
+      {
+        "role": "assistant",
+        "content": "I created the landing page with a hero section..."
+      }
+    ],
+    "context": {
+      "documents": ["drafts.landing-page-q1-2025"]
+    }
+  }'
+```
+
+### Example Response
+
+```json
+{
+  "success": true,
+  "response": "I've created a new landing page for your Q1 campaign with a hero section featuring a headline, subheading, and call-to-action button. The page is saved as a draft so you can review it before publishing.",
+  "actions": [
+    {
+      "action": {
+        "id": "action_1706547200000_abc123",
+        "type": "create",
+        "description": "Create Q1 Campaign landing page with hero section",
+        "status": "completed",
+        "payload": {
+          "documentType": "page",
+          "fields": { "name": "Q1 Campaign", "slug": { "current": "q1-campaign" } }
+        }
+      },
+      "result": {
+        "success": true,
+        "message": "Created document drafts.q1-campaign-2025",
+        "documentId": "drafts.q1-campaign-2025"
+      },
+      "dryRun": false
+    }
+  ],
+  "summary": {
+    "totalActions": 1,
+    "successfulActions": 1,
+    "failedActions": 0,
+    "createdDocuments": ["drafts.q1-campaign-2025"],
+    "updatedDocuments": [],
+    "deletedDocuments": []
+  },
+  "studioLinks": [
+    {
+      "documentId": "drafts.q1-campaign-2025",
+      "documentType": "page",
+      "structureUrl": "https://your-studio.sanity.studio/structure/page;drafts.q1-campaign-2025",
+      "presentationUrl": "https://your-studio.sanity.studio/presentation?preview=/q1-campaign-2025"
+    }
+  ],
+  "includedInstructions": ["writing", "design", "technical"],
+  "metadata": {
+    "processingTime": 3420,
+    "model": "claude-sonnet-4-20250514",
+    "dryRun": false
+  }
+}
+```
+
+### Security Features
+
+1. **Timing-Safe Authentication**: Uses `crypto.timingSafeEqual` with SHA256 hashing to prevent timing attacks
+2. **Input Size Limits**:
+   - Message: 50,000 characters max
+   - Conversation history: 50 messages max
+   - Context documents: 20 documents max
+3. **Query Validation**: GROQ queries are validated against dangerous patterns
+4. **Configurable CORS**: Set `ALLOWED_CORS_ORIGINS` to restrict which domains can call the API
+
+### Error Responses
+
+| Status | Error | Description |
+|--------|-------|-------------|
+| 400 | Invalid JSON | Request body is not valid JSON |
+| 400 | message required | Missing required `message` field |
+| 401 | Missing Authorization | No Authorization header provided |
+| 401 | Invalid API secret | Token doesn't match configured secret |
+| 404 | Workflow not found | Specified workflow doesn't exist or is inactive |
+| 429 | Rate limit exceeded | Anthropic API rate limit reached |
+| 500 | ANTHROPIC_API_KEY not configured | Server missing required config |
+| 500 | SANITY_API_TOKEN not configured | Server missing required config |
+
+### File Location
+
+```
+frontend/app/api/claude/remote/
+├── route.ts              # Main API endpoint
+├── types.ts              # TypeScript interfaces
+├── sanity-loader.ts      # Load instructions, workflows from Sanity
+├── prompt-builder.ts     # Build system prompt with categories
+├── action-parser.ts      # Parse action blocks from Claude response
+└── content-operations.ts # Execute Sanity CRUD operations
 ```
 
 ---
