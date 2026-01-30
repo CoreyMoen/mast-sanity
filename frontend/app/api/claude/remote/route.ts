@@ -19,6 +19,7 @@
  * - SANITY_PROJECT_ID: Sanity project ID (or NEXT_PUBLIC_SANITY_PROJECT_ID)
  * - SANITY_STUDIO_URL: URL to Sanity Studio for generating links (optional)
  * - ALLOWED_CORS_ORIGINS: Comma-separated list of allowed CORS origins (optional)
+ * - CLAUDE_REMOTE_RATE_LIMIT: Max requests per minute per client (default: 30)
  *
  * @example
  * POST /api/claude/remote
@@ -67,6 +68,97 @@ const DEFAULT_TEMPERATURE = 0.7
 const MAX_MESSAGE_LENGTH = 50000
 const MAX_CONVERSATION_HISTORY = 50
 const MAX_CONTEXT_DOCUMENTS = 20
+
+// Rate limiting configuration
+const RATE_LIMIT_WINDOW_MS = 60 * 1000 // 1 minute window
+const RATE_LIMIT_MAX_REQUESTS = parseInt(process.env.CLAUDE_REMOTE_RATE_LIMIT || '30', 10) // 30 requests per minute default
+
+// In-memory rate limit store (for single-instance deployments)
+// For production with multiple instances, use Redis or similar
+const rateLimitStore = new Map<string, { count: number; windowStart: number }>()
+
+/**
+ * Simple sliding window rate limiter
+ * Returns { allowed: boolean, remaining: number, resetIn: number }
+ */
+function checkRateLimit(clientId: string): { allowed: boolean; remaining: number; resetIn: number } {
+  const now = Date.now()
+  const record = rateLimitStore.get(clientId)
+
+  // Clean up old entries periodically (every 100 checks)
+  if (Math.random() < 0.01) {
+    for (const [key, value] of rateLimitStore.entries()) {
+      if (now - value.windowStart > RATE_LIMIT_WINDOW_MS * 2) {
+        rateLimitStore.delete(key)
+      }
+    }
+  }
+
+  if (!record || now - record.windowStart > RATE_LIMIT_WINDOW_MS) {
+    // New window
+    rateLimitStore.set(clientId, { count: 1, windowStart: now })
+    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1, resetIn: RATE_LIMIT_WINDOW_MS }
+  }
+
+  if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
+    const resetIn = RATE_LIMIT_WINDOW_MS - (now - record.windowStart)
+    return { allowed: false, remaining: 0, resetIn }
+  }
+
+  record.count++
+  const resetIn = RATE_LIMIT_WINDOW_MS - (now - record.windowStart)
+  return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - record.count, resetIn }
+}
+
+/**
+ * Generate a client identifier for rate limiting
+ * Uses a hash of the API key to avoid storing sensitive data
+ */
+function getClientId(request: NextRequest): string {
+  const authHeader = request.headers.get('authorization') || ''
+  const forwardedFor = request.headers.get('x-forwarded-for') || ''
+  const identifier = `${authHeader}:${forwardedFor}`
+  return createHash('sha256').update(identifier).digest('hex').substring(0, 16)
+}
+
+/**
+ * Log request for auditing
+ */
+function logRequest(
+  clientId: string,
+  request: {
+    message: string
+    workflow?: string
+    dryRun?: boolean
+  },
+  response: {
+    success: boolean
+    actionsExecuted: number
+    error?: string
+    processingTime: number
+  }
+): void {
+  const logLevel = response.success ? 'info' : 'warn'
+  const logEntry = {
+    timestamp: new Date().toISOString(),
+    clientId,
+    request: {
+      messageLength: request.message.length,
+      messagePreview: request.message.substring(0, 100) + (request.message.length > 100 ? '...' : ''),
+      workflow: request.workflow || null,
+      dryRun: request.dryRun || false,
+    },
+    response: {
+      success: response.success,
+      actionsExecuted: response.actionsExecuted,
+      error: response.error || null,
+      processingTimeMs: response.processingTime,
+    },
+  }
+
+  // Log to console (in production, you'd send this to a logging service)
+  console[logLevel]('[Remote Claude API]', JSON.stringify(logEntry))
+}
 
 /**
  * Timing-safe string comparison to prevent timing attacks
@@ -233,10 +325,45 @@ export async function OPTIONS(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   const startTime = Date.now()
+  const clientId = getClientId(request)
+
+  // Check rate limit first (before auth to prevent auth timing attacks under load)
+  const rateLimit = checkRateLimit(clientId)
+  if (!rateLimit.allowed) {
+    logRequest(clientId, { message: '[rate limited]' }, {
+      success: false,
+      actionsExecuted: 0,
+      error: 'Rate limit exceeded',
+      processingTime: Date.now() - startTime,
+    })
+
+    return NextResponse.json(
+      {
+        success: false,
+        error: `Rate limit exceeded. Try again in ${Math.ceil(rateLimit.resetIn / 1000)} seconds.`,
+      } as Partial<RemoteClaudeResponse>,
+      {
+        status: 429,
+        headers: {
+          'X-RateLimit-Limit': RATE_LIMIT_MAX_REQUESTS.toString(),
+          'X-RateLimit-Remaining': '0',
+          'X-RateLimit-Reset': Math.ceil((Date.now() + rateLimit.resetIn) / 1000).toString(),
+          'Retry-After': Math.ceil(rateLimit.resetIn / 1000).toString(),
+        },
+      }
+    )
+  }
 
   // Validate authentication
   const authResult = validateAuth(request)
   if (!authResult.valid) {
+    logRequest(clientId, { message: '[auth failed]' }, {
+      success: false,
+      actionsExecuted: 0,
+      error: authResult.error,
+      processingTime: Date.now() - startTime,
+    })
+
     return NextResponse.json(
       { success: false, error: authResult.error } as Partial<RemoteClaudeResponse>,
       { status: 401 }
@@ -256,6 +383,13 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json()
   } catch {
+    logRequest(clientId, { message: '[invalid json]' }, {
+      success: false,
+      actionsExecuted: 0,
+      error: 'Invalid JSON in request body',
+      processingTime: Date.now() - startTime,
+    })
+
     return NextResponse.json(
       { success: false, error: 'Invalid JSON in request body' } as Partial<RemoteClaudeResponse>,
       { status: 400 }
@@ -265,6 +399,13 @@ export async function POST(request: NextRequest) {
   // Validate request
   const validation = validateRequest(body)
   if (!validation.valid || !validation.data) {
+    logRequest(clientId, { message: '[validation failed]' }, {
+      success: false,
+      actionsExecuted: 0,
+      error: validation.error,
+      processingTime: Date.now() - startTime,
+    })
+
     return NextResponse.json(
       { success: false, error: validation.error } as Partial<RemoteClaudeResponse>,
       { status: 400 }
@@ -421,6 +562,7 @@ export async function POST(request: NextRequest) {
       : undefined
 
     // Build response
+    const processingTime = Date.now() - startTime
     const response: RemoteClaudeResponse = {
       success: true,
       response: extractTextContent(responseContent),
@@ -437,14 +579,46 @@ export async function POST(request: NextRequest) {
       appliedWorkflow: workflow ? { id: workflow._id, name: workflow.name } : undefined,
       includedInstructions: includedCategories,
       metadata: {
-        processingTime: Date.now() - startTime,
+        processingTime,
         model,
         dryRun: requestData.dryRun || false,
       },
     }
 
-    return NextResponse.json(response)
+    // Log successful request
+    logRequest(clientId, {
+      message: requestData.message,
+      workflow: requestData.workflow,
+      dryRun: requestData.dryRun,
+    }, {
+      success: true,
+      actionsExecuted: successfulActions,
+      processingTime,
+    })
+
+    return NextResponse.json(response, {
+      headers: {
+        'X-RateLimit-Limit': RATE_LIMIT_MAX_REQUESTS.toString(),
+        'X-RateLimit-Remaining': rateLimit.remaining.toString(),
+        'X-RateLimit-Reset': Math.ceil((Date.now() + rateLimit.resetIn) / 1000).toString(),
+      },
+    })
   } catch (error) {
+    const processingTime = Date.now() - startTime
+    const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
+
+    // Log the error
+    logRequest(clientId, {
+      message: requestData.message,
+      workflow: requestData.workflow,
+      dryRun: requestData.dryRun,
+    }, {
+      success: false,
+      actionsExecuted: 0,
+      error: errorMessage,
+      processingTime,
+    })
+
     console.error('[Remote Claude API] Error:', error)
 
     // Handle Anthropic API errors
@@ -455,8 +629,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             success: false,
-            error: 'Rate limit exceeded. Please wait and try again.',
-            metadata: { processingTime: Date.now() - startTime, model: DEFAULT_MODEL, dryRun: false },
+            error: 'Anthropic rate limit exceeded. Please wait and try again.',
+            metadata: { processingTime, model: DEFAULT_MODEL, dryRun: false },
           } as Partial<RemoteClaudeResponse>,
           { status: 429 }
         )
@@ -467,7 +641,7 @@ export async function POST(request: NextRequest) {
           {
             success: false,
             error: 'Invalid Anthropic API key',
-            metadata: { processingTime: Date.now() - startTime, model: DEFAULT_MODEL, dryRun: false },
+            metadata: { processingTime, model: DEFAULT_MODEL, dryRun: false },
           } as Partial<RemoteClaudeResponse>,
           { status: 500 }
         )
@@ -477,7 +651,7 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: error.message,
-          metadata: { processingTime: Date.now() - startTime, model: DEFAULT_MODEL, dryRun: false },
+          metadata: { processingTime, model: DEFAULT_MODEL, dryRun: false },
         } as Partial<RemoteClaudeResponse>,
         { status: statusCode }
       )
@@ -486,8 +660,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: error instanceof Error ? error.message : 'An unexpected error occurred',
-        metadata: { processingTime: Date.now() - startTime, model: DEFAULT_MODEL, dryRun: false },
+        error: errorMessage,
+        metadata: { processingTime, model: DEFAULT_MODEL, dryRun: false },
       } as Partial<RemoteClaudeResponse>,
       { status: 500 }
     )

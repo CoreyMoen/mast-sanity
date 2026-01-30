@@ -122,18 +122,17 @@ function parseActionData(data: unknown): ParsedAction | null {
 /**
  * Parse Claude's response to extract actions
  *
- * Looks for structured action blocks in the format:
- * ```action
- * { "type": "create", "description": "...", "payload": { ... } }
- * ```
+ * Looks for structured action blocks in multiple formats:
+ * 1. ```action { ... } ```
+ * 2. ```json { "type": ... } ```
+ * 3. [ACTION] { ... } [/ACTION]
  */
 export function parseActions(content: string): ParsedAction[] {
   const actions: ParsedAction[] = []
+  let match
 
   // Match action blocks (```action ... ```)
   const actionBlockRegex = /```action\s*([\s\S]*?)```/g
-  let match
-
   while ((match = actionBlockRegex.exec(content)) !== null) {
     const jsonStr = match[1].trim()
     const actionData = safeParseJSON(jsonStr)
@@ -154,6 +153,20 @@ export function parseActions(content: string): ParsedAction[] {
 
     if (data && typeof data === 'object' && 'type' in data) {
       const action = parseActionData(data)
+      if (action) {
+        actions.push(action)
+      }
+    }
+  }
+
+  // Also look for [ACTION] ... [/ACTION] blocks
+  const actionTagRegex = /\[ACTION\]\s*([\s\S]*?)\s*\[\/ACTION\]/gi
+  while ((match = actionTagRegex.exec(content)) !== null) {
+    const jsonStr = match[1].trim()
+    const actionData = safeParseJSON(jsonStr)
+
+    if (actionData) {
+      const action = parseActionData(actionData)
       if (action) {
         actions.push(action)
       }
