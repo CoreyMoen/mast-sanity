@@ -1,4 +1,4 @@
-# Code Review: Unless Mast Sanity
+# Code Review: Mast Sanity
 
 **Review Date:** January 2026
 **Reviewer:** Claude (AI-assisted review)
@@ -64,7 +64,7 @@ The best practices rule files are installed in:
 ### Monorepo Structure
 
 ```
-/unless-mast-sanity
+/mast-sanity
 ├── frontend/                 # Next.js 15 application
 │   ├── app/                  # App Router pages & components
 │   │   ├── components/       # React components
