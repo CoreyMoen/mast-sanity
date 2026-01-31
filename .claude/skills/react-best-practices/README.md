@@ -1,6 +1,14 @@
 # React Best Practices
 
-A structured repository for creating and maintaining React Best Practices optimized for agents and LLMs.
+This skill is part of the **Mast Design System for Sanity** project — a Sanity CMS + Next.js implementation of the [Mast Component Framework](https://www.nocodesupply.co/mast). The project brings Mast's powerful page-building system to the headless CMS world with real-time visual editing and a custom Claude AI Assistant plugin for content creation.
+
+For a comprehensive technical overview of the project architecture, see the [Full Project Code Review](../../../docs/full-project-code-review.md). If you're interested in extracting the Claude Assistant plugin for use in other projects, see the [Claude Assistant Porting Guide](../../../docs/claude-assistant-porting-guide.md).
+
+---
+
+## About This Skill
+
+A structured repository for creating and maintaining React Best Practices optimized for agents and LLMs. This project is already configured to work with AI assistants like Claude Code — the `.claude/` directory contains performance optimization skills (React and Sanity best practices) that provide context for high-quality code generation.
 
 ## Structure
 
@@ -120,4 +128,9 @@ When adding or modifying rules:
 
 ## Acknowledgments
 
-Originally created by [@shuding](https://x.com/shuding) at [Vercel](https://vercel.com).
+- **React Best Practices** originally created by [@shuding](https://x.com/shuding) at [Vercel](https://vercel.com) — sourced from [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills)
+- **Mast Framework** by [NoCode Supply](https://www.nocodesupply.co/mast)
+
+## License
+
+This project is open source under the MIT License. See the [LICENSE](../../../LICENSE) file in the repository root for details.

@@ -1,6 +1,6 @@
 # Mast Component Framework for Sanity
 
-A Sanity + Next.js implementation of the [Mast Component Framework](https://mast.webflow.io/), originally built for Webflow. This project brings Mast's powerful page-building system to the headless CMS world with real-time visual editing.
+A Sanity + Next.js implementation of the [Mast Component Framework](https://www.nocodesupply.co/mast), originally built for Webflow. This project brings Mast's powerful page-building system to the headless CMS world with real-time visual editing and AI-powered content creation.
 
 ## What is Mast?
 
@@ -47,6 +47,19 @@ Mast is a component-based design system and page builder framework that provides
 - Breadcrumb Block
 - Table Block
 
+### Claude AI Assistant
+
+A custom Sanity Studio plugin that provides AI-powered content creation and document operations:
+
+- **Real-time streaming** responses from Claude API
+- **Document operations** — create, update, and delete content via natural language
+- **Schema awareness** — Claude understands your content structure
+- **Conversation persistence** — chat history stored in Sanity
+- **Custom instructions** — configure writing guidelines and brand voice
+- **Workflows** — reusable prompt templates for common tasks
+
+See the [Claude Assistant Porting Guide](docs/claude-assistant-porting-guide.md) for instructions on extracting this plugin for use in other projects.
+
 ## Tech Stack
 
 - **Frontend:** Next.js 15 (App Router, Turbopack)
@@ -91,6 +104,7 @@ npm install
 2. Create environment files:
 
 **`studio/.env`**
+
 ```
 SANITY_STUDIO_PROJECT_ID="your-project-id"
 SANITY_STUDIO_DATASET="production"
@@ -98,6 +112,7 @@ SANITY_STUDIO_PREVIEW_URL="http://localhost:4000"
 ```
 
 **`frontend/.env.local`**
+
 ```
 NEXT_PUBLIC_SANITY_PROJECT_ID="your-project-id"
 NEXT_PUBLIC_SANITY_DATASET="production"
@@ -131,11 +146,24 @@ npm run dev:next      # Run only Next.js frontend
 npm run type-check    # Check TypeScript types
 ```
 
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Full Project Code Review](docs/full-project-code-review.md) | Comprehensive technical specification of the codebase |
+| [Claude Assistant Porting Guide](docs/claude-assistant-porting-guide.md) | Extract the AI assistant plugin for other projects |
+| [CLAUDE.md](CLAUDE.md) | Project-specific context for Claude Code |
+
+This project is configured to work with AI assistants like Claude Code. The `.claude/` directory contains performance optimization skills (React and Sanity best practices) that provide context for high-quality code generation.
+
 ## Credits
 
-- Original Mast Framework: [mast.webflow.io](https://mast.webflow.io/)
+- **Mast Framework** by [NoCode Supply](https://www.nocodesupply.co/mast)
+- **Starter Template** — [Next.js + Sanity Clean](https://www.sanity.io/templates/nextjs-sanity-clean) by Sanity
+- **React Best Practices** by [@shuding](https://x.com/shuding) at [Vercel](https://vercel.com) — [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills)
+- **Sanity Best Practices** from [sanity-io/agent-toolkit](https://github.com/sanity-io/agent-toolkit)
 - Built with [Sanity](https://www.sanity.io/) and [Next.js](https://nextjs.org/)
 
 ## License
 
-This project is for educational and demonstration purposes.
+This project is open source under the [MIT License](LICENSE).
