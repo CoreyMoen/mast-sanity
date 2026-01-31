@@ -1,17 +1,24 @@
 {
-  "name": "sanity-template-nextjs-clean",
-  "description": "Next.js + Sanity: A Powerful Website Starter with Real-time Visual Editing",
+  "name": "mast-sanity",
+  "description": "Mast Component Framework for Sanity + Next.js with AI-powered content creation",
+  "author": "Corey Moen",
+  "license": "MIT",
   "keywords": [
     "Sanity",
     "Next.js",
     "Headless CMS",
     "Visual Editing",
-    "Live Content API (LCAPI)",
-    "Real-time"
+    "Page Builder",
+    "Mast",
+    "Claude AI"
   ],
-  "homepage": "https://github.com/sanity-io/sanity-template-nextjs-clean#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CoreyMoen/mast-sanity.git"
+  },
+  "homepage": "https://github.com/CoreyMoen/mast-sanity#readme",
   "bugs": {
-    "url": "https://github.com/sanity-io/sanity-template-nextjs-clean/issues"
+    "url": "https://github.com/CoreyMoen/mast-sanity/issues"
   },
   "workspaces": [
     "studio",
