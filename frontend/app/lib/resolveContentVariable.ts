@@ -54,7 +54,7 @@ export interface ContentVariable {
 /** Resolved link structure */
 export interface ResolvedLink {
   _type?: 'link'
-  linkType?: 'href' | 'page' | 'post' | 'variable'
+  linkType?: 'href' | 'page' | 'post' | 'variable' | 'external'
   href?: string
   page?: {
     _ref?: string
