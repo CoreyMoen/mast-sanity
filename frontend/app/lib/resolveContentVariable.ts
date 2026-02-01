@@ -151,7 +151,7 @@ export function resolveLinkUrl(link?: ResolvedLink | null): string | undefined {
     case 'page':
       return link.page?.slug ? `/${link.page.slug}` : undefined
     case 'post':
-      return link.post?.slug ? `/blog/${link.post.slug}` : undefined
+      return link.post?.slug ? `/posts/${link.post.slug}` : undefined
     default:
       // Fallback: try href directly
       return link.href

@@ -157,7 +157,7 @@ export interface EyebrowBlock extends BaseBlock {
   _type: 'eyebrowBlock'
   text?: SmartString | string // SmartString or legacy plain string
   variant?: 'text' | 'overline' | 'pill'
-  color?: 'default' | 'gray' | 'brand' | 'blue'
+  color?: 'default' | 'muted' | 'brand' | 'blue'
   customStyle?: string
 }
 
