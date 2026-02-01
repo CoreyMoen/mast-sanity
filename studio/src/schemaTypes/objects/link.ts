@@ -3,7 +3,7 @@ import {LinkIcon} from '@sanity/icons'
 
 /**
  * Link schema object. This link object lets the user first select the type of link and then
- * then enter the URL, page reference, or post reference - depending on the type selected.
+ * then enter the URL, page reference, post reference, or content variable - depending on the type selected.
  * Learn more: https://www.sanity.io/docs/object-type
  */
 
@@ -23,6 +23,7 @@ export const link = defineType({
           {title: 'URL', value: 'href'},
           {title: 'Page', value: 'page'},
           {title: 'Post', value: 'post'},
+          {title: 'Content Variable', value: 'variable'},
         ],
         layout: 'radio',
       },
@@ -67,6 +68,24 @@ export const link = defineType({
         Rule.custom((value, context: any) => {
           if (context.parent?.linkType === 'post' && !value) {
             return 'Post reference is required when Link Type is Post'
+          }
+          return true
+        }),
+    }),
+    defineField({
+      name: 'variable',
+      title: 'Content Variable',
+      type: 'reference',
+      to: [{type: 'contentVariable'}],
+      hidden: ({parent}) => parent?.linkType !== 'variable',
+      options: {
+        // Only show link-type content variables
+        filter: 'variableType == "link"',
+      },
+      validation: (Rule) =>
+        Rule.custom((value, context: any) => {
+          if (context.parent?.linkType === 'variable' && !value) {
+            return 'Content Variable is required when Link Type is Content Variable'
           }
           return true
         }),

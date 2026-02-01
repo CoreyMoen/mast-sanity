@@ -41,11 +41,39 @@ export interface SanityImageSource {
 /** Link object from Sanity */
 export interface LinkObject {
   _type?: 'link'
-  linkType?: 'href' | 'page' | 'post' | 'external'
+  linkType?: 'href' | 'page' | 'post' | 'variable' | 'external'
   href?: string
-  page?: string // Resolved slug
-  post?: string // Resolved slug
+  page?: string | { slug?: string } // Resolved slug or reference
+  post?: string | { slug?: string } // Resolved slug or reference
+  variable?: ContentVariableRef // Reference to link-type content variable
   openInNewTab?: boolean
+}
+
+/** Content Variable reference (resolved from Sanity) */
+export interface ContentVariableRef {
+  _id?: string
+  _type?: 'contentVariable'
+  name?: string
+  key?: { current?: string }
+  variableType?: 'text' | 'link' | 'image'
+  textValue?: string
+  linkValue?: LinkObject
+  imageValue?: SanityImageSource
+}
+
+/** Smart String field - allows static text or variable reference */
+export interface SmartString {
+  _type?: 'smartString'
+  mode?: 'static' | 'variable'
+  staticValue?: string
+  variableRef?: ContentVariableRef
+}
+
+/** Inline content variable for Portable Text */
+export interface ContentVariableInline {
+  _type: 'contentVariableInline'
+  _key: string
+  reference?: ContentVariableRef
 }
 
 // =============================================================================
@@ -54,7 +82,7 @@ export interface LinkObject {
 
 export interface HeadingBlock extends BaseBlock {
   _type: 'headingBlock'
-  text?: string
+  text?: SmartString | string // SmartString or legacy plain string
   level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
   size?: 'inherit' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
   align?: 'left' | 'center' | 'right'
@@ -103,7 +131,8 @@ export interface ImageBlock extends BaseBlock {
 
 export interface ButtonBlock extends BaseBlock {
   _type: 'buttonBlock'
-  label?: string
+  text?: SmartString | string // SmartString or legacy plain string (schema field name)
+  label?: string // Legacy/alternative field name
   link?: LinkObject
   variant?: 'primary' | 'secondary' | 'ghost' | 'outline'
   size?: 'sm' | 'md' | 'lg'
@@ -126,7 +155,7 @@ export interface DividerBlock extends BaseBlock {
 
 export interface EyebrowBlock extends BaseBlock {
   _type: 'eyebrowBlock'
-  text?: string
+  text?: SmartString | string // SmartString or legacy plain string
   variant?: 'text' | 'overline' | 'pill'
   color?: 'default' | 'gray' | 'brand' | 'blue'
   customStyle?: string

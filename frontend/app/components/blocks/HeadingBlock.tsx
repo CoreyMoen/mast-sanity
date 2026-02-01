@@ -1,6 +1,8 @@
 import {createElement} from 'react'
 import {stegaClean} from 'next-sanity'
 import {parseCustomStyle} from '@/app/lib/parseCustomStyle'
+import {resolveSmartString} from '@/app/lib/resolveContentVariable'
+import type {SmartString} from '@/app/types/blocks'
 
 type HeadingLevel = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
 
@@ -8,7 +10,7 @@ interface HeadingBlockProps {
   block: {
     _key: string
     _type: string
-    text?: string
+    text?: SmartString | string
     level?: HeadingLevel
     /** Visual size - 'inherit' uses the heading level's default size */
     size?: 'inherit' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
@@ -47,13 +49,16 @@ const colorClasses: Record<string, string> = {
 
 export default function HeadingBlock({block}: HeadingBlockProps) {
   const {
-    text = '',
+    text,
     level = 'h2',
     size = 'inherit',
     align = 'left',
     color = 'default',
     customStyle,
   } = block
+
+  // Resolve SmartString to text value (handles both static text and variable references)
+  const resolvedText = resolveSmartString(text, '')
 
   // Clean stega encoding from values before using as lookup keys
   const cleanSize = stegaClean(size)
@@ -68,5 +73,5 @@ export default function HeadingBlock({block}: HeadingBlockProps) {
   const colorClass = colorClasses[cleanColor] || colorClasses.default
   const className = `${sizeClass} ${alignClass} ${colorClass}`
   const inlineStyle = parseCustomStyle(customStyle)
-  return createElement(cleanLevel, {className, style: inlineStyle}, text)
+  return createElement(cleanLevel, {className, style: inlineStyle}, resolvedText)
 }

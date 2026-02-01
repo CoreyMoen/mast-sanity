@@ -4,12 +4,14 @@ import ResolvedLink from '@/app/components/ResolvedLink'
 import {Button} from '@/app/components/ui/button'
 import {linkResolver} from '@/sanity/lib/utils'
 import {cn} from '@/lib/utils'
+import {resolveSmartString} from '@/app/lib/resolveContentVariable'
+import type {SmartString} from '@/app/types/blocks'
 
 interface ButtonBlockProps {
   block: {
     _key: string
     _type: string
-    text?: string
+    text?: SmartString | string
     link?: any
     variant?: 'primary' | 'secondary' | 'ghost'
     /** Brand, black, or white. Legacy 'blue' maps to 'brand' */
@@ -29,12 +31,15 @@ const icons: Record<string, React.ReactNode> = {
 
 export default function ButtonBlock({block}: ButtonBlockProps) {
   const {
-    text = 'Click here',
+    text,
     link,
     variant = 'primary',
     color = 'brand',
     icon = 'none',
   } = block
+
+  // Resolve SmartString to text value (handles both static text and variable references)
+  const resolvedText = resolveSmartString(text, 'Click here')
 
   // Clean stega encoding from values before using as lookup keys
   const cleanVariant = stegaClean(variant) as 'primary' | 'secondary' | 'ghost'
@@ -56,7 +61,7 @@ export default function ButtonBlock({block}: ButtonBlockProps) {
         colorScheme={cleanColor}
         className="outline outline-3 outline-offset-3 outline-dashed outline-[#FF00FF] cursor-not-allowed"
       >
-        {text}
+        {resolvedText}
         {icons[cleanIcon]}
       </Button>
     )
@@ -69,7 +74,7 @@ export default function ButtonBlock({block}: ButtonBlockProps) {
       asChild
     >
       <ResolvedLink link={link}>
-        {text}
+        {resolvedText}
         {icons[cleanIcon]}
       </ResolvedLink>
     </Button>

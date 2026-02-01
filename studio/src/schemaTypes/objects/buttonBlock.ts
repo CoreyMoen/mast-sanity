@@ -4,6 +4,7 @@ import {LaunchIcon} from '@sanity/icons'
 /**
  * Button Block schema - Configurable button/link element.
  * Size is controlled globally via CSS variables.
+ * Text field supports Content Variables via smartString type.
  */
 export const buttonBlock = defineType({
   name: 'buttonBlock',
@@ -14,7 +15,7 @@ export const buttonBlock = defineType({
     defineField({
       name: 'text',
       title: 'Button Text',
-      type: 'string',
+      type: 'smartString',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -70,12 +71,21 @@ export const buttonBlock = defineType({
   ],
   preview: {
     select: {
-      title: 'text',
+      textMode: 'text.mode',
+      staticValue: 'text.staticValue',
+      variableName: 'text.variableRef.name',
+      variableKey: 'text.variableRef.key.current',
       variant: 'variant',
     },
-    prepare({title, variant}) {
+    prepare({textMode, staticValue, variableName, variableKey, variant}) {
+      let title = 'Button'
+      if (textMode === 'variable' && variableName) {
+        title = `{{${variableKey || variableName}}}`
+      } else if (staticValue) {
+        title = staticValue
+      }
       return {
-        title: title || 'Button',
+        title,
         subtitle: `${variant || 'primary'} button`,
       }
     },

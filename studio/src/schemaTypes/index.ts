@@ -3,6 +3,7 @@ import {page} from './documents/page'
 import {post} from './documents/post'
 import {category} from './documents/category'
 import {sectionTemplate} from './documents/sectionTemplate'
+import {contentVariable} from './documents/contentVariable'
 import {claudeConversation} from './documents/claudeConversation'
 import {claudeInstructions} from './documents/claudeInstructions'
 import {claudeApiSettings} from './documents/claudeApiSettings'
@@ -12,6 +13,8 @@ import {settings} from './singletons/settings'
 import {navigation} from './singletons/navigation'
 import {footer} from './singletons/footer'
 import {link} from './objects/link'
+import {smartString} from './objects/smartString'
+import {contentVariableInline} from './objects/contentVariableInline'
 import {blockContent} from './objects/blockContent'
 // Layout blocks
 import {section} from './objects/section'
@@ -52,12 +55,15 @@ export const schemaTypes = [
   person,
   category,
   sectionTemplate,
+  contentVariable,
   claudeConversation,
   claudeInstructions,
   claudeApiSettings,
   claudeQuickAction,
   claudeWorkflow,
-  // Objects
+  // Objects - utility types (must come before blocks that use them)
+  smartString,
+  contentVariableInline,
   blockContent,
   link,
   // Layout blocks (must be in order: content blocks first, then column, row, section)
