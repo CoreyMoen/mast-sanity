@@ -56,11 +56,11 @@ export interface ResolvedLink {
   _type?: 'link'
   linkType?: 'href' | 'page' | 'post' | 'variable' | 'external'
   href?: string
-  page?: {
+  page?: string | {
     _ref?: string
     slug?: string
   }
-  post?: {
+  post?: string | {
     _ref?: string
     slug?: string
   }
@@ -149,8 +149,16 @@ export function resolveLinkUrl(link?: ResolvedLink | null): string | undefined {
     case 'href':
       return link.href
     case 'page':
+      // Handle both string (slug directly) and object form
+      if (typeof link.page === 'string') {
+        return `/${link.page}`
+      }
       return link.page?.slug ? `/${link.page.slug}` : undefined
     case 'post':
+      // Handle both string (slug directly) and object form
+      if (typeof link.post === 'string') {
+        return `/posts/${link.post}`
+      }
       return link.post?.slug ? `/posts/${link.post.slug}` : undefined
     default:
       // Fallback: try href directly
