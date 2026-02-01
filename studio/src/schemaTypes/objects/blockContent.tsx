@@ -10,6 +10,10 @@ import {defineArrayMember, defineType, defineField} from 'sanity'
  *    type: 'blockContent'
  *  }
  *
+ * Supports:
+ * - Inline Content Variables for dynamic text insertion
+ * - Variable Link annotations for referencing global links
+ *
  * Learn more: https://www.sanity.io/docs/block-content
  */
 export const blockContent = defineType({
@@ -19,8 +23,13 @@ export const blockContent = defineType({
   of: [
     defineArrayMember({
       type: 'block',
+      // Inline objects - allows inserting Content Variables inline with text
+      of: [
+        {type: 'contentVariableInline'},
+      ],
       marks: {
         annotations: [
+          // Standard link annotation
           {
             name: 'link',
             type: 'object',
@@ -36,6 +45,7 @@ export const blockContent = defineType({
                     {title: 'URL', value: 'href'},
                     {title: 'Page', value: 'page'},
                     {title: 'Post', value: 'post'},
+                    {title: 'Content Variable', value: 'variable'},
                   ],
                   layout: 'radio',
                 },
@@ -77,6 +87,24 @@ export const blockContent = defineType({
                   Rule.custom((value, context: any) => {
                     if (context.parent?.linkType === 'post' && !value) {
                       return 'Post reference is required when Link Type is Post'
+                    }
+                    return true
+                  }),
+              }),
+              defineField({
+                name: 'variable',
+                title: 'Content Variable',
+                type: 'reference',
+                to: [{type: 'contentVariable'}],
+                hidden: ({parent}) => parent?.linkType !== 'variable',
+                options: {
+                  // Only show link-type content variables
+                  filter: 'variableType == "link"',
+                },
+                validation: (Rule) =>
+                  Rule.custom((value, context: any) => {
+                    if (context.parent?.linkType === 'variable' && !value) {
+                      return 'Content Variable is required when Link Type is Content Variable'
                     }
                     return true
                   }),

@@ -1,4 +1,4 @@
-import {BlockElementIcon, BoltIcon, BookIcon, CogIcon, ComponentIcon, DocumentIcon, EditIcon, FolderIcon, MenuIcon, RobotIcon} from '@sanity/icons'
+import {BlockElementIcon, BoltIcon, BookIcon, CogIcon, ComponentIcon, DocumentIcon, EditIcon, FolderIcon, MenuIcon, RobotIcon, TagIcon} from '@sanity/icons'
 import type {StructureBuilder, StructureResolver} from 'sanity/structure'
 import pluralize from 'pluralize-esm'
 
@@ -29,6 +29,7 @@ const DISABLED_TYPES = [
   'person',
   'category',
   'sectionTemplate',
+  'contentVariable',
 ]
 
 export const structure: StructureResolver = (S: StructureBuilder, context) =>
@@ -92,6 +93,17 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
       // ═══════════════════════════════════════════════════════════════════
       // SETTINGS
       // ═══════════════════════════════════════════════════════════════════
+
+      // Content Variables - reusable text, links, and images
+      S.listItem()
+        .id('contentVariables')
+        .title('Content Variables')
+        .icon(TagIcon)
+        .child(
+          S.documentTypeList('contentVariable')
+            .title('Content Variables')
+            .defaultOrdering([{field: 'variableType', direction: 'asc'}, {field: 'name', direction: 'asc'}])
+        ),
 
       // Site Settings Singleton
       S.listItem()

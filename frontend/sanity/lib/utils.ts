@@ -85,10 +85,15 @@ type LinkLike = {
   openInNewTab?: boolean
   page?: string | { _ref: string; _type: 'reference' }
   post?: string | { _ref: string; _type: 'reference' }
+  variable?: {
+    _id?: string
+    variableType?: 'link'
+    linkValue?: LinkLike
+  }
 }
 
 // Depending on the type of link, we need to fetch the corresponding page, post, or URL.  Otherwise return null.
-export function linkResolver(link: Link | LinkLike | undefined) {
+export function linkResolver(link: Link | LinkLike | undefined): string | null {
   if (!link) return null
 
   // If linkType is not set but href is, lets set linkType to "href".  This comes into play when pasting links into the portable text editor because a link type is not assumed.
@@ -110,6 +115,14 @@ export function linkResolver(link: Link | LinkLike | undefined) {
     case 'post':
       if (link?.post && typeof link.post === 'string') {
         return `/posts/${link.post}`
+      }
+      return null
+    case 'variable':
+      // Content Variable link type - resolve the nested linkValue
+      // Cast to LinkLike since auto-generated Link type may not have variable field yet
+      const linkWithVar = link as LinkLike
+      if (linkWithVar?.variable?.linkValue) {
+        return linkResolver(linkWithVar.variable.linkValue)
       }
       return null
     default:

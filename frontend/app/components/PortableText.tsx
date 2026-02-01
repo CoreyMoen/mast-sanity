@@ -11,6 +11,8 @@
 import {PortableText, type PortableTextComponents, type PortableTextBlock} from 'next-sanity'
 
 import ResolvedLink from '@/app/components/ResolvedLink'
+import {resolveInlineVariable} from '@/app/lib/resolveContentVariable'
+import type {ContentVariableInline} from '@/app/types/blocks'
 
 // Anchor link icon for headings
 function AnchorIcon() {
@@ -103,6 +105,13 @@ export default function CustomPortableText({
     marks: {
       link: ({children, value: link}) => {
         return <ResolvedLink link={link}>{children}</ResolvedLink>
+      },
+    },
+    types: {
+      // Inline Content Variable - renders the resolved text value inline
+      contentVariableInline: ({value}: {value: ContentVariableInline}) => {
+        const resolvedText = resolveInlineVariable(value)
+        return <span data-variable-key={value.reference?.key?.current}>{resolvedText}</span>
       },
     },
   }

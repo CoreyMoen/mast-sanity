@@ -1,6 +1,10 @@
 import {defineField, defineType} from 'sanity'
 import {TextIcon} from '@sanity/icons'
 
+/**
+ * Eyebrow Block schema - Small label text with variant styling.
+ * Text field supports Content Variables via smartString type.
+ */
 export const eyebrowBlock = defineType({
   name: 'eyebrowBlock',
   title: 'Eyebrow',
@@ -15,7 +19,7 @@ export const eyebrowBlock = defineType({
     defineField({
       name: 'text',
       title: 'Text',
-      type: 'string',
+      type: 'smartString',
       description: 'The eyebrow text (will be displayed in uppercase)',
       group: 'content',
       validation: (rule) => rule.required(),
@@ -78,17 +82,26 @@ export const eyebrowBlock = defineType({
   ],
   preview: {
     select: {
-      text: 'text',
+      textMode: 'text.mode',
+      staticValue: 'text.staticValue',
+      variableName: 'text.variableRef.name',
+      variableKey: 'text.variableRef.key.current',
       variant: 'variant',
     },
-    prepare({text, variant}) {
+    prepare({textMode, staticValue, variableName, variableKey, variant}) {
       const variantLabels: Record<string, string> = {
         text: 'Text',
         overline: 'Overline',
         pill: 'Pill',
       }
+      let title = 'Eyebrow'
+      if (textMode === 'variable' && variableName) {
+        title = `{{${variableKey || variableName}}}`
+      } else if (staticValue) {
+        title = staticValue
+      }
       return {
-        title: text || 'Eyebrow',
+        title,
         subtitle: variantLabels[variant] || 'Text',
       }
     },

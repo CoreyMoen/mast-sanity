@@ -4,6 +4,7 @@ import {TextIcon} from '@sanity/icons'
 /**
  * Heading Block schema - Configurable heading element.
  * Supports different heading levels, sizes, and alignment.
+ * Text field supports Content Variables via smartString type.
  */
 export const headingBlock = defineType({
   name: 'headingBlock',
@@ -18,7 +19,7 @@ export const headingBlock = defineType({
     defineField({
       name: 'text',
       title: 'Heading Text',
-      type: 'string',
+      type: 'smartString',
       group: 'content',
       validation: (Rule) => Rule.required(),
     }),
@@ -106,12 +107,21 @@ export const headingBlock = defineType({
   ],
   preview: {
     select: {
-      title: 'text',
+      textMode: 'text.mode',
+      staticValue: 'text.staticValue',
+      variableName: 'text.variableRef.name',
+      variableKey: 'text.variableRef.key.current',
       level: 'level',
     },
-    prepare({title, level}) {
+    prepare({textMode, staticValue, variableName, variableKey, level}) {
+      let title = 'Heading'
+      if (textMode === 'variable' && variableName) {
+        title = `{{${variableKey || variableName}}}`
+      } else if (staticValue) {
+        title = staticValue
+      }
       return {
-        title: title || 'Heading',
+        title,
         subtitle: level?.toUpperCase() || 'H2',
       }
     },

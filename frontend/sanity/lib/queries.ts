@@ -81,11 +81,33 @@ const postFields = /* groq */ `
   "author": author->{firstName, lastName, picture},
 `
 
-// Resolve page/post references in link objects
+// Resolve page/post/variable references in link objects
 // Note: We always try to resolve these since object fields may not have _type set
 const linkReference = /* groq */ `
   "page": page->slug.current,
-  "post": post->slug.current
+  "post": post->slug.current,
+  variable->{
+    _id,
+    variableType,
+    linkValue{
+      ...,
+      "page": page->slug.current,
+      "post": post->slug.current
+    }
+  }
+`
+
+// SmartString field expansion - resolves variable references for text fields
+const smartStringFields = /* groq */ `
+  mode,
+  staticValue,
+  variableRef->{
+    _id,
+    name,
+    key,
+    variableType,
+    textValue
+  }
 `
 
 const linkFields = /* groq */ `
@@ -95,10 +117,21 @@ const linkFields = /* groq */ `
       }
 `
 
-// Rich text content with resolved links
+// Rich text content with resolved links and inline variables
 const richTextFields = /* groq */ `
   content[]{
     ...,
+    // Expand inline content variables
+    _type == "contentVariableInline" => {
+      ...,
+      reference->{
+        _id,
+        name,
+        key,
+        variableType,
+        textValue
+      }
+    },
     markDefs[]{
       ...,
       ${linkReference}
@@ -111,7 +144,17 @@ const richTextFields = /* groq */ `
 const nestedContentBlockFields = /* groq */ `
   content[]{
     ...,
+    _type == "headingBlock" => {
+      ...,
+      text{ ${smartStringFields} }
+    },
+    _type == "eyebrowBlock" => {
+      ...,
+      text{ ${smartStringFields} }
+    },
     _type == "buttonBlock" => {
+      ...,
+      text{ ${smartStringFields} },
       ${linkFields}
     },
     _type == "richTextBlock" => {
@@ -136,7 +179,17 @@ const nestedContentBlockFields = /* groq */ `
 const contentBlockFields = /* groq */ `
   content[]{
     ...,
+    _type == "headingBlock" => {
+      ...,
+      text{ ${smartStringFields} }
+    },
+    _type == "eyebrowBlock" => {
+      ...,
+      text{ ${smartStringFields} }
+    },
     _type == "buttonBlock" => {
+      ...,
+      text{ ${smartStringFields} },
       ${linkFields}
     },
     _type == "richTextBlock" => {
