@@ -119,8 +119,10 @@ export function linkResolver(link: Link | LinkLike | undefined): string | null {
       return null
     case 'variable':
       // Content Variable link type - resolve the nested linkValue
-      if (link?.variable?.linkValue) {
-        return linkResolver(link.variable.linkValue)
+      // Cast to LinkLike since auto-generated Link type may not have variable field yet
+      const linkWithVar = link as LinkLike
+      if (linkWithVar?.variable?.linkValue) {
+        return linkResolver(linkWithVar.variable.linkValue)
       }
       return null
     default:

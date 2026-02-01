@@ -19,8 +19,8 @@
 
 /** Content Variable document structure (resolved from Sanity) */
 export interface ContentVariable {
-  _id: string
-  _type: 'contentVariable'
+  _id?: string
+  _type?: 'contentVariable'
   name?: string
   key?: {
     current?: string
@@ -78,8 +78,8 @@ export interface SmartString {
 
 /** Inline variable in Portable Text */
 export interface ContentVariableInline {
-  _type: 'contentVariableInline'
-  _key: string
+  _type?: 'contentVariableInline'
+  _key?: string
   reference?: ContentVariable
 }
 
