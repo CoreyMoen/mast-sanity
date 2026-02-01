@@ -96,10 +96,29 @@ export default function PageBuilder({page, isDraftMode}: PageBuilderPageProps) {
 
     // If there are sections in the updated document, use them
     if (action.document.pageBuilder) {
-      // Reconcile References. https://www.sanity.io/docs/enabling-drag-and-drop#ffe728eea8c1
-      return action.document.pageBuilder.map(
-        (section) => currentSections?.find((s) => s._key === section?._key) || section,
-      )
+      // Reconcile References for drag-and-drop reordering only.
+      // https://www.sanity.io/docs/enabling-drag-and-drop#ffe728eea8c1
+      //
+      // We need to distinguish between:
+      // 1. Reordering (same sections, different order) - preserve expanded GROQ data
+      // 2. Field changes - use the new data from the live update
+      //
+      // Check if this is a reorder by comparing keys
+      const currentKeys = currentSections?.map((s) => s._key).sort().join(',') || ''
+      const newKeys = action.document.pageBuilder.map((s: PageBuilderSection) => s._key).sort().join(',')
+      const isReorder = currentKeys === newKeys && currentKeys.length > 0
+
+      if (isReorder) {
+        // This is a reorder - preserve expanded reference data from original query
+        return action.document.pageBuilder.map(
+          (section: PageBuilderSection) => currentSections?.find((s) => s._key === section?._key) || section,
+        )
+      }
+
+      // This is a content change - use the new data directly
+      // Note: This means live preview won't have GROQ-expanded references until refresh
+      // but at least the changes will be visible
+      return action.document.pageBuilder
     }
 
     // Otherwise keep the current sections

@@ -99,8 +99,7 @@ const linkReference = /* groq */ `
 
 // SmartString field expansion - resolves variable references for text fields
 const smartStringFields = /* groq */ `
-  mode,
-  staticValue,
+  ...,
   variableRef->{
     _id,
     name,
@@ -118,18 +117,22 @@ const linkFields = /* groq */ `
 `
 
 // Rich text content with resolved links and inline variables
+// Portable Text structure: blocks[].children[] contains inline objects
 const richTextFields = /* groq */ `
   content[]{
     ...,
-    // Expand inline content variables
-    _type == "contentVariableInline" => {
+    // Expand inline content variables within block children
+    children[]{
       ...,
-      reference->{
-        _id,
-        name,
-        key,
-        variableType,
-        textValue
+      _type == "contentVariableInline" => {
+        ...,
+        reference->{
+          _id,
+          name,
+          key,
+          variableType,
+          textValue
+        }
       }
     },
     markDefs[]{

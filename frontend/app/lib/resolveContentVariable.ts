@@ -13,6 +13,8 @@
  * - As link targets (in link fields and annotations)
  */
 
+import {stegaClean} from 'next-sanity'
+
 // =============================================================================
 // TYPE DEFINITIONS
 // =============================================================================
@@ -110,10 +112,15 @@ export function resolveSmartString(
   }
 
   // Handle SmartString object
-  if (smartString.mode === 'variable' && smartString.variableRef) {
+  // Use stegaClean to remove invisible stega encoding characters before comparison
+  // (stega encoding is used for click-to-edit in Visual Editing mode)
+  const cleanMode = stegaClean(smartString.mode)
+
+  if (cleanMode === 'variable' && smartString.variableRef) {
     // Variable mode - get text from referenced variable
     const variable = smartString.variableRef
-    if (variable.variableType === 'text' && variable.textValue) {
+    const cleanVariableType = stegaClean(variable.variableType)
+    if (cleanVariableType === 'text' && variable.textValue) {
       return variable.textValue
     }
     // Variable exists but no text value
@@ -134,10 +141,14 @@ export function resolveSmartString(
 export function resolveLinkUrl(link?: ResolvedLink | null): string | undefined {
   if (!link) return undefined
 
+  // Clean stega encoding from linkType before comparison
+  const cleanLinkType = stegaClean(link.linkType)
+
   // Handle content variable link type
-  if (link.linkType === 'variable' && link.variable) {
+  if (cleanLinkType === 'variable' && link.variable) {
     const variable = link.variable
-    if (variable.variableType === 'link' && variable.linkValue) {
+    const cleanVariableType = stegaClean(variable.variableType)
+    if (cleanVariableType === 'link' && variable.linkValue) {
       // Recursively resolve the variable's link value
       return resolveLinkUrl(variable.linkValue)
     }
@@ -145,7 +156,7 @@ export function resolveLinkUrl(link?: ResolvedLink | null): string | undefined {
   }
 
   // Handle standard link types
-  switch (link.linkType) {
+  switch (cleanLinkType) {
     case 'href':
       return link.href
     case 'page':
@@ -176,8 +187,11 @@ export function resolveLinkUrl(link?: ResolvedLink | null): string | undefined {
 export function shouldOpenInNewTab(link?: ResolvedLink | null): boolean {
   if (!link) return false
 
+  // Clean stega encoding from linkType before comparison
+  const cleanLinkType = stegaClean(link.linkType)
+
   // If it's a variable link, check the variable's link value
-  if (link.linkType === 'variable' && link.variable?.linkValue) {
+  if (cleanLinkType === 'variable' && link.variable?.linkValue) {
     return link.variable.linkValue.openInNewTab ?? false
   }
 
@@ -197,13 +211,15 @@ export function resolveInlineVariable(inlineVar?: ContentVariableInline | null):
   }
 
   const variable = inlineVar.reference
+  // Clean stega encoding from variableType before comparison
+  const cleanVariableType = stegaClean(variable.variableType)
 
-  if (variable.variableType === 'text' && variable.textValue) {
+  if (cleanVariableType === 'text' && variable.textValue) {
     return variable.textValue
   }
 
   // Return the key as a fallback indicator
-  return `[${variable.key?.current || variable.name || 'variable'}]`
+  return `[${stegaClean(variable.key?.current) || stegaClean(variable.name) || 'variable'}]`
 }
 
 /**
@@ -214,7 +230,7 @@ export function isSmartString(value: unknown): value is SmartString {
     typeof value === 'object' &&
     value !== null &&
     '_type' in value &&
-    (value as SmartString)._type === 'smartString'
+    stegaClean((value as SmartString)._type) === 'smartString'
   )
 }
 
@@ -226,6 +242,6 @@ export function isContentVariableInline(value: unknown): value is ContentVariabl
     typeof value === 'object' &&
     value !== null &&
     '_type' in value &&
-    (value as ContentVariableInline)._type === 'contentVariableInline'
+    stegaClean((value as ContentVariableInline)._type) === 'contentVariableInline'
   )
 }

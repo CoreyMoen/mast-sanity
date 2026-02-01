@@ -17,7 +17,6 @@ export const link = defineType({
       name: 'linkType',
       title: 'Link Type',
       type: 'string',
-      initialValue: 'href',
       options: {
         list: [
           {title: 'URL', value: 'href'},
