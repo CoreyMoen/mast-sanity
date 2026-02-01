@@ -18,6 +18,7 @@ import {
 import {PageNavigator} from './src/presentation/PageNavigator'
 import {assist} from '@sanity/assist'
 import {claudeAssistant, createStudioLayout} from './src/plugins/claude-assistant'
+import {StudioIcon} from './src/components/StudioIcon'
 
 // Environment variables for project configuration
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'your-projectID'
@@ -51,7 +52,8 @@ function resolveHref(documentType?: string, slug?: string, id?: string): string 
 // Main Sanity configuration
 export default defineConfig({
   name: 'default',
-  title: 'Unless Mast Sanity',
+  title: 'Mast Sanity',
+  icon: StudioIcon,
 
   projectId,
   dataset,
