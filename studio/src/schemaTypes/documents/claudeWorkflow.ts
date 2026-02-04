@@ -2,56 +2,56 @@ import {BoltIcon} from '@sanity/icons'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
 /**
- * Claude Workflow schema.
- * Stores workflow templates that users can select when starting a chat.
- * Each workflow provides specific context, instructions, and optional starter prompts.
+ * Claude Skill schema.
+ * Stores skill templates that users can select when starting a chat.
+ * Each skill provides specific context, instructions, and optional starter prompts.
  */
 export const claudeWorkflow = defineType({
   name: 'claudeWorkflow',
-  title: 'Claude Workflow',
+  title: 'Claude Skill',
   type: 'document',
   icon: BoltIcon,
   fields: [
     defineField({
       name: 'name',
-      title: 'Workflow Name',
+      title: 'Skill Name',
       type: 'string',
-      description: 'Short name displayed in the workflow selector',
+      description: 'Short name displayed in the skill selector',
       validation: (rule) => rule.required().max(50),
     }),
     defineField({
       name: 'description',
       title: 'Description',
       type: 'text',
-      description: 'Brief description shown when selecting this workflow',
+      description: 'Brief description shown when selecting this skill',
       rows: 3,
     }),
     defineField({
       name: 'systemInstructions',
       title: 'System Instructions',
       type: 'text',
-      description: 'Additional context and instructions appended to Claude\'s system prompt when this workflow is active',
+      description: 'Additional context and instructions appended to Claude\'s system prompt when this skill is active',
       rows: 10,
     }),
     defineField({
       name: 'starterPrompt',
       title: 'Starter Prompt',
       type: 'text',
-      description: 'Optional prompt that auto-fills when user selects this workflow (user can edit before sending)',
+      description: 'Optional prompt that auto-fills when user selects this skill (user can edit before sending)',
       rows: 4,
     }),
     defineField({
       name: 'order',
       title: 'Display Order',
       type: 'number',
-      description: 'Order in the workflow selector (lower numbers appear first)',
+      description: 'Order in the skill selector (lower numbers appear first)',
       initialValue: 50,
     }),
     defineField({
       name: 'roles',
       title: 'Allowed Roles',
       type: 'array',
-      description: 'Which roles can use this workflow (leave empty for everyone)',
+      description: 'Which roles can use this skill (leave empty for everyone)',
       of: [defineArrayMember({type: 'string'})],
       options: {
         list: [
@@ -66,7 +66,7 @@ export const claudeWorkflow = defineType({
       name: 'active',
       title: 'Active',
       type: 'boolean',
-      description: 'Whether this workflow is available for selection',
+      description: 'Whether this skill is available for selection',
       initialValue: true,
     }),
   ],
@@ -90,7 +90,7 @@ export const claudeWorkflow = defineType({
     },
     prepare({title, subtitle, active}) {
       return {
-        title: title || 'Untitled Workflow',
+        title: title || 'Untitled Skill',
         subtitle: active === false ? '(Inactive) ' + (subtitle || '') : subtitle || '',
         media: BoltIcon,
       }

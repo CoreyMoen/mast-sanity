@@ -127,10 +127,10 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
                 .title('API Settings')
                 .child(S.document().schemaType('claudeApiSettings').documentId('claudeApiSettings'))
                 .icon(CogIcon),
-              // Instructions Singleton
+              // Training Singleton
               S.listItem()
                 .id('claudeInstructions')
-                .title('Instructions')
+                .title('Training')
                 .child(S.document().schemaType('claudeInstructions').documentId('claudeInstructions'))
                 .icon(BookIcon),
               // Quick Actions List
@@ -139,11 +139,11 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
                 .title('Quick Actions')
                 .child(S.documentTypeList('claudeQuickAction').title('Quick Actions'))
                 .icon(EditIcon),
-              // Workflows List
+              // Skills List
               S.listItem()
                 .id('claudeWorkflows')
-                .title('Workflows')
-                .child(S.documentTypeList('claudeWorkflow').title('Workflows'))
+                .title('Skills')
+                .child(S.documentTypeList('claudeWorkflow').title('Skills'))
                 .icon(BoltIcon),
             ])
         ),

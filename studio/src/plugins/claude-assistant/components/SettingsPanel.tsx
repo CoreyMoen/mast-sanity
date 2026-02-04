@@ -498,7 +498,7 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
                     Read-Only Access
                   </Text>
                   <Text size={1}>
-                    You can view the Claude instructions but cannot modify them. Contact an administrator
+                    You can view the Claude training but cannot modify it. Contact an administrator
                     to request changes to writing guidelines, design rules, or technical constraints.
                   </Text>
                 </Stack>
@@ -682,7 +682,7 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
                       </Text>
                     </Flex>
                     <Button
-                      text="Edit Writing Instructions"
+                      text="Edit Writing Training"
                       mode="ghost"
                       icon={EditIcon}
                       onClick={() => navigateToInstructions('writing')}
@@ -754,7 +754,7 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
                       </Text>
                     </Flex>
                     <Button
-                      text="Edit Design Instructions"
+                      text="Edit Design Training"
                       mode="ghost"
                       icon={EditIcon}
                       onClick={() => navigateToInstructions('design')}
@@ -826,7 +826,7 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
                       </Text>
                     </Flex>
                     <Button
-                      text="Edit Technical Instructions"
+                      text="Edit Technical Training"
                       mode="ghost"
                       icon={EditIcon}
                       onClick={() => navigateToInstructions('technical')}

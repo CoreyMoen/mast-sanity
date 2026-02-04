@@ -1,8 +1,8 @@
 /**
- * WorkflowPicker Component
+ * WorkflowPicker Component (Skills Picker)
  *
- * Modal dialog for selecting workflows to add as context to conversations.
- * Similar to DocumentPicker but for workflow selection.
+ * Modal dialog for selecting skills to add as context to conversations.
+ * Similar to DocumentPicker but for skill selection.
  */
 
 import React, {useState, useCallback, useMemo} from 'react'
@@ -199,7 +199,7 @@ export function WorkflowPickerDialog({
           >
             <Flex align="center" gap={2}>
               <BoltIcon style={{fontSize: 18}} />
-              <Text weight="semibold">Select Workflows</Text>
+              <Text weight="semibold">Select Skills</Text>
             </Flex>
             <Button
               icon={CloseIcon}
@@ -213,7 +213,7 @@ export function WorkflowPickerDialog({
           <Box padding={3} style={{borderBottom: '1px solid var(--card-border-color)'}}>
             <TextInput
               icon={SearchIcon}
-              placeholder="Search workflows..."
+              placeholder="Search skills..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.currentTarget.value)}
               autoFocus
@@ -231,13 +231,13 @@ export function WorkflowPickerDialog({
             {isLoading ? (
               <Box padding={4}>
                 <Text align="center" muted>
-                  Loading workflows...
+                  Loading skills...
                 </Text>
               </Box>
             ) : filteredWorkflows.length === 0 ? (
               <Box padding={4}>
                 <Text align="center" muted>
-                  {searchQuery ? 'No workflows match your search' : 'No workflows available'}
+                  {searchQuery ? 'No skills match your search' : 'No skills available'}
                 </Text>
               </Box>
             ) : (
@@ -290,8 +290,8 @@ export function WorkflowPickerDialog({
           >
             <Text size={1} muted>
               {selectedWorkflows.length === 0
-                ? 'No workflows selected'
-                : `${selectedWorkflows.length} workflow${selectedWorkflows.length > 1 ? 's' : ''} selected`}
+                ? 'No skills selected'
+                : `${selectedWorkflows.length} skill${selectedWorkflows.length > 1 ? 's' : ''} selected`}
             </Text>
             <Flex gap={2}>
               {selectedWorkflows.length > 0 && (

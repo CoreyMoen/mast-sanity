@@ -208,7 +208,7 @@ const requiredFieldsObject = defineArrayMember({
 
 export const claudeInstructions = defineType({
   name: 'claudeInstructions',
-  title: 'Claude Instructions',
+  title: 'Claude Training',
   type: 'document',
   icon: BookIcon,
   groups: [
@@ -348,7 +348,7 @@ export const claudeInstructions = defineType({
   preview: {
     prepare() {
       return {
-        title: 'Claude Instructions',
+        title: 'Claude Training',
         subtitle: 'AI Assistant Configuration',
         media: BookIcon,
       }

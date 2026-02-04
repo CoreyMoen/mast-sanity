@@ -1,8 +1,8 @@
 /**
- * useWorkflows Hook
+ * useWorkflows Hook (Skills)
  *
- * Fetches and manages Claude workflow templates from Sanity.
- * Users can select a workflow to get pre-configured context for their chat.
+ * Fetches and manages Claude skill templates from Sanity.
+ * Users can select a skill to get pre-configured context for their chat.
  */
 
 import {useState, useCallback, useEffect, useRef, useMemo} from 'react'
@@ -122,7 +122,7 @@ export function useWorkflows(): UseWorkflowsReturn {
 }
 
 /**
- * Build workflow context to append to system prompt
+ * Build skill context to append to system prompt
  */
 export function buildWorkflowContext(workflow: Workflow | null): string {
   if (!workflow?.systemInstructions) {
@@ -131,7 +131,7 @@ export function buildWorkflowContext(workflow: Workflow | null): string {
 
   return `
 
-## Active Workflow: ${workflow.name}
+## Active Skill: ${workflow.name}
 
 ${workflow.systemInstructions}
 `

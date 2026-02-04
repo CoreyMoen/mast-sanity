@@ -312,12 +312,12 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
       >
         {/* Left side: workflow, image, and document buttons */}
         <Flex align="center" gap={1}>
-          {/* Workflow picker button */}
+          {/* Skill picker button */}
           {showWorkflowPicker && (
             <Tooltip
               content={
                 <Box padding={2}>
-                  <Text size={1}>Add workflow</Text>
+                  <Text size={1}>Add skill</Text>
                 </Box>
               }
               placement="top"
@@ -330,7 +330,7 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
                   opacity: pendingWorkflows.length > 0 ? 1 : 0.7,
                   borderRadius: 8,
                 }}
-                aria-label="Add workflow"
+                aria-label="Add skill"
                 onClick={() => onOpenWorkflowPicker?.()}
               />
             </Tooltip>

@@ -1,9 +1,9 @@
 /**
- * useInstructions Hook
+ * useInstructions Hook (Training)
  *
- * Fetches and manages Claude instructions from the Sanity claudeInstructions document.
+ * Fetches and manages Claude training from the Sanity claudeInstructions document.
  * Only fetches **published** documents (not drafts).
- * Replaces localStorage with Sanity for centralized instruction management.
+ * Replaces localStorage with Sanity for centralized training management.
  */
 
 import {useState, useCallback, useEffect, useRef} from 'react'
@@ -27,12 +27,12 @@ export {formatInstructionsForClaude, type SanityClaudeInstructions, type Section
 const API_VERSION = '2024-01-01'
 
 /**
- * Convert Sanity instructions to internal InstructionSet format
+ * Convert Sanity training to internal InstructionSet format
  */
 function sanityToInstructionSet(doc: SanityClaudeInstructions): InstructionSet {
   return {
     id: doc._id,
-    name: 'Claude Instructions',
+    name: 'Claude Training',
     content: formatInstructionsForClaude(doc),
     isDefault: true,
     createdAt: new Date(),
@@ -175,7 +175,7 @@ export function useInstructions(): UseInstructionsReturn & {
    */
   const createInstruction = useCallback(
     (name: string, content: string): InstructionSet => {
-      console.warn('Creating instructions is not supported. Please use Sanity Studio to edit Claude Instructions.')
+      console.warn('Creating training is not supported. Please use Sanity Studio to edit Claude Training.')
       const newInstruction: InstructionSet = {
         id: `local_${Date.now()}`,
         name,
@@ -193,7 +193,7 @@ export function useInstructions(): UseInstructionsReturn & {
    */
   const updateInstruction = useCallback(
     (id: string, updates: Partial<InstructionSet>) => {
-      console.warn('Updating instructions is not supported. Please use Sanity Studio to edit Claude Instructions.')
+      console.warn('Updating training is not supported. Please use Sanity Studio to edit Claude Training.')
     },
     []
   )
@@ -203,7 +203,7 @@ export function useInstructions(): UseInstructionsReturn & {
    */
   const deleteInstruction = useCallback(
     (id: string) => {
-      console.warn('Deleting instructions is not supported. Please use Sanity Studio to manage Claude Instructions.')
+      console.warn('Deleting training is not supported. Please use Sanity Studio to manage Claude Training.')
     },
     []
   )
