@@ -15,7 +15,7 @@
  */
 
 import React, {useMemo, useState} from 'react'
-import {Box, Card, Flex, Text, Stack, Spinner, Code, Button} from '@sanity/ui'
+import {Box, Card, Flex, Text, Stack, Code, Button} from '@sanity/ui'
 import {ChevronDownIcon, ChevronUpIcon} from '@sanity/icons'
 import type {Message as MessageType, ParsedAction} from '../types'
 import {ActionCard} from './ActionCard'
@@ -469,10 +469,19 @@ export function Message({message, onActionClick, onActionExecute, onActionUndo, 
       <Stack space={3} style={{minWidth: 0}}>
           {/* Streaming indicator (only shown when actively streaming) */}
           {isStreaming && (
-            <Flex align="center" gap={1} role="status" aria-live="polite">
-              <Spinner style={{width: 12, height: 12}} aria-hidden="true" />
-              <Text size={0} muted>
-                typing
+            <Flex align="center" gap={3} role="status" aria-live="polite">
+              <img
+                src="/static/claude-writing-animation.gif"
+                alt=""
+                aria-hidden="true"
+                style={{
+                  width: 48,
+                  height: 48,
+                  flexShrink: 0,
+                }}
+              />
+              <Text size={1} muted>
+                {message.content ? 'Typing...' : 'Thinking...'}
               </Text>
             </Flex>
           )}
@@ -530,12 +539,7 @@ export function Message({message, onActionClick, onActionExecute, onActionUndo, 
           {/* Message content */}
           <Box className="message-content">
             {parsedContent}
-            {isStreaming && <BlinkingCursor />}
-            {isStreaming && !message.content && (
-              <Text size={2} muted style={{fontStyle: 'italic'}}>
-                Thinking...
-              </Text>
-            )}
+            {isStreaming && message.content && <BlinkingCursor />}
           </Box>
 
           {/* Actions */}

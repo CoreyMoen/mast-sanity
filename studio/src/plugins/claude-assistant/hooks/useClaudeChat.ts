@@ -382,7 +382,29 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
 
         // Build conversation history for API
         // Handle messages with images by using the Claude multimodal format
-        const conversationHistory = [...messages, userMessage].map((msg) => {
+        // Filter out messages with empty content (except images) to avoid API errors
+        const allMessages = [...messages, userMessage]
+        const filteredMessages = allMessages.filter((msg) => {
+          // Keep messages with images (they have content via image metadata)
+          if (msg.images && msg.images.length > 0) return true
+          // Filter out messages with empty content
+          return msg.content && msg.content.trim().length > 0
+        })
+
+        // Log if any messages were filtered out (helps debug API errors)
+        if (filteredMessages.length !== allMessages.length) {
+          console.warn('[useClaudeChat] Filtered out messages with empty content:', {
+            before: allMessages.length,
+            after: filteredMessages.length,
+            removed: allMessages.filter(m => !m.content || m.content.trim().length === 0).map(m => ({
+              id: m.id,
+              role: m.role,
+              status: m.status,
+            })),
+          })
+        }
+
+        const conversationHistory = filteredMessages.map((msg) => {
           // If message has images, use multimodal content format
           if (msg.images && msg.images.length > 0) {
             const contentParts: Array<{type: string; text?: string; source?: {type: string; media_type: string; data: string}}> = []
