@@ -10,6 +10,7 @@ import {useClient} from 'sanity'
 import {useRouter} from 'sanity/router'
 import type {ParsedAction, ActionResult, UseContentOperationsReturn} from '../types'
 import {ContentOperations, type PageStructure, type SectionStructure} from '../lib/operations'
+import type {Workflow} from './useWorkflows'
 
 /**
  * Extended return type with additional functionality
@@ -29,6 +30,10 @@ export interface UseContentOperationsExtendedReturn extends UseContentOperations
   unpublishDocument: (documentId: string) => Promise<ActionResult>
   /** Undo a previously executed action */
   undoAction: (action: ParsedAction) => Promise<ActionResult>
+  /** Fetch frame data from Figma URL */
+  handleFetchFigmaFrame: (url: string, workflow?: Workflow) => Promise<ActionResult>
+  /** Upload an image from Figma to Sanity */
+  handleUploadFigmaImage: (fileKey: string, nodeId: string, filename: string, workflow?: Workflow) => Promise<ActionResult>
 }
 
 /**
@@ -54,6 +59,7 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
 
   /**
    * Execute a parsed action
+   * Routes Figma actions to the appropriate handlers, other actions to ContentOperations
    */
   const executeAction = useCallback(
     async (action: ParsedAction): Promise<ActionResult> => {
@@ -64,8 +70,99 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
       setPendingActions((prev) => new Map(prev).set(action.id, abortController))
 
       try {
-        const operations = getOperations()
-        const result = await operations.executeAction(action)
+        let result: ActionResult
+
+        // Handle Figma actions separately (they call external API endpoints)
+        // Note: Figma actions are only available when the skill has enableFigmaFetch: true,
+        // which is validated at the system prompt level (Claude won't suggest these actions
+        // unless the Figma instructions are included in the prompt)
+        if (action.type === 'fetchFigmaFrame') {
+          const url = action.payload.figmaUrl || action.payload.path
+          if (!url) {
+            result = {
+              success: false,
+              message: 'Figma URL is required for fetchFigmaFrame action',
+            }
+          } else {
+            // Call the API endpoint directly
+            const response = await fetch('/api/figma/fetch-frame', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ url }),
+            })
+            const data = await response.json()
+            if (data.success) {
+              result = {
+                success: true,
+                data: {
+                  fileKey: data.fileKey,
+                  nodeId: data.nodeId,
+                  name: data.name,
+                  document: data.document,
+                  images: data.images,
+                },
+                message: `Successfully fetched frame "${data.name}" with ${data.images?.length || 0} image(s)`,
+              }
+            } else {
+              result = {
+                success: false,
+                message: data.error || 'Failed to fetch Figma frame',
+              }
+            }
+          }
+        } else if (action.type === 'uploadFigmaImage') {
+          const { figmaNodeId, figmaFileKey, filename } = action.payload
+          const nodeId = figmaNodeId || action.payload.path
+          const fileKey = figmaFileKey
+          const name = filename || 'figma-image.png'
+
+          if (!nodeId) {
+            result = {
+              success: false,
+              message: 'Node ID is required for uploadFigmaImage action',
+            }
+          } else if (!fileKey) {
+            result = {
+              success: false,
+              message: 'File key is required for uploadFigmaImage action. Make sure to include the fileKey from the fetchFigmaFrame response.',
+            }
+          } else {
+            // Call the API endpoint directly
+            const response = await fetch('/api/figma/export-image', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                fileKey,
+                nodeId,
+                filename: name,
+                scale: 2,
+                format: 'png',
+              }),
+            })
+            const data = await response.json()
+            if (data.success) {
+              result = {
+                success: true,
+                data: {
+                  asset: data.asset,
+                  assetId: data.assetId,
+                  url: data.url,
+                  filename: data.filename,
+                },
+                message: `Successfully uploaded image "${data.filename}"`,
+              }
+            } else {
+              result = {
+                success: false,
+                message: data.error || 'Failed to upload Figma image',
+              }
+            }
+          }
+        } else {
+          // Handle all other actions via ContentOperations
+          const operations = getOperations()
+          result = await operations.executeAction(action)
+        }
 
         return result
       } catch (err) {
@@ -291,6 +388,123 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
     [getOperations]
   )
 
+  /**
+   * Fetch frame data from a Figma URL
+   * Requires the active workflow to have enableFigmaFetch: true
+   */
+  const handleFetchFigmaFrame = useCallback(
+    async (url: string, workflow?: Workflow): Promise<ActionResult> => {
+      // Validate that Figma fetch is enabled for this workflow
+      if (workflow && !workflow.enableFigmaFetch) {
+        return {
+          success: false,
+          message: 'Figma integration is not enabled for this skill. Enable it in the skill settings.',
+        }
+      }
+
+      setIsExecuting(true)
+      try {
+        const response = await fetch('/api/figma/fetch-frame', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url }),
+        })
+
+        const data = await response.json()
+
+        if (!data.success) {
+          return {
+            success: false,
+            message: data.error || 'Failed to fetch Figma frame',
+          }
+        }
+
+        return {
+          success: true,
+          data: {
+            fileKey: data.fileKey,
+            nodeId: data.nodeId,
+            name: data.name,
+            document: data.document,
+            images: data.images,
+          },
+          message: `Successfully fetched frame "${data.name}" with ${data.images?.length || 0} image(s)`,
+        }
+      } catch (err) {
+        return {
+          success: false,
+          message: err instanceof Error ? err.message : 'Failed to fetch Figma frame',
+        }
+      } finally {
+        setIsExecuting(false)
+      }
+    },
+    []
+  )
+
+  /**
+   * Upload an image from Figma to Sanity
+   * Requires the active workflow to have enableFigmaFetch: true
+   */
+  const handleUploadFigmaImage = useCallback(
+    async (fileKey: string, nodeId: string, filename: string, workflow?: Workflow): Promise<ActionResult> => {
+      // Validate that Figma fetch is enabled for this workflow
+      if (workflow && !workflow.enableFigmaFetch) {
+        return {
+          success: false,
+          message: 'Figma integration is not enabled for this skill. Enable it in the skill settings.',
+        }
+      }
+
+      setIsExecuting(true)
+      try {
+        const response = await fetch('/api/figma/export-image', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            fileKey,
+            nodeId,
+            filename,
+            scale: 2, // 2x for retina
+            format: 'png',
+          }),
+        })
+
+        const data = await response.json()
+
+        if (!data.success) {
+          return {
+            success: false,
+            message: data.error || 'Failed to upload Figma image',
+          }
+        }
+
+        return {
+          success: true,
+          data: {
+            asset: data.asset,
+            assetId: data.assetId,
+            url: data.url,
+            filename: data.filename,
+          },
+          message: `Successfully uploaded image "${data.filename}"`,
+        }
+      } catch (err) {
+        return {
+          success: false,
+          message: err instanceof Error ? err.message : 'Failed to upload Figma image',
+        }
+      } finally {
+        setIsExecuting(false)
+      }
+    },
+    []
+  )
+
   return {
     executeAction,
     previewAction,
@@ -303,6 +517,8 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
     navigateToPreview,
     publishDocument,
     unpublishDocument,
+    handleFetchFigmaFrame,
+    handleUploadFigmaImage,
   }
 }
 

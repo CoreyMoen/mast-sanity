@@ -17,7 +17,7 @@ import {
   Layer,
   Stack,
 } from '@sanity/ui'
-import {CloseIcon, SearchIcon, BoltIcon} from '@sanity/icons'
+import {CloseIcon, SearchIcon, BoltIcon, WarningOutlineIcon} from '@sanity/icons'
 import type {WorkflowOption} from './MessageInput'
 
 /**
@@ -128,6 +128,20 @@ export function WorkflowPickerDialog({
   isLoading = false,
 }: WorkflowPickerDialogProps) {
   const [searchQuery, setSearchQuery] = useState('')
+  const [figmaConfigured, setFigmaConfigured] = useState<boolean | null>(null)
+
+  // Check if any selected workflow has Figma enabled
+  const hasFigmaWorkflow = selectedWorkflows.some(w => w.enableFigmaFetch)
+
+  // Check Figma configuration when a Figma-enabled workflow is selected
+  React.useEffect(() => {
+    if (hasFigmaWorkflow && figmaConfigured === null) {
+      fetch('/api/figma/status')
+        .then(res => res.json())
+        .then(data => setFigmaConfigured(data.configured))
+        .catch(() => setFigmaConfigured(false))
+    }
+  }, [hasFigmaWorkflow, figmaConfigured])
 
   // Filter workflows based on search query
   const filteredWorkflows = useMemo(() => {
@@ -219,6 +233,26 @@ export function WorkflowPickerDialog({
               autoFocus
             />
           </Box>
+
+          {/* Figma configuration warning */}
+          {hasFigmaWorkflow && figmaConfigured === false && (
+            <Box padding={3} style={{borderBottom: '1px solid var(--card-border-color)', backgroundColor: 'var(--card-caution-bg-color)'}}>
+              <Flex align="center" gap={2}>
+                <WarningOutlineIcon style={{color: 'var(--card-caution-icon-color)', flexShrink: 0}} />
+                <Text size={1}>
+                  Figma integration requires the <code style={{fontSize: '0.75rem'}}>FIGMA_ACCESS_TOKEN</code> environment variable.{' '}
+                  <a
+                    href="/docs/figma-setup-guide.md"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{color: 'inherit', textDecoration: 'underline'}}
+                  >
+                    Setup guide
+                  </a>
+                </Text>
+              </Flex>
+            </Box>
+          )}
 
           {/* Workflow list */}
           <Box

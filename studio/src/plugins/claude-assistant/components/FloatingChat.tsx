@@ -471,6 +471,7 @@ ${resultJson}
     onUpdateMessage: updateMessage,
     onGenerateTitle: generateTitle,
     enableStreaming: settings.enableStreaming,
+    enableFigmaFetch: selectedWorkflow?.enableFigmaFetch,
   })
 
   useEffect(() => {

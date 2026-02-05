@@ -94,6 +94,11 @@ export interface UseClaudeChatOptions {
    * Temperature for response generation (0-1)
    */
   temperature?: number
+
+  /**
+   * Whether Figma integration is enabled for the active skill
+   */
+  enableFigmaFetch?: boolean
 }
 
 /**
@@ -215,6 +220,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
     model,
     maxTokens,
     temperature,
+    enableFigmaFetch,
   } = options
 
   const [messages, setMessages] = useState<Message[]>([])
@@ -366,6 +372,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
         // Build system prompt with conditional instruction inclusion
         // Pass user message and raw instructions to enable keyword-based filtering
         // Include section templates for design context when available
+        // Include Figma action docs if enabled for the active skill
         const systemPrompt = buildSystemPrompt({
           schemaContext: schemaContext || {
             documentTypes: [],
@@ -378,6 +385,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
           userMessage: content,
           rawInstructions,
           sectionTemplates,
+          enableFigmaFetch,
         })
 
         // Build conversation history for API

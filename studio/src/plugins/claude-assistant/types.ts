@@ -86,6 +86,8 @@ export type ActionType =
   | 'navigate'
   | 'explain'
   | 'uploadImage'
+  | 'fetchFigmaFrame'
+  | 'uploadFigmaImage'
 
 export type ActionStatus = 'pending' | 'executing' | 'completed' | 'failed' | 'cancelled'
 
@@ -110,6 +112,13 @@ export interface ActionPayload {
   imageAttachment?: ImageAttachment
   /** For uploadImage action: optional filename override */
   filename?: string
+  // Figma integration fields
+  /** Figma URL for fetchFigmaFrame action */
+  figmaUrl?: string
+  /** Figma node ID for uploadFigmaImage action */
+  figmaNodeId?: string
+  /** Figma file key (extracted from URL or provided) */
+  figmaFileKey?: string
 }
 
 export interface ActionResult {
@@ -238,6 +247,8 @@ export interface SystemPromptContext {
   rawInstructions?: unknown
   /** Section templates for design context */
   sectionTemplates?: unknown[]
+  /** Whether Figma integration is enabled for the active skill */
+  enableFigmaFetch?: boolean
 }
 
 // ============================================================================

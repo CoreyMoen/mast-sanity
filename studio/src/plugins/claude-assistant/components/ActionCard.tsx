@@ -26,6 +26,7 @@ import {
   DocumentIcon,
   RefreshIcon,
   UndoIcon,
+  ImageIcon,
 } from '@sanity/icons'
 import type {ParsedAction, ActionType, ActionStatus} from '../types'
 import {isDestructiveAction, shouldAutoExecute} from '../lib/actions'
@@ -63,6 +64,8 @@ function getActionIcon(type: ActionType) {
     navigate: <LinkIcon />,
     explain: <InfoOutlineIcon />,
     uploadImage: <UploadIcon />,
+    fetchFigmaFrame: <ImageIcon />,
+    uploadFigmaImage: <UploadIcon />,
   }
   return icons[type]
 }

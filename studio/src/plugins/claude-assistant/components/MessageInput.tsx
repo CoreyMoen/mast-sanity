@@ -24,6 +24,7 @@ export interface WorkflowOption {
   description?: string
   systemInstructions?: string
   starterPrompt?: string
+  enableFigmaFetch?: boolean
 }
 
 export interface MessageInputProps {

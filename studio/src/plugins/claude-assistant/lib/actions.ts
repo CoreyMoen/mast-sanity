@@ -49,12 +49,12 @@ export function isDestructiveAction(action: ParsedAction): boolean {
  */
 export function shouldAutoExecute(action: ParsedAction): boolean {
   // Read-only actions always auto-execute (they don't modify data)
-  const readOnlyActions: ActionType[] = ['explain', 'query', 'navigate']
+  const readOnlyActions: ActionType[] = ['explain', 'query', 'navigate', 'fetchFigmaFrame']
   if (readOnlyActions.includes(action.type)) {
     return true
   }
 
-  // Modifying actions (create, update, delete) require confirmation via inline buttons
+  // Modifying actions (create, update, delete, uploadFigmaImage) require confirmation via inline buttons
   return false
 }
 
@@ -230,6 +230,9 @@ function isValidActionType(type: unknown): type is ActionType {
     'query',
     'navigate',
     'explain',
+    'uploadImage',
+    'fetchFigmaFrame',
+    'uploadFigmaImage',
   ]
   return typeof type === 'string' && validTypes.includes(type as ActionType)
 }
@@ -256,6 +259,12 @@ function parsePayload(payload: unknown): ActionPayload {
     path: (payloadData.path as string) || (payloadData.url as string) || undefined,
     explanation: (payloadData.explanation as string) ||
       (payloadData.message as string) || undefined,
+    // Image upload fields
+    filename: (payloadData.filename as string) || undefined,
+    // Figma fields
+    figmaUrl: (payloadData.url as string) || undefined,
+    figmaNodeId: (payloadData.nodeId as string) || undefined,
+    figmaFileKey: (payloadData.fileKey as string) || undefined,
   }
 }
 
@@ -271,6 +280,8 @@ function getDefaultDescription(type: ActionType): string {
     navigate: 'Navigate to a document',
     explain: 'Explanation',
     uploadImage: 'Upload image to Sanity',
+    fetchFigmaFrame: 'Fetch frame data from Figma',
+    uploadFigmaImage: 'Upload image from Figma design',
   }
   return descriptions[type]
 }

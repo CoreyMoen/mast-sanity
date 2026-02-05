@@ -348,6 +348,50 @@ When providing links to documents or pages:
 `
 
 /**
+ * Build Figma action documentation for Claude's system prompt
+ * Only included when the active skill has enableFigmaFetch: true
+ */
+export function buildFigmaActionDocs(): string {
+  return `
+## Figma Integration Actions
+
+When the user provides a Figma URL, you can fetch the frame data to understand the design structure:
+
+\`\`\`action
+{
+  "type": "fetchFigmaFrame",
+  "url": "[the exact Figma URL provided by user]",
+  "description": "Fetch frame data from Figma"
+}
+\`\`\`
+
+Wait for the frame data response before proceeding. The response includes:
+- \`document\`: The node tree with component names, text content, and layout info
+- \`images\`: List of image references that need to be uploaded
+
+To upload images from the Figma design to Sanity:
+
+\`\`\`action
+{
+  "type": "uploadFigmaImage",
+  "nodeId": "[node id from the images array or frame data]",
+  "filename": "[descriptive-name.png]",
+  "description": "Upload hero background image"
+}
+\`\`\`
+
+The uploadFigmaImage action returns a Sanity asset reference (\`_type: 'reference', _ref: '...'\`) that you should use in imageBlock's \`image.asset\` field.
+
+**Important workflow:**
+1. First use fetchFigmaFrame to get the design structure
+2. Parse the node tree to understand the component hierarchy
+3. Upload any images using uploadFigmaImage before creating the page
+4. Use the returned asset references when building the page document
+5. Create the page with all content and image references
+`
+}
+
+/**
  * Build the complete system prompt with context
  *
  * When context.userMessage and context.rawInstructions are provided,
@@ -355,6 +399,11 @@ When providing links to documents or pages:
  */
 export function buildSystemPrompt(context: SystemPromptContext): string {
   const parts: string[] = [BASE_SYSTEM_PROMPT]
+
+  // Add Figma documentation if enabled for the active skill
+  if (context.enableFigmaFetch) {
+    parts.push(buildFigmaActionDocs())
+  }
 
   // Add schema context
   if (context.schemaContext) {

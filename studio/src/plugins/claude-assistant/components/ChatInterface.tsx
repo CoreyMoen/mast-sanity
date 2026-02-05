@@ -56,6 +56,7 @@ function toWorkflowOption(workflow: Workflow): WorkflowOption {
     description: workflow.description,
     systemInstructions: workflow.systemInstructions,
     starterPrompt: workflow.starterPrompt,
+    enableFigmaFetch: workflow.enableFigmaFetch,
   }
 }
 

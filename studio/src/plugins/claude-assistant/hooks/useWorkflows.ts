@@ -3,25 +3,45 @@
  *
  * Fetches and manages Claude skill templates from Sanity.
  * Users can select a skill to get pre-configured context for their chat.
+ *
+ * System instructions are stored as Portable Text and converted to Markdown
+ * for inclusion in Claude's system prompt.
  */
 
 import {useState, useCallback, useEffect, useRef, useMemo} from 'react'
 import {useClient, useCurrentUser} from 'sanity'
+import {contentToMarkdown} from '../lib/portable-text-to-markdown'
 
 const API_VERSION = '2024-01-01'
 
 /**
- * Workflow document from Sanity
+ * Raw workflow document from Sanity (with Portable Text systemInstructions)
+ */
+interface RawWorkflow {
+  id: string
+  name: string
+  description?: string
+  systemInstructions?: unknown[] | string // Portable Text array or legacy string
+  starterPrompt?: string
+  order: number
+  roles?: string[]
+  active: boolean
+  enableFigmaFetch?: boolean
+}
+
+/**
+ * Workflow document with serialized systemInstructions (Markdown string)
  */
 export interface Workflow {
   id: string
   name: string
   description?: string
-  systemInstructions?: string
+  systemInstructions?: string // Serialized to Markdown
   starterPrompt?: string
   order: number
   roles?: string[]
   active: boolean
+  enableFigmaFetch?: boolean
 }
 
 /**
@@ -69,20 +89,27 @@ export function useWorkflows(): UseWorkflowsReturn {
         starterPrompt,
         order,
         roles,
-        active
+        active,
+        enableFigmaFetch
       }`
 
-      const results = await client.fetch<Workflow[]>(query)
+      const results = await client.fetch<RawWorkflow[]>(query)
 
-      // Filter by user roles if specified
-      const filteredWorkflows = results.filter((workflow) => {
-        // If no roles specified, workflow is available to everyone
-        if (!workflow.roles || workflow.roles.length === 0) {
-          return true
-        }
-        // Check if user has any of the required roles
-        return workflow.roles.some((role) => userRoles.includes(role))
-      })
+      // Filter by user roles and convert Portable Text to Markdown
+      const filteredWorkflows: Workflow[] = results
+        .filter((workflow) => {
+          // If no roles specified, workflow is available to everyone
+          if (!workflow.roles || workflow.roles.length === 0) {
+            return true
+          }
+          // Check if user has any of the required roles
+          return workflow.roles.some((role) => userRoles.includes(role))
+        })
+        .map((workflow) => ({
+          ...workflow,
+          // Convert Portable Text to Markdown string
+          systemInstructions: contentToMarkdown(workflow.systemInstructions),
+        }))
 
       setWorkflows(filteredWorkflows)
     } catch (err) {
