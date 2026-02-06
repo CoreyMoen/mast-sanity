@@ -5,10 +5,24 @@
  * visual design images (JPG/PNG exports from Figma or other design tools)
  * and translate them into Sanity page builder structures.
  *
- * The skill is designed for use with annotated design exports that include:
- * - 12-column grid overlay lines
- * - Section boundary outlines
- * - Optional component type labels
+ * IMPORTANT: This skill is designed to work alongside the Claude Training
+ * document (claudeInstructions). The Training document provides:
+ * - Design System Rules (component options, spacing scale, grid system)
+ * - Component Guidelines (per-component do's and don'ts)
+ * - Technical Constraints (nesting limits, _key/_type rules, required fields)
+ * - Writing Guidelines (heading hierarchy, content tone)
+ *
+ * This skill adds ONLY what's unique to the vision-based workflow:
+ * - How to read annotated design images
+ * - Visual cue → block type mapping
+ * - Layout analysis methodology
+ * - Visual appearance → field value translation
+ * - Common layout patterns
+ * - JSON format details (smartString, Portable Text, link objects)
+ *
+ * The starter prompt includes keywords that trigger all three Training
+ * instruction groups (design, technical, writing) so they are automatically
+ * injected into the Claude API call.
  *
  * Usage:
  *   SANITY_API_TOKEN="your-token" node scripts/seed-vision-skill.mjs
@@ -98,6 +112,11 @@ const createCodeBlock = (code, language = 'json') => ({
 
 // ============================================================================
 // SYSTEM INSTRUCTIONS
+//
+// These instructions ONLY cover what is unique to the vision-based workflow.
+// Component options, spacing rules, nesting limits, heading hierarchy, and
+// other general guidelines come from the Claude Training document and are
+// injected automatically when the starter prompt's keywords are detected.
 // ============================================================================
 const systemInstructions = [
   // ---- OVERVIEW ----
@@ -105,6 +124,12 @@ const systemInstructions = [
   createBlock(
     'You translate visual designs into Sanity page builder documents. When the user attaches an image of a web page design (a full page or individual section), analyze the visual layout and create the equivalent Sanity page document using the page builder component system.'
   ),
+  createFormattedBlock([
+    {text: 'Note: ', marks: ['strong']},
+    {text: 'Detailed component options, spacing rules, nesting depth limits, heading hierarchy, and other design system rules are provided in the Training instructions above. Refer to those for valid field values and constraints. This skill focuses on how to '},
+    {text: 'interpret a visual design image', marks: ['em']},
+    {text: ' and translate it into the correct page builder structure.'},
+  ]),
 
   // ---- HOW TO READ THE IMAGE ----
   createBlock('Reading the Annotated Design Image', 'h2'),
@@ -127,9 +152,10 @@ const systemInstructions = [
     'The user may add small text labels near elements that could be ambiguous. If you see a label like "eyebrowBlock", "cardBlock", "accordionBlock", or similar, use that exact block type. Labels override your visual interpretation when present.'
   ),
 
-  createBlock('Unlabeled Elements', 'h3'),
+  // ---- VISUAL CUE → BLOCK TYPE MAPPING ----
+  createBlock('Visual Cue to Block Type Mapping', 'h2'),
   createBlock(
-    'When no label is present, use these visual cues to identify block types:'
+    'When no label is present, use these visual cues to identify which block type to use:'
   ),
   createListItem('Very large, bold text at the top of a section or page → headingBlock (h1 if it is the first/hero section, h2 for subsequent sections)'),
   createListItem('Small uppercase text above a heading → eyebrowBlock'),
@@ -156,7 +182,6 @@ const systemInstructions = [
   createListItem('Section boundary outlines in the image'),
   createListItem('Background color changes (white to gray, light to dark, etc.)'),
   createListItem('Large vertical spacing that separates distinct content groups'),
-  createListItem('Each section gets its own section object with appropriate backgroundColor'),
 
   createBlock('Step 2: Identify Rows Within Each Section', 'h3'),
   createBlock(
@@ -167,7 +192,7 @@ const systemInstructions = [
   createListItem('A single centered content block = ONE row with one column'),
   createListItem('Three feature cards sitting side by side = ONE row with three columns'),
 
-  createBlock('Step 3: Determine Column Widths', 'h3'),
+  createBlock('Step 3: Determine Column Widths from the Grid', 'h3'),
   createBlock(
     'Use the 12-column grid overlay to count column spans. Common width patterns:'
   ),
@@ -177,163 +202,116 @@ const systemInstructions = [
   createListItem('3 equal columns: widthDesktop "4" each'),
   createListItem('4 equal columns: widthDesktop "3" each'),
   createListItem('Sidebar + main: widthDesktop "3" + "8" or "4" + "7"'),
-  createListItem('3 asymmetric (small + large + small): widthDesktop "3" + "6" + "3"'),
 
   createBlock('Step 4: Identify Blocks in Each Column', 'h3'),
   createBlock(
-    'Read the content within each column from top to bottom. Map each visual element to a block type using the rules above. Maintain the correct top-to-bottom order in the content array.'
+    'Read the content within each column from top to bottom. Map each visual element to a block type using the visual cue mapping above. Maintain the correct top-to-bottom order in the content array.'
   ),
 
-  // ---- RESPONSIVE BEHAVIOR ----
+  // ---- RESPONSIVE COLUMN WIDTHS ----
   createBlock('Responsive Column Widths', 'h3'),
   createBlock(
-    'Always set responsive widths so layouts work on all screen sizes:'
+    'The design image shows only the desktop layout. Always set responsive widths so layouts adapt to smaller screens:'
   ),
-  createListItem('widthTablet: use "inherit" to follow desktop, OR set a wider value (e.g., desktop "4" → tablet "6")'),
-  createListItem('widthMobile: almost always "12" (full width) so content stacks vertically'),
-  createListItem('For 4-column grids: widthDesktop "3", widthTablet "6", widthMobile "12" (4-col → 2-col → 1-col)'),
+  createListItem('For 4-column grids: widthDesktop "3", widthTablet "6", widthMobile "12" (4 → 2 → 1 column)'),
   createListItem('For 3-column grids: widthDesktop "4", widthTablet "6" or "12", widthMobile "12"'),
   createListItem('For 2-column layouts: widthTablet "inherit" or "6", widthMobile "12"'),
+  createListItem('For single centered column: widthTablet "inherit", widthMobile "12"'),
 
-  // ---- SECTION SETTINGS ----
-  createBlock('Section Settings from Visual Cues', 'h2'),
+  // ---- TRANSLATING VISUAL APPEARANCE TO FIELD VALUES ----
+  createBlock('Translating Visual Appearance to Field Values', 'h2'),
+  createBlock(
+    'Use these mappings to translate what you see in the design into field values. For the full list of valid options for each field, refer to the Design System Rules and Component Guidelines in the Training instructions.'
+  ),
 
-  createBlock('Background Colors', 'h3'),
+  createBlock('Section Background', 'h3'),
   createListItem('White or very light background → omit backgroundColor (defaults to none)'),
   createListItem('Light gray background → backgroundColor: "secondary"'),
-  createListItem('Dark background (navy, black, dark gray) → backgroundColor: "primary" (with white text on blocks inside)'),
+  createListItem('Dark background (navy, black, dark gray) → backgroundColor: "primary" — set text block colors to "white" inside'),
   createListItem('Brand-colored background → backgroundColor: "primary"'),
 
-  createBlock('Padding', 'h3'),
+  createBlock('Section Padding and Height', 'h3'),
   createListItem('Very tall section with lots of breathing room → paddingTop: "spacious"'),
   createListItem('Normal section spacing → paddingTop: "default"'),
-  createListItem('Tight/compact spacing → paddingTop: "compact"'),
-  createListItem('No visible top space → paddingTop: "none"'),
+  createListItem('Tight spacing → paddingTop: "compact"'),
+  createListItem('Content vertically centered in a tall section → minHeight: "large", verticalAlign: "center"'),
+  createListItem('Hero filling the viewport → minHeight: "screen", verticalAlign: "center"'),
+  createListItem('Almost always use maxWidth: "container"'),
 
-  createBlock('Other Section Settings', 'h3'),
-  createListItem('Almost always use maxWidth: "container" (content does not span full browser width)'),
-  createListItem('If content is vertically centered in a tall section → set minHeight: "medium" or "large" and verticalAlign: "center"'),
-  createListItem('Hero sections often use minHeight: "large" or "screen" with verticalAlign: "center"'),
-
-  // ---- ROW SETTINGS ----
-  createBlock('Row Settings from Visual Cues', 'h2'),
+  createBlock('Row Alignment from Visual Positioning', 'h3'),
   createListItem('Columns spread apart with space between → horizontalAlign: "between"'),
   createListItem('Columns grouped in the center → horizontalAlign: "center"'),
   createListItem('Columns flush left → horizontalAlign: "start"'),
   createListItem('Content vertically centered across columns of different heights → verticalAlign: "center"'),
-  createListItem('Columns stretched to equal height (e.g., equal-height cards) → verticalAlign: "stretch"'),
-  createListItem('Content aligned to bottom of columns → verticalAlign: "end"'),
-  createListItem('Small gap between columns → gap: "4"'),
-  createListItem('Normal gap → gap: "6" (default)'),
-  createListItem('Large gap → gap: "8" or "12"'),
+  createListItem('Equal-height cards or columns → verticalAlign: "stretch"'),
+  createListItem('Small gap between columns → gap: "4"; normal → gap: "6"; large → gap: "8" or "12"'),
 
-  // ---- BLOCK FIELD REFERENCE ----
-  createBlock('Block Field Reference', 'h2'),
+  createBlock('Text Appearance', 'h3'),
+  createListItem('Large body text or lead paragraph → richTextBlock with size: "lg"'),
+  createListItem('Small body text or captions → richTextBlock with size: "sm"'),
+  createListItem('Gray/muted text → color: "gray"'),
+  createListItem('White text on dark background → color: "white"'),
+  createListItem('Centered text → align: "center" on the block'),
+
+  // ---- JSON FORMAT DETAILS ----
+  createBlock('JSON Format Details', 'h2'),
   createBlock(
-    'When creating action blocks, use these exact field names and value options for each block type.'
+    'These block types require specific JSON object structures that are NOT covered in the Component Guidelines. Use these exact formats when building the page document.'
   ),
 
-  createBlock('headingBlock', 'h3'),
-  createListItem('text: { _type: "smartString", mode: "static", staticValue: "The heading text" } (REQUIRED)'),
-  createListItem('level: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" (default: "h2")'),
-  createListItem('size: "inherit" | "h1" | "h2" | "h3" | "h4" | "h5" | "h6" (default: "inherit" — inherits from level)'),
-  createListItem('align: "left" | "center" | "right" (default: "left")'),
-  createListItem('color: "default" | "gray" | "white" | "brand" | "blue" (default: "default")'),
-
-  createBlock('richTextBlock', 'h3'),
-  createListItem('content: array of Portable Text blocks (see format below)'),
-  createListItem('size: "inherit" | "xl" | "lg" | "base" | "sm" (default: "inherit")'),
-  createListItem('align: "left" | "center" | "right" (default: "left")'),
-  createListItem('color: "default" | "gray" | "white" | "brand" | "blue" (default: "default")'),
-  createListItem('maxWidth: "none" | "prose" | "prose-lg" | "prose-xl" (default: "none")'),
-
-  createBlock('Portable Text format for richTextBlock content:', 'h4'),
+  createBlock('smartString (used by headingBlock, eyebrowBlock, buttonBlock text fields)', 'h3'),
   createCodeBlock(
     `{
-  "_type": "block",
-  "_key": "unique10char",
-  "style": "normal",
-  "markDefs": [],
-  "children": [
-    {
-      "_type": "span",
-      "_key": "unique10char",
-      "text": "Your paragraph text here",
-      "marks": []
-    }
-  ]
+  "_type": "smartString",
+  "mode": "static",
+  "staticValue": "Your text here"
 }`,
     'json'
   ),
 
-  createBlock('eyebrowBlock', 'h3'),
-  createListItem('text: { _type: "smartString", mode: "static", staticValue: "EYEBROW TEXT" } (REQUIRED)'),
-  createListItem('variant: "text" | "overline" | "pill" (default: "text")'),
-  createListItem('color: "default" | "brand" | "blue" | "muted" (default: "default")'),
-  createListItem('align: "left" | "center" | "right" (default: "left")'),
+  createBlock('Portable Text (used by richTextBlock content field)', 'h3'),
+  createCodeBlock(
+    `[
+  {
+    "_type": "block",
+    "_key": "unique10char",
+    "style": "normal",
+    "markDefs": [],
+    "children": [
+      {
+        "_type": "span",
+        "_key": "unique10char",
+        "text": "Your paragraph text here",
+        "marks": []
+      }
+    ]
+  }
+]`,
+    'json'
+  ),
 
-  createBlock('buttonBlock', 'h3'),
-  createListItem('text: { _type: "smartString", mode: "static", staticValue: "Button Text" } (REQUIRED)'),
-  createListItem('variant: "primary" | "secondary" | "ghost" (default: "primary")'),
-  createListItem('color: "brand" | "black" | "white" (default: "brand")'),
-  createListItem('icon: "none" | "arrow-right" | "external" | "download" (default: "none")'),
-  createListItem('link: { _type: "link", linkType: "href", href: "#" } (REQUIRED — use "#" as placeholder if no real URL)'),
+  createBlock('link (used by buttonBlock link field)', 'h3'),
+  createCodeBlock(
+    `{
+  "_type": "link",
+  "linkType": "href",
+  "href": "#"
+}`,
+    'json'
+  ),
+  createBlock('Use "#" as a placeholder href when the actual URL is not known from the design.'),
 
-  createBlock('imageBlock', 'h3'),
-  createListItem('image: { _type: "image", asset: { _type: "reference", _ref: "image-asset-id" } } — use uploadImage action first if user provides images'),
-  createListItem('alt: descriptive alt text string (REQUIRED)'),
-  createListItem('aspectRatio: "original" | "16/9" | "4/3" | "1/1" | "3/4" | "9/16" (default: "original")'),
-  createListItem('size: "full" | "lg" | "md" | "sm" | "thumb" (default: "full")'),
-  createListItem('rounded: "none" | "sm" | "md" | "lg" | "full" (default: "none")'),
-  createListItem('shadow: true | false (default: false)'),
-
-  createBlock('iconBlock', 'h3'),
-  createListItem('icon: one of "check-circle", "target", "star", "trophy", "arrow-right", "lightbulb-filament", "heart", "lightning", "rocket", "globe", "users", "chart-line-up", "shield-check", "sparkle", "compass", etc. (REQUIRED)'),
-  createListItem('size: "sm" | "md" | "lg" | "xl" (default: "md")'),
-  createListItem('color: "inherit" | "brand" | "blue" | "black" | "gray" (default: "inherit")'),
-  createListItem('align: "left" | "center" | "right" (default: "left")'),
-  createListItem('marginBottom: "0" | "sm" | "md" | "lg" (default: "sm")'),
-
-  createBlock('cardBlock', 'h3'),
-  createListItem('content: array of blocks (headingBlock, richTextBlock, imageBlock, buttonBlock, spacerBlock, dividerBlock)'),
-  createListItem('variant: "default" | "outline" | "filled" | "ghost" (default: "default")'),
-  createListItem('padding: "none" | "sm" | "md" | "lg" (default: "md")'),
-  createListItem('href: URL string for clickable cards (optional)'),
-  createListItem('hoverEffect: true | false (default: false)'),
-
-  createBlock('spacerBlock', 'h3'),
-  createListItem('sizeDesktop: "2" | "4" | "6" | "8" | "12" | "16" | "24" (default: "8")'),
-  createListItem('sizeMobile: "inherit" | "2" | "4" | "6" | "8" | "12" | "16" | "24" (default: "inherit")'),
-  createFormattedBlock([
-    {text: 'IMPORTANT: ', marks: ['strong']},
-    {text: 'Do NOT add spacers between consecutive text elements (eyebrow → heading → richText → button). Components have built-in margins. Only use spacers for large gaps between distinct content groups.'},
-  ]),
-
-  createBlock('dividerBlock', 'h3'),
-  createListItem('marginTop: "0" | "2" | "4" | "6" | "8" | "12" | "16" | "24" (default: "8")'),
-  createListItem('marginBottom: "0" | "2" | "4" | "6" | "8" | "12" | "16" | "24" (default: "8")'),
-  createListItem('color: "default" | "light" | "dark" | "brand" | "blue" (default: "default")'),
-
-  createBlock('accordionBlock', 'h3'),
-  createListItem('items: array of { _type: "accordionItem", _key: "...", title: "Question", content: [...blocks], defaultOpen: false }'),
-  createListItem('allowMultiple: true | false (default: true)'),
-  createListItem('titleStyle: "h3" | "h4" | "h5" | "body" (default: "h4")'),
-  createListItem('dividers: true | false (default: true)'),
-
-  createBlock('tabsBlock', 'h3'),
-  createListItem('tabs: array of { _type: "tabItem", _key: "...", label: "Tab Name", content: [...blocks] }'),
-  createListItem('orientation: "horizontal" | "vertical" (default: "horizontal")'),
-  createListItem('autoplay: true | false (default: false)'),
-  createListItem('autoplayDuration: milliseconds (default: 5000)'),
-
-  createBlock('sliderBlock', 'h3'),
-  createListItem('slides: array of { _type: "imageSlide", _key: "...", image: {...}, alt: "..." }'),
-  createListItem('slidesPerViewDesktop: 1-6 (default: 3)'),
-  createListItem('slidesPerViewTablet: 1-4 (default: 2)'),
-  createListItem('slidesPerViewMobile: 1-2 (default: 1)'),
-  createListItem('aspectRatio: "original" | "16/9" | "4/3" | "1/1" (default: "16/9")'),
-  createListItem('autoplay: true | false, loop: true | false'),
-  createListItem('showNavigation: true | false, showPagination: true | false'),
+  createBlock('image reference (used by imageBlock image field)', 'h3'),
+  createCodeBlock(
+    `{
+  "_type": "image",
+  "asset": {
+    "_type": "reference",
+    "_ref": "image-asset-id-from-upload"
+  }
+}`,
+    'json'
+  ),
 
   // ---- COMMON LAYOUT PATTERNS ----
   createBlock('Common Layout Patterns', 'h2'),
@@ -346,34 +324,26 @@ const systemInstructions = [
     'Single column of centered text, typically the first section on a page. Visually: large heading centered horizontally, often with an eyebrow above and a description below, sometimes with one or two buttons.'
   ),
   createListItem('Section: paddingTop "spacious", minHeight "large" or "screen", verticalAlign "center"'),
-  createListItem('Row: horizontalAlign "center", verticalAlign "center"'),
+  createListItem('Row: horizontalAlign "center"'),
   createListItem('Column: widthDesktop "8" or "9", widthMobile "12"'),
-  createListItem('Content: eyebrowBlock (center) → headingBlock h1 (center) → richTextBlock (center, size "lg", color "gray") → row with button columns'),
+  createListItem('Content: eyebrowBlock (center) → headingBlock h1 (center) → richTextBlock (center, size "lg", color "gray") → buttons'),
   createListItem('For button pairs: create a nested row inside the column with 2 auto-width columns, each containing one buttonBlock'),
-  createFormattedBlock([
-    {text: 'Use h1 ONLY in the hero section. ', marks: ['strong']},
-    {text: 'All other sections should use h2 or lower.'},
-  ]),
 
   createBlock('Pattern 2: Two-Column Text + Image', 'h3'),
   createBlock(
     'Text content on one side, image on the other. Very common for feature highlights and about sections.'
   ),
-  createListItem('Section: paddingTop "default"'),
   createListItem('Row: horizontalAlign "between", verticalAlign "center", gap "6" or "8"'),
-  createListItem('Text column: widthDesktop "5" or "6", widthMobile "12"'),
-  createListItem('Image column: widthDesktop "5" or "6", widthMobile "12"'),
+  createListItem('Text column: widthDesktop "5" or "6"; Image column: widthDesktop "5" or "6"'),
   createListItem('Text content: eyebrowBlock → headingBlock h2 → richTextBlock → buttonBlock (optional)'),
-  createListItem('Image content: imageBlock with appropriate aspectRatio'),
-  createListItem('If image is on the left in the design, put the image column first and add reverseOnMobile: true on the row so text appears first on mobile'),
+  createListItem('If image is on the left in the design, put the image column first and add reverseOnMobile: true'),
 
   createBlock('Pattern 3: Multi-Column Feature Grid', 'h3'),
   createBlock(
     'A header row with centered text, followed by a grid of 3-4 equal columns each containing an icon, heading, and description.'
   ),
-  createListItem('Section: backgroundColor "secondary" (gray) or omit (white)'),
-  createListItem('Row 1 (header): horizontalAlign "center" — single column widthDesktop "9", content: eyebrowBlock + headingBlock h2 + richTextBlock (all centered)'),
-  createListItem('Row 2 (grid): horizontalAlign "start" or "between", gap "6" or "8"'),
+  createListItem('Row 1 (header): horizontalAlign "center" — single column widthDesktop "9" with centered eyebrow + h2 + richTextBlock'),
+  createListItem('Row 2 (grid): gap "6" or "8"'),
   createListItem('Grid columns: widthDesktop "4" (3-col) or "3" (4-col), widthTablet "6", widthMobile "12"'),
   createListItem('Grid column content: iconBlock → headingBlock h4 → richTextBlock (size "sm" or "base", color "gray")'),
 
@@ -381,106 +351,28 @@ const systemInstructions = [
   createBlock(
     'Similar to feature grid but each item is wrapped in a cardBlock with visible borders or backgrounds.'
   ),
-  createListItem('Row 1 (optional header): same as Pattern 3 header'),
-  createListItem('Row 2 (cards): verticalAlign "stretch" to make cards equal height, gap "6"'),
+  createListItem('Row: verticalAlign "stretch" to make cards equal height, gap "6"'),
   createListItem('Each column contains a single cardBlock with variant "outline" or "filled"'),
   createListItem('Card content: headingBlock h3 → richTextBlock → buttonBlock (optional)'),
 
   createBlock('Pattern 5: FAQ / Accordion Layout', 'h3'),
-  createBlock(
-    'A heading on the left with an accordion on the right, or a full-width accordion below a centered heading.'
-  ),
-  createListItem('Two-column variant: widthDesktop "4" (heading) + "7" (accordion), horizontalAlign "between"'),
+  createListItem('Two-column variant: widthDesktop "4" (heading side) + "7" (accordion side), horizontalAlign "between"'),
   createListItem('Full-width variant: header row with centered heading, then row with widthDesktop "8" or "10" centered column containing the accordionBlock'),
-  createListItem('Accordion: titleStyle "h4", dividers true, items with title + richTextBlock content'),
 
   createBlock('Pattern 6: Full-Width Image Slider', 'h3'),
-  createBlock(
-    'Header text followed by a full-width image carousel.'
-  ),
   createListItem('Row 1: centered header (eyebrow + heading + description)'),
   createListItem('Row 2: single column widthDesktop "12" with sliderBlock'),
   createListItem('Set slidesPerViewDesktop based on how many slides are partially visible'),
 
   createBlock('Pattern 7: Dark Callout Section', 'h3'),
-  createBlock(
-    'A dark background section with white text, used for emphasis or visual breaks.'
-  ),
   createListItem('Section: backgroundColor "primary", paddingTop "spacious"'),
-  createListItem('Row: horizontalAlign "center"'),
-  createListItem('Column: widthDesktop "8" or "9"'),
-  createListItem('Content: headingBlock with color "white" and/or richTextBlock with color "white"'),
+  createListItem('Column: widthDesktop "8" or "9", horizontalAlign "center"'),
+  createListItem('Content: headingBlock with color "white", richTextBlock with color "white"'),
 
   createBlock('Pattern 8: Asymmetric 3-Column', 'h3'),
-  createBlock(
-    'Three columns with different widths, often mixing images and text for visual rhythm.'
-  ),
-  createListItem('Row: horizontalAlign "between", verticalAlign "stretch" or "center", gap "6"'),
+  createListItem('Row: horizontalAlign "between", gap "6"'),
   createListItem('Example widths: "5" + "4" + "2" or "3" + "6" + "3"'),
   createListItem('Mix imageBlock columns with text content columns'),
-
-  // ---- HEADING HIERARCHY ----
-  createBlock('Heading Hierarchy Rules', 'h2'),
-  createFormattedBlock([
-    {text: 'CRITICAL: ', marks: ['strong']},
-    {text: 'Follow proper heading hierarchy for SEO and accessibility.'},
-  ]),
-  createListItem('Exactly ONE h1 per page — in the hero section only', 'number'),
-  createListItem('Each subsequent section starts with h2', 'number'),
-  createListItem('Subsections within a section use h3, then h4', 'number'),
-  createListItem('Never skip levels (do NOT go from h2 directly to h4)', 'number'),
-
-  // ---- NESTING DEPTH ----
-  createBlock('Nesting Depth Constraint', 'h2'),
-  createFormattedBlock([
-    {text: 'CRITICAL: ', marks: ['strong']},
-    {text: 'Sanity has a maximum attribute depth of 20 levels. The base path to a block inside a column is already 9 levels deep.'},
-  ]),
-  createListItem('Safe: section → row → column → headingBlock (10 levels)'),
-  createListItem('Safe: section → row → column → richTextBlock (13 levels)'),
-  createListItem('Safe: section → row → column → cardBlock → richTextBlock (15 levels)'),
-  createListItem('Safe: section → row → column → accordionBlock → richTextBlock (16 levels)'),
-  createFormattedBlock([
-    {text: 'AVOID: ', marks: ['strong']},
-    {text: 'Do not nest tabsBlock inside cardBlock or vice versa. Do not put complex content inside tabs or cards — keep it to headings, text, and buttons only.'},
-  ]),
-
-  // ---- REQUIRED FIELDS & KEYS ----
-  createBlock('Required Fields and Keys', 'h2'),
-  createFormattedBlock([
-    {text: 'Every object in every array MUST have both ', marks: []},
-    {text: '_type', marks: ['code']},
-    {text: ' and ', marks: []},
-    {text: '_key', marks: ['code']},
-    {text: '. Generate _key as a random 10-character alphanumeric string.', marks: []},
-  ]),
-  createBlock('Required _type values:'),
-  createListItem('pageBuilder items: _type: "section"'),
-  createListItem('rows items: _type: "row"'),
-  createListItem('columns items: _type: "column"'),
-  createListItem('content items: the specific block type (e.g., "headingBlock", "richTextBlock")'),
-  createListItem('Portable Text blocks: _type: "block"'),
-  createListItem('Portable Text spans: _type: "span"'),
-  createListItem('Smart string fields (text on headingBlock, eyebrowBlock, buttonBlock): _type: "smartString"'),
-  createListItem('Link fields: _type: "link"'),
-  createListItem('Image fields: _type: "image"'),
-  createListItem('Image asset references: _type: "reference"'),
-
-  // ---- SPACING ANTI-PATTERNS ----
-  createBlock('Spacing Anti-Patterns', 'h2'),
-  createFormattedBlock([
-    {text: 'Do NOT ', marks: ['strong']},
-    {text: 'add spacerBlock between these elements — they have built-in margins:'},
-  ]),
-  createListItem('eyebrowBlock → headingBlock (no spacer needed)'),
-  createListItem('headingBlock → richTextBlock (no spacer needed)'),
-  createListItem('richTextBlock → buttonBlock (no spacer needed)'),
-  createListItem('iconBlock → headingBlock (no spacer needed)'),
-  createBlock('Only use spacerBlock for large intentional gaps between distinct content groups, after sliders or images, or between sections within the same section container.'),
-
-  // ---- EYEBROW CONSISTENCY ----
-  createBlock('Eyebrow Consistency', 'h2'),
-  createBlock('Pick ONE eyebrow variant and use it consistently across the entire page. Do not mix "text" eyebrows in some sections and "overline" eyebrows in others. If the design shows varied eyebrow styles, default to "text" unless a label specifies otherwise.'),
 
   // ---- IMAGES ----
   createBlock('Working with Images', 'h2'),
@@ -495,7 +387,7 @@ const systemInstructions = [
   // ---- OUTPUT FORMAT ----
   createBlock('Output Format', 'h2'),
   createBlock(
-    'After analyzing the design image, create the Sanity page document using a create action:'
+    'After analyzing the design image, create the Sanity page document using a create action. Here is a minimal example showing the correct structure:'
   ),
   createCodeBlock(
     `{
@@ -538,7 +430,6 @@ const systemInstructions = [
                       "staticValue": "Your Heading"
                     },
                     "level": "h1",
-                    "size": "inherit",
                     "align": "center"
                   }
                 ]
@@ -555,7 +446,7 @@ const systemInstructions = [
 
   // ---- WORKFLOW ----
   createBlock('Workflow', 'h2'),
-  createBlock('Follow this process when the user attaches a design image:', 'normal'),
+  createBlock('Follow this process when the user attaches a design image:'),
   createListItem('Acknowledge the design image and briefly describe what you see (layout structure, number of sections, key elements)', 'number'),
   createListItem('Ask the user for the page name and slug (or suggest one based on the design content)', 'number'),
   createListItem('Ask if they have any images to attach, or if you should create placeholders', 'number'),
@@ -581,8 +472,13 @@ const skillDocument = {
   description:
     'Analyze an attached design image (JPG/PNG export from Figma or similar) and build the equivalent page in Sanity using the page builder components. Works best with annotated exports that include 12-column grid overlay, section boundaries, and component labels.',
   systemInstructions,
+  // Starter prompt deliberately includes trigger keywords for all three
+  // Training instruction groups:
+  //   - "design", "layout", "section" → Design group (design system rules, component guidelines)
+  //   - "structure", "create", "schema", "field", "constraint" → Technical group (nesting, keys, required fields)
+  //   - "content", "heading" → Writing group (heading hierarchy, writing guidelines)
   starterPrompt:
-    'I\'ve attached a design image. Please analyze the layout and build this as a page in Sanity. The page should be called ',
+    'I\'ve attached a design image. Please analyze the layout structure and create this as a new section design (or full page with multiple sections) in Sanity, following the content and heading guidelines and schema field constraints. The page should be called ',
   order: 10,
 
   // Integrations group
@@ -616,6 +512,11 @@ async function seedVisionSkill() {
     console.log('   - Add colored outlines around section boundaries')
     console.log('   - Label ambiguous components (e.g., "eyebrowBlock", "cardBlock")')
     console.log('   - Use JPG or PNG format for the exported image')
+    console.log('')
+    console.log('📌 Keyword triggers in starter prompt:')
+    console.log('   - Design group: "design", "layout", "section"')
+    console.log('   - Technical group: "structure", "create", "schema", "field", "constraint"')
+    console.log('   - Writing group: "content", "heading"')
   } catch (error) {
     console.error('❌ Error seeding skill:', error.message)
     if (error.response?.body) {
