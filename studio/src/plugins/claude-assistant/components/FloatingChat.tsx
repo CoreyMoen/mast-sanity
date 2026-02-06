@@ -25,9 +25,10 @@ import {useContentOperations} from '../hooks/useContentOperations'
 import {useWorkflows, buildWorkflowContext} from '../hooks/useWorkflows'
 import {useInstructions} from '../hooks/useInstructions'
 import {useCurrentDocument} from '../hooks/useCurrentDocument'
+import {useBlockContext} from '../hooks/useBlockContext'
 import {extractSchemaContext} from '../lib/schema-context'
 import {DEFAULT_SETTINGS} from '../types'
-import type {Message, ParsedAction, PluginSettings, SchemaContext, ImageAttachment, DocumentContext} from '../types'
+import type {Message, ParsedAction, PluginSettings, SchemaContext, ImageAttachment, DocumentContext, BlockContext} from '../types'
 import {ImagePickerDialog} from './ImagePickerDialog'
 import {DocumentPickerDialog} from './DocumentPicker'
 
@@ -243,6 +244,9 @@ function FloatingChatPanel({
     enabled: !hasManualSelection,
     pollInterval: 500,
   })
+
+  // Listen for block context from the Presentation mode preview iframe
+  const {blockContext, clearBlockContext} = useBlockContext({enabled: true})
 
   // Sync auto-detected document to pending documents when not in manual mode
   useEffect(() => {
@@ -498,19 +502,53 @@ ${resultJson}
   }, [activeConversation, sendMessage])
 
   // Wrap sendMessage to auto-create conversation if needed
+  // When block context is present, prepend it as structured context so Claude knows
+  // exactly which block the user is referring to
   const handleSendMessage = useCallback(async (content: string, images?: ImageAttachment[]) => {
+    let enrichedContent = content
+
+    // If block context is attached, prepend it as structured context
+    if (blockContext) {
+      const contextLines = [
+        `[Selected Block Context]`,
+        `Type: ${blockContext.label} (${blockContext.blockType})`,
+      ]
+      if (blockContext.path) {
+        contextLines.push(`Path: ${blockContext.path}`)
+      }
+      if (blockContext.preview) {
+        contextLines.push(`Content: "${blockContext.preview}"`)
+      }
+      if (blockContext.fieldValue) {
+        // Include field value as JSON for Claude to use in updates
+        try {
+          const fieldJson = JSON.stringify(blockContext.fieldValue, null, 2)
+          if (fieldJson.length < 3000) {
+            contextLines.push(`Field Value:\n\`\`\`json\n${fieldJson}\n\`\`\``)
+          }
+        } catch {
+          // Skip if not serializable
+        }
+      }
+      contextLines.push('') // blank line before user message
+
+      enrichedContent = contextLines.join('\n') + '\n' + content
+      // Clear block context after including it in the message
+      clearBlockContext()
+    }
+
     // If no active conversation, create one first and queue the message
     if (!activeConversation) {
-      pendingMessageRef.current = {content, images}
+      pendingMessageRef.current = {content: enrichedContent, images}
       await createConversation()
       // The useEffect above will send the message once activeConversation updates
     } else {
       // Already have a conversation, send directly
-      await sendMessage(content, images)
+      await sendMessage(enrichedContent, images)
     }
     // Clear pending images after sending
     setPendingImages([])
-  }, [activeConversation, createConversation, sendMessage])
+  }, [activeConversation, createConversation, sendMessage, blockContext, clearBlockContext])
 
   // Handle image selection from picker
   const handleImageSelect = useCallback((image: ImageAttachment) => {
@@ -749,6 +787,8 @@ ${resultJson}
           onRemovePendingImage={handleRemovePendingImage}
           onOpenDocumentPicker={() => setDocumentPickerOpen(true)}
           pendingDocuments={pendingDocuments}
+          blockContext={blockContext}
+          onClearBlockContext={clearBlockContext}
           onRemoveDocument={handleRemoveDocument}
         />
       </Box>
