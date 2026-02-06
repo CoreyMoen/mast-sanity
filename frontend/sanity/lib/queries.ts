@@ -244,6 +244,29 @@ const sectionFields = /* groq */ `
   }
 `
 
+// Global section reference projection - dereferences and remaps to section shape
+const globalSectionFields = /* groq */ `
+  _type == "reference" => {
+    _key,
+    "_type": "section",
+    "isGlobal": true,
+    ...@->{
+      "sourceId": _id,
+      "sourceType": _type,
+      "label": name,
+      ${rowFields},
+      backgroundColor,
+      backgroundImage,
+      backgroundOverlay,
+      minHeight,
+      customMinHeight,
+      verticalAlign,
+      maxWidth,
+      paddingTop
+    }
+  }
+`
+
 export const getPageQuery = defineQuery(`
   *[_type == 'page' && slug.current == $slug][0]{
     _id,
@@ -254,7 +277,8 @@ export const getPageQuery = defineQuery(`
     subheading,
     "pageBuilder": pageBuilder[]{
       ...,
-      ${sectionFields}
+      ${sectionFields},
+      ${globalSectionFields}
     },
   }
 `)

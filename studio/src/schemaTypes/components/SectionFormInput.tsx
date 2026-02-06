@@ -117,7 +117,7 @@ export function SectionFormInput(props: ObjectInputProps) {
     const fetchTemplates = async () => {
       try {
         const result = await client.fetch<SectionTemplate[]>(`
-          *[_type == "sectionTemplate"] | order(category asc, name asc) {
+          *[_type == "sectionTemplate" && isGlobal != true] | order(category asc, name asc) {
             _id,
             name,
             description,

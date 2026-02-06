@@ -1,4 +1,4 @@
-import {BlockElementIcon, BoltIcon, BookIcon, CogIcon, ComponentIcon, DocumentIcon, EditIcon, FolderIcon, MenuIcon, RobotIcon, TagIcon} from '@sanity/icons'
+import {BlockElementIcon, BoltIcon, BookIcon, CogIcon, ComponentIcon, DocumentIcon, EarthGlobeIcon, EditIcon, FolderIcon, MenuIcon, RobotIcon, TagIcon} from '@sanity/icons'
 import type {StructureBuilder, StructureResolver} from 'sanity/structure'
 import pluralize from 'pluralize-esm'
 
@@ -71,15 +71,43 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
         .child(S.document().schemaType('navigation').documentId('navigation'))
         .icon(MenuIcon),
 
-      // Section Templates - reusable section configurations
+      // Section Templates - split into Prefill Templates and Global Sections
       S.listItem()
         .id('sectionTemplates')
         .title('Section Templates')
         .icon(ComponentIcon)
         .child(
-          S.documentTypeList('sectionTemplate')
+          S.list()
+            .id('sectionTemplatesList')
             .title('Section Templates')
-            .defaultOrdering([{field: 'category', direction: 'asc'}, {field: 'name', direction: 'asc'}])
+            .items([
+              // Prefill Templates - static templates that are copied into sections
+              S.listItem()
+                .id('prefillTemplates')
+                .title('Prefill Templates')
+                .icon(ComponentIcon)
+                .child(
+                  S.documentList()
+                    .id('prefillTemplatesList')
+                    .title('Prefill Templates')
+                    .schemaType('sectionTemplate')
+                    .filter('_type == "sectionTemplate" && (isGlobal != true)')
+                    .defaultOrdering([{field: 'category', direction: 'asc'}, {field: 'name', direction: 'asc'}])
+                ),
+              // Global Sections - referenced sections that update everywhere
+              S.listItem()
+                .id('globalSections')
+                .title('Global Sections')
+                .icon(EarthGlobeIcon)
+                .child(
+                  S.documentList()
+                    .id('globalSectionsList')
+                    .title('Global Sections')
+                    .schemaType('sectionTemplate')
+                    .filter('_type == "sectionTemplate" && isGlobal == true')
+                    .defaultOrdering([{field: 'category', direction: 'asc'}, {field: 'name', direction: 'asc'}])
+                ),
+            ])
         ),
 
       // Footer Singleton

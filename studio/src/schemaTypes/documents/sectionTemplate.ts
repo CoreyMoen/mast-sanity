@@ -1,5 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {BlockElementIcon} from '@sanity/icons'
+import {BlockElementIcon, EarthGlobeIcon} from '@sanity/icons'
 import {SectionTemplateFormInput} from '../components/SectionTemplateFormInput'
 
 /**
@@ -60,6 +60,15 @@ export const sectionTemplate = defineType({
       initialValue: 'other',
     }),
     defineField({
+      name: 'isGlobal',
+      title: 'Global Section',
+      type: 'boolean',
+      group: 'template',
+      description:
+        'When enabled, this becomes a shared global section. Pages reference it instead of copying it, so edits here update every page that uses it.',
+      initialValue: false,
+    }),
+    defineField({
       name: 'thumbnail',
       title: 'Preview Thumbnail',
       type: 'image',
@@ -68,6 +77,7 @@ export const sectionTemplate = defineType({
       options: {
         hotspot: true,
       },
+      hidden: ({parent}) => parent?.isGlobal === true,
     }),
 
     // Content Group - Same as section.rows
@@ -194,14 +204,17 @@ export const sectionTemplate = defineType({
       category: 'category',
       thumbnail: 'thumbnail',
       rows: 'rows',
+      isGlobal: 'isGlobal',
     },
-    prepare({name, category, thumbnail, rows}) {
+    prepare({name, category, thumbnail, rows, isGlobal}) {
       const itemCount = rows?.length || 0
       const categoryLabel = category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Other'
+      const globalPrefix = isGlobal ? '🌐 ' : ''
+      const typeLabel = isGlobal ? 'Global' : categoryLabel
       return {
-        title: name || 'Untitled Template',
-        subtitle: `${categoryLabel} • ${itemCount} item${itemCount !== 1 ? 's' : ''}`,
-        media: thumbnail || BlockElementIcon,
+        title: `${globalPrefix}${name || 'Untitled Template'}`,
+        subtitle: `${typeLabel} • ${itemCount} item${itemCount !== 1 ? 's' : ''}`,
+        media: isGlobal ? EarthGlobeIcon : thumbnail || BlockElementIcon,
       }
     },
   },
