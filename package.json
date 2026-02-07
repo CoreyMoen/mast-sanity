@@ -36,6 +36,7 @@
     "seed-home": "node --env-file=.env scripts/seed-home-page.mjs",
     "seed-with-images": "npx tsx scripts/upload-images-and-seed.ts",
     "seed-blog-posts": "node --env-file=.env scripts/seed-blog-posts.mjs",
+    "seed-vision-skill": "node --env-file=.env scripts/seed-vision-skill.mjs",
     "type-check": "npm run type-check --workspaces"
   },
   "prettier": "@sanity/prettier-config",
