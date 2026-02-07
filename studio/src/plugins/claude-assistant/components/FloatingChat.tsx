@@ -247,6 +247,9 @@ function FloatingChatPanel({
 
   // Listen for block context from the Presentation mode preview iframe
   const {blockContext, clearBlockContext} = useBlockContext({enabled: true})
+  // Ref for reading blockContext inside callbacks without adding it as a dependency
+  const blockContextRef = useRef<BlockContext | null>(null)
+  blockContextRef.current = blockContext
 
   // Sync auto-detected document to pending documents when not in manual mode
   useEffect(() => {
@@ -503,26 +506,28 @@ ${resultJson}
 
   // Wrap sendMessage to auto-create conversation if needed
   // When block context is present, prepend it as structured context so Claude knows
-  // exactly which block the user is referring to
+  // exactly which block the user is referring to.
+  // Reads blockContext from ref to avoid recreating this callback on every block click.
   const handleSendMessage = useCallback(async (content: string, images?: ImageAttachment[]) => {
     let enrichedContent = content
 
     // If block context is attached, prepend it as structured context
-    if (blockContext) {
+    const currentBlockContext = blockContextRef.current
+    if (currentBlockContext) {
       const contextLines = [
         `[Selected Block Context]`,
-        `Type: ${blockContext.label} (${blockContext.blockType})`,
+        `Type: ${currentBlockContext.label} (${currentBlockContext.blockType})`,
       ]
-      if (blockContext.path) {
-        contextLines.push(`Path: ${blockContext.path}`)
+      if (currentBlockContext.path) {
+        contextLines.push(`Path: ${currentBlockContext.path}`)
       }
-      if (blockContext.preview) {
-        contextLines.push(`Content: "${blockContext.preview}"`)
+      if (currentBlockContext.preview) {
+        contextLines.push(`Content: "${currentBlockContext.preview}"`)
       }
-      if (blockContext.fieldValue) {
+      if (currentBlockContext.fieldValue) {
         // Include field value as JSON for Claude to use in updates
         try {
-          const fieldJson = JSON.stringify(blockContext.fieldValue, null, 2)
+          const fieldJson = JSON.stringify(currentBlockContext.fieldValue, null, 2)
           if (fieldJson.length < 3000) {
             contextLines.push(`Field Value:\n\`\`\`json\n${fieldJson}\n\`\`\``)
           }
@@ -548,7 +553,7 @@ ${resultJson}
     }
     // Clear pending images after sending
     setPendingImages([])
-  }, [activeConversation, createConversation, sendMessage, blockContext, clearBlockContext])
+  }, [activeConversation, createConversation, sendMessage, clearBlockContext])
 
   // Handle image selection from picker
   const handleImageSelect = useCallback((image: ImageAttachment) => {

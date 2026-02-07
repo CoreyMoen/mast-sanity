@@ -1,6 +1,6 @@
 'use client'
 
-import {useEffect, useCallback} from 'react'
+import {useEffect} from 'react'
 import {
   defineOverlayComponents,
   type OverlayComponentProps,
@@ -210,8 +210,10 @@ function EnhancedOverlay(props: OverlayComponentProps) {
     injectHideDefaultLabelStyles()
   }, [])
 
-  // Send block context to Studio parent when this overlay is clicked
-  const handleBlockClick = useCallback(() => {
+  // Send block context to Studio parent when this overlay is clicked.
+  // Not wrapped in useCallback because props/label change every render (overlay framework
+  // provides new objects each time), so memoization would be ineffective.
+  function handleBlockClick() {
     // Only send if we're in an iframe (Presentation mode)
     if (window.parent === window) return
 
@@ -223,12 +225,12 @@ function EnhancedOverlay(props: OverlayComponentProps) {
     // Safely serialize field value (omit circular refs and huge nested data)
     let safeFieldValue: Record<string, unknown> | undefined
     try {
-      const serialized = JSON.stringify(fieldValue, (key, value) => {
+      const serialized = JSON.stringify(fieldValue, (_k, v) => {
         // Skip deeply nested portable text content arrays to keep payload small
-        if (key === 'children' && Array.isArray(value) && value.length > 3) {
-          return value.slice(0, 3)
+        if (_k === 'children' && Array.isArray(v) && v.length > 3) {
+          return v.slice(0, 3)
         }
-        return value
+        return v
       })
       if (serialized && serialized.length < 5000) {
         safeFieldValue = JSON.parse(serialized)
@@ -248,7 +250,7 @@ function EnhancedOverlay(props: OverlayComponentProps) {
         timestamp: Date.now(),
       },
     }, '*')
-  }, [props, label])
+  }
 
   return (
     <PointerEvents>
