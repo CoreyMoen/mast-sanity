@@ -15,6 +15,26 @@ export type MessageRole = 'user' | 'assistant' | 'system'
 export type MessageStatus = 'pending' | 'streaming' | 'complete' | 'error'
 
 /**
+ * Represents a specific block selected from the visual editing canvas.
+ * Sent via postMessage from the preview iframe when a user clicks an overlay
+ * while the Claude Assistant is open.
+ */
+export interface BlockContext {
+  /** The Sanity schema type of the block (e.g., 'headingBlock', 'richTextBlock') */
+  blockType: string
+  /** Human-readable label (e.g., 'Heading', 'Rich Text') */
+  label: string
+  /** The Sanity field path (e.g., 'pageBuilder[_key=="abc"].rows[_key=="def"]...') */
+  path: string
+  /** A short content preview for display (e.g., '"Welcome to Our Site"') */
+  preview: string
+  /** The raw field value of the block (sent to Claude for full context) */
+  fieldValue?: Record<string, unknown>
+  /** Timestamp of when this context was captured */
+  timestamp: number
+}
+
+/**
  * Represents a document selected as context for the conversation
  */
 export interface DocumentContext {

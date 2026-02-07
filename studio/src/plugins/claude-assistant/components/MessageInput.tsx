@@ -13,7 +13,7 @@
 import {useState, useCallback, useRef, useEffect, KeyboardEvent, forwardRef, useImperativeHandle} from 'react'
 import {Box, Flex, Button, Text, Tooltip, Card} from '@sanity/ui'
 import {ArrowUpIcon, ImageIcon, CloseIcon, DocumentIcon, BoltIcon} from '@sanity/icons'
-import type {ImageAttachment, DocumentContext} from '../types'
+import type {ImageAttachment, DocumentContext, BlockContext} from '../types'
 import {DocumentPills} from './DocumentPicker'
 import {WorkflowPills} from './WorkflowPicker'
 
@@ -57,6 +57,10 @@ export interface MessageInputProps {
   onRemoveWorkflow?: (workflowId: string) => void
   /** Whether to show the workflow picker button */
   showWorkflowPicker?: boolean
+  /** Block context from visual editing canvas clicks */
+  blockContext?: BlockContext | null
+  /** Callback to clear block context */
+  onClearBlockContext?: () => void
 }
 
 export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(function MessageInput(
@@ -78,6 +82,8 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
     pendingWorkflows = [],
     onRemoveWorkflow,
     showWorkflowPicker = true,
+    blockContext,
+    onClearBlockContext,
   },
   ref
 ) {
@@ -269,6 +275,68 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
             onRemove={(workflowId) => onRemoveWorkflow?.(workflowId)}
             compact={isCompact}
           />
+        </Box>
+      )}
+
+      {/* Block context pill (from visual editing canvas click) */}
+      {blockContext && (
+        <Box
+          style={{
+            padding: isCompact ? '12px 12px 0 12px' : '14px 16px 0 16px',
+          }}
+        >
+          <Flex align="center" gap={1} wrap="wrap">
+            <button
+              type="button"
+              onClick={() => onClearBlockContext?.()}
+              aria-label={`Remove block context: ${blockContext.label}`}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                padding: '4px 8px 4px 10px',
+                borderRadius: 6,
+                border: '1px solid rgba(85, 113, 251, 0.3)',
+                backgroundColor: 'rgba(85, 113, 251, 0.08)',
+                cursor: 'pointer',
+                fontSize: isCompact ? 12 : 13,
+                lineHeight: 1.3,
+                fontFamily: 'inherit',
+                color: 'var(--card-fg-color)',
+                maxWidth: '100%',
+                transition: 'background-color 150ms ease',
+              }}
+              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = 'rgba(85, 113, 251, 0.15)')}
+              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'rgba(85, 113, 251, 0.08)')}
+            >
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: 18,
+                  height: 18,
+                  borderRadius: 3,
+                  backgroundColor: '#5571FB',
+                  color: 'white',
+                  fontSize: 10,
+                  fontWeight: 600,
+                  flexShrink: 0,
+                }}
+              >
+                {blockContext.label.charAt(0)}
+              </span>
+              <span style={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}>
+                {blockContext.label}
+                {blockContext.preview ? `: "${blockContext.preview.length > 30 ? blockContext.preview.substring(0, 30) + '...' : blockContext.preview}"` : ''}
+              </span>
+              <CloseIcon style={{fontSize: 12, opacity: 0.6, flexShrink: 0}} />
+            </button>
+          </Flex>
         </Box>
       )}
 

@@ -25,9 +25,10 @@ import {useContentOperations} from '../hooks/useContentOperations'
 import {useWorkflows, buildWorkflowContext} from '../hooks/useWorkflows'
 import {useInstructions} from '../hooks/useInstructions'
 import {useCurrentDocument} from '../hooks/useCurrentDocument'
+import {useBlockContext} from '../hooks/useBlockContext'
 import {extractSchemaContext} from '../lib/schema-context'
 import {DEFAULT_SETTINGS} from '../types'
-import type {Message, ParsedAction, PluginSettings, SchemaContext, ImageAttachment, DocumentContext} from '../types'
+import type {Message, ParsedAction, PluginSettings, SchemaContext, ImageAttachment, DocumentContext, BlockContext} from '../types'
 import {ImagePickerDialog} from './ImagePickerDialog'
 import {DocumentPickerDialog} from './DocumentPicker'
 
@@ -243,6 +244,12 @@ function FloatingChatPanel({
     enabled: !hasManualSelection,
     pollInterval: 500,
   })
+
+  // Listen for block context from the Presentation mode preview iframe
+  const {blockContext, clearBlockContext} = useBlockContext({enabled: true})
+  // Ref for reading blockContext inside callbacks without adding it as a dependency
+  const blockContextRef = useRef<BlockContext | null>(null)
+  blockContextRef.current = blockContext
 
   // Sync auto-detected document to pending documents when not in manual mode
   useEffect(() => {
@@ -498,19 +505,55 @@ ${resultJson}
   }, [activeConversation, sendMessage])
 
   // Wrap sendMessage to auto-create conversation if needed
+  // When block context is present, prepend it as structured context so Claude knows
+  // exactly which block the user is referring to.
+  // Reads blockContext from ref to avoid recreating this callback on every block click.
   const handleSendMessage = useCallback(async (content: string, images?: ImageAttachment[]) => {
+    let enrichedContent = content
+
+    // If block context is attached, prepend it as structured context
+    const currentBlockContext = blockContextRef.current
+    if (currentBlockContext) {
+      const contextLines = [
+        `[Selected Block Context]`,
+        `Type: ${currentBlockContext.label} (${currentBlockContext.blockType})`,
+      ]
+      if (currentBlockContext.path) {
+        contextLines.push(`Path: ${currentBlockContext.path}`)
+      }
+      if (currentBlockContext.preview) {
+        contextLines.push(`Content: "${currentBlockContext.preview}"`)
+      }
+      if (currentBlockContext.fieldValue) {
+        // Include field value as JSON for Claude to use in updates
+        try {
+          const fieldJson = JSON.stringify(currentBlockContext.fieldValue, null, 2)
+          if (fieldJson.length < 3000) {
+            contextLines.push(`Field Value:\n\`\`\`json\n${fieldJson}\n\`\`\``)
+          }
+        } catch {
+          // Skip if not serializable
+        }
+      }
+      contextLines.push('') // blank line before user message
+
+      enrichedContent = contextLines.join('\n') + '\n' + content
+      // Clear block context after including it in the message
+      clearBlockContext()
+    }
+
     // If no active conversation, create one first and queue the message
     if (!activeConversation) {
-      pendingMessageRef.current = {content, images}
+      pendingMessageRef.current = {content: enrichedContent, images}
       await createConversation()
       // The useEffect above will send the message once activeConversation updates
     } else {
       // Already have a conversation, send directly
-      await sendMessage(content, images)
+      await sendMessage(enrichedContent, images)
     }
     // Clear pending images after sending
     setPendingImages([])
-  }, [activeConversation, createConversation, sendMessage])
+  }, [activeConversation, createConversation, sendMessage, clearBlockContext])
 
   // Handle image selection from picker
   const handleImageSelect = useCallback((image: ImageAttachment) => {
@@ -749,6 +792,8 @@ ${resultJson}
           onRemovePendingImage={handleRemovePendingImage}
           onOpenDocumentPicker={() => setDocumentPickerOpen(true)}
           pendingDocuments={pendingDocuments}
+          blockContext={blockContext}
+          onClearBlockContext={clearBlockContext}
           onRemoveDocument={handleRemoveDocument}
         />
       </Box>
