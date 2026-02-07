@@ -366,7 +366,8 @@ const systemInstructions = [
 
   createBlock('Pattern 7: Dark Callout Section', 'h3'),
   createListItem('Section: backgroundColor "primary", paddingTop "spacious"'),
-  createListItem('Column: widthDesktop "8" or "9", horizontalAlign "center"'),
+  createListItem('Row: horizontalAlign "center"'),
+  createListItem('Column: widthDesktop "8" or "9"'),
   createListItem('Content: headingBlock with color "white", richTextBlock with color "white"'),
 
   createBlock('Pattern 8: Asymmetric 3-Column', 'h3'),

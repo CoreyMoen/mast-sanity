@@ -267,7 +267,9 @@ Used by `imageBlock` image field:
 
 ### Pattern 7: Dark Callout Section
 
-- `backgroundColor: "primary"`, `paddingTop: "spacious"`
+- **Section**: `backgroundColor: "primary"`, `paddingTop: "spacious"`
+- **Row**: `horizontalAlign: "center"`
+- **Column**: `widthDesktop: "8"` or `"9"`
 - Content with `color: "white"`
 
 ### Pattern 8: Asymmetric 3-Column
