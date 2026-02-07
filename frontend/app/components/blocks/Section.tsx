@@ -20,6 +20,10 @@ interface SectionProps {
     maxWidth?: string
     paddingTop?: string
     paddingBottom?: string
+    // Global section fields (populated when section is a dereferenced sectionTemplate)
+    isGlobal?: boolean
+    sourceId?: string
+    sourceType?: string
   }
   index: number
   pageId?: string
@@ -131,12 +135,15 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
   const backgroundBlurUrl = getBlurDataUrl(backgroundImage)
   const isDarkBg = ['gray-800', 'black', 'brand', 'blue'].includes(cleanBgColor) || (backgroundImageUrl && cleanOverlay >= 40)
 
-  // Only add data-sanity attributes when pageId is provided (draft mode)
+  // For global sections, point data-sanity to the sectionTemplate document
+  // so clicking in Presentation mode opens the source document for editing.
+  // For inline sections, point to the page document as usual.
+  const isGlobal = block.isGlobal && block.sourceId && block.sourceType
   const sectionDataSanity = pageId && pageType
     ? dataAttr({
-        id: pageId,
-        type: pageType,
-        path: `pageBuilder:${block._key}`,
+        id: isGlobal ? block.sourceId! : pageId,
+        type: isGlobal ? block.sourceType! : pageType,
+        path: isGlobal ? 'rows' : `pageBuilder:${block._key}`,
       }).toString()
     : undefined
 
@@ -172,12 +179,14 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
       {/* Content Container */}
       <div className={`relative z-10 ${maxWidthClass} ${paddingClass} ${hasMinHeight ? 'flex-1 flex flex-col' : ''} ${alignClass}`}>
         {rowItems.map((item, itemIndex) => {
-          // Only add data-sanity attributes when pageId is provided (draft mode)
+          // For global sections, point inner items to the sectionTemplate document
           const itemDataSanity = pageId && pageType
             ? dataAttr({
-                id: pageId,
-                type: pageType,
-                path: `pageBuilder:${block._key}.rows:${item._key}`,
+                id: isGlobal ? block.sourceId! : pageId,
+                type: isGlobal ? block.sourceType! : pageType,
+                path: isGlobal
+                  ? `rows:${item._key}`
+                  : `pageBuilder:${block._key}.rows:${item._key}`,
               }).toString()
             : undefined
 
@@ -192,8 +201,8 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
                   <Row
                     block={item}
                     index={itemIndex}
-                    pageId={pageId}
-                    pageType={pageType}
+                    pageId={isGlobal ? block.sourceId : pageId}
+                    pageType={isGlobal ? block.sourceType : pageType}
                     sectionKey={block._key}
                   />
                 </ContentBlockOverlay>

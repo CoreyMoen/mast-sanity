@@ -1,5 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {DocumentIcon} from '@sanity/icons'
+import {DocumentIcon, EarthGlobeIcon} from '@sanity/icons'
 import {PageFormInput} from '../components/PageFormInput'
 
 /**
@@ -47,7 +47,24 @@ export const page = defineType({
       group: 'content',
       of: [
         defineArrayMember({type: 'section', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({
+          type: 'reference',
+          title: 'Global Section',
+          icon: EarthGlobeIcon,
+          to: [{type: 'sectionTemplate'}],
+          options: {
+            filter: 'isGlobal == true',
+          },
+        }),
       ],
+      options: {
+        insertMenu: {
+          groups: [
+            {name: 'sections', title: 'Sections', of: ['section']},
+            {name: 'global', title: 'Global Sections', of: ['reference']},
+          ],
+        },
+      },
     }),
 
     // Metadata fields
