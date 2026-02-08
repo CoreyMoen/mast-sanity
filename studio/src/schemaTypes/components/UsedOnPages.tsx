@@ -1,7 +1,7 @@
 import React, {useMemo, useState, useEffect} from 'react'
 import {Card, Flex, Text, Stack, Spinner, Badge} from '@sanity/ui'
-import {LinkIcon} from '@sanity/icons'
-import {useDocumentStore, useFormValue, type SanityDocument} from 'sanity'
+import {ChevronDownIcon, ChevronRightIcon} from '@sanity/icons'
+import {useDocumentStore, useFormValue} from 'sanity'
 import {IntentLink} from 'sanity/router'
 
 interface UsagePage {
@@ -18,15 +18,16 @@ interface UsagePage {
  * pages add or remove references to this global section template.
  */
 export function UsedOnPages() {
-  const document = useFormValue([]) as SanityDocument | undefined
+  const documentId = useFormValue(['_id']) as string | undefined
   const documentStore = useDocumentStore()
   const [pages, setPages] = useState<UsagePage[]>([])
   const [loading, setLoading] = useState(true)
+  const [isExpanded, setIsExpanded] = useState(false)
 
   // Extract clean ID (remove drafts. prefix)
   const blockId = useMemo(() => {
-    return document?._id?.replace(/^drafts\./, '') ?? ''
-  }, [document?._id])
+    return documentId?.replace(/^drafts\./, '') ?? ''
+  }, [documentId])
 
   // Subscribe to the reactive query
   useEffect(() => {
@@ -57,13 +58,26 @@ export function UsedOnPages() {
 
   if (!blockId) return null
 
+  const handleToggle = () => {
+    if (pages.length > 0) {
+      setIsExpanded(!isExpanded)
+    }
+  }
+
   return (
     <Card padding={3} tone="transparent" border radius={2}>
       <Stack space={3}>
-        <Flex align="center" gap={2}>
-          <Text size={1}>
-            <LinkIcon />
-          </Text>
+        <Flex
+          align="center"
+          gap={2}
+          onClick={handleToggle}
+          style={{cursor: pages.length > 0 ? 'pointer' : 'default'}}
+        >
+          {pages.length > 0 && (
+            <Text size={1}>
+              {isExpanded ? <ChevronDownIcon /> : <ChevronRightIcon />}
+            </Text>
+          )}
           <Text size={1} weight="semibold">
             Used on {loading ? '...' : `${pages.length} page${pages.length !== 1 ? 's' : ''}`}
           </Text>
@@ -80,8 +94,8 @@ export function UsedOnPages() {
           <Text size={1} muted style={{paddingLeft: 4}}>
             Not referenced on any pages yet. Add it to a page via the page builder.
           </Text>
-        ) : (
-          <Stack space={2} style={{paddingLeft: 4}}>
+        ) : isExpanded ? (
+          <Stack space={2} style={{paddingLeft: 28}}>
             {pages.map((page) => (
               <Flex key={page._id} align="center" gap={2}>
                 <IntentLink
@@ -103,7 +117,7 @@ export function UsedOnPages() {
               </Flex>
             ))}
           </Stack>
-        )}
+        ) : null}
       </Stack>
     </Card>
   )

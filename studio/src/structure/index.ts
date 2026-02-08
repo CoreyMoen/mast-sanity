@@ -92,7 +92,9 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
                     .title('Prefill Templates')
                     .schemaType('sectionTemplate')
                     .filter('_type == "sectionTemplate" && (isGlobal != true)')
+                    .apiVersion('2024-01-01')
                     .defaultOrdering([{field: 'category', direction: 'asc'}, {field: 'name', direction: 'asc'}])
+                    .initialValueTemplates([S.initialValueTemplateItem('sectionTemplate-prefill')])
                 ),
               // Global Sections - referenced sections that update everywhere
               S.listItem()
@@ -105,7 +107,9 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
                     .title('Global Sections')
                     .schemaType('sectionTemplate')
                     .filter('_type == "sectionTemplate" && isGlobal == true')
+                    .apiVersion('2024-01-01')
                     .defaultOrdering([{field: 'category', direction: 'asc'}, {field: 'name', direction: 'asc'}])
+                    .initialValueTemplates([S.initialValueTemplateItem('sectionTemplate-global')])
                 ),
             ])
         ),

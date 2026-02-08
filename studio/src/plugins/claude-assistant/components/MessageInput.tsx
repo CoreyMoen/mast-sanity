@@ -14,7 +14,6 @@ import {useState, useCallback, useRef, useEffect, KeyboardEvent, forwardRef, use
 import {Box, Flex, Button, Text, Tooltip, Card} from '@sanity/ui'
 import {ArrowUpIcon, ImageIcon, CloseIcon, DocumentIcon, BoltIcon} from '@sanity/icons'
 import type {ImageAttachment, DocumentContext, BlockContext} from '../types'
-import {DocumentPills} from './DocumentPicker'
 import {WorkflowPills} from './WorkflowPicker'
 
 /** Workflow type for the picker */
@@ -248,21 +247,6 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
         </Flex>
       )}
 
-      {/* Selected documents pills */}
-      {pendingDocuments.length > 0 && (
-        <Box
-          style={{
-            padding: isCompact ? '12px 12px 0 12px' : '14px 16px 0 16px',
-          }}
-        >
-          <DocumentPills
-            documents={pendingDocuments}
-            onRemove={(docId) => onRemoveDocument?.(docId)}
-            compact={isCompact}
-          />
-        </Box>
-      )}
-
       {/* Selected workflows pills */}
       {pendingWorkflows.length > 0 && (
         <Box
@@ -278,64 +262,125 @@ export const MessageInput = forwardRef<HTMLTextAreaElement, MessageInputProps>(f
         </Box>
       )}
 
-      {/* Block context pill (from visual editing canvas click) */}
-      {blockContext && (
+      {/* Document pills + block context pill — rendered together on one row */}
+      {(pendingDocuments.length > 0 || blockContext) && (
         <Box
           style={{
             padding: isCompact ? '12px 12px 0 12px' : '14px 16px 0 16px',
           }}
         >
-          <Flex align="center" gap={1} wrap="wrap">
-            <button
-              type="button"
-              onClick={() => onClearBlockContext?.()}
-              aria-label={`Remove block context: ${blockContext.label}`}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                padding: '4px 8px 4px 10px',
-                borderRadius: 6,
-                border: '1px solid rgba(85, 113, 251, 0.3)',
-                backgroundColor: 'rgba(85, 113, 251, 0.08)',
-                cursor: 'pointer',
-                fontSize: isCompact ? 12 : 13,
-                lineHeight: 1.3,
-                fontFamily: 'inherit',
-                color: 'var(--card-fg-color)',
-                maxWidth: '100%',
-                transition: 'background-color 150ms ease',
-              }}
-              onMouseOver={(e) => (e.currentTarget.style.backgroundColor = 'rgba(85, 113, 251, 0.15)')}
-              onMouseOut={(e) => (e.currentTarget.style.backgroundColor = 'rgba(85, 113, 251, 0.08)')}
-            >
-              <span
+          <Flex align="center" gap={2} wrap="wrap">
+            {pendingDocuments.map((doc) => (
+              <Card
+                key={doc._id}
+                padding={2}
+                radius={2}
+                tone="primary"
                 style={{
                   display: 'inline-flex',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  width: 18,
-                  height: 18,
-                  borderRadius: 3,
-                  backgroundColor: '#5571FB',
-                  color: 'white',
-                  fontSize: 10,
-                  fontWeight: 600,
-                  flexShrink: 0,
+                  gap: 6,
+                  maxWidth: isCompact ? 160 : 200,
                 }}
               >
-                {blockContext.label.charAt(0)}
-              </span>
-              <span style={{
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}>
-                {blockContext.label}
-                {blockContext.preview ? `: "${blockContext.preview.length > 30 ? blockContext.preview.substring(0, 30) + '...' : blockContext.preview}"` : ''}
-              </span>
-              <CloseIcon style={{fontSize: 12, opacity: 0.6, flexShrink: 0}} />
-            </button>
+                <DocumentIcon style={{fontSize: 14, flexShrink: 0, opacity: 0.8}} />
+                <span
+                  style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    flex: 1,
+                    minWidth: 0,
+                  }}
+                  title={doc.name}
+                >
+                  {doc.name}
+                </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onRemoveDocument?.(doc._id)
+                  }}
+                  aria-label={`Remove ${doc.name}`}
+                  style={{
+                    border: 'none',
+                    background: 'transparent',
+                    cursor: 'pointer',
+                    padding: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 4,
+                    opacity: 0.7,
+                    transition: 'opacity 150ms ease',
+                    flexShrink: 0,
+                  }}
+                  onMouseOver={(e) => (e.currentTarget.style.opacity = '1')}
+                  onMouseOut={(e) => (e.currentTarget.style.opacity = '0.7')}
+                >
+                  <CloseIcon style={{fontSize: 14}} />
+                </button>
+              </Card>
+            ))}
+            {blockContext && (
+              <Card
+                padding={2}
+                radius={2}
+                tone="primary"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  maxWidth: isCompact ? 160 : 200,
+                }}
+              >
+                <span style={{fontSize: 12, flexShrink: 0, opacity: 0.8, lineHeight: 1}}>
+                  {blockContext.icon || '◇'}
+                </span>
+                <span
+                  style={{
+                    fontSize: '0.75rem',
+                    fontWeight: 500,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    flex: 1,
+                    minWidth: 0,
+                  }}
+                  title={blockContext.label}
+                >
+                  {blockContext.label}
+                </span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onClearBlockContext?.()
+                  }}
+                  aria-label={`Remove block context: ${blockContext.label}`}
+                  style={{
+                    border: 'none',
+                    background: 'transparent',
+                    cursor: 'pointer',
+                    padding: 2,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: 4,
+                    opacity: 0.7,
+                    transition: 'opacity 150ms ease',
+                    flexShrink: 0,
+                  }}
+                  onMouseOver={(e) => (e.currentTarget.style.opacity = '1')}
+                  onMouseOut={(e) => (e.currentTarget.style.opacity = '0.7')}
+                >
+                  <CloseIcon style={{fontSize: 14}} />
+                </button>
+              </Card>
+            )}
           </Flex>
         </Box>
       )}

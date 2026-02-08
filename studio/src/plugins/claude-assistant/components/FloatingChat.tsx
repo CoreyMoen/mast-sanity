@@ -239,17 +239,34 @@ function FloatingChatPanel({
   const [hasManualSelection, setHasManualSelection] = useState(false)
 
   // Auto-detect current document from URL (Structure or Presentation mode)
-  const {currentDocument, mode: currentMode} = useCurrentDocument({
+  const {currentDocument, mode: currentMode, fieldPath} = useCurrentDocument({
     client,
     enabled: !hasManualSelection,
     pollInterval: 500,
   })
+
+  // Log field path changes for debugging
+  useEffect(() => {
+    if (fieldPath) {
+      console.log('[FloatingChat] Field path detected from URL:', fieldPath)
+    }
+  }, [fieldPath])
 
   // Listen for block context from the Presentation mode preview iframe
   const {blockContext, clearBlockContext} = useBlockContext({enabled: true})
   // Ref for reading blockContext inside callbacks without adding it as a dependency
   const blockContextRef = useRef<BlockContext | null>(null)
   blockContextRef.current = blockContext
+
+  // Clear block context when the page/document changes
+  const prevDocIdRef = useRef<string | undefined>(undefined)
+  useEffect(() => {
+    const docId = currentDocument?._id
+    if (prevDocIdRef.current !== undefined && docId !== prevDocIdRef.current) {
+      clearBlockContext()
+    }
+    prevDocIdRef.current = docId
+  }, [currentDocument?._id, clearBlockContext])
 
   // Sync auto-detected document to pending documents when not in manual mode
   useEffect(() => {

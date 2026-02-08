@@ -59,13 +59,15 @@ export const sectionTemplate = defineType({
       },
       initialValue: 'other',
     }),
+    // isGlobal is set automatically based on which group you create from:
+    // - Prefill Templates → isGlobal: false (content copied when applied)
+    // - Global Sections → isGlobal: true (pages reference it, edits update everywhere)
     defineField({
       name: 'isGlobal',
       title: 'Global Section',
       type: 'boolean',
       group: 'template',
-      description:
-        'When enabled, this becomes a shared global section. Pages reference it instead of copying it, so edits here update every page that uses it.',
+      hidden: true, // Auto-set via initial value templates in structure
       initialValue: false,
     }),
     defineField({

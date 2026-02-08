@@ -137,15 +137,25 @@ export default defineConfig({
             select: {
               name: 'name',
               id: '_id',
+              isGlobal: 'isGlobal',
             },
-            resolve: (doc) => ({
-              locations: [
-                {
-                  title: doc?.name || 'Untitled Template',
-                  href: resolveHref('sectionTemplate', undefined, doc?.id)!,
-                },
-              ],
-            }),
+            resolve: (doc) => {
+              // Hide locations panel for global sections (usage shown in custom banner instead)
+              if (doc?.isGlobal) {
+                return null
+              }
+              // Show preview location for prefill templates
+              return {
+                locations: [
+                  {
+                    title: `${doc?.name || 'Untitled Template'} (Preview)`,
+                    href: resolveHref('sectionTemplate', undefined, doc?.id)!,
+                  },
+                ],
+                message: 'Preview this template',
+                tone: 'positive',
+              }
+            },
           }),
         },
       },
@@ -166,6 +176,23 @@ export default defineConfig({
   // Schema configuration, imported from ./src/schemaTypes/index.ts
   schema: {
     types: schemaTypes,
+    // Initial value templates for section templates
+    // These auto-set isGlobal based on which folder you create from
+    templates: (prev) => [
+      ...prev,
+      {
+        id: 'sectionTemplate-prefill',
+        title: 'Prefill Template',
+        schemaType: 'sectionTemplate',
+        value: {isGlobal: false},
+      },
+      {
+        id: 'sectionTemplate-global',
+        title: 'Global Section',
+        schemaType: 'sectionTemplate',
+        value: {isGlobal: true},
+      },
+    ],
   },
 
   // Filter out Claude assistant document types from "Create new document" menu

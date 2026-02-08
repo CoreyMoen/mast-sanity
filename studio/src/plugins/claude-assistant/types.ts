@@ -24,6 +24,8 @@ export interface BlockContext {
   blockType: string
   /** Human-readable label (e.g., 'Heading', 'Rich Text') */
   label: string
+  /** Icon character matching the overlay label (e.g., 'H', '¶', '⬚') */
+  icon?: string
   /** The Sanity field path (e.g., 'pageBuilder[_key=="abc"].rows[_key=="def"]...') */
   path: string
   /** A short content preview for display (e.g., '"Welcome to Our Site"') */

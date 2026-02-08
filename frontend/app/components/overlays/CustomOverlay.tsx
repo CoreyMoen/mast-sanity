@@ -7,7 +7,6 @@ import {
 } from '@sanity/visual-editing/unstable_overlay-components'
 import {
   BLOCK_TYPE_LABELS,
-  BLOCK_TYPE_ICONS,
   HIDE_DEFAULT_LABEL_CSS,
   SANITY_SELECTORS,
   getBlockLabel,
@@ -115,93 +114,52 @@ function getComponentLabel(props: OverlayComponentProps): string {
   return 'Element'
 }
 
-/**
- * Extract a short content preview string from a block's field value.
- * Used to give Claude Assistant a quick summary of what the block contains.
- */
-function getContentPreview(fieldValue: Record<string, unknown> | undefined, blockType: string): string {
+// Extract a short preview text from a block's field value
+function extractPreviewText(fieldValue: Record<string, unknown> | undefined): string {
   if (!fieldValue) return ''
 
-  // Heading block - grab the text field
-  if (blockType === 'headingBlock' && typeof fieldValue.text === 'string') {
-    return fieldValue.text.substring(0, 80)
+  const blockType = fieldValue._type as string | undefined
+
+  // headingBlock / eyebrowBlock: text field
+  if ((blockType === 'headingBlock' || blockType === 'eyebrowBlock') && typeof fieldValue.text === 'string') {
+    return fieldValue.text.slice(0, 100)
   }
 
-  // Eyebrow block - grab the text field
-  if (blockType === 'eyebrowBlock' && typeof fieldValue.text === 'string') {
-    return fieldValue.text.substring(0, 80)
+  // buttonBlock: text field
+  if (blockType === 'buttonBlock' && typeof fieldValue.text === 'string') {
+    return fieldValue.text.slice(0, 100)
   }
 
-  // Button block - grab the label
-  if (blockType === 'buttonBlock' && typeof fieldValue.label === 'string') {
-    return fieldValue.label.substring(0, 60)
+  // imageBlock: alt text
+  if (blockType === 'imageBlock') {
+    if (typeof fieldValue.alt === 'string') return fieldValue.alt.slice(0, 100)
+    return 'Image'
   }
 
-  // Rich text block - try to extract first text span from portable text
+  // richTextBlock: extract first text span from portable text content array
   if (blockType === 'richTextBlock' && Array.isArray(fieldValue.content)) {
     for (const block of fieldValue.content) {
-      if (block && Array.isArray((block as Record<string, unknown>).children)) {
+      if (block && typeof block === 'object' && Array.isArray((block as Record<string, unknown>).children)) {
         for (const child of (block as Record<string, unknown>).children as Array<Record<string, unknown>>) {
           if (typeof child.text === 'string' && child.text.trim()) {
-            return child.text.substring(0, 80)
+            return child.text.trim().slice(0, 100)
           }
         }
       }
     }
   }
 
-  // Image block - mention if it has an image
-  if (blockType === 'imageBlock' && fieldValue.image) {
-    return '[Image]'
-  }
-
-  // Spacer/Divider - describe the setting
-  if (blockType === 'spacerBlock') {
-    const size = fieldValue.sizeDesktop || fieldValue.size
-    return size ? `Size: ${size}` : ''
-  }
-
-  // Section - use label if available
-  if (blockType === 'section' && typeof fieldValue.label === 'string') {
-    return fieldValue.label.substring(0, 80)
-  }
-
-  // Generic: try common field names
-  for (const key of ['title', 'name', 'label', 'text', 'heading']) {
-    if (typeof fieldValue[key] === 'string') {
-      return (fieldValue[key] as string).substring(0, 80)
-    }
-  }
+  // Generic: try common text fields
+  if (typeof fieldValue.text === 'string') return fieldValue.text.slice(0, 100)
+  if (typeof fieldValue.title === 'string') return fieldValue.title.slice(0, 100)
+  if (typeof fieldValue.label === 'string') return (fieldValue.label as string).slice(0, 100)
 
   return ''
 }
 
-/**
- * Get the resolved block type from overlay props.
- * Returns the Sanity _type string (e.g., 'headingBlock') or null.
- */
-function getResolvedBlockType(props: OverlayComponentProps): string | null {
-  const {type, field, node} = props
-
-  // Schema type
-  if (type && type !== 'object' && type !== 'page') return type
-
-  // Field value _type
-  const fieldValue = field?.value as Record<string, unknown> | undefined
-  if (fieldValue?._type && typeof fieldValue._type === 'string') return fieldValue._type
-
-  // DOM data-block-type attribute
-  if (node && 'element' in node && node.element instanceof HTMLElement) {
-    const blockType = node.element.getAttribute('data-block-type')
-    if (blockType) return blockType
-  }
-
-  return null
-}
-
 // Enhanced overlay component with label
 function EnhancedOverlay(props: OverlayComponentProps) {
-  const {PointerEvents} = props
+  const {PointerEvents, focused, type, field, node} = props
   const label = getComponentLabel(props)
   const icon = getBlockIcon(label)
 
@@ -210,53 +168,34 @@ function EnhancedOverlay(props: OverlayComponentProps) {
     injectHideDefaultLabelStyles()
   }, [])
 
-  // Send block context to Studio parent when this overlay is clicked.
-  // Not wrapped in useCallback because props/label change every render (overlay framework
-  // provides new objects each time), so memoization would be ineffective.
-  function handleBlockClick() {
-    // Only send if we're in an iframe (Presentation mode)
-    if (window.parent === window) return
+  // Send block context to Studio when this overlay becomes focused
+  useEffect(() => {
+    if (!focused) return
+    if (typeof window === 'undefined' || window.parent === window) return
 
-    const blockType = getResolvedBlockType(props) || 'unknown'
-    const fieldValue = props.field?.value as Record<string, unknown> | undefined
-    const path = (props.node && 'path' in props.node) ? (props.node.path as string) : ''
-    const preview = getContentPreview(fieldValue, blockType)
-
-    // Safely serialize field value (omit circular refs and huge nested data)
-    let safeFieldValue: Record<string, unknown> | undefined
-    try {
-      const serialized = JSON.stringify(fieldValue, (_k, v) => {
-        // Skip deeply nested portable text content arrays to keep payload small
-        if (_k === 'children' && Array.isArray(v) && v.length > 3) {
-          return v.slice(0, 3)
-        }
-        return v
-      })
-      if (serialized && serialized.length < 5000) {
-        safeFieldValue = JSON.parse(serialized)
-      }
-    } catch {
-      // Skip if not serializable
-    }
+    const fieldValue = field?.value as Record<string, unknown> | undefined
+    const blockType = (fieldValue?._type as string) || type || 'unknown'
+    const path = (node && 'path' in node) ? (node.path as string) : ''
+    const preview = extractPreviewText(fieldValue)
 
     window.parent.postMessage({
       type: 'claude-block-context',
       payload: {
         blockType,
         label,
+        icon,
         path,
         preview,
-        fieldValue: safeFieldValue,
+        fieldValue: fieldValue && JSON.stringify(fieldValue).length < 5000 ? fieldValue : undefined,
         timestamp: Date.now(),
       },
     }, '*')
-  }
+  }, [focused, type, field, node, label])
 
   return (
     <PointerEvents>
       {/* Label positioned directly above element border */}
       <div
-        onClick={handleBlockClick}
         style={{
           position: 'absolute',
           bottom: 'calc(100% + 3px)',
