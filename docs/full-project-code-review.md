@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-This is a **production-grade headless CMS implementation** combining Next.js 15 (App Router) with Sanity Studio v3. The project implements the "Mast" design system and features a sophisticated page builder, real-time visual editing, and a custom Claude AI assistant integration.
+This is a **production-grade headless CMS implementation** combining Next.js 16 (App Router) with Sanity Studio v5. The project implements the "Mast" design system and features a sophisticated page builder, real-time visual editing, and a custom Claude AI assistant integration.
 
 ### Best Practices Compliance
 
@@ -50,8 +50,8 @@ The best practices rule files are installed in:
 ### Tech Stack at a Glance
 | Layer | Technology |
 |-------|------------|
-| Frontend | Next.js 15, React 19, TypeScript 5.9 |
-| CMS | Sanity v4.20, Sanity Studio v3 |
+| Frontend | Next.js 16, React 19, TypeScript 5.9 |
+| CMS | Sanity v5.9, Sanity Studio v5 |
 | Styling | Tailwind CSS v4 (CSS-first) |
 | UI Components | Radix UI, Phosphor Icons |
 | AI Integration | Anthropic Claude API |

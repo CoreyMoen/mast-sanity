@@ -62,8 +62,8 @@ See the [Claude Assistant Porting Guide](docs/claude-assistant-porting-guide.md)
 
 ## Tech Stack
 
-- **Frontend:** Next.js 15 (App Router, Turbopack)
-- **CMS:** Sanity v3 with Presentation Tool
+- **Frontend:** Next.js 16 (App Router, Turbopack)
+- **CMS:** Sanity v5 with Presentation Tool
 - **Styling:** Tailwind CSS v4
 - **UI Components:** Radix UI primitives
 - **Icons:** Phosphor Icons, Lucide React
