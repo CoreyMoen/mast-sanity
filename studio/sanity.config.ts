@@ -19,6 +19,7 @@ import {
 import {PageNavigator} from './src/presentation/PageNavigator'
 import {assist} from '@sanity/assist'
 import {claudeAssistant, createStudioLayout} from './src/plugins/claude-assistant'
+import {canvasViewer} from './src/plugins/canvas-viewer'
 import {StudioIcon} from './src/components/StudioIcon'
 
 // Environment variables for project configuration
@@ -171,6 +172,7 @@ export default defineConfig({
     claudeAssistant({
       apiEndpoint: `${SANITY_STUDIO_PREVIEW_URL}/api/claude`,
     }),
+    canvasViewer(),
   ],
 
   // Schema configuration, imported from ./src/schemaTypes/index.ts
