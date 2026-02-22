@@ -36,6 +36,69 @@ interface SliderProps {
   className?: string
 }
 
+// Navigation button component
+function NavButton({
+  direction,
+  onClick,
+  disabled,
+  loop,
+}: {
+  direction: 'prev' | 'next'
+  onClick: () => void
+  disabled: boolean
+  loop: boolean
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled && !loop}
+      className={cn(
+        'flex h-10 w-10 items-center justify-center rounded-full border transition-all cursor-pointer',
+        'border-brand bg-brand text-white hover:bg-brand/90',
+        'disabled:opacity-40 disabled:cursor-not-allowed'
+      )}
+      aria-label={direction === 'prev' ? 'Previous slide' : 'Next slide'}
+    >
+      {direction === 'prev' ? (
+        <CaretLeft className="h-5 w-5" weight="bold" />
+      ) : (
+        <CaretRight className="h-5 w-5" weight="bold" />
+      )}
+    </button>
+  )
+}
+
+// Custom pagination component
+function CustomPagination({
+  showPagination,
+  totalSlides,
+  activeIndex,
+  swiperInstance,
+}: {
+  showPagination: boolean
+  totalSlides: number
+  activeIndex: number
+  swiperInstance: SwiperType | null
+}) {
+  if (!showPagination || totalSlides <= 1) return null
+  return (
+    <div className="flex items-center gap-2">
+      {Array.from({length: totalSlides}).map((_, index) => (
+        <button
+          key={index}
+          onClick={() => swiperInstance?.slideToLoop(index)}
+          className={cn(
+            'h-2 w-2 rounded-full transition-all cursor-pointer',
+            index === activeIndex ? 'bg-brand w-4' : 'bg-muted-foreground/40 hover:bg-muted-foreground/60'
+          )}
+          aria-label={`Go to slide ${index + 1}`}
+          aria-current={index === activeIndex ? 'true' : 'false'}
+        />
+      ))}
+    </div>
+  )
+}
+
 // Convert Tailwind spacing scale to pixels
 const gapToPixels: Record<string, number> = {
   '0': 0,
@@ -99,55 +162,6 @@ export function Slider({
     setTotalSlides(swiper.slides.length)
   }, [])
 
-  // Navigation button component
-  const NavButton = ({
-    direction,
-    onClick,
-    disabled,
-  }: {
-    direction: 'prev' | 'next'
-    onClick: () => void
-    disabled: boolean
-  }) => (
-    <button
-      onClick={onClick}
-      disabled={disabled && !loop}
-      className={cn(
-        'flex h-10 w-10 items-center justify-center rounded-full border transition-all cursor-pointer',
-        'border-brand bg-brand text-white hover:bg-brand/90',
-        'disabled:opacity-40 disabled:cursor-not-allowed'
-      )}
-      aria-label={direction === 'prev' ? 'Previous slide' : 'Next slide'}
-    >
-      {direction === 'prev' ? (
-        <CaretLeft className="h-5 w-5" weight="bold" />
-      ) : (
-        <CaretRight className="h-5 w-5" weight="bold" />
-      )}
-    </button>
-  )
-
-  // Custom pagination component
-  const CustomPagination = () => {
-    if (!showPagination || totalSlides <= 1) return null
-    return (
-      <div className="flex items-center gap-2">
-        {Array.from({length: totalSlides}).map((_, index) => (
-          <button
-            key={index}
-            onClick={() => swiperInstance?.slideToLoop(index)}
-            className={cn(
-              'h-2 w-2 rounded-full transition-all cursor-pointer',
-              index === activeIndex ? 'bg-brand w-4' : 'bg-muted-foreground/40 hover:bg-muted-foreground/60'
-            )}
-            aria-label={`Go to slide ${index + 1}`}
-            aria-current={index === activeIndex ? 'true' : 'false'}
-          />
-        ))}
-      </div>
-    )
-  }
-
   // Build modules array
   const modules = React.useMemo(() => {
     const mods = [Navigation, Pagination]
@@ -170,7 +184,7 @@ export function Slider({
       {/* Side Navigation - Left */}
       {showNavigation && isSides && (
         <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10">
-          <NavButton direction="prev" onClick={handlePrev} disabled={isBeginning} />
+          <NavButton direction="prev" onClick={handlePrev} disabled={isBeginning} loop={loop} />
         </div>
       )}
 
@@ -213,16 +227,16 @@ export function Slider({
       {/* Side Navigation - Right */}
       {showNavigation && isSides && (
         <div className="absolute right-0 top-1/2 -translate-y-1/2 z-10">
-          <NavButton direction="next" onClick={handleNext} disabled={isEnd} />
+          <NavButton direction="next" onClick={handleNext} disabled={isEnd} loop={loop} />
         </div>
       )}
 
       {/* Overlay Navigation - Center */}
       {showNavigation && navigationPosition === 'overlay-center' && (
         <div className="absolute inset-x-0 bottom-4 flex items-center justify-center gap-4 z-10">
-          <NavButton direction="prev" onClick={handlePrev} disabled={isBeginning} />
-          <CustomPagination />
-          <NavButton direction="next" onClick={handleNext} disabled={isEnd} />
+          <NavButton direction="prev" onClick={handlePrev} disabled={isBeginning} loop={loop} />
+          <CustomPagination showPagination={showPagination} totalSlides={totalSlides} activeIndex={activeIndex} swiperInstance={swiperInstance} />
+          <NavButton direction="next" onClick={handleNext} disabled={isEnd} loop={loop} />
         </div>
       )}
 
@@ -230,14 +244,14 @@ export function Slider({
       {showNavigation && navigationPosition === 'overlay-edges' && (
         <>
           <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
-            <NavButton direction="prev" onClick={handlePrev} disabled={isBeginning} />
+            <NavButton direction="prev" onClick={handlePrev} disabled={isBeginning} loop={loop} />
           </div>
           <div className="absolute right-4 top-1/2 -translate-y-1/2 z-10">
-            <NavButton direction="next" onClick={handleNext} disabled={isEnd} />
+            <NavButton direction="next" onClick={handleNext} disabled={isEnd} loop={loop} />
           </div>
           {showPagination && (
             <div className="absolute inset-x-0 bottom-4 flex justify-center z-10">
-              <CustomPagination />
+              <CustomPagination showPagination={showPagination} totalSlides={totalSlides} activeIndex={activeIndex} swiperInstance={swiperInstance} />
             </div>
           )}
         </>
@@ -246,18 +260,18 @@ export function Slider({
       {/* Below Navigation (default) */}
       {showNavigation && isBelow && (
         <div className="flex items-center justify-center gap-2 mt-6">
-          <NavButton direction="prev" onClick={handlePrev} disabled={isBeginning} />
+          <NavButton direction="prev" onClick={handlePrev} disabled={isBeginning} loop={loop} />
           <div className="mx-4">
-            <CustomPagination />
+            <CustomPagination showPagination={showPagination} totalSlides={totalSlides} activeIndex={activeIndex} swiperInstance={swiperInstance} />
           </div>
-          <NavButton direction="next" onClick={handleNext} disabled={isEnd} />
+          <NavButton direction="next" onClick={handleNext} disabled={isEnd} loop={loop} />
         </div>
       )}
 
       {/* Pagination only (no navigation) */}
       {!showNavigation && showPagination && (
         <div className="flex justify-center mt-6">
-          <CustomPagination />
+          <CustomPagination showPagination={showPagination} totalSlides={totalSlides} activeIndex={activeIndex} swiperInstance={swiperInstance} />
         </div>
       )}
     </div>

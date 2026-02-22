@@ -1,6 +1,6 @@
 'use client'
 
-import {useState, useEffect} from 'react'
+import {useSyncExternalStore} from 'react'
 import {stegaClean} from 'next-sanity'
 import {Tabs, TabsList, TabsTrigger, TabsContent, TabsPlayPause} from '../ui/tabs'
 import ContentBlockRenderer from './ContentBlockRenderer'
@@ -38,11 +38,11 @@ interface TabsBlockProps {
 
 export default function TabsBlock({block}: TabsBlockProps) {
   // Prevent hydration mismatch by only rendering after mount
-  const [isMounted, setIsMounted] = useState(false)
-
-  useEffect(() => {
-    setIsMounted(true)
-  }, [])
+  const isMounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  )
 
   const {
     tabs,
