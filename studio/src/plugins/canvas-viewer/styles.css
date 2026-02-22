@@ -1,0 +1,6 @@
+/* Canvas Viewer Plugin Styles */
+
+/* Show action buttons on canvas sidebar item hover */
+[data-ui="Card"]:hover .canvas-item-actions {
+  opacity: 1 !important;
+}

@@ -21,6 +21,7 @@
 import {definePlugin, type Tool} from 'sanity'
 import {CanvasViewerTool, CanvasViewerIcon} from './CanvasViewerTool'
 import type {CanvasViewerOptions} from './types'
+import './styles.css'
 
 export const canvasViewer = definePlugin<CanvasViewerOptions | void>((options) => {
   const {title = 'Canvas'} = options || {}

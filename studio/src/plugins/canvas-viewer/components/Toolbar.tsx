@@ -9,6 +9,8 @@ interface ToolbarProps {
   onZoomOut: () => void
   onResetZoom: () => void
   pageCount: number
+  onAddPages: () => void
+  canvasName?: string
 }
 
 export function Toolbar({
@@ -19,14 +21,32 @@ export function Toolbar({
   onZoomOut,
   onResetZoom,
   pageCount,
+  onAddPages,
+  canvasName,
 }: ToolbarProps) {
   return (
     <Card padding={3} borderBottom style={{flexShrink: 0}}>
       <Flex align="center" gap={3}>
-        <Box flex={1} style={{maxWidth: 300}}>
+        {canvasName && (
+          <Text size={1} weight="semibold" style={{flexShrink: 0}}>
+            {canvasName}
+          </Text>
+        )}
+
+        <Button
+          icon={AddIcon}
+          text="Add Pages"
+          mode="ghost"
+          tone="primary"
+          fontSize={1}
+          onClick={onAddPages}
+          style={{flexShrink: 0}}
+        />
+
+        <Box flex={1} style={{maxWidth: 240}}>
           <TextInput
             icon={SearchIcon}
-            placeholder="Search pages..."
+            placeholder="Filter pages..."
             value={searchQuery}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               onSearchChange(e.currentTarget.value)
@@ -35,7 +55,7 @@ export function Toolbar({
           />
         </Box>
 
-        <Flex align="center" gap={1}>
+        <Flex align="center" gap={1} style={{flexShrink: 0}}>
           <Button icon={RemoveIcon} mode="bleed" onClick={onZoomOut} title="Zoom out" />
           <Text size={1} muted style={{minWidth: 50, textAlign: 'center'}}>
             {Math.round(scale * 100)}%
@@ -44,7 +64,7 @@ export function Toolbar({
           <Button icon={UndoIcon} mode="bleed" onClick={onResetZoom} title="Reset zoom" />
         </Flex>
 
-        <Text size={1} muted>
+        <Text size={1} muted style={{flexShrink: 0}}>
           {pageCount} {pageCount === 1 ? 'page' : 'pages'}
         </Text>
       </Flex>

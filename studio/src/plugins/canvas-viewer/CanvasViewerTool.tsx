@@ -1,17 +1,38 @@
-import {useState, useMemo} from 'react'
+import {useState, useMemo, useCallback} from 'react'
 import {Flex, Spinner, Text, Card, Stack} from '@sanity/ui'
-import {usePages} from './hooks/usePages'
+import {useCanvases} from './hooks/useCanvases'
+import {useCanvasPages} from './hooks/useCanvasPages'
 import {useCanvasTransform} from './hooks/useCanvasTransform'
+import {CanvasSidebar} from './components/CanvasSidebar'
 import {Canvas} from './components/Canvas'
 import {PageCard} from './components/PageCard'
 import {Toolbar} from './components/Toolbar'
+import {PagePickerDialog} from './components/PagePickerDialog'
 import type {PageDocument} from './types'
 
 export function CanvasViewerTool() {
-  const {pages, loading, error} = usePages()
+  const {
+    canvases,
+    loading: canvasesLoading,
+    createCanvas,
+    deleteCanvas,
+    renameCanvas,
+    moveCanvas,
+    addPages: addPagesToCanvas,
+    removePage: removePageFromCanvas,
+  } = useCanvases()
+
+  const [activeCanvasId, setActiveCanvasId] = useState<string | null>(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [pickerOpen, setPickerOpen] = useState(false)
+
+  // Auto-select first canvas when canvases load
+  const effectiveCanvasId = activeCanvasId ?? canvases[0]?._id ?? null
+  const activeCanvas = canvases.find((c) => c._id === effectiveCanvasId)
+
+  const {pages, loading: pagesLoading} = useCanvasPages(effectiveCanvasId)
   const {transform, containerRef, handlers, zoomIn, zoomOut, resetTransform} =
     useCanvasTransform()
-  const [searchQuery, setSearchQuery] = useState('')
 
   const filteredPages = useMemo(() => {
     if (!searchQuery.trim()) return pages
@@ -23,77 +44,142 @@ export function CanvasViewerTool() {
     )
   }, [pages, searchQuery])
 
-  const handlePreview = (page: PageDocument) => {
+  const existingPageIds = useMemo(
+    () => pages.map(({page}) => page._id.replace('drafts.', '')),
+    [pages],
+  )
+
+  const handlePreview = useCallback((page: PageDocument) => {
     const slug = page.slug?.current
     if (slug) {
-      // Open in Presentation mode for visual editing
       window.open(`/presentation?preview=/${slug}`, '_blank')
     }
-  }
+  }, [])
 
-  const handleEdit = (page: PageDocument) => {
-    // Open in Structure mode where native commenting works
+  const handleEdit = useCallback((page: PageDocument) => {
     const id = page._id.replace('drafts.', '')
     window.open(`/intent/edit/id=${id};type=page`, '_blank')
-  }
+  }, [])
 
-  if (loading) {
+  const handleRemove = useCallback(
+    (page: PageDocument) => {
+      if (!effectiveCanvasId) return
+      const baseId = page._id.replace('drafts.', '')
+      removePageFromCanvas(effectiveCanvasId, baseId)
+    },
+    [effectiveCanvasId, removePageFromCanvas],
+  )
+
+  const handleAddPages = useCallback(
+    (pageIds: string[]) => {
+      if (!effectiveCanvasId) return
+      addPagesToCanvas(effectiveCanvasId, pageIds)
+    },
+    [effectiveCanvasId, addPagesToCanvas],
+  )
+
+  const handleDeleteCanvas = useCallback(
+    (id: string) => {
+      deleteCanvas(id)
+      // If we deleted the active canvas, clear selection
+      if (id === effectiveCanvasId) {
+        setActiveCanvasId(null)
+      }
+    },
+    [deleteCanvas, effectiveCanvasId],
+  )
+
+  const openPicker = useCallback(() => setPickerOpen(true), [])
+
+  // Loading state
+  if (canvasesLoading) {
     return (
       <Flex align="center" justify="center" style={{height: '100%'}}>
         <Stack space={3} style={{textAlign: 'center'}}>
           <Spinner muted />
           <Text size={1} muted>
-            Loading pages...
+            Loading canvases...
           </Text>
         </Stack>
       </Flex>
     )
   }
 
-  if (error) {
-    return (
-      <Flex align="center" justify="center" style={{height: '100%'}}>
-        <Card padding={4} tone="critical" radius={2}>
-          <Text>Error loading pages: {error.message}</Text>
-        </Card>
-      </Flex>
-    )
-  }
-
-  if (pages.length === 0) {
-    return (
-      <Flex align="center" justify="center" style={{height: '100%'}}>
-        <Card padding={4} radius={2}>
-          <Text size={1} muted>
-            No pages found. Create a page to see it here.
-          </Text>
-        </Card>
-      </Flex>
-    )
-  }
-
   return (
-    <Flex direction="column" style={{height: '100%'}}>
-      <Toolbar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        scale={transform.scale}
-        onZoomIn={zoomIn}
-        onZoomOut={zoomOut}
-        onResetZoom={resetTransform}
-        pageCount={filteredPages.length}
+    <Flex style={{height: '100%'}}>
+      {/* Left sidebar with canvas list */}
+      <CanvasSidebar
+        canvases={canvases}
+        activeCanvasId={effectiveCanvasId}
+        onSelect={setActiveCanvasId}
+        onCreate={createCanvas}
+        onDelete={handleDeleteCanvas}
+        onRename={renameCanvas}
+        onMove={moveCanvas}
       />
-      <Canvas transform={transform} containerRef={containerRef} handlers={handlers}>
-        {filteredPages.map(({page, status}) => (
-          <PageCard
-            key={page._id}
-            page={page}
-            status={status}
-            onPreview={handlePreview}
-            onEdit={handleEdit}
+
+      {/* Main canvas area */}
+      {effectiveCanvasId ? (
+        <Flex direction="column" style={{flex: 1, minWidth: 0}}>
+          <Toolbar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            scale={transform.scale}
+            onZoomIn={zoomIn}
+            onZoomOut={zoomOut}
+            onResetZoom={resetTransform}
+            pageCount={filteredPages.length}
+            onAddPages={openPicker}
+            canvasName={activeCanvas?.name}
           />
-        ))}
-      </Canvas>
+
+          {pagesLoading ? (
+            <Flex align="center" justify="center" style={{flex: 1}}>
+              <Spinner muted />
+            </Flex>
+          ) : (
+            <Canvas
+              transform={transform}
+              containerRef={containerRef}
+              handlers={handlers}
+              isEmpty={filteredPages.length === 0 && !searchQuery}
+              onAddPages={openPicker}
+            >
+              {filteredPages.map(({page, status}) => (
+                <PageCard
+                  key={page._id}
+                  page={page}
+                  status={status}
+                  onPreview={handlePreview}
+                  onEdit={handleEdit}
+                  onRemove={handleRemove}
+                />
+              ))}
+            </Canvas>
+          )}
+        </Flex>
+      ) : (
+        <Flex align="center" justify="center" style={{flex: 1}}>
+          <Card padding={5} radius={3}>
+            <Stack space={3} style={{textAlign: 'center'}}>
+              <Text size={2} muted>
+                Select a canvas to get started
+              </Text>
+              <Text size={1} muted>
+                or create a new one from the sidebar
+              </Text>
+            </Stack>
+          </Card>
+        </Flex>
+      )}
+
+      {/* Page picker dialog */}
+      <PagePickerDialog
+        isOpen={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        existingPageIds={existingPageIds}
+        onAddPages={handleAddPages}
+      />
     </Flex>
   )
 }

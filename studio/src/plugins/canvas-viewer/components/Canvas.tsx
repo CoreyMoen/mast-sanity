@@ -1,4 +1,6 @@
 import type {ReactNode, RefObject} from 'react'
+import {Flex, Stack, Text, Button, Card} from '@sanity/ui'
+import {AddIcon} from '@sanity/icons'
 import type {CanvasTransform} from '../types'
 
 interface CanvasProps {
@@ -11,9 +13,47 @@ interface CanvasProps {
     onMouseLeave: () => void
   }
   children: ReactNode
+  isEmpty: boolean
+  onAddPages?: () => void
 }
 
-export function Canvas({transform, containerRef, handlers, children}: CanvasProps) {
+export function Canvas({
+  transform,
+  containerRef,
+  handlers,
+  children,
+  isEmpty,
+  onAddPages,
+}: CanvasProps) {
+  if (isEmpty) {
+    return (
+      <Flex
+        align="center"
+        justify="center"
+        style={{
+          flex: 1,
+          backgroundImage:
+            'radial-gradient(circle, var(--card-border-color, #e0e0e0) 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+        }}
+      >
+        <Card padding={5} radius={3} shadow={1}>
+          <Stack space={4} style={{textAlign: 'center'}}>
+            <Text size={2} muted>
+              This canvas is empty
+            </Text>
+            <Text size={1} muted>
+              Add pages to get started
+            </Text>
+            {onAddPages && (
+              <Button icon={AddIcon} text="Add Pages" tone="primary" onClick={onAddPages} />
+            )}
+          </Stack>
+        </Card>
+      </Flex>
+    )
+  }
+
   return (
     <div
       ref={containerRef}
@@ -22,7 +62,6 @@ export function Canvas({transform, containerRef, handlers, children}: CanvasProp
         overflow: 'hidden',
         position: 'relative',
         cursor: 'grab',
-        // Subtle dot grid background
         backgroundImage:
           'radial-gradient(circle, var(--card-border-color, #e0e0e0) 1px, transparent 1px)',
         backgroundSize: '24px 24px',

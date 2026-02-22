@@ -20,6 +20,17 @@ export interface PageWithStatus {
   status: PageStatus
 }
 
+export interface CanvasDocument {
+  _id: string
+  _type: 'canvas'
+  _createdAt: string
+  _updatedAt: string
+  name: string
+  description?: string
+  order: number
+  pageCount: number
+}
+
 export interface CanvasTransform {
   x: number
   y: number

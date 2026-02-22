@@ -1,5 +1,5 @@
 import {Card, Stack, Text, Flex, Button, Badge} from '@sanity/ui'
-import {EyeOpenIcon, EditIcon} from '@sanity/icons'
+import {EyeOpenIcon, EditIcon, CloseIcon} from '@sanity/icons'
 import type {PageDocument, PageStatus} from '../types'
 
 interface PageCardProps {
@@ -7,6 +7,7 @@ interface PageCardProps {
   status: PageStatus
   onPreview: (page: PageDocument) => void
   onEdit: (page: PageDocument) => void
+  onRemove: (page: PageDocument) => void
 }
 
 function getStatusTone(status: PageStatus): 'positive' | 'caution' | 'primary' {
@@ -39,7 +40,7 @@ function formatDate(dateString: string): string {
   })
 }
 
-export function PageCard({page, status, onPreview, onEdit}: PageCardProps) {
+export function PageCard({page, status, onPreview, onEdit, onRemove}: PageCardProps) {
   const slug = page.slug?.current || '(no slug)'
 
   return (
@@ -48,10 +49,25 @@ export function PageCard({page, status, onPreview, onEdit}: PageCardProps) {
       padding={3}
       radius={2}
       shadow={1}
-      style={{width: 280, userSelect: 'none'}}
+      style={{width: 280, userSelect: 'none', position: 'relative'}}
     >
+      {/* Remove button — top right */}
+      <Button
+        icon={CloseIcon}
+        mode="bleed"
+        fontSize={0}
+        padding={1}
+        tone="critical"
+        title="Remove from canvas"
+        onClick={(e: React.MouseEvent) => {
+          e.stopPropagation()
+          onRemove(page)
+        }}
+        style={{position: 'absolute', top: 6, right: 6}}
+      />
+
       <Stack space={3}>
-        <Flex align="center" justify="space-between" gap={2}>
+        <Flex align="center" gap={2} style={{paddingRight: 24}}>
           <Text
             size={1}
             weight="semibold"
