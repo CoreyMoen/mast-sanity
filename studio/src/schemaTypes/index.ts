@@ -9,7 +9,7 @@ import {claudeInstructions} from './documents/claudeInstructions'
 import {claudeApiSettings} from './documents/claudeApiSettings'
 import {claudeQuickAction} from './documents/claudeQuickAction'
 import {claudeWorkflow} from './documents/claudeWorkflow'
-import {canvas} from './documents/canvas'
+import {pinboard} from './documents/pinboard'
 import {settings} from './singletons/settings'
 import {navigation} from './singletons/navigation'
 import {footer} from './singletons/footer'
@@ -62,7 +62,7 @@ export const schemaTypes = [
   claudeApiSettings,
   claudeQuickAction,
   claudeWorkflow,
-  canvas,
+  pinboard,
   // Objects - utility types (must come before blocks that use them)
   smartString,
   contentVariableInline,

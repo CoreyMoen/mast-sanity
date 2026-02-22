@@ -1,5 +1,5 @@
 /**
- * Canvas Viewer Plugin Types
+ * Pinboard Plugin Types
  */
 
 export interface PageDocument {
@@ -20,9 +20,9 @@ export interface PageWithStatus {
   status: PageStatus
 }
 
-export interface CanvasDocument {
+export interface PinboardDocument {
   _id: string
-  _type: 'canvas'
+  _type: 'pinboard'
   _createdAt: string
   _updatedAt: string
   name: string
@@ -31,12 +31,12 @@ export interface CanvasDocument {
   pageCount: number
 }
 
-export interface CanvasTransform {
+export interface PinboardTransform {
   x: number
   y: number
   scale: number
 }
 
-export interface CanvasViewerOptions {
+export interface PinboardOptions {
   title?: string
 }

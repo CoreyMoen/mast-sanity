@@ -1,12 +1,12 @@
 import {useState, useCallback, useRef, useEffect} from 'react'
-import type {CanvasTransform} from '../types'
+import type {PinboardTransform} from '../types'
 
 const MIN_SCALE = 0.2
 const MAX_SCALE = 3
 const ZOOM_STEP = 0.1
 
-export function useCanvasTransform() {
-  const [transform, setTransform] = useState<CanvasTransform>({x: 0, y: 0, scale: 1})
+export function usePinboardTransform() {
+  const [transform, setTransform] = useState<PinboardTransform>({x: 0, y: 0, scale: 1})
   const containerRef = useRef<HTMLDivElement>(null)
   const isPanning = useRef(false)
   const lastPosition = useRef({x: 0, y: 0})

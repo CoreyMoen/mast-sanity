@@ -1,8 +1,8 @@
 import {useEffect, useState, useCallback} from 'react'
 import {useClient} from 'sanity'
-import type {CanvasDocument} from '../types'
+import type {PinboardDocument} from '../types'
 
-const CANVASES_QUERY = `*[_type == "canvas"] | order(order asc, _createdAt asc) {
+const PINBOARDS_QUERY = `*[_type == "pinboard"] | order(order asc, _createdAt asc) {
   _id,
   _type,
   _createdAt,
@@ -15,83 +15,83 @@ const CANVASES_QUERY = `*[_type == "canvas"] | order(order asc, _createdAt asc) 
 
 const generateKey = () => Math.random().toString(36).substring(2, 12)
 
-export function useCanvases() {
+export function usePinboards() {
   const client = useClient({apiVersion: '2024-01-01'})
-  const [canvases, setCanvases] = useState<CanvasDocument[]>([])
+  const [pinboards, setPinboards] = useState<PinboardDocument[]>([])
   const [loading, setLoading] = useState(true)
 
-  const fetchCanvases = useCallback(async () => {
+  const fetchPinboards = useCallback(async () => {
     try {
-      const result = await client.fetch<CanvasDocument[]>(CANVASES_QUERY)
-      setCanvases(result)
+      const result = await client.fetch<PinboardDocument[]>(PINBOARDS_QUERY)
+      setPinboards(result)
     } catch (err) {
-      console.error('Canvas viewer: failed to fetch canvases', err)
+      console.error('Pinboard: failed to fetch pinboards', err)
     } finally {
       setLoading(false)
     }
   }, [client])
 
   useEffect(() => {
-    fetchCanvases()
-  }, [fetchCanvases])
+    fetchPinboards()
+  }, [fetchPinboards])
 
-  // Real-time updates for canvas documents
+  // Real-time updates for pinboard documents
   useEffect(() => {
     const subscription = client
-      .listen('*[_type == "canvas"]', {}, {includeResult: false})
+      .listen('*[_type == "pinboard"]', {}, {includeResult: false})
       .subscribe({
-        next: () => fetchCanvases(),
-        error: (err: Error) => console.error('Canvas viewer: listener error', err),
+        next: () => fetchPinboards(),
+        error: (err: Error) => console.error('Pinboard: listener error', err),
       })
     return () => subscription.unsubscribe()
-  }, [client, fetchCanvases])
+  }, [client, fetchPinboards])
 
-  const createCanvas = useCallback(
+  const createPinboard = useCallback(
     async (name: string) => {
       const maxOrder =
-        canvases.length > 0 ? Math.max(...canvases.map((c) => c.order || 0)) : 0
+        pinboards.length > 0 ? Math.max(...pinboards.map((c) => c.order || 0)) : 0
       const doc = await client.create({
-        _type: 'canvas',
+        _type: 'pinboard',
         name,
         order: maxOrder + 1,
         pages: [],
       })
       return doc._id
     },
-    [client, canvases],
+    [client, pinboards],
   )
 
-  const deleteCanvas = useCallback(
+  const deletePinboard = useCallback(
     async (id: string) => {
       await client.delete(id)
     },
     [client],
   )
 
-  const renameCanvas = useCallback(
+  const renamePinboard = useCallback(
     async (id: string, name: string) => {
       await client.patch(id).set({name}).commit()
     },
     [client],
   )
 
-  const moveCanvas = useCallback(
+  const movePinboard = useCallback(
     async (id: string, direction: 'up' | 'down') => {
-      const index = canvases.findIndex((c) => c._id === id)
+      const index = pinboards.findIndex((c) => c._id === id)
       if (index === -1) return
       const swapIndex = direction === 'up' ? index - 1 : index + 1
-      if (swapIndex < 0 || swapIndex >= canvases.length) return
+      if (swapIndex < 0 || swapIndex >= pinboards.length) return
 
       const tx = client.transaction()
-      tx.patch(canvases[index]._id, {set: {order: canvases[swapIndex].order}})
-      tx.patch(canvases[swapIndex]._id, {set: {order: canvases[index].order}})
+      tx.patch(pinboards[index]._id, {set: {order: pinboards[swapIndex].order}})
+      tx.patch(pinboards[swapIndex]._id, {set: {order: pinboards[index].order}})
       await tx.commit()
     },
-    [client, canvases],
+    [client, pinboards],
   )
 
   const addPages = useCallback(
-    async (canvasId: string, pageIds: string[]) => {
+    async (pinboardId: string, pageIds: string[]) => {
       const refs = pageIds.map((id) => ({
         _type: 'reference' as const,
         _ref: id,
@@ -99,12 +99,12 @@ export function useCanvases() {
       }))
       // Fetch current pages to safely append (insert after pages[-1] fails on empty arrays)
       const current = await client.fetch<{pages: unknown[]} | null>(
-        `*[_type == "canvas" && _id == $id][0]{ pages }`,
-        {id: canvasId},
+        `*[_type == "pinboard" && _id == $id][0]{ pages }`,
+        {id: pinboardId},
       )
       const hasPages = (current?.pages?.length ?? 0) > 0
 
-      const patch = client.patch(canvasId).setIfMissing({pages: []})
+      const patch = client.patch(pinboardId).setIfMissing({pages: []})
       if (hasPages) {
         await patch.insert('after', 'pages[-1]', refs).commit()
       } else {
@@ -115,10 +115,10 @@ export function useCanvases() {
   )
 
   const removePage = useCallback(
-    async (canvasId: string, pageId: string) => {
+    async (pinboardId: string, pageId: string) => {
       // Remove references matching this page ID (handles both draft and published refs)
       await client
-        .patch(canvasId)
+        .patch(pinboardId)
         .unset([`pages[_ref=="${pageId}"]`, `pages[_ref=="drafts.${pageId}"]`])
         .commit()
     },
@@ -126,12 +126,12 @@ export function useCanvases() {
   )
 
   return {
-    canvases,
+    pinboards,
     loading,
-    createCanvas,
-    deleteCanvas,
-    renameCanvas,
-    moveCanvas,
+    createPinboard,
+    deletePinboard,
+    renamePinboard,
+    movePinboard,
     addPages,
     removePage,
   }

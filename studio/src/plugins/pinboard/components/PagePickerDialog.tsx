@@ -157,7 +157,7 @@ export function PagePickerDialog({
           <Card padding={3} borderBottom style={{flexShrink: 0}}>
             <Flex align="center" justify="space-between">
               <Text size={1} weight="semibold">
-                Add Pages to Canvas
+                Add Pages to Pinboard
               </Text>
               <Button icon={CloseIcon} mode="bleed" onClick={onClose} />
             </Flex>

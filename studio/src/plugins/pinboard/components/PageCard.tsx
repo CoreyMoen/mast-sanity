@@ -58,7 +58,7 @@ export function PageCard({page, status, onPreview, onEdit, onRemove}: PageCardPr
         fontSize={0}
         padding={1}
         tone="critical"
-        title="Remove from canvas"
+        title="Remove from pinboard"
         onClick={(e: React.MouseEvent) => {
           e.stopPropagation()
           onRemove(page)

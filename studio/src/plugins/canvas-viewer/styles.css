@@ -1,7 +1,0 @@
-/* Canvas Viewer Plugin Styles */
-
-/* Show action buttons when hovering canvas sidebar items.
-   Uses a wrapper class instead of relying on @sanity/ui internals. */
-.canvas-sidebar-item:hover .canvas-item-actions {
-  opacity: 1 !important;
-}

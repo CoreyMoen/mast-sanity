@@ -1,10 +1,10 @@
 import type {ReactNode, RefObject} from 'react'
 import {Flex, Stack, Text, Button, Card} from '@sanity/ui'
 import {AddIcon} from '@sanity/icons'
-import type {CanvasTransform} from '../types'
+import type {PinboardTransform} from '../types'
 
-interface CanvasProps {
-  transform: CanvasTransform
+interface PinboardCanvasProps {
+  transform: PinboardTransform
   containerRef: RefObject<HTMLDivElement | null>
   handlers: {
     onMouseDown: (e: React.MouseEvent) => void
@@ -17,14 +17,14 @@ interface CanvasProps {
   onAddPages?: () => void
 }
 
-export function Canvas({
+export function PinboardCanvas({
   transform,
   containerRef,
   handlers,
   children,
   isEmpty,
   onAddPages,
-}: CanvasProps) {
+}: PinboardCanvasProps) {
   if (isEmpty) {
     return (
       <Flex
@@ -40,7 +40,7 @@ export function Canvas({
         <Card padding={5} radius={3} shadow={1}>
           <Stack space={4} style={{textAlign: 'center'}}>
             <Text size={2} muted>
-              This canvas is empty
+              This pinboard is empty
             </Text>
             <Text size={1} muted>
               Add pages to get started

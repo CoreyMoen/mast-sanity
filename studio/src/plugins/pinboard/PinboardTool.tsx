@@ -1,39 +1,39 @@
 import {useState, useMemo, useCallback} from 'react'
 import {Flex, Spinner, Text, Card, Stack} from '@sanity/ui'
-import {useCanvases} from './hooks/useCanvases'
-import {useCanvasPages} from './hooks/useCanvasPages'
-import {useCanvasTransform} from './hooks/useCanvasTransform'
-import {CanvasSidebar} from './components/CanvasSidebar'
-import {Canvas} from './components/Canvas'
+import {usePinboards} from './hooks/usePinboards'
+import {usePinboardPages} from './hooks/usePinboardPages'
+import {usePinboardTransform} from './hooks/usePinboardTransform'
+import {PinboardSidebar} from './components/PinboardSidebar'
+import {PinboardCanvas} from './components/PinboardCanvas'
 import {PageCard} from './components/PageCard'
 import {Toolbar} from './components/Toolbar'
 import {PagePickerDialog} from './components/PagePickerDialog'
 import type {PageDocument} from './types'
 
-export function CanvasViewerTool() {
+export function PinboardTool() {
   const {
-    canvases,
-    loading: canvasesLoading,
-    createCanvas,
-    deleteCanvas,
-    renameCanvas,
-    moveCanvas,
-    addPages: addPagesToCanvas,
-    removePage: removePageFromCanvas,
-  } = useCanvases()
+    pinboards,
+    loading: pinboardsLoading,
+    createPinboard,
+    deletePinboard,
+    renamePinboard,
+    movePinboard,
+    addPages: addPagesToPinboard,
+    removePage: removePageFromPinboard,
+  } = usePinboards()
 
-  const [activeCanvasId, setActiveCanvasId] = useState<string | null>(null)
+  const [activePinboardId, setActivePinboardId] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [pickerOpen, setPickerOpen] = useState(false)
 
-  // Resolve effective canvas: validate selection still exists, fall back to first
-  const activeCanvasExists = activeCanvasId && canvases.some((c) => c._id === activeCanvasId)
-  const effectiveCanvasId = activeCanvasExists ? activeCanvasId : (canvases[0]?._id ?? null)
-  const activeCanvas = canvases.find((c) => c._id === effectiveCanvasId)
+  // Resolve effective pinboard: validate selection still exists, fall back to first
+  const activePinboardExists = activePinboardId && pinboards.some((c) => c._id === activePinboardId)
+  const effectivePinboardId = activePinboardExists ? activePinboardId : (pinboards[0]?._id ?? null)
+  const activePinboard = pinboards.find((c) => c._id === effectivePinboardId)
 
-  const {pages, loading: pagesLoading} = useCanvasPages(effectiveCanvasId)
+  const {pages, loading: pagesLoading} = usePinboardPages(effectivePinboardId)
   const {transform, containerRef, handlers, zoomIn, zoomOut, resetTransform} =
-    useCanvasTransform()
+    usePinboardTransform()
 
   const filteredPages = useMemo(() => {
     if (!searchQuery.trim()) return pages
@@ -64,43 +64,43 @@ export function CanvasViewerTool() {
 
   const handleRemove = useCallback(
     (page: PageDocument) => {
-      if (!effectiveCanvasId) return
+      if (!effectivePinboardId) return
       const baseId = page._id.replace('drafts.', '')
-      removePageFromCanvas(effectiveCanvasId, baseId)
+      removePageFromPinboard(effectivePinboardId, baseId)
     },
-    [effectiveCanvasId, removePageFromCanvas],
+    [effectivePinboardId, removePageFromPinboard],
   )
 
   const handleAddPages = useCallback(
     (pageIds: string[]) => {
-      if (!effectiveCanvasId) return
-      addPagesToCanvas(effectiveCanvasId, pageIds)
+      if (!effectivePinboardId) return
+      addPagesToPinboard(effectivePinboardId, pageIds)
     },
-    [effectiveCanvasId, addPagesToCanvas],
+    [effectivePinboardId, addPagesToPinboard],
   )
 
-  const handleDeleteCanvas = useCallback(
+  const handleDeletePinboard = useCallback(
     (id: string) => {
-      deleteCanvas(id)
-      // If we deleted the active canvas, clear selection
-      if (id === effectiveCanvasId) {
-        setActiveCanvasId(null)
+      deletePinboard(id)
+      // If we deleted the active pinboard, clear selection
+      if (id === effectivePinboardId) {
+        setActivePinboardId(null)
       }
     },
-    [deleteCanvas, effectiveCanvasId],
+    [deletePinboard, effectivePinboardId],
   )
 
   const openPicker = useCallback(() => setPickerOpen(true), [])
   const closePicker = useCallback(() => setPickerOpen(false), [])
 
   // Loading state
-  if (canvasesLoading) {
+  if (pinboardsLoading) {
     return (
       <Flex align="center" justify="center" style={{height: '100%'}}>
         <Stack space={3} style={{textAlign: 'center'}}>
           <Spinner muted />
           <Text size={1} muted>
-            Loading canvases...
+            Loading pinboards...
           </Text>
         </Stack>
       </Flex>
@@ -109,19 +109,19 @@ export function CanvasViewerTool() {
 
   return (
     <Flex style={{height: '100%'}}>
-      {/* Left sidebar with canvas list */}
-      <CanvasSidebar
-        canvases={canvases}
-        activeCanvasId={effectiveCanvasId}
-        onSelect={setActiveCanvasId}
-        onCreate={createCanvas}
-        onDelete={handleDeleteCanvas}
-        onRename={renameCanvas}
-        onMove={moveCanvas}
+      {/* Left sidebar with pinboard list */}
+      <PinboardSidebar
+        pinboards={pinboards}
+        activePinboardId={effectivePinboardId}
+        onSelect={setActivePinboardId}
+        onCreate={createPinboard}
+        onDelete={handleDeletePinboard}
+        onRename={renamePinboard}
+        onMove={movePinboard}
       />
 
-      {/* Main canvas area */}
-      {effectiveCanvasId ? (
+      {/* Main pinboard area */}
+      {effectivePinboardId ? (
         <Flex direction="column" style={{flex: 1, minWidth: 0}}>
           <Toolbar
             searchQuery={searchQuery}
@@ -132,7 +132,7 @@ export function CanvasViewerTool() {
             onResetZoom={resetTransform}
             pageCount={filteredPages.length}
             onAddPages={openPicker}
-            canvasName={activeCanvas?.name}
+            pinboardName={activePinboard?.name}
           />
 
           {pagesLoading ? (
@@ -140,7 +140,7 @@ export function CanvasViewerTool() {
               <Spinner muted />
             </Flex>
           ) : (
-            <Canvas
+            <PinboardCanvas
               transform={transform}
               containerRef={containerRef}
               handlers={handlers}
@@ -157,7 +157,7 @@ export function CanvasViewerTool() {
                   onRemove={handleRemove}
                 />
               ))}
-            </Canvas>
+            </PinboardCanvas>
           )}
         </Flex>
       ) : (
@@ -165,7 +165,7 @@ export function CanvasViewerTool() {
           <Card padding={5} radius={3}>
             <Stack space={3} style={{textAlign: 'center'}}>
               <Text size={2} muted>
-                Select a canvas to get started
+                Select a pinboard to get started
               </Text>
               <Text size={1} muted>
                 or create a new one from the sidebar
@@ -187,10 +187,10 @@ export function CanvasViewerTool() {
 }
 
 /**
- * Icon for the Canvas Viewer tool in the Studio sidebar.
- * A simple 2x2 grid representing a multi-page canvas view.
+ * Icon for the Pinboard tool in the Studio sidebar.
+ * A simple 2x2 grid representing a multi-page pinboard view.
  */
-export function CanvasViewerIcon() {
+export function PinboardIcon() {
   return (
     <svg
       width="1em"

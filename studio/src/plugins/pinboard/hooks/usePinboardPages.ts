@@ -5,11 +5,11 @@ import type {PageDocument, PageWithStatus} from '../types'
 const LISTENER_DEBOUNCE_MS = 500
 
 /**
- * Fetches and deduplicates pages for a specific canvas.
- * Gets page references from the canvas document, then fetches
+ * Fetches and deduplicates pages for a specific pinboard.
+ * Gets page references from the pinboard document, then fetches
  * the actual page documents (including draft versions).
  */
-export function useCanvasPages(canvasId: string | null) {
+export function usePinboardPages(pinboardId: string | null) {
   const client = useClient({apiVersion: '2024-01-01'})
   const [pages, setPages] = useState<PageWithStatus[]>([])
   const [loading, setLoading] = useState(false)
@@ -17,7 +17,7 @@ export function useCanvasPages(canvasId: string | null) {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const fetchPages = useCallback(async () => {
-    if (!canvasId) {
+    if (!pinboardId) {
       setPages([])
       return
     }
@@ -25,13 +25,13 @@ export function useCanvasPages(canvasId: string | null) {
     try {
       setLoading(true)
 
-      // Get the page reference IDs from the canvas document
-      const canvas = await client.fetch<{pageIds: string[]} | null>(
-        `*[_type == "canvas" && _id == $canvasId][0]{ "pageIds": pages[]._ref }`,
-        {canvasId},
+      // Get the page reference IDs from the pinboard document
+      const pinboard = await client.fetch<{pageIds: string[]} | null>(
+        `*[_type == "pinboard" && _id == $pinboardId][0]{ "pageIds": pages[]._ref }`,
+        {pinboardId},
       )
 
-      const pageIds = canvas?.pageIds || []
+      const pageIds = pinboard?.pageIds || []
       if (pageIds.length === 0) {
         setPages([])
         setError(null)
@@ -54,32 +54,32 @@ export function useCanvasPages(canvasId: string | null) {
     } finally {
       setLoading(false)
     }
-  }, [client, canvasId])
+  }, [client, pinboardId])
 
   useEffect(() => {
     fetchPages()
   }, [fetchPages])
 
-  // Listen for changes to the canvas document (immediate) or page mutations (debounced).
-  // Canvas changes (add/remove pages) trigger immediate re-fetch.
+  // Listen for changes to the pinboard document (immediate) or page mutations (debounced).
+  // Pinboard changes (add/remove pages) trigger immediate re-fetch.
   // Page content changes are debounced to avoid rapid re-fetches during editing.
   useEffect(() => {
-    if (!canvasId) return
+    if (!pinboardId) return
 
     const subscription = client
       .listen(
-        `*[_type == "page" || (_type == "canvas" && _id == $canvasId)]`,
-        {canvasId},
+        `*[_type == "page" || (_type == "pinboard" && _id == $pinboardId)]`,
+        {pinboardId},
         {includeResult: false},
       )
       .subscribe({
         next: (event) => {
-          const isCanvasChange =
+          const isPinboardChange =
             'documentId' in event &&
-            (event.documentId === canvasId || event.documentId === `drafts.${canvasId}`)
+            (event.documentId === pinboardId || event.documentId === `drafts.${pinboardId}`)
 
-          if (isCanvasChange) {
-            // Canvas structure changed (pages added/removed) — fetch immediately
+          if (isPinboardChange) {
+            // Pinboard structure changed (pages added/removed) — fetch immediately
             fetchPages()
           } else {
             // Page content changed — debounce to avoid rapid re-fetches
@@ -87,21 +87,21 @@ export function useCanvasPages(canvasId: string | null) {
             debounceRef.current = setTimeout(fetchPages, LISTENER_DEBOUNCE_MS)
           }
         },
-        error: (err: Error) => console.error('Canvas pages: listener error', err),
+        error: (err: Error) => console.error('Pinboard pages: listener error', err),
       })
 
     return () => {
       subscription.unsubscribe()
       if (debounceRef.current) clearTimeout(debounceRef.current)
     }
-  }, [client, canvasId, fetchPages])
+  }, [client, pinboardId, fetchPages])
 
   return {pages, loading, error}
 }
 
 /**
  * Deduplicates pages by merging draft and published versions.
- * Preserves the order from the canvas document's page references.
+ * Preserves the order from the pinboard document's page references.
  */
 function deduplicatePages(pages: PageDocument[], orderedIds: string[]): PageWithStatus[] {
   const byId = new Map<string, {published?: PageDocument; draft?: PageDocument}>()
@@ -122,7 +122,7 @@ function deduplicatePages(pages: PageDocument[], orderedIds: string[]): PageWith
     }
   }
 
-  // Return in the order defined by the canvas document
+  // Return in the order defined by the pinboard document
   return orderedIds
     .filter((id) => byId.has(id))
     .map((id) => {

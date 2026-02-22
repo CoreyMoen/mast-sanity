@@ -2,13 +2,13 @@ import {defineArrayMember, defineField, defineType} from 'sanity'
 import {SquareIcon} from '@sanity/icons'
 
 /**
- * Canvas document type for the Canvas Viewer plugin.
- * Each canvas is a named collection of page references that users
+ * Pinboard document type for the Pinboard plugin.
+ * Each pinboard is a named collection of page references that users
  * can view, organize, and collaborate on — similar to Figma pages.
  */
-export const canvas = defineType({
-  name: 'canvas',
-  title: 'Canvas',
+export const pinboard = defineType({
+  name: 'pinboard',
+  title: 'Pinboard',
   type: 'document',
   icon: SquareIcon,
   fields: [

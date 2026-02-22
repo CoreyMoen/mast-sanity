@@ -10,7 +10,7 @@ interface ToolbarProps {
   onResetZoom: () => void
   pageCount: number
   onAddPages: () => void
-  canvasName?: string
+  pinboardName?: string
 }
 
 export function Toolbar({
@@ -22,14 +22,14 @@ export function Toolbar({
   onResetZoom,
   pageCount,
   onAddPages,
-  canvasName,
+  pinboardName,
 }: ToolbarProps) {
   return (
     <Card padding={3} borderBottom style={{flexShrink: 0}}>
       <Flex align="center" gap={3}>
-        {canvasName && (
+        {pinboardName && (
           <Text size={1} weight="semibold" style={{flexShrink: 0}}>
-            {canvasName}
+            {pinboardName}
           </Text>
         )}
 
