@@ -60,9 +60,10 @@ interface AccordionProps {
 const Accordion = React.forwardRef<HTMLDivElement, AccordionProps>(
   ({children, className, allowMultiple = true, name}, ref) => {
     // Generate a unique name for exclusive accordion if needed
+    const generatedId = React.useId()
     const accordionName = React.useMemo(
-      () => (allowMultiple ? undefined : name || `accordion-${Math.random().toString(36).slice(2, 9)}`),
-      [allowMultiple, name]
+      () => (allowMultiple ? undefined : name || `accordion-${generatedId}`),
+      [allowMultiple, name, generatedId]
     )
 
     return (

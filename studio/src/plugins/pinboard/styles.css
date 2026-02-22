@@ -1,0 +1,7 @@
+/* Pinboard Plugin Styles */
+
+/* Show action buttons when hovering pinboard sidebar items.
+   Uses a wrapper class instead of relying on @sanity/ui internals. */
+.pinboard-sidebar-item:hover .pinboard-item-actions {
+  opacity: 1 !important;
+}

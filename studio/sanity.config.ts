@@ -19,6 +19,7 @@ import {
 import {PageNavigator} from './src/presentation/PageNavigator'
 import {assist} from '@sanity/assist'
 import {claudeAssistant, createStudioLayout} from './src/plugins/claude-assistant'
+import {pinboard} from './src/plugins/pinboard'
 import {StudioIcon} from './src/components/StudioIcon'
 
 // Environment variables for project configuration
@@ -171,6 +172,7 @@ export default defineConfig({
     claudeAssistant({
       apiEndpoint: `${SANITY_STUDIO_PREVIEW_URL}/api/claude`,
     }),
+    pinboard(),
   ],
 
   // Schema configuration, imported from ./src/schemaTypes/index.ts
@@ -200,7 +202,7 @@ export default defineConfig({
     newDocumentOptions: (prev) =>
       prev.filter(
         (item) =>
-          !['claudeConversation', 'claudeInstructions'].includes(item.templateId)
+          !['claudeConversation', 'claudeInstructions', 'pinboard'].includes(item.templateId)
       ),
   },
 

@@ -30,6 +30,8 @@ const DISABLED_TYPES = [
   'category',
   'sectionTemplate',
   'contentVariable',
+  // Pinboard documents - managed entirely through Pinboard tool
+  'pinboard',
 ]
 
 export const structure: StructureResolver = (S: StructureBuilder, context) =>

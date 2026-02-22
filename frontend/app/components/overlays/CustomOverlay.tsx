@@ -190,7 +190,7 @@ function EnhancedOverlay(props: OverlayComponentProps) {
         timestamp: Date.now(),
       },
     }, '*')
-  }, [focused, type, field, node, label])
+  }, [focused, type, field, node, label, icon])
 
   return (
     <PointerEvents>
