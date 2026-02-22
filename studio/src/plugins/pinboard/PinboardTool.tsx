@@ -31,7 +31,7 @@ export function PinboardTool() {
   const effectivePinboardId = activePinboardExists ? activePinboardId : (pinboards[0]?._id ?? null)
   const activePinboard = pinboards.find((c) => c._id === effectivePinboardId)
 
-  const {pages, loading: pagesLoading} = usePinboardPages(effectivePinboardId)
+  const {pages, loading: pagesLoading, error: pagesError} = usePinboardPages(effectivePinboardId)
   const {transform, containerRef, handlers, zoomIn, zoomOut, resetTransform} =
     usePinboardTransform()
 
@@ -138,6 +138,17 @@ export function PinboardTool() {
           {pagesLoading ? (
             <Flex align="center" justify="center" style={{flex: 1}}>
               <Spinner muted />
+            </Flex>
+          ) : pagesError ? (
+            <Flex align="center" justify="center" style={{flex: 1}}>
+              <Card padding={4} radius={3} tone="critical">
+                <Stack space={3} style={{textAlign: 'center'}}>
+                  <Text size={1}>Failed to load pages</Text>
+                  <Text size={1} muted>
+                    {pagesError.message}
+                  </Text>
+                </Stack>
+              </Card>
             </Flex>
           ) : (
             <PinboardCanvas

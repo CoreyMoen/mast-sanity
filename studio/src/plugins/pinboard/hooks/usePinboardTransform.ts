@@ -1,4 +1,4 @@
-import {useState, useCallback, useRef, useEffect} from 'react'
+import {useState, useCallback, useMemo, useRef, useEffect} from 'react'
 import type {PinboardTransform} from '../types'
 
 const MIN_SCALE = 0.2
@@ -91,15 +91,20 @@ export function usePinboardTransform() {
     setTransform({x: 0, y: 0, scale: 1})
   }, [])
 
-  return {
-    transform,
-    containerRef,
-    handlers: {
+  const handlers = useMemo(
+    () => ({
       onMouseDown: handleMouseDown,
       onMouseMove: handleMouseMove,
       onMouseUp: handleMouseUp,
       onMouseLeave: handleMouseUp,
-    },
+    }),
+    [handleMouseDown, handleMouseMove, handleMouseUp],
+  )
+
+  return {
+    transform,
+    containerRef,
+    handlers,
     zoomIn,
     zoomOut,
     resetTransform,

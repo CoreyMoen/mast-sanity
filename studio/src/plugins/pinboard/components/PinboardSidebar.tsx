@@ -247,7 +247,9 @@ export function PinboardSidebar({
                 }
                 onKeyDown={handleCreateKeyDown}
                 onBlur={() => {
-                  if (!newName.trim()) {
+                  if (newName.trim()) {
+                    handleCreate()
+                  } else {
                     setIsCreating(false)
                   }
                 }}

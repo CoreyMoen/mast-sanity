@@ -15,12 +15,16 @@ export function usePinboardPages(pinboardId: string | null) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const requestIdRef = useRef(0)
 
   const fetchPages = useCallback(async () => {
     if (!pinboardId) {
       setPages([])
+      setError(null)
       return
     }
+
+    const requestId = ++requestIdRef.current
 
     try {
       setLoading(true)
@@ -30,6 +34,9 @@ export function usePinboardPages(pinboardId: string | null) {
         `*[_type == "pinboard" && _id == $pinboardId][0]{ "pageIds": pages[]._ref }`,
         {pinboardId},
       )
+
+      // Bail if a newer request has been issued (user switched pinboards)
+      if (requestId !== requestIdRef.current) return
 
       const pageIds = pinboard?.pageIds || []
       if (pageIds.length === 0) {
@@ -47,12 +54,18 @@ export function usePinboardPages(pinboardId: string | null) {
         {ids: allIds},
       )
 
+      // Bail if a newer request has been issued
+      if (requestId !== requestIdRef.current) return
+
       setPages(deduplicatePages(result, pageIds))
       setError(null)
     } catch (err) {
+      if (requestId !== requestIdRef.current) return
       setError(err instanceof Error ? err : new Error('Failed to fetch pages'))
     } finally {
-      setLoading(false)
+      if (requestId === requestIdRef.current) {
+        setLoading(false)
+      }
     }
   }, [client, pinboardId])
 

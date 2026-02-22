@@ -103,6 +103,17 @@ export function PagePickerDialog({
     return () => clearTimeout(timer)
   }, [isOpen])
 
+  // Close dialog on Escape key
+  useEffect(() => {
+    if (!isOpen) return
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [isOpen, onClose])
+
   const handleToggle = useCallback(
     (id: string) => {
       setSelectedIds((prev) => {
