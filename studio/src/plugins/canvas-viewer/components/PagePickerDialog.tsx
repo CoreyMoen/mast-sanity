@@ -43,15 +43,17 @@ export function PagePickerDialog({
     async (query: string) => {
       setLoading(true)
       try {
-        const searchFilter = query
-          ? `&& (name match "*${query}*" || slug.current match "*${query}*")`
-          : ''
+        const hasQuery = query.length > 0
+        const groqQuery = hasQuery
+          ? `*[_type == "page" && (name match $searchPattern || slug.current match $searchPattern)] | order(_updatedAt desc) [0...50] {
+              _id, _type, name, slug
+            }`
+          : `*[_type == "page"] | order(_updatedAt desc) [0...50] {
+              _id, _type, name, slug
+            }`
 
-        const groqQuery = `*[_type == "page" ${searchFilter}] | order(_updatedAt desc) [0...50] {
-          _id, _type, name, slug
-        }`
-
-        const data = await client.fetch<PageResult[]>(groqQuery)
+        const params = hasQuery ? {searchPattern: `*${query}*`} : {}
+        const data = await client.fetch<PageResult[]>(groqQuery, params)
 
         // Deduplicate drafts and published — prefer draft versions
         const byId = new Map<string, PageResult>()
@@ -92,12 +94,13 @@ export function PagePickerDialog({
 
   // Reset state when dialog opens
   useEffect(() => {
-    if (isOpen) {
-      setSelectedIds(new Set())
-      setSearchQuery('')
-      // Focus search input after a brief delay for render
-      setTimeout(() => searchInputRef.current?.focus(), 50)
-    }
+    if (!isOpen) return
+
+    setSelectedIds(new Set())
+    setSearchQuery('')
+    // Focus search input after a brief delay for render
+    const timer = setTimeout(() => searchInputRef.current?.focus(), 50)
+    return () => clearTimeout(timer)
   }, [isOpen])
 
   const handleToggle = useCallback(

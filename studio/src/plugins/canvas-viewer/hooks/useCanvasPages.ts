@@ -1,6 +1,8 @@
-import {useEffect, useState, useCallback} from 'react'
+import {useEffect, useState, useCallback, useRef} from 'react'
 import {useClient} from 'sanity'
 import type {PageDocument, PageWithStatus} from '../types'
+
+const LISTENER_DEBOUNCE_MS = 500
 
 /**
  * Fetches and deduplicates pages for a specific canvas.
@@ -12,6 +14,7 @@ export function useCanvasPages(canvasId: string | null) {
   const [pages, setPages] = useState<PageWithStatus[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const fetchPages = useCallback(async () => {
     if (!canvasId) {
@@ -57,7 +60,9 @@ export function useCanvasPages(canvasId: string | null) {
     fetchPages()
   }, [fetchPages])
 
-  // Listen for changes to pages or the canvas itself
+  // Listen for changes to the canvas document (immediate) or page mutations (debounced).
+  // Canvas changes (add/remove pages) trigger immediate re-fetch.
+  // Page content changes are debounced to avoid rapid re-fetches during editing.
   useEffect(() => {
     if (!canvasId) return
 
@@ -68,11 +73,27 @@ export function useCanvasPages(canvasId: string | null) {
         {includeResult: false},
       )
       .subscribe({
-        next: () => fetchPages(),
+        next: (event) => {
+          const isCanvasChange =
+            'documentId' in event &&
+            (event.documentId === canvasId || event.documentId === `drafts.${canvasId}`)
+
+          if (isCanvasChange) {
+            // Canvas structure changed (pages added/removed) — fetch immediately
+            fetchPages()
+          } else {
+            // Page content changed — debounce to avoid rapid re-fetches
+            if (debounceRef.current) clearTimeout(debounceRef.current)
+            debounceRef.current = setTimeout(fetchPages, LISTENER_DEBOUNCE_MS)
+          }
+        },
         error: (err: Error) => console.error('Canvas pages: listener error', err),
       })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      subscription.unsubscribe()
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
   }, [client, canvasId, fetchPages])
 
   return {pages, loading, error}

@@ -26,8 +26,9 @@ export function CanvasViewerTool() {
   const [searchQuery, setSearchQuery] = useState('')
   const [pickerOpen, setPickerOpen] = useState(false)
 
-  // Auto-select first canvas when canvases load
-  const effectiveCanvasId = activeCanvasId ?? canvases[0]?._id ?? null
+  // Resolve effective canvas: validate selection still exists, fall back to first
+  const activeCanvasExists = activeCanvasId && canvases.some((c) => c._id === activeCanvasId)
+  const effectiveCanvasId = activeCanvasExists ? activeCanvasId : (canvases[0]?._id ?? null)
   const activeCanvas = canvases.find((c) => c._id === effectiveCanvasId)
 
   const {pages, loading: pagesLoading} = useCanvasPages(effectiveCanvasId)
@@ -90,6 +91,7 @@ export function CanvasViewerTool() {
   )
 
   const openPicker = useCallback(() => setPickerOpen(true), [])
+  const closePicker = useCallback(() => setPickerOpen(false), [])
 
   // Loading state
   if (canvasesLoading) {
@@ -176,7 +178,7 @@ export function CanvasViewerTool() {
       {/* Page picker dialog */}
       <PagePickerDialog
         isOpen={pickerOpen}
-        onClose={() => setPickerOpen(false)}
+        onClose={closePicker}
         existingPageIds={existingPageIds}
         onAddPages={handleAddPages}
       />

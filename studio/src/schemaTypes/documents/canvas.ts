@@ -1,4 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
+import {SquareIcon} from '@sanity/icons'
 
 /**
  * Canvas document type for the Canvas Viewer plugin.
@@ -9,6 +10,7 @@ export const canvas = defineType({
   name: 'canvas',
   title: 'Canvas',
   type: 'document',
+  icon: SquareIcon,
   fields: [
     defineField({
       name: 'name',

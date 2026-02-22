@@ -1,6 +1,7 @@
 /* Canvas Viewer Plugin Styles */
 
-/* Show action buttons on canvas sidebar item hover */
-[data-ui="Card"]:hover .canvas-item-actions {
+/* Show action buttons when hovering canvas sidebar items.
+   Uses a wrapper class instead of relying on @sanity/ui internals. */
+.canvas-sidebar-item:hover .canvas-item-actions {
   opacity: 1 !important;
 }

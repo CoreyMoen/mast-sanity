@@ -30,6 +30,8 @@ const DISABLED_TYPES = [
   'category',
   'sectionTemplate',
   'contentVariable',
+  // Canvas documents - managed entirely through Canvas Viewer tool
+  'canvas',
 ]
 
 export const structure: StructureResolver = (S: StructureBuilder, context) =>

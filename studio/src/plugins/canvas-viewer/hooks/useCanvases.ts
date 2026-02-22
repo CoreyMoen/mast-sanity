@@ -97,11 +97,19 @@ export function useCanvases() {
         _ref: id,
         _key: generateKey(),
       }))
-      await client
-        .patch(canvasId)
-        .setIfMissing({pages: []})
-        .insert('after', 'pages[-1]', refs)
-        .commit()
+      // Fetch current pages to safely append (insert after pages[-1] fails on empty arrays)
+      const current = await client.fetch<{pages: unknown[]} | null>(
+        `*[_type == "canvas" && _id == $id][0]{ pages }`,
+        {id: canvasId},
+      )
+      const hasPages = (current?.pages?.length ?? 0) > 0
+
+      const patch = client.patch(canvasId).setIfMissing({pages: []})
+      if (hasPages) {
+        await patch.insert('after', 'pages[-1]', refs).commit()
+      } else {
+        await patch.set({pages: refs}).commit()
+      }
     },
     [client],
   )

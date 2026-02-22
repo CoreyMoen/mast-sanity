@@ -45,10 +45,14 @@ export function CanvasSidebar({
   const handleCreate = useCallback(async () => {
     const name = newName.trim()
     if (!name) return
-    const id = await onCreate(name)
-    setNewName('')
-    setIsCreating(false)
-    onSelect(id)
+    try {
+      const id = await onCreate(name)
+      setNewName('')
+      setIsCreating(false)
+      onSelect(id)
+    } catch (err) {
+      console.error('Failed to create canvas:', err)
+    }
   }, [newName, onCreate, onSelect])
 
   const handleCreateKeyDown = useCallback(
@@ -130,6 +134,7 @@ export function CanvasSidebar({
           {canvases.map((canvas, index) => (
             <Card
               key={canvas._id}
+              className="canvas-sidebar-item"
               padding={2}
               radius={2}
               tone={activeCanvasId === canvas._id ? 'primary' : 'default'}
