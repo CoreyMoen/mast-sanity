@@ -1,11 +1,11 @@
-import type {ReactNode, RefObject} from 'react'
+import type {ReactNode} from 'react'
 import {Flex, Stack, Text, Button, Card} from '@sanity/ui'
 import {AddIcon} from '@sanity/icons'
 import type {PinboardTransform} from '../types'
 
 interface PinboardCanvasProps {
   transform: PinboardTransform
-  containerRef: RefObject<HTMLDivElement | null>
+  containerRef: (node: HTMLDivElement | null) => void
   handlers: {
     onMouseDown: (e: React.MouseEvent) => void
     onMouseMove: (e: React.MouseEvent) => void
@@ -15,6 +15,7 @@ interface PinboardCanvasProps {
   children: ReactNode
   isEmpty: boolean
   onAddPages?: () => void
+  onCanvasClick?: () => void
 }
 
 export function PinboardCanvas({
@@ -24,6 +25,7 @@ export function PinboardCanvas({
   children,
   isEmpty,
   onAddPages,
+  onCanvasClick,
 }: PinboardCanvasProps) {
   if (isEmpty) {
     return (
@@ -70,6 +72,10 @@ export function PinboardCanvas({
       onMouseMove={handlers.onMouseMove}
       onMouseUp={handlers.onMouseUp}
       onMouseLeave={handlers.onMouseLeave}
+      onClick={(e) => {
+        // Only fire when clicking the canvas background (not cards or overlays)
+        if (e.target === e.currentTarget && onCanvasClick) onCanvasClick()
+      }}
     >
       <div
         style={{
@@ -79,10 +85,10 @@ export function PinboardCanvas({
       >
         <div
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 280px)',
+            display: 'flex',
             gap: '24px',
             padding: '40px',
+            alignItems: 'flex-start',
             width: 'fit-content',
           }}
         >

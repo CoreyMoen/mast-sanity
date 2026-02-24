@@ -233,6 +233,7 @@ function isValidActionType(type: unknown): type is ActionType {
     'uploadImage',
     'fetchFigmaFrame',
     'uploadFigmaImage',
+    'createPinboard',
   ]
   return typeof type === 'string' && validTypes.includes(type as ActionType)
 }
@@ -265,6 +266,8 @@ function parsePayload(payload: unknown): ActionPayload {
     figmaUrl: (payloadData.url as string) || undefined,
     figmaNodeId: (payloadData.nodeId as string) || undefined,
     figmaFileKey: (payloadData.fileKey as string) || undefined,
+    // Pinboard fields
+    pageIds: Array.isArray(payloadData.pageIds) ? (payloadData.pageIds as string[]) : undefined,
   }
 }
 
@@ -282,6 +285,7 @@ function getDefaultDescription(type: ActionType): string {
     uploadImage: 'Upload image to Sanity',
     fetchFigmaFrame: 'Fetch frame data from Figma',
     uploadFigmaImage: 'Upload image from Figma design',
+    createPinboard: 'Create a new pinboard canvas',
   }
   return descriptions[type]
 }
@@ -290,11 +294,16 @@ function getDefaultDescription(type: ActionType): string {
  * Extract non-action content from Claude's response
  */
 export function extractTextContent(content: string): string {
-  // Remove action blocks
-  let text = content.replace(/```action\s*[\s\S]*?```/g, '')
-  // Remove inline actions
+  // Remove action code blocks
+  let text = content.replace(/```action\s*[\s\S]*?```/gi, '')
+  // Remove json code blocks that contain action data (have a "type" field)
+  text = text.replace(/```json\s*\n\s*\{[\s\S]*?"type"\s*:\s*"[\s\S]*?```/g, '')
+  // Remove incomplete action blocks at end (still streaming, no closing ```)
+  text = text.replace(/```action[\s\S]*$/gi, '')
+  text = text.replace(/```json\s*\n\s*\{[\s\S]*"type"[\s\S]*$/gi, '')
+  // Remove inline action markers
   text = text.replace(/\[ACTION\]\s*{[\s\S]*?}\s*\[\/ACTION\]/g, '')
-  // Clean up extra whitespace
+  // Clean up excess whitespace
   text = text.replace(/\n{3,}/g, '\n\n').trim()
   return text
 }

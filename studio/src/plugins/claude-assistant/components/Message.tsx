@@ -16,8 +16,9 @@
 
 import React, {useMemo, useState} from 'react'
 import {Box, Card, Flex, Text, Stack, Code, Button} from '@sanity/ui'
-import {ChevronDownIcon, ChevronUpIcon} from '@sanity/icons'
+import {ChevronDownIcon, ChevronUpIcon, ChevronRightIcon} from '@sanity/icons'
 import type {Message as MessageType, ParsedAction} from '../types'
+import {extractTextContent} from '../lib/actions'
 import {ActionCard} from './ActionCard'
 
 /**
@@ -421,6 +422,101 @@ function BlinkingCursor() {
   )
 }
 
+/**
+ * ActionGroup - wraps actions in a collapsible "Used N tools" group when there are 2+ actions.
+ * Single actions render directly without the group header.
+ */
+function ActionGroup({
+  actions,
+  onActionExecute,
+  onActionClick,
+  onActionUndo,
+  messageTimestamp,
+  hideNavigationLinks,
+  conversationId,
+}: {
+  actions: ParsedAction[]
+  onActionExecute?: (action: ParsedAction) => void
+  onActionClick?: (action: ParsedAction) => void
+  onActionUndo?: (action: ParsedAction) => void
+  messageTimestamp?: Date
+  hideNavigationLinks?: boolean
+  conversationId?: string
+}) {
+  const [isGroupExpanded, setIsGroupExpanded] = useState(false)
+
+  const borderStyle = {
+    border: '1px solid var(--card-border-color)',
+    borderRadius: '0.25rem',
+  }
+
+  // Single action: render directly without group header
+  if (actions.length === 1) {
+    const action = actions[0]
+    return (
+      <Box marginTop={2} style={borderStyle}>
+        <ActionCard
+          key={action.id}
+          action={action}
+          onExecute={() => onActionExecute?.(action)}
+          onClick={() => onActionClick?.(action)}
+          onUndo={() => onActionUndo?.(action)}
+          messageTimestamp={messageTimestamp}
+          hideNavigationLinks={hideNavigationLinks}
+          conversationId={conversationId}
+        />
+      </Box>
+    )
+  }
+
+  // Multiple actions: wrap in collapsible group
+  return (
+    <Box marginTop={2} style={borderStyle}>
+      {/* Group header */}
+      <Flex
+        align="center"
+        gap={2}
+        style={{
+          cursor: 'pointer',
+          padding: '6px 8px',
+          userSelect: 'none',
+        }}
+        onClick={() => setIsGroupExpanded((prev) => !prev)}
+      >
+        <Box style={{color: 'var(--card-muted-fg-color)', display: 'flex', alignItems: 'center', flexShrink: 0}}>
+          {isGroupExpanded
+            ? <ChevronDownIcon style={{width: 16, height: 16}} />
+            : <ChevronRightIcon style={{width: 16, height: 16}} />
+          }
+        </Box>
+        <Text size={1} muted>
+          Used {actions.length} tools
+        </Text>
+      </Flex>
+
+      {/* Expanded action list */}
+      {isGroupExpanded && (
+        <Box paddingLeft={2}>
+          <Stack space={1}>
+            {actions.map((action) => (
+              <ActionCard
+                key={action.id}
+                action={action}
+                onExecute={() => onActionExecute?.(action)}
+                onClick={() => onActionClick?.(action)}
+                onUndo={() => onActionUndo?.(action)}
+                messageTimestamp={messageTimestamp}
+                hideNavigationLinks={hideNavigationLinks}
+                conversationId={conversationId}
+              />
+            ))}
+          </Stack>
+        </Box>
+      )}
+    </Box>
+  )
+}
+
 export function Message({message, onActionClick, onActionExecute, onActionUndo, hideNavigationLinks, conversationId}: MessageProps) {
   const isUser = message.role === 'user'
   const isStreaming = message.status === 'streaming'
@@ -433,8 +529,10 @@ export function Message({message, onActionClick, onActionExecute, onActionUndo, 
     if (!message.content) {
       return null
     }
-    return parseMarkdown(message.content, isStreaming)
-  }, [message.content, isStreaming])
+    const displayContent =
+      message.role === 'assistant' ? extractTextContent(message.content) : message.content
+    return parseMarkdown(displayContent, isStreaming)
+  }, [message.content, isStreaming, message.role])
 
   // Create accessible label for the message
   const accessibleLabel = useMemo(() => {
@@ -458,33 +556,18 @@ export function Message({message, onActionClick, onActionExecute, onActionUndo, 
         // User messages: 12px border radius to match chat input
         borderRadius: isUser ? 12 : 4,
         // User messages: auto-width based on content, max 85% of container
-        ...(isUser && {
+        // Assistant messages: full width so action accordions stretch edge-to-edge
+        ...(isUser ? {
           width: 'fit-content',
           maxWidth: '85%',
+        } : {
+          width: '100%',
         }),
       }}
       aria-label={accessibleLabel}
     >
       {/* Content */}
       <Stack space={3} style={{minWidth: 0}}>
-          {/* Streaming indicator (only shown when actively streaming) */}
-          {isStreaming && (
-            <Flex align="center" gap={3} role="status" aria-live="polite">
-              <img
-                src="/static/claude-writing-animation.gif"
-                alt=""
-                aria-hidden="true"
-                style={{
-                  width: 48,
-                  height: 48,
-                  flexShrink: 0,
-                }}
-              />
-              <Text size={1} muted>
-                {message.content ? 'Typing...' : 'Thinking...'}
-              </Text>
-            </Flex>
-          )}
 
           {/* Images */}
           {message.images && message.images.length > 0 && (
@@ -539,25 +622,38 @@ export function Message({message, onActionClick, onActionExecute, onActionUndo, 
           {/* Message content */}
           <Box className="message-content">
             {parsedContent}
-            {isStreaming && message.content && <BlinkingCursor />}
           </Box>
+
+          {/* Streaming indicator below content */}
+          {isStreaming && (
+            <Flex align="center" gap={3} role="status" aria-live="polite">
+              <img
+                src="/static/claude-writing-animation.gif"
+                alt=""
+                aria-hidden="true"
+                style={{
+                  width: 48,
+                  height: 48,
+                  flexShrink: 0,
+                }}
+              />
+              <Text size={1} muted>
+                {message.content ? 'Typing...' : 'Thinking...'}
+              </Text>
+            </Flex>
+          )}
 
           {/* Actions */}
           {message.actions && message.actions.length > 0 && (
-            <Stack space={2} marginTop={2}>
-              {message.actions.map((action) => (
-                <ActionCard
-                  key={action.id}
-                  action={action}
-                  onExecute={() => onActionExecute?.(action)}
-                  onClick={() => onActionClick?.(action)}
-                  onUndo={() => onActionUndo?.(action)}
-                  messageTimestamp={message.timestamp}
-                  hideNavigationLinks={hideNavigationLinks}
-                  conversationId={conversationId}
-                />
-              ))}
-            </Stack>
+            <ActionGroup
+              actions={message.actions}
+              onActionExecute={onActionExecute}
+              onActionClick={onActionClick}
+              onActionUndo={onActionUndo}
+              messageTimestamp={message.timestamp}
+              hideNavigationLinks={hideNavigationLinks}
+              conversationId={conversationId}
+            />
           )}
 
           {/* Metadata (tokens, model) */}
@@ -706,10 +802,13 @@ export const MemoizedMessage = React.memo(Message, (prevProps, nextProps) => {
     return false
   }
 
-  // Check if any action statuses changed
+  // Check if any action statuses or results changed
   if (prevProps.message.actions && nextProps.message.actions) {
     for (let i = 0; i < prevProps.message.actions.length; i++) {
       if (prevProps.message.actions[i].status !== nextProps.message.actions[i].status) {
+        return false
+      }
+      if (prevProps.message.actions[i].result !== nextProps.message.actions[i].result) {
         return false
       }
     }

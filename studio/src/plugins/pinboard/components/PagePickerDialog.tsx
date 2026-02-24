@@ -1,12 +1,28 @@
 import {useState, useEffect, useCallback, useRef, useMemo} from 'react'
 import {useClient} from 'sanity'
-import {Layer, Card, Flex, Stack, Text, TextInput, Button, Checkbox, Spinner, Box} from '@sanity/ui'
-import {SearchIcon, CloseIcon, DocumentIcon} from '@sanity/icons'
+import {Layer, Card, Flex, Stack, Text, TextInput, Button, Checkbox, Spinner, Box, Badge} from '@sanity/ui'
+import {SearchIcon, CloseIcon} from '@sanity/icons'
+import {PINBOARD_DOC_TYPES} from '../types'
+
+/** GROQ type filter for all supported document types */
+const TYPE_FILTER = PINBOARD_DOC_TYPES.map((t) => `"${t}"`).join(', ')
+
+/** GROQ projection that normalizes type-specific name fields into displayName */
+const DOC_PROJECTION = `{
+  _id, _type,
+  "displayName": select(
+    _type == "person" => coalesce(firstName, "") + " " + coalesce(lastName, ""),
+    _type == "post" => title,
+    _type == "category" => title,
+    name
+  ),
+  slug
+}`
 
 interface PageResult {
   _id: string
   _type: string
-  name: string
+  displayName: string
   slug?: {current: string}
 }
 
@@ -45,12 +61,14 @@ export function PagePickerDialog({
       try {
         const hasQuery = query.length > 0
         const groqQuery = hasQuery
-          ? `*[_type == "page" && (name match $searchPattern || slug.current match $searchPattern)] | order(_updatedAt desc) [0...50] {
-              _id, _type, name, slug
-            }`
-          : `*[_type == "page"] | order(_updatedAt desc) [0...50] {
-              _id, _type, name, slug
-            }`
+          ? `*[_type in [${TYPE_FILTER}] && (
+              name match $searchPattern ||
+              title match $searchPattern ||
+              firstName match $searchPattern ||
+              lastName match $searchPattern ||
+              slug.current match $searchPattern
+            )] | order(_updatedAt desc) [0...50] ${DOC_PROJECTION}`
+          : `*[_type in [${TYPE_FILTER}]] | order(_updatedAt desc) [0...50] ${DOC_PROJECTION}`
 
         const params = hasQuery ? {searchPattern: `*${query}*`} : {}
         const data = await client.fetch<PageResult[]>(groqQuery, params)
@@ -168,7 +186,7 @@ export function PagePickerDialog({
           <Card padding={3} borderBottom style={{flexShrink: 0}}>
             <Flex align="center" justify="space-between">
               <Text size={1} weight="semibold">
-                Add Pages to Pinboard
+                Add to Pinboard
               </Text>
               <Button icon={CloseIcon} mode="bleed" onClick={onClose} />
             </Flex>
@@ -179,7 +197,7 @@ export function PagePickerDialog({
             <TextInput
               ref={searchInputRef}
               icon={SearchIcon}
-              placeholder="Search pages..."
+              placeholder="Search documents..."
               value={searchQuery}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                 setSearchQuery(e.currentTarget.value)
@@ -197,7 +215,7 @@ export function PagePickerDialog({
             ) : results.length === 0 ? (
               <Box padding={3}>
                 <Text size={1} muted align="center">
-                  {searchQuery ? 'No pages found' : 'No pages in this project'}
+                  {searchQuery ? 'No documents found' : 'No documents in this project'}
                 </Text>
               </Box>
             ) : (
@@ -230,23 +248,22 @@ export function PagePickerDialog({
                         </Box>
                         <Stack space={2} style={{flex: 1, minWidth: 0}}>
                           <Flex align="center" gap={2}>
-                            <Text size={0} muted>
-                              <DocumentIcon />
-                            </Text>
                             <Text
                               size={1}
-                              style={{
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap',
-                              }}
+                              weight="medium"
+                              textOverflow="ellipsis"
                             >
-                              {page.name || 'Untitled'}
+                              {page.displayName || 'Untitled'}
                             </Text>
+                            <Badge fontSize={0} mode="outline" style={{flexShrink: 0}}>
+                              {page._type}
+                            </Badge>
                           </Flex>
-                          <Text size={0} muted style={{fontFamily: 'monospace'}}>
-                            /{page.slug?.current || '(no slug)'}
-                          </Text>
+                          {page.slug?.current && (
+                            <Text muted style={{fontSize: '0.75rem'}}>
+                              /{page.slug.current}
+                            </Text>
+                          )}
                         </Stack>
                         {isExisting && (
                           <Text size={0} muted>
@@ -267,7 +284,7 @@ export function PagePickerDialog({
               <Text size={1} muted>
                 {selectedIds.size > 0
                   ? `${selectedIds.size} selected`
-                  : 'Select pages to add'}
+                  : 'Select documents to add'}
               </Text>
               <Flex gap={2}>
                 {selectedIds.size > 0 && (

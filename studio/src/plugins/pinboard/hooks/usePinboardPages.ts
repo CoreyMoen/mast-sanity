@@ -1,13 +1,29 @@
 import {useEffect, useState, useCallback, useRef} from 'react'
 import {useClient} from 'sanity'
+import {PINBOARD_DOC_TYPES} from '../types'
 import type {PageDocument, PageWithStatus} from '../types'
 
 const LISTENER_DEBOUNCE_MS = 500
 
+/** GROQ type filter for all supported document types */
+const TYPE_FILTER = PINBOARD_DOC_TYPES.map((t) => `"${t}"`).join(', ')
+
+/** GROQ projection that normalizes type-specific name fields into displayName */
+const DOC_PROJECTION = `{
+  _id, _type, _createdAt, _updatedAt,
+  "displayName": select(
+    _type == "person" => coalesce(firstName, "") + " " + coalesce(lastName, ""),
+    _type == "post" => title,
+    _type == "category" => title,
+    name
+  ),
+  slug
+}`
+
 /**
- * Fetches and deduplicates pages for a specific pinboard.
- * Gets page references from the pinboard document, then fetches
- * the actual page documents (including draft versions).
+ * Fetches and deduplicates documents for a specific pinboard.
+ * Gets references from the pinboard document, then fetches
+ * the actual documents (including draft versions).
  */
 export function usePinboardPages(pinboardId: string | null) {
   const client = useClient({apiVersion: '2024-01-01'})
@@ -16,6 +32,9 @@ export function usePinboardPages(pinboardId: string | null) {
   const [error, setError] = useState<Error | null>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const requestIdRef = useRef(0)
+  // Track current page reference IDs to avoid unnecessary refetches
+  // when non-page fields (e.g. comments) change on the pinboard document
+  const pageIdsRef = useRef<string[]>([])
 
   const fetchPages = useCallback(async () => {
     if (!pinboardId) {
@@ -29,7 +48,7 @@ export function usePinboardPages(pinboardId: string | null) {
     try {
       setLoading(true)
 
-      // Get the page reference IDs from the pinboard document
+      // Get the document reference IDs from the pinboard
       const pinboard = await client.fetch<{pageIds: string[]} | null>(
         `*[_type == "pinboard" && _id == $pinboardId][0]{ "pageIds": pages[]._ref }`,
         {pinboardId},
@@ -39,18 +58,17 @@ export function usePinboardPages(pinboardId: string | null) {
       if (requestId !== requestIdRef.current) return
 
       const pageIds = pinboard?.pageIds || []
+      pageIdsRef.current = pageIds
       if (pageIds.length === 0) {
         setPages([])
         setError(null)
         return
       }
 
-      // Fetch actual page documents including drafts
+      // Fetch actual documents including drafts
       const allIds = pageIds.flatMap((id) => [id, `drafts.${id}`])
       const result = await client.fetch<PageDocument[]>(
-        `*[_type == "page" && _id in $ids] | order(_updatedAt desc) {
-          _id, _type, _createdAt, _updatedAt, name, slug
-        }`,
+        `*[_type in [${TYPE_FILTER}] && _id in $ids] | order(_updatedAt desc) ${DOC_PROJECTION}`,
         {ids: allIds},
       )
 
@@ -81,7 +99,7 @@ export function usePinboardPages(pinboardId: string | null) {
 
     const subscription = client
       .listen(
-        `*[_type == "page" || (_type == "pinboard" && _id == $pinboardId)]`,
+        `*[_type in [${TYPE_FILTER}] || (_type == "pinboard" && _id == $pinboardId)]`,
         {pinboardId},
         {includeResult: false},
       )
@@ -92,8 +110,24 @@ export function usePinboardPages(pinboardId: string | null) {
             (event.documentId === pinboardId || event.documentId === `drafts.${pinboardId}`)
 
           if (isPinboardChange) {
-            // Pinboard structure changed (pages added/removed) — fetch immediately
-            fetchPages()
+            // Pinboard document changed — but only refetch pages if the pages
+            // array actually changed (skip comment-only mutations to avoid
+            // remounting all iframes)
+            client
+              .fetch<{pageIds: string[]} | null>(
+                `*[_type == "pinboard" && _id == $pinboardId][0]{ "pageIds": pages[]._ref }`,
+                {pinboardId},
+              )
+              .then((result) => {
+                const newPageIds = result?.pageIds || []
+                const currentPageIds = pageIdsRef.current
+                const changed =
+                  newPageIds.length !== currentPageIds.length ||
+                  newPageIds.some((id, i) => id !== currentPageIds[i])
+                if (changed) {
+                  fetchPages()
+                }
+              })
           } else {
             // Page content changed — debounce to avoid rapid re-fetches
             if (debounceRef.current) clearTimeout(debounceRef.current)
@@ -109,7 +143,7 @@ export function usePinboardPages(pinboardId: string | null) {
     }
   }, [client, pinboardId, fetchPages])
 
-  return {pages, loading, error}
+  return {pages, loading, error, refetch: fetchPages}
 }
 
 /**

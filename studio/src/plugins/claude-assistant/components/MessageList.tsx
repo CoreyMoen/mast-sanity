@@ -65,12 +65,13 @@ export function MessageList({
     }
   }, [messages.length])
 
-  // Calculate which messages to display (most recent ones)
+  // Calculate which messages to display (most recent ones, excluding hidden)
   const {visibleMessages, hasEarlierMessages, totalCount} = useMemo(() => {
-    const total = messages.length
+    const displayable = messages.filter((msg) => !msg.hidden)
+    const total = displayable.length
     const startIndex = Math.max(0, total - visibleCount)
     return {
-      visibleMessages: messages.slice(startIndex),
+      visibleMessages: displayable.slice(startIndex),
       hasEarlierMessages: startIndex > 0,
       totalCount: total,
     }

@@ -216,6 +216,9 @@ export class ContentOperations {
         case 'uploadImage':
           result = await this.uploadImageToSanity(action.payload)
           break
+        case 'createPinboard':
+          result = await this.createPinboard(action.payload)
+          break
         default:
           result = {
             success: false,
@@ -966,6 +969,60 @@ export class ContentOperations {
         message: error instanceof Error
           ? `Failed to upload image: ${error.message}`
           : 'Failed to upload image: Unknown error',
+      }
+    }
+  }
+
+  /**
+   * Create a new pinboard canvas with optional page references
+   */
+  async createPinboard(payload: ActionPayload): Promise<ActionResult> {
+    const name = (payload.fields?.name as string) || 'Untitled Pinboard'
+    const description = (payload.fields?.description as string) || undefined
+
+    try {
+      // Get the max order value from existing pinboards
+      const maxOrderResult = await this.client.fetch<number | null>(
+        `*[_type == "pinboard"] | order(order desc) [0].order`
+      )
+      const nextOrder = (maxOrderResult ?? -1) + 1
+
+      // Build page references from pageIds
+      const pages = (payload.pageIds || []).map((id) => ({
+        _key: generateKey(),
+        _type: 'reference' as const,
+        _ref: id.replace(/^drafts\./, ''),
+      }))
+
+      const doc = {
+        _type: 'pinboard' as const,
+        name,
+        order: nextOrder,
+        pages,
+        ...(description ? {description} : {}),
+      }
+
+      const result = await this.client.create(doc)
+
+      // Store the ID in sessionStorage so the Pinboard tool can auto-select it
+      try {
+        sessionStorage.setItem('pinboard-select-after-create', result._id)
+      } catch {
+        // Graceful degradation if sessionStorage is unavailable
+      }
+
+      return {
+        success: true,
+        documentId: result._id,
+        message: `Created pinboard "${name}"${pages.length > 0 ? ` with ${pages.length} page(s)` : ''}`,
+        data: {_id: result._id, _type: 'pinboard', name},
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error instanceof Error
+          ? `Failed to create pinboard: ${error.message}`
+          : 'Failed to create pinboard: Unknown error',
       }
     }
   }

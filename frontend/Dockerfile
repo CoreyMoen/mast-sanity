@@ -12,7 +12,7 @@ RUN npm install --legacy-peer-deps
 COPY . .
 
 # Expose the Next.js dev server port
-EXPOSE 3000
+EXPOSE 3001
 
 # Start the dev server (skip typegen predev script in Docker)
-CMD ["npx", "next", "dev", "--turbopack", "-p", "3000", "--hostname", "0.0.0.0"]
+CMD ["npx", "next", "dev", "--turbopack", "-p", "3001", "--hostname", "0.0.0.0"]

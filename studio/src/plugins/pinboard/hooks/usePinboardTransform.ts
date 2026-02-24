@@ -1,4 +1,4 @@
-import {useState, useCallback, useMemo, useRef, useEffect} from 'react'
+import {useState, useCallback, useMemo, useRef} from 'react'
 import type {PinboardTransform} from '../types'
 
 const MIN_SCALE = 0.2
@@ -7,47 +7,66 @@ const ZOOM_STEP = 0.1
 
 export function usePinboardTransform() {
   const [transform, setTransform] = useState<PinboardTransform>({x: 0, y: 0, scale: 1})
-  const containerRef = useRef<HTMLDivElement>(null)
+  const nodeRef = useRef<HTMLDivElement | null>(null)
   const isPanning = useRef(false)
   const lastPosition = useRef({x: 0, y: 0})
+  const wheelCleanup = useRef<(() => void) | null>(null)
 
-  // Wheel zoom — uses native event listener with passive: false so we can preventDefault
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
-
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault()
-      const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP
-
-      setTransform((prev) => {
-        const newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, prev.scale + delta))
-        // Zoom toward cursor position
-        const rect = el.getBoundingClientRect()
-        const cursorX = e.clientX - rect.left
-        const cursorY = e.clientY - rect.top
-        const scaleRatio = newScale / prev.scale
-
-        return {
-          x: cursorX - scaleRatio * (cursorX - prev.x),
-          y: cursorY - scaleRatio * (cursorY - prev.y),
-          scale: newScale,
-        }
-      })
+  // Callback ref: attaches non-passive wheel listener when the DOM node mounts.
+  // This avoids the useEffect timing issue where the element isn't in the DOM yet.
+  const containerRef = useCallback((node: HTMLDivElement | null) => {
+    // Detach from previous node
+    if (wheelCleanup.current) {
+      wheelCleanup.current()
+      wheelCleanup.current = null
     }
 
-    el.addEventListener('wheel', handleWheel, {passive: false})
-    return () => el.removeEventListener('wheel', handleWheel)
+    nodeRef.current = node
+
+    if (node) {
+      const handleWheel = (e: WheelEvent) => {
+        e.preventDefault()
+
+        if (e.metaKey || e.ctrlKey) {
+          // Zoom when holding Command (Mac) / Ctrl (Windows)
+          const delta = e.deltaY > 0 ? -ZOOM_STEP : ZOOM_STEP
+
+          setTransform((prev) => {
+            const newScale = Math.min(MAX_SCALE, Math.max(MIN_SCALE, prev.scale + delta))
+            const rect = node.getBoundingClientRect()
+            const cursorX = e.clientX - rect.left
+            const cursorY = e.clientY - rect.top
+            const scaleRatio = newScale / prev.scale
+
+            return {
+              x: cursorX - scaleRatio * (cursorX - prev.x),
+              y: cursorY - scaleRatio * (cursorY - prev.y),
+              scale: newScale,
+            }
+          })
+        } else {
+          // Scroll to pan (supports both vertical and horizontal trackpad gestures)
+          setTransform((prev) => ({
+            ...prev,
+            x: prev.x - e.deltaX,
+            y: prev.y - e.deltaY,
+          }))
+        }
+      }
+
+      node.addEventListener('wheel', handleWheel, {passive: false})
+      wheelCleanup.current = () => node.removeEventListener('wheel', handleWheel)
+    }
   }, [])
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     // Don't start panning if clicking on a card or interactive element
-    const isInteractive = (e.target as HTMLElement).closest('[data-page-card], button, a, input')
+    const isInteractive = (e.target as HTMLElement).closest('[data-page-card], [data-comment-overlay], [data-comment-popover], button, a, input, textarea')
     if (e.button === 1 || (e.button === 0 && !isInteractive)) {
       isPanning.current = true
       lastPosition.current = {x: e.clientX, y: e.clientY}
-      if (containerRef.current) {
-        containerRef.current.style.cursor = 'grabbing'
+      if (nodeRef.current) {
+        nodeRef.current.style.cursor = 'grabbing'
       }
       e.preventDefault()
     }
@@ -68,8 +87,8 @@ export function usePinboardTransform() {
 
   const handleMouseUp = useCallback(() => {
     isPanning.current = false
-    if (containerRef.current) {
-      containerRef.current.style.cursor = 'grab'
+    if (nodeRef.current) {
+      nodeRef.current.style.cursor = 'grab'
     }
   }, [])
 

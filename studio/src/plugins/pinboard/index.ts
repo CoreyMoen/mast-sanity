@@ -19,12 +19,13 @@
  */
 
 import {definePlugin, type Tool} from 'sanity'
+import {route} from 'sanity/router'
 import {PinboardTool, PinboardIcon} from './PinboardTool'
 import type {PinboardOptions} from './types'
 import './styles.css'
 
 export const pinboard = definePlugin<PinboardOptions | void>((options) => {
-  const {title = 'Pinboard'} = options || {}
+  const {title = 'Pinboard', previewOrigin} = options || {}
 
   return {
     name: 'pinboard',
@@ -34,6 +35,8 @@ export const pinboard = definePlugin<PinboardOptions | void>((options) => {
         title,
         icon: PinboardIcon,
         component: PinboardTool,
+        options: {previewOrigin},
+        router: route.create('/:pinboardId'),
       } satisfies Tool,
     ],
   }

@@ -21,6 +21,7 @@ import {assist} from '@sanity/assist'
 import {claudeAssistant, createStudioLayout} from './src/plugins/claude-assistant'
 import {pinboard} from './src/plugins/pinboard'
 import {StudioIcon} from './src/components/StudioIcon'
+import './sanity.css'
 
 // Environment variables for project configuration
 const projectId = process.env.SANITY_STUDIO_PROJECT_ID || 'your-projectID'
@@ -172,7 +173,9 @@ export default defineConfig({
     claudeAssistant({
       apiEndpoint: `${SANITY_STUDIO_PREVIEW_URL}/api/claude`,
     }),
-    pinboard(),
+    pinboard({
+      previewOrigin: SANITY_STUDIO_PREVIEW_URL,
+    }),
   ],
 
   // Schema configuration, imported from ./src/schemaTypes/index.ts

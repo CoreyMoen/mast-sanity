@@ -88,6 +88,8 @@ export interface Message {
   metadata?: MessageMetadata
   /** Image attachments for this message */
   images?: ImageAttachment[]
+  /** Hidden messages are sent to the API for context but not rendered in the chat UI */
+  hidden?: boolean
 }
 
 export interface MessageMetadata {
@@ -110,6 +112,7 @@ export type ActionType =
   | 'uploadImage'
   | 'fetchFigmaFrame'
   | 'uploadFigmaImage'
+  | 'createPinboard'
 
 export type ActionStatus = 'pending' | 'executing' | 'completed' | 'failed' | 'cancelled'
 
@@ -141,6 +144,8 @@ export interface ActionPayload {
   figmaNodeId?: string
   /** Figma file key (extracted from URL or provided) */
   figmaFileKey?: string
+  /** For createPinboard action: page document IDs to include */
+  pageIds?: string[]
 }
 
 export interface ActionResult {

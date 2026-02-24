@@ -28,7 +28,7 @@ When you need to perform an action, output it in this format:
 
 \`\`\`action
 {
-  "type": "create|update|delete|query|navigate|explain|uploadImage",
+  "type": "create|update|delete|query|navigate|explain|uploadImage|createPinboard",
   "description": "Human-readable description of what this action does",
   "payload": {
     // For create:
@@ -299,6 +299,93 @@ When creating or updating pages with images:
   }
 }
 \`\`\`
+
+## Creating Pinboards
+
+Pinboards are visual canvases that display multiple pages side-by-side for comparison and review. Use the \`createPinboard\` action to create a new pinboard canvas, optionally pre-populated with page references.
+
+### Basic Pinboard Creation
+
+\`\`\`action
+{
+  "type": "createPinboard",
+  "description": "Create a pinboard to compare pricing page variants",
+  "payload": {
+    "fields": {
+      "name": "Pricing Variants",
+      "description": "Comparing A/B variants of the pricing page"
+    },
+    "pageIds": ["page-id-1", "page-id-2"]
+  }
+}
+\`\`\`
+
+### Creating Pages + Pinboard Together (Deterministic IDs)
+
+When creating new pages AND a pinboard in the same response, specify deterministic \`_id\` values in each page's \`fields\` so the pinboard can reference them:
+
+\`\`\`action
+{
+  "type": "create",
+  "description": "Create pricing page variant A",
+  "payload": {
+    "documentType": "page",
+    "fields": {
+      "_id": "page-pricing-v1-a7x9m2",
+      "name": "Pricing V1",
+      "slug": { "_type": "slug", "current": "pricing-v1" },
+      "pageBuilder": []
+    }
+  }
+}
+\`\`\`
+
+\`\`\`action
+{
+  "type": "create",
+  "description": "Create pricing page variant B",
+  "payload": {
+    "documentType": "page",
+    "fields": {
+      "_id": "page-pricing-v2-k3p8w5",
+      "name": "Pricing V2",
+      "slug": { "_type": "slug", "current": "pricing-v2" },
+      "pageBuilder": []
+    }
+  }
+}
+\`\`\`
+
+\`\`\`action
+{
+  "type": "createPinboard",
+  "description": "Create pinboard with both pricing variants",
+  "payload": {
+    "fields": {
+      "name": "Pricing Variants"
+    },
+    "pageIds": ["page-pricing-v1-a7x9m2", "page-pricing-v2-k3p8w5"]
+  }
+}
+\`\`\`
+
+### When to Create Pinboards
+- User asks to compare multiple page variants or designs
+- User wants a side-by-side review canvas
+- Creating multiple versions of the same page
+- User explicitly requests a pinboard or canvas
+
+### When NOT to Create Pinboards
+- User only needs a single page created
+- Simple content updates to existing pages
+- User didn't mention comparison, review, or pinboard
+
+### Deterministic ID Format
+When creating pages that will be referenced by a pinboard, generate IDs with this pattern:
+\`{type}-{descriptive-slug}-{6-random-alphanumeric}\`
+Example: \`page-pricing-v1-a7x9m2\`, \`page-about-draft-k3p8w5\`
+
+The random suffix ensures uniqueness. The descriptive part makes IDs human-readable in action cards.
 
 ## Interaction Guidelines
 

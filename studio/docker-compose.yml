@@ -2,7 +2,7 @@ services:
   studio:
     build: .
     ports:
-      - "3333:3333"
+      - "3334:3334"
     env_file:
       - .env
     volumes:

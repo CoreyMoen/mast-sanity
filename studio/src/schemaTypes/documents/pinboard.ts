@@ -36,7 +36,45 @@ export const pinboard = defineType({
       of: [
         defineArrayMember({
           type: 'reference',
-          to: [{type: 'page'}],
+          to: [{type: 'page'}, {type: 'post'}, {type: 'category'}, {type: 'person'}],
+        }),
+      ],
+    }),
+    defineField({
+      name: 'comments',
+      title: 'Comments',
+      type: 'array',
+      hidden: true,
+      of: [
+        defineArrayMember({
+          type: 'object',
+          name: 'pinboardComment',
+          fields: [
+            defineField({name: 'pageRef', type: 'string'}),
+            defineField({name: 'xPercent', type: 'number'}),
+            defineField({name: 'yPercent', type: 'number'}),
+            defineField({name: 'authorId', type: 'string'}),
+            defineField({name: 'authorName', type: 'string'}),
+            defineField({name: 'text', type: 'string'}),
+            defineField({name: 'createdAt', type: 'datetime'}),
+            defineField({name: 'resolved', type: 'boolean', initialValue: false}),
+            defineField({
+              name: 'replies',
+              type: 'array',
+              of: [
+                defineArrayMember({
+                  type: 'object',
+                  name: 'pinboardReply',
+                  fields: [
+                    defineField({name: 'authorId', type: 'string'}),
+                    defineField({name: 'authorName', type: 'string'}),
+                    defineField({name: 'text', type: 'string'}),
+                    defineField({name: 'createdAt', type: 'datetime'}),
+                  ],
+                }),
+              ],
+            }),
+          ],
         }),
       ],
     }),

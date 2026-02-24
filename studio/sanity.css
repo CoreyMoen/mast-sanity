@@ -1,0 +1,15 @@
+/**
+ * Global Sanity Studio CSS overrides
+ *
+ * Fix text clipping in @sanity/ui Text components.
+ * The library sets a tight line-height combined with overflow: hidden,
+ * which clips descenders (g, y, p, q) and ascenders on many surfaces.
+ */
+
+[data-ui="Text"] {
+  overflow: visible !important;
+}
+
+[data-ui="Label"] {
+  overflow: visible !important;
+}

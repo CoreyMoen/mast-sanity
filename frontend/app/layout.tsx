@@ -94,8 +94,101 @@ export default async function RootLayout({children}: {children: React.ReactNode}
         if (stored === 'light' || stored === 'dark') {
           document.documentElement.setAttribute('data-theme', stored);
         }
-        // If 'system' or no preference, don't set data-theme - let CSS light-dark() use OS preference
       } catch (e) {}
+
+      // Pinboard iframe mode: lock viewport-height values to the initial 900px
+      // viewport so sections don't expand when the parent resizes the iframe.
+      if (window.self !== window.top && new URLSearchParams(window.location.search).has('pinboard')) {
+        document.documentElement.classList.add('pinboard-mode');
+
+        // The iframe starts at 1600x900 so 1vh = 9px.
+        var VH_PX = 9;
+
+        // Fix ALL viewport-height references: inline styles AND utility classes.
+        // Uses a re-entrancy guard so MutationObserver doesn't loop infinitely.
+        var fixing = false;
+        function fixViewportHeights() {
+          if (fixing) return;
+          fixing = true;
+
+          // 1. Replace inline vh values (e.g. style="min-height: 100vh")
+          document.querySelectorAll('[style]').forEach(function(el) {
+            var style = el.getAttribute('style');
+            if (style && /\d+vh/.test(style)) {
+              el.setAttribute('style', style.replace(/([\d.]+)vh/g, function(_, num) {
+                return Math.round(parseFloat(num) * VH_PX) + 'px';
+              }));
+            }
+          });
+
+          // 2. Force inline overrides on elements with viewport-height classes.
+          //    The CSS override in globals.css should handle this, but React
+          //    hydration can re-apply the original class-based value.
+          document.querySelectorAll('.min-h-screen').forEach(function(el) {
+            if (el !== document.body && el !== document.documentElement) {
+              el.style.setProperty('min-height', '900px', 'important');
+            }
+          });
+          document.querySelectorAll('.h-screen').forEach(function(el) {
+            if (el !== document.body && el !== document.documentElement) {
+              el.style.setProperty('height', '900px', 'important');
+            }
+          });
+
+          fixing = false;
+        }
+
+        function reportHeight() {
+          window.parent.postMessage({
+            type: 'pinboard-height',
+            height: document.documentElement.scrollHeight
+          }, '*');
+        }
+
+        var resizeTimer;
+        function reportHeightDebounced() {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(reportHeight, 200);
+        }
+
+        window.addEventListener('load', function() {
+          fixViewportHeights();
+          reportHeight();
+          // Re-run after hydration and image loading settle
+          setTimeout(function() { fixViewportHeights(); reportHeight(); }, 1000);
+          setTimeout(function() { fixViewportHeights(); reportHeight(); }, 3000);
+        });
+
+        // MutationObserver catches React hydration re-applying styles/classes.
+        // This is critical: React owns the DOM and will overwrite our fixes
+        // unless we re-apply them whenever attributes change.
+        if (typeof MutationObserver !== 'undefined') {
+          var mutationTimer;
+          new MutationObserver(function() {
+            clearTimeout(mutationTimer);
+            mutationTimer = setTimeout(function() {
+              fixViewportHeights();
+              reportHeightDebounced();
+            }, 50);
+          }).observe(document.documentElement, {
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['style', 'class']
+          });
+        }
+
+        // Watch for body resizes (images loading, fonts swapping, etc.)
+        if (typeof ResizeObserver !== 'undefined') {
+          new ResizeObserver(reportHeightDebounced).observe(document.body);
+        }
+
+        window.addEventListener('message', function(e) {
+          if (e.data && e.data.type === 'pinboard-request-height') {
+            fixViewportHeights();
+            reportHeight();
+          }
+        });
+      }
     })();
   `
 

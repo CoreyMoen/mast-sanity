@@ -12,7 +12,8 @@
 
 import {useState, useCallback, useEffect, useRef} from 'react'
 import {useClient, useCurrentUser} from 'sanity'
-import type {Conversation, Message, UseConversationsReturn, ParsedAction, ActionType, ActionStatus} from '../types'
+import type {Conversation, Message, UseConversationsReturn, ParsedAction, ActionType, ActionStatus, ActionPayload, ActionResult} from '../types'
+import {parseActions} from '../lib/actions'
 
 const CONVERSATIONS_PER_PAGE = 100
 const API_VERSION = '2024-01-01'
@@ -69,13 +70,17 @@ interface SanityMessage {
   role: 'user' | 'assistant'
   content: string
   timestamp: string
+  hidden?: boolean
   actions?: Array<{
     _key: string
     type: string
+    description?: string
     documentId?: string
     documentType?: string
     status: string
     error?: string
+    payloadJson?: string
+    resultJson?: string
   }>
 }
 
@@ -107,27 +112,66 @@ function sanityToConversation(doc: SanityConversation): Conversation {
   return {
     id: doc._id,
     title: doc.title || 'New Conversation',
-    messages: (doc.messages || []).map((msg) => ({
-      id: msg._key,
-      role: msg.role,
-      content: msg.content,
-      timestamp: new Date(msg.timestamp),
-      status: 'complete' as const,
-      actions: msg.actions?.map((action): ParsedAction => ({
-        id: action._key,
-        type: action.type as ActionType,
-        description: `${action.type} ${action.documentType || 'document'}`,
-        status: action.status as ActionStatus,
-        payload: {
-          documentId: action.documentId,
-          documentType: action.documentType,
-        },
-        error: action.error,
-      })),
-    })),
+    messages: (doc.messages || []).map((msg) => {
+      // Re-parse actions from content to recover full payload (query text, field descriptions, etc.)
+      const parsedFromContent =
+        msg.role === 'assistant' && msg.content ? parseActions(msg.content) : []
+
+      return {
+        id: msg._key,
+        role: msg.role,
+        content: msg.content,
+        timestamp: new Date(msg.timestamp),
+        status: 'complete' as const,
+        // Preserve hidden field — UI filters at render time
+        hidden:
+          msg.hidden ||
+          (msg.role === 'user' &&
+            /^Here are the query results \(\d+ results?\):/.test(msg.content)) ||
+          undefined,
+        actions:
+          parsedFromContent.length > 0
+            ? // Use re-parsed actions (full payload) merged with stored status/error/result
+              parsedFromContent.map((parsed, idx) => {
+                const stored = msg.actions?.[idx]
+                const normalizedStatus = stored?.status === 'success' ? 'completed' : stored?.status
+                return {
+                  ...parsed,
+                  status: (normalizedStatus as ActionStatus) || parsed.status,
+                  error: stored?.error || parsed.error,
+                  result: stored?.resultJson ? safeParse<ActionResult>(stored.resultJson) : parsed.result,
+                }
+              })
+            : // Fallback to stored-only actions
+              msg.actions?.map((action): ParsedAction => {
+                const payload = action.payloadJson ? safeParse<ActionPayload>(action.payloadJson) : {
+                  documentId: action.documentId,
+                  documentType: action.documentType,
+                }
+                const result = action.resultJson ? safeParse<ActionResult>(action.resultJson) : undefined
+                return {
+                  id: action._key,
+                  type: action.type as ActionType,
+                  description: action.description || `${action.type} ${action.documentType || 'document'}`,
+                  status: action.status as ActionStatus,
+                  payload: payload || {},
+                  result,
+                  error: action.error,
+                }
+              }),
+      }
+    }),
     createdAt: new Date(doc.lastActivity || new Date().toISOString()),
     updatedAt: new Date(doc.lastActivity || new Date().toISOString()),
     workflowIds: doc.workflowIds,
+  }
+}
+
+function safeParse<T = unknown>(json: string): T | undefined {
+  try {
+    return JSON.parse(json) as T
+  } catch {
+    return undefined
   }
 }
 
@@ -140,13 +184,17 @@ function messageToSanity(message: Message): SanityMessage {
     role: message.role as 'user' | 'assistant',
     content: message.content,
     timestamp: message.timestamp.toISOString(),
+    hidden: message.hidden || undefined,
     actions: message.actions?.map((action) => ({
       _key: action.id || generateKey(),
       type: action.type,
+      description: action.description,
       documentId: action.payload?.documentId,
       documentType: action.payload?.documentType,
       status: action.status,
       error: action.error,
+      payloadJson: action.payload ? JSON.stringify(action.payload) : undefined,
+      resultJson: action.result ? JSON.stringify(action.result) : undefined,
     })),
   }
 }
@@ -192,6 +240,21 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
   // Flag to skip subscription updates during active message sending (prevents duplicates)
   const isUpdatingRef = useRef(false)
 
+  // Timer ref for isUpdatingRef resets — enables proper cleanup (prevents leaks)
+  const isUpdatingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Refs to prevent stale closures in async callbacks
+  const conversationsRef = useRef<Conversation[]>([])
+  const activeConversationIdRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    conversationsRef.current = conversations
+  }, [conversations])
+
+  useEffect(() => {
+    activeConversationIdRef.current = activeConversationId
+  }, [activeConversationId])
+
   // Cache ref for conversation list to avoid unnecessary refetches
   const conversationsCacheRef = useRef<{
     data: Conversation[]
@@ -225,15 +288,22 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
           userId,
           archived,
           workflowIds,
-          "messageCount": count(messages),
-          messages
+          "messageCount": count(messages)
         }`
 
         const results = await client.fetch<SanityConversation[]>(query, {
           userId: currentUser.id,
         })
 
-        const converted = results.map(sanityToConversation)
+        // List query only returns metadata (no messages) — full messages loaded via loadConversation
+        const converted: Conversation[] = results.map((doc) => ({
+          id: doc._id,
+          title: doc.title || 'New Conversation',
+          messages: [],
+          createdAt: new Date(doc.lastActivity || new Date().toISOString()),
+          updatedAt: new Date(doc.lastActivity || new Date().toISOString()),
+          workflowIds: doc.workflowIds,
+        }))
 
         // Preserve the active conversation if it's not in the results
         // This prevents losing a newly created conversation due to Sanity's eventual consistency
@@ -241,11 +311,12 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
         setConversations((prev) => {
           let finalConversations = converted
 
-          if (activeConversationId) {
-            const activeInResults = converted.find((c) => c.id === activeConversationId)
+          const currentActiveId = activeConversationIdRef.current
+          if (currentActiveId) {
+            const activeInResults = converted.find((c) => c.id === currentActiveId)
             if (!activeInResults) {
               // Active conversation isn't in results, preserve it from previous state
-              const activeFromPrev = prev.find((c) => c.id === activeConversationId)
+              const activeFromPrev = prev.find((c) => c.id === currentActiveId)
               if (activeFromPrev) {
                 finalConversations = [activeFromPrev, ...converted]
               }
@@ -295,8 +366,13 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
       subscriptionRef.current?.unsubscribe()
       // Cancel any pending debounced updates on unmount
       messageUpdateDebouncer.current.cancel()
+      // Clear any pending isUpdating timer
+      if (isUpdatingTimerRef.current) {
+        clearTimeout(isUpdatingTimerRef.current)
+        isUpdatingTimerRef.current = null
+      }
     }
-  }, [client, currentUser?.id, activeConversationId])
+  }, [client, currentUser?.id])
 
   /**
    * Get the active conversation
@@ -341,12 +417,16 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
       setConversations((prev) => [newConversation, ...prev])
       setActiveConversationId(newDoc._id)
 
+      // Invalidate cache so future fetches include the new conversation
+      conversationsCacheRef.current = null
+
       return newConversation
     } finally {
       // Reset flag after a longer delay to allow Sanity to index the new document
-      // 3 seconds should be enough for Sanity to index and make the document available
-      setTimeout(() => {
+      if (isUpdatingTimerRef.current) clearTimeout(isUpdatingTimerRef.current)
+      isUpdatingTimerRef.current = setTimeout(() => {
         isUpdatingRef.current = false
+        isUpdatingTimerRef.current = null
       }, 3000)
     }
   }, [client, currentUser?.id])
@@ -482,8 +562,10 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
         throw err
       } finally {
         // Reset flag after a short delay to allow Sanity to finish processing
-        setTimeout(() => {
+        if (isUpdatingTimerRef.current) clearTimeout(isUpdatingTimerRef.current)
+        isUpdatingTimerRef.current = setTimeout(() => {
           isUpdatingRef.current = false
+          isUpdatingTimerRef.current = null
         }, 1000)
       }
     },
@@ -496,12 +578,15 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
    */
   const updateMessage = useCallback(
     async (conversationId: string, messageId: string, updates: Partial<Message>) => {
-      // Find the message index
-      const conversation = conversations.find((c) => c.id === conversationId)
+      // Find the message in conversations ref (avoids stale closure)
+      const conversation = conversationsRef.current.find((c) => c.id === conversationId)
       if (!conversation) return
 
       const messageIndex = conversation.messages.findIndex((m) => m.id === messageId)
       if (messageIndex === -1) return
+
+      // Merge updates into the current message snapshot (avoids stale closure reads later)
+      const mergedMessage = {...conversation.messages[messageIndex], ...updates}
 
       // Optimistic local update (always immediate)
       setConversations((prev) =>
@@ -510,7 +595,7 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
             return {
               ...conv,
               messages: conv.messages.map((msg) =>
-                msg.id === messageId ? {...msg, ...updates} : msg
+                msg.id === messageId ? mergedMessage : msg
               ),
               updatedAt: new Date(),
             }
@@ -522,30 +607,26 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
       // For streaming messages, debounce the Sanity update
       const isStreaming = updates.status === 'streaming'
 
+      // Build the Sanity message from the merged snapshot (not from a stale closure re-read)
+      const sanityMessage = messageToSanity(mergedMessage)
+
       const performUpdate = async () => {
-        // Re-find the conversation to get the latest message state
-        const latestConversation = conversations.find((c) => c.id === conversationId)
-        if (!latestConversation) return
-
-        const latestMessageIndex = latestConversation.messages.findIndex((m) => m.id === messageId)
-        if (latestMessageIndex === -1) return
-
-        const updatedMessage = {...latestConversation.messages[latestMessageIndex], ...updates}
-        const sanityMessage = messageToSanity(updatedMessage)
-
         try {
+          // Use _key selector instead of array index for reliable patching
+          // Array indices can mismatch if local state and Sanity diverge
           await client
             .patch(conversationId)
-            .set({[`messages[${latestMessageIndex}]`]: sanityMessage})
+            .set({[`messages[_key=="${messageId}"]`]: sanityMessage})
             .commit()
         } catch (err) {
           console.error('Failed to update message:', err)
-          throw err
         }
       }
 
       if (isStreaming) {
         // Debounce updates during streaming
+        // Each call replaces the pending callback, so the debounced version
+        // always uses the latest mergedMessage and sanityMessage
         messageUpdateDebouncer.current.debounce(performUpdate, MESSAGE_UPDATE_DEBOUNCE_MS)
       } else {
         // Final update (status changed from streaming) - flush any pending and execute immediately
@@ -553,7 +634,7 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
         await performUpdate()
       }
     },
-    [client, conversations]
+    [client]
   )
 
   /**
@@ -563,12 +644,6 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
     async (conversationId: string, userMessage: string, assistantResponse: string) => {
       // Default to /api/claude if no apiEndpoint provided
       const baseEndpoint = apiEndpoint || '/api/claude'
-
-      console.log('[useConversations] generateTitle called:', {
-        conversationId,
-        userMessage: userMessage.slice(0, 50) + '...',
-        baseEndpoint,
-      })
 
       try {
         const response = await fetch(`${baseEndpoint}/generate-title`, {
@@ -581,22 +656,18 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
         })
 
         if (!response.ok) {
-          const errorText = await response.text()
-          console.error('[useConversations] generateTitle API error:', response.status, errorText)
           throw new Error(`Failed to generate title: ${response.status}`)
         }
 
         const {title} = await response.json()
-        console.log('[useConversations] generateTitle received:', {title})
 
         if (title) {
           await updateConversationTitle(conversationId, title)
         }
       } catch (err) {
-        console.error('[useConversations] Failed to generate title with Claude:', err)
+        console.error('Failed to generate title with Claude:', err)
         // Fallback to simple truncation
         const fallbackTitle = userMessage.slice(0, 50) + (userMessage.length > 50 ? '...' : '')
-        console.log('[useConversations] Using fallback title:', fallbackTitle)
         await updateConversationTitle(conversationId, fallbackTitle)
       }
     },

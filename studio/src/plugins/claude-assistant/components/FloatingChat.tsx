@@ -29,6 +29,7 @@ import {useBlockContext} from '../hooks/useBlockContext'
 import {extractSchemaContext} from '../lib/schema-context'
 import {DEFAULT_SETTINGS} from '../types'
 import type {Message, ParsedAction, PluginSettings, SchemaContext, ImageAttachment, DocumentContext, BlockContext} from '../types'
+import type {MessageOptions} from '../hooks/useClaudeChat'
 import {ImagePickerDialog} from './ImagePickerDialog'
 import {DocumentPickerDialog} from './DocumentPicker'
 
@@ -372,7 +373,7 @@ function FloatingChatPanel({
   }, [schema])
 
   const setMessagesRef = useRef<React.Dispatch<React.SetStateAction<Message[]>> | null>(null)
-  const sendMessageRef = useRef<((content: string) => Promise<void>) | null>(null)
+  const sendMessageRef = useRef<((content: string, images?: ImageAttachment[], documentContextsOverride?: DocumentContext[], messageOptions?: MessageOptions) => Promise<void>) | null>(null)
 
   const updateActionStatus = useCallback(
     (actionId: string, status: ParsedAction['status'], result?: ParsedAction['result'], error?: string) => {
@@ -429,7 +430,19 @@ ${resultJson}
 \`\`\``
 
           setTimeout(() => {
-            sendMessageRef.current?.(followUpMessage)
+            console.log('[FloatingChat] Sending follow-up with query results:', {
+              messageLength: followUpMessage.length,
+              hasSendMessage: !!sendMessageRef.current,
+            })
+            sendMessageRef.current?.(followUpMessage, undefined, undefined, {hidden: true})
+              ?.catch((err: unknown) => {
+                console.error('[FloatingChat] Follow-up sendMessage failed:', err)
+                toast.push({
+                  status: 'error',
+                  title: 'Failed to analyze query results',
+                  description: err instanceof Error ? err.message : 'Unknown error',
+                })
+              })
           }, 500)
         }
       } else {

@@ -1,6 +1,7 @@
 import {useEffect, useState, useCallback} from 'react'
 import {useClient} from 'sanity'
 import type {PinboardDocument} from '../types'
+import {generateKey} from '../utils'
 
 const PINBOARDS_QUERY = `*[_type == "pinboard"] | order(order asc, _createdAt asc) {
   _id,
@@ -12,8 +13,6 @@ const PINBOARDS_QUERY = `*[_type == "pinboard"] | order(order asc, _createdAt as
   order,
   "pageCount": count(pages)
 }`
-
-const generateKey = () => Math.random().toString(36).substring(2, 12)
 
 export function usePinboards() {
   const client = useClient({apiVersion: '2024-01-01'})
@@ -125,6 +124,30 @@ export function usePinboards() {
     [client],
   )
 
+  const movePage = useCallback(
+    async (pinboardId: string, pageId: string, direction: 'left' | 'right') => {
+      // Fetch the current pages array to find the item and swap positions
+      const pinboard = await client.fetch<{pages: {_ref: string; _key: string}[]} | null>(
+        `*[_type == "pinboard" && _id == $id][0]{ pages }`,
+        {id: pinboardId},
+      )
+      const pages = pinboard?.pages
+      if (!pages || pages.length < 2) return
+
+      const index = pages.findIndex((p) => p._ref === pageId || p._ref === `drafts.${pageId}`)
+      if (index === -1) return
+
+      const swapIndex = direction === 'left' ? index - 1 : index + 1
+      if (swapIndex < 0 || swapIndex >= pages.length) return
+
+      // Swap the two items and replace the entire array
+      const newPages = [...pages]
+      ;[newPages[index], newPages[swapIndex]] = [newPages[swapIndex], newPages[index]]
+      await client.patch(pinboardId).set({pages: newPages}).commit()
+    },
+    [client],
+  )
+
   return {
     pinboards,
     loading,
@@ -134,5 +157,6 @@ export function usePinboards() {
     movePinboard,
     addPages,
     removePage,
+    movePage,
   }
 }

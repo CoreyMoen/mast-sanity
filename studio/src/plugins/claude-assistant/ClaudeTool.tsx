@@ -22,6 +22,7 @@ import {useWorkflows} from './hooks/useWorkflows'
 import {extractSchemaContext} from './lib/schema-context'
 import type {ClaudeAssistantOptions} from './index'
 import type {Message, ParsedAction, SchemaContext, ImageAttachment, DocumentContext} from './types'
+import type {MessageOptions} from './hooks/useClaudeChat'
 
 /**
  * Props passed to the tool component from Sanity
@@ -120,10 +121,40 @@ export function ClaudeTool(props: ClaudeToolProps) {
 
   // Ref to hold sendMessage function for auto-follow-up after query results
   // This uses sendMessage directly (not handleSendMessage) to avoid creating duplicate conversations
-  const sendMessageRef = useRef<((content: string) => Promise<void>) | null>(null)
+  const sendMessageRef = useRef<((content: string, images?: ImageAttachment[], documentContextsOverride?: DocumentContext[], messageOptions?: MessageOptions) => Promise<void>) | null>(null)
 
   // Ref to hold handleSendMessage for user-initiated messages (with conversation creation)
   const handleSendMessageRef = useRef<((content: string, images?: ImageAttachment[]) => Promise<void>) | null>(null)
+
+  // Accumulates query results from concurrent auto-executions for batched sending
+  const pendingQueryResultsRef = useRef<Array<{ description: string; data: unknown }>>([])
+  const queryResultTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Track active conversation for use in callbacks without stale closures
+  const activeConversationRef = useRef(activeConversation)
+  useEffect(() => {
+    activeConversationRef.current = activeConversation
+  }, [activeConversation])
+
+  // Clean up debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (queryResultTimerRef.current) {
+        clearTimeout(queryResultTimerRef.current)
+      }
+    }
+  }, [])
+
+  // Clear pending results when switching conversations
+  useEffect(() => {
+    if (queryResultTimerRef.current || pendingQueryResultsRef.current.length > 0) {
+      if (queryResultTimerRef.current) {
+        clearTimeout(queryResultTimerRef.current)
+        queryResultTimerRef.current = null
+      }
+      pendingQueryResultsRef.current = []
+    }
+  }, [activeConversation?.id])
 
   // Helper to update action status in messages
   const updateActionStatus = useCallback(
@@ -147,27 +178,48 @@ export function ClaudeTool(props: ClaudeToolProps) {
     []
   )
 
+  // Persist action results to the conversation store
+  const persistActionResult = useCallback(
+    (actionId: string, status: ParsedAction['status'], result?: ParsedAction['result'], error?: string) => {
+      const conversationId = activeConversationRef.current?.id
+      if (!conversationId || !updateMessage) return
+      // Read from the latest state using a functional update pattern
+      if (setMessagesRef.current) {
+        setMessagesRef.current((prev) => {
+          const msg = prev.find((m) => m.actions?.some((a) => a.id === actionId))
+          if (msg) {
+            const updatedActions = msg.actions!.map((a) =>
+              a.id === actionId ? {...a, status, result, error} : a
+            )
+            updateMessage(conversationId, msg.id, {actions: updatedActions})
+          }
+          return prev // Don't actually change state, just reading it
+        })
+      }
+    },
+    [updateMessage]
+  )
+
   // Handle action execution
   // Only modifying actions (create, update, delete) require confirmation
   // Read-only actions (query, navigate, explain) execute automatically
   const handleAction = useCallback(
     async (action: ParsedAction) => {
-      console.log('[ClaudeTool] handleAction called:', {
-        actionId: action.id,
-        actionType: action.type,
-        description: action.description,
-        payload: action.payload,
-      })
-
       // Update status to executing
       updateActionStatus(action.id, 'executing')
-      console.log('[ClaudeTool] Executing action...')
 
       const result = await executeAction(action)
-      console.log('[ClaudeTool] Action result:', result)
 
       // Update status based on result
       updateActionStatus(
+        action.id,
+        result.success ? 'completed' : 'failed',
+        result,
+        result.success ? undefined : result.message
+      )
+
+      // Persist action result to conversation store
+      persistActionResult(
         action.id,
         result.success ? 'completed' : 'failed',
         result,
@@ -181,30 +233,49 @@ export function ClaudeTool(props: ClaudeToolProps) {
           description: result.message,
         })
 
-        // For query actions, automatically send the results back to Claude
-        // so it can formulate the next action (like an update) with real _key values
         if (action.type === 'query' && result.data && sendMessageRef.current) {
-          console.log('[ClaudeTool] Query completed - sending results back to Claude automatically')
+          pendingQueryResultsRef.current.push({
+            description: action.description,
+            data: result.data,
+          })
 
-          // Format the results in a way that's easy for Claude to parse
-          const resultJson = JSON.stringify(result.data, null, 2)
-          const resultCount = Array.isArray(result.data) ? result.data.length : 1
+          if (queryResultTimerRef.current) {
+            clearTimeout(queryResultTimerRef.current)
+          }
 
-          // Send the query results as a user message so Claude sees them
-          const followUpMessage = `Here are the query results (${resultCount} result${resultCount !== 1 ? 's' : ''}):
+          queryResultTimerRef.current = setTimeout(() => {
+            const results = pendingQueryResultsRef.current
+            pendingQueryResultsRef.current = []
+            queryResultTimerRef.current = null
 
-\`\`\`json
-${resultJson}
-\`\`\``
+            if (results.length === 0 || !sendMessageRef.current) return
 
-          // Small delay to ensure UI updates first
-          setTimeout(() => {
-            console.log('[ClaudeTool] Sending follow-up message to Claude with query results')
-            sendMessageRef.current?.(followUpMessage)
-          }, 500)
+            let followUpMessage: string
+            if (results.length === 1) {
+              const r = results[0]
+              const resultJson = JSON.stringify(r.data, null, 2)
+              const resultCount = Array.isArray(r.data) ? r.data.length : 1
+              followUpMessage = `Here are the query results (${resultCount} result${resultCount !== 1 ? 's' : ''}):\n\n\`\`\`json\n${resultJson}\n\`\`\``
+            } else {
+              const parts = results.map((r, i) => {
+                const resultJson = JSON.stringify(r.data, null, 2)
+                const resultCount = Array.isArray(r.data) ? r.data.length : 1
+                return `### Query ${i + 1}: ${r.description} (${resultCount} result${resultCount !== 1 ? 's' : ''})\n\n\`\`\`json\n${resultJson}\n\`\`\``
+              })
+              followUpMessage = `Here are the results from ${results.length} queries:\n\n${parts.join('\n\n')}`
+            }
+
+            sendMessageRef.current(followUpMessage, undefined, undefined, {hidden: true})
+              .catch((err) => {
+                toast.push({
+                  status: 'error',
+                  title: 'Failed to analyze query results',
+                  description: err instanceof Error ? err.message : 'Unknown error',
+                })
+              })
+          }, 800)
         }
       } else {
-        console.error('[ClaudeTool] Action failed:', result.message)
         toast.push({
           status: 'error',
           title: 'Action failed',
@@ -212,20 +283,13 @@ ${resultJson}
         })
       }
     },
-    [executeAction, toast, updateActionStatus]
+    [executeAction, toast, updateActionStatus, persistActionResult]
   )
 
   // Handle undo of a previously executed action
   const handleUndo = useCallback(
     async (action: ParsedAction) => {
-      console.log('[ClaudeTool] handleUndo called:', {
-        actionId: action.id,
-        actionType: action.type,
-        hasPreState: !!action.result?.preState,
-      })
-
       const result = await undoAction(action)
-      console.log('[ClaudeTool] Undo result:', result)
 
       if (result.success) {
         // Clear the preState so Undo button disappears
@@ -240,7 +304,6 @@ ${resultJson}
           description: result.message,
         })
       } else {
-        console.error('[ClaudeTool] Undo failed:', result.message)
         toast.push({
           status: 'error',
           title: 'Undo failed',
@@ -302,32 +365,42 @@ ${resultJson}
   }, [sendMessage])
 
   // Track pending message that needs to be sent after conversation is created
-  const pendingMessageRef = useRef<{content: string, images?: ImageAttachment[]} | null>(null)
+  const pendingMessageRef = useRef<{content: string, images?: ImageAttachment[], documents?: DocumentContext[]} | null>(null)
+
+  // Keep sendMessage in a ref so the pending message effect doesn't re-run
+  // every time sendMessage is recreated
+  const sendMessageForPendingRef = useRef(sendMessage)
+  useEffect(() => {
+    sendMessageForPendingRef.current = sendMessage
+  }, [sendMessage])
 
   // Effect to send pending message once conversation is ready
   useEffect(() => {
     if (activeConversation && pendingMessageRef.current) {
       const messageToSend = pendingMessageRef.current
       pendingMessageRef.current = null
-      // Small delay to ensure state is fully settled
-      setTimeout(() => {
-        sendMessage(messageToSend.content, messageToSend.images)
-      }, 100)
+      // Pass captured documents as override to bypass stale closure
+      sendMessageForPendingRef.current(
+        messageToSend.content,
+        messageToSend.images,
+        messageToSend.documents,
+      )
     }
-  }, [activeConversation, sendMessage])
+  }, [activeConversation])
 
   // Wrap sendMessage to auto-create conversation if needed
   const handleSendMessage = useCallback(async (content: string, images?: ImageAttachment[]) => {
     // If no active conversation, create one first and queue the message
     if (!activeConversation) {
-      pendingMessageRef.current = {content, images}
+      // Capture current documents at queue time to avoid stale closure
+      pendingMessageRef.current = {content, images, documents: pendingDocuments}
       await createConversation()
       // The useEffect above will send the message once activeConversation updates
     } else {
       // Already have a conversation, send directly
       await sendMessage(content, images)
     }
-  }, [activeConversation, createConversation, sendMessage])
+  }, [activeConversation, createConversation, sendMessage, pendingDocuments])
 
   // Update handleSendMessageRef for user-initiated messages (with conversation creation)
   useEffect(() => {

@@ -829,3 +829,35 @@ footer .text-eyebrow {
     calc(var(--component-card-padding-max) * 1rem)
   );
 }
+
+/* ==========================================================================
+   PINBOARD IFRAME MODE
+   When rendered inside the Sanity Pinboard plugin, override viewport-height
+   sections and hide chrome so full-page previews render naturally.
+   ========================================================================== */
+
+/* Make the fixed header flow normally so it appears in the preview
+   and matches the live page. Remove the main padding that offset it. */
+html.pinboard-mode header {
+  position: relative !important;
+}
+
+html.pinboard-mode #main {
+  padding-top: 0 !important;
+}
+
+/* Let body/html be content-height, not viewport-height */
+html.pinboard-mode,
+html.pinboard-mode body {
+  min-height: auto !important;
+  height: auto !important;
+}
+
+/* Clamp full-screen sections to a standard desktop viewport height */
+html.pinboard-mode .min-h-screen:not(body) {
+  min-height: 900px !important;
+}
+
+html.pinboard-mode .h-screen {
+  height: 900px !important;
+}

@@ -161,11 +161,7 @@ export function PinboardSidebar({
                     <Text
                       size={1}
                       weight={activePinboardId === pinboard._id ? 'semibold' : 'regular'}
-                      style={{
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
+                      textOverflow="ellipsis"
                     >
                       {pinboard.name}
                     </Text>

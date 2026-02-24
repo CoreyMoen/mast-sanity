@@ -22,10 +22,21 @@ const actionObject = defineArrayMember({
           {title: 'Create', value: 'create'},
           {title: 'Update', value: 'update'},
           {title: 'Delete', value: 'delete'},
-          {title: 'Publish', value: 'publish'},
+          {title: 'Query', value: 'query'},
+          {title: 'Navigate', value: 'navigate'},
+          {title: 'Explain', value: 'explain'},
+          {title: 'Upload Image', value: 'uploadImage'},
+          {title: 'Fetch Figma Frame', value: 'fetchFigmaFrame'},
+          {title: 'Upload Figma Image', value: 'uploadFigmaImage'},
         ],
       },
       validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'description',
+      title: 'Description',
+      type: 'string',
+      description: 'Human-readable description of the action',
     }),
     defineField({
       name: 'documentId',
@@ -44,8 +55,10 @@ const actionObject = defineArrayMember({
       options: {
         list: [
           {title: 'Pending', value: 'pending'},
-          {title: 'Success', value: 'success'},
+          {title: 'Executing', value: 'executing'},
+          {title: 'Completed', value: 'completed'},
           {title: 'Failed', value: 'failed'},
+          {title: 'Cancelled', value: 'cancelled'},
         ],
       },
       initialValue: 'pending',
@@ -56,16 +69,31 @@ const actionObject = defineArrayMember({
       type: 'text',
       description: 'Error message if the action failed',
     }),
+    defineField({
+      name: 'payloadJson',
+      title: 'Payload JSON',
+      type: 'text',
+      description: 'Full action payload as JSON',
+      hidden: true,
+    }),
+    defineField({
+      name: 'resultJson',
+      title: 'Result JSON',
+      type: 'text',
+      description: 'Full action result as JSON',
+      hidden: true,
+    }),
   ],
   preview: {
     select: {
       type: 'type',
+      description: 'description',
       documentType: 'documentType',
       status: 'status',
     },
-    prepare({type, documentType, status}) {
+    prepare({type, description, documentType, status}) {
       return {
-        title: `${type} ${documentType || 'document'}`,
+        title: description || `${type} ${documentType || 'document'}`,
         subtitle: status,
       }
     },
@@ -101,6 +129,13 @@ const messageObject = defineArrayMember({
       title: 'Timestamp',
       type: 'datetime',
       validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: 'hidden',
+      title: 'Hidden',
+      type: 'boolean',
+      description: 'Hidden messages are API context only, not shown in chat UI',
+      hidden: true,
     }),
     defineField({
       name: 'actions',

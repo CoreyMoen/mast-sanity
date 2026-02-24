@@ -7,7 +7,7 @@
 
 import React, {useState, useCallback, useRef, useEffect, useMemo} from 'react'
 import type {Message, ParsedAction, SchemaContext, UseClaudeChatReturn, ImageAttachment, DocumentContext} from '../types'
-import {parseActions, extractTextContent} from '../lib/actions'
+import {parseActions} from '../lib/actions'
 import {buildSystemPrompt} from '../lib/instructions'
 import type {Conversation} from '../types'
 
@@ -139,8 +139,9 @@ function safeSerialize(obj: unknown): unknown {
     // Handle objects - filter out internal properties
     const result: Record<string, unknown> = {}
     for (const key of Object.keys(value as Record<string, unknown>)) {
-      // Skip internal/private properties that might have circular refs
-      if (key.startsWith('_')) continue
+      // Skip internal/private properties that might have circular refs,
+      // but keep essential Sanity metadata
+      if (key.startsWith('_') && !['_type', '_key', '_ref', '_id'].includes(key)) continue
 
       const propValue = (value as Record<string, unknown>)[key]
       const serialized = replacer(key, propValue)
@@ -198,8 +199,13 @@ function parseSSEChunk(chunk: string): Array<{text?: string; done?: boolean; err
 /**
  * Hook for managing Claude chat interactions with streaming support
  */
+export interface MessageOptions {
+  /** If true, the message is sent to the API but not rendered in the chat UI */
+  hidden?: boolean
+}
+
 export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChatReturn, 'sendMessage'> & {
-  sendMessage: (content: string, images?: ImageAttachment[]) => Promise<void>
+  sendMessage: (content: string, images?: ImageAttachment[], documentContextsOverride?: DocumentContext[], messageOptions?: MessageOptions) => Promise<void>
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>
   cancelStream: () => void
 } {
@@ -231,6 +237,19 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
   const isFirstMessageRef = useRef(true)
   const lastConversationIdRef = useRef<string | null>(null)
 
+  // Ref tracking current messages to avoid stale closures
+  const messagesRef = useRef<Message[]>([])
+  useEffect(() => {
+    messagesRef.current = messages
+  }, [messages])
+
+  // Guard against state updates after unmount
+  const mountedRef = useRef(true)
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
+
   // Sync messages with active conversation
   // Use activeConversation.id and serialized message IDs for proper dependency tracking
   // This ensures we sync when the conversation changes OR when messages are loaded from server
@@ -245,24 +264,14 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
       const conversationChanged = lastConversationIdRef.current !== activeConversation.id
 
       if (conversationChanged) {
-        console.log('[useClaudeChat] Conversation changed:', {
-          from: lastConversationIdRef.current,
-          to: activeConversation.id,
-          messageCount: activeConversation.messages.length,
-        })
         lastConversationIdRef.current = activeConversation.id
 
         // Initialize isFirstMessageRef based on whether this conversation has messages
         isFirstMessageRef.current = activeConversation.messages.length === 0
 
-        // ALWAYS sync messages when switching to a different conversation
-        // This ensures clicking on a past conversation loads its messages
-        console.log('[useClaudeChat] Syncing messages due to conversation change:', {
-          conversationId: activeConversation.id,
-          messageCount: activeConversation.messages.length,
-        })
+        // Sync messages when switching to a different conversation
         setMessages(activeConversation.messages)
-        return // Exit early, no need to run additional sync logic
+        return
       }
 
       // For the SAME conversation, only sync when server has more or equal messages
@@ -272,32 +281,15 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
       const localMessageCount = messages.length
 
       // If local has MORE messages than server, local is authoritative
-      // (pending messages that haven't been persisted yet)
       const localIsAhead = localMessageCount > serverMessageCount
 
-      // Sync when:
-      // 1. Server has more messages than local (messages loaded from server or another client)
-      // 2. Server has same count but different messages (rare edge case)
       const shouldSync = !localIsAhead && (
         (serverMessageCount > localMessageCount) ||
         (serverMessageCount === localMessageCount && localMessageIds !== conversationMessageIds)
       )
 
       if (shouldSync && localMessageIds !== conversationMessageIds) {
-        console.log('[useClaudeChat] Syncing messages from activeConversation:', {
-          conversationId: activeConversation.id,
-          localCount: localMessageCount,
-          conversationCount: serverMessageCount,
-          reason: serverMessageCount > localMessageCount ? 'server has more messages' : 'same count but different messages',
-        })
         setMessages(activeConversation.messages)
-      } else if (localMessageIds !== conversationMessageIds) {
-        console.log('[useClaudeChat] Skipping sync - local messages are ahead:', {
-          conversationId: activeConversation.id,
-          localCount: localMessageCount,
-          conversationCount: serverMessageCount,
-          localIsAhead,
-        })
       }
     } else {
       setMessages([])
@@ -317,12 +309,14 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
    * Send a message to Claude
    */
   const sendMessage = useCallback(
-    async (content: string, images?: ImageAttachment[]) => {
+    async (content: string, images?: ImageAttachment[], documentContextsOverride?: DocumentContext[], messageOptions?: MessageOptions) => {
       if (!content.trim() && (!images || images.length === 0)) return
       if (!apiEndpoint) {
         setError('API endpoint is not configured')
         return
       }
+
+      const isHidden = messageOptions?.hidden || false
 
       setError(null)
       setIsLoading(true)
@@ -339,13 +333,17 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
         timestamp: new Date(),
         status: 'complete',
         images: images && images.length > 0 ? images : undefined,
+        hidden: messageOptions?.hidden || undefined,
       }
 
-      // Add user message to local state immediately
+      // All messages go through state — hidden messages are filtered at render time
       setMessages((prev) => [...prev, userMessage])
+      // Immediately sync ref so conversation history includes this message
+      // (the useEffect sync runs after render, which is too late for the API call below)
+      messagesRef.current = [...messagesRef.current, userMessage]
 
-      // Persist user message if we have a conversation
-      if (conversationId && onAddMessage) {
+      // Persist user message if we have a conversation (skip hidden messages)
+      if (conversationId && onAddMessage && !messageOptions?.hidden) {
         try {
           await onAddMessage(conversationId, userMessage)
         } catch (err) {
@@ -381,7 +379,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
           },
           customInstructions,
           workflowContext,
-          documentContexts,
+          documentContexts: documentContextsOverride || documentContexts,
           userMessage: content,
           rawInstructions,
           sectionTemplates,
@@ -391,26 +389,13 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
         // Build conversation history for API
         // Handle messages with images by using the Claude multimodal format
         // Filter out messages with empty content (except images) to avoid API errors
-        const allMessages = [...messages, userMessage]
+        const allMessages = [...messagesRef.current]
         const filteredMessages = allMessages.filter((msg) => {
           // Keep messages with images (they have content via image metadata)
           if (msg.images && msg.images.length > 0) return true
           // Filter out messages with empty content
           return msg.content && msg.content.trim().length > 0
         })
-
-        // Log if any messages were filtered out (helps debug API errors)
-        if (filteredMessages.length !== allMessages.length) {
-          console.warn('[useClaudeChat] Filtered out messages with empty content:', {
-            before: allMessages.length,
-            after: filteredMessages.length,
-            removed: allMessages.filter(m => !m.content || m.content.trim().length === 0).map(m => ({
-              id: m.id,
-              role: m.role,
-              status: m.status,
-            })),
-          })
-        }
 
         const conversationHistory = filteredMessages.map((msg) => {
           // If message has images, use multimodal content format
@@ -421,14 +406,6 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
             const imageMetadataLines: string[] = ['[Image Attachments Metadata]']
             for (let i = 0; i < msg.images.length; i++) {
               const image = msg.images[i]
-              console.log('[useClaudeChat] Image metadata:', {
-                name: image.name,
-                source: image.source,
-                sanityAssetId: image.sanityAssetId,
-                sanityAssetRef: image.sanityAssetRef,
-                hasSource: 'source' in image,
-                hasAssetId: 'sanityAssetId' in image,
-              })
               const lines: string[] = [`Image ${i + 1}:`]
               lines.push(`  - Filename: ${image.name}`)
               if (image.width && image.height) {
@@ -494,7 +471,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
           body: JSON.stringify({
             messages: conversationHistory,
             system: systemPrompt,
-            schema: safeSchema,
+            schema: systemPrompt ? undefined : safeSchema,
             stream: enableStreaming,
             model,
             maxTokens,
@@ -511,37 +488,34 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
         let fullContent = ''
 
         if (enableStreaming && response.body) {
-          // Handle streaming response
           const reader = response.body.getReader()
           const decoder = new TextDecoder()
+          let sseBuffer = ''
 
           while (true) {
             const {done, value} = await reader.read()
             if (done) break
 
-            const chunk = decoder.decode(value, {stream: true})
-            const parsed = parseSSEChunk(chunk)
+            sseBuffer += decoder.decode(value, {stream: true})
 
-            for (const item of parsed) {
-              if (item.done) {
-                break
-              }
+            const frames = sseBuffer.split('\n\n')
+            sseBuffer = frames.pop() || ''
 
-              if (item.error) {
-                throw new Error(item.error)
-              }
-
-              if (item.text) {
-                fullContent += item.text
-
-                // Update the streaming message
-                setMessages((prev) =>
-                  prev.map((msg) =>
-                    msg.id === assistantMessageId
-                      ? {...msg, content: fullContent}
-                      : msg
+            for (const frame of frames) {
+              const parsed = parseSSEChunk(frame + '\n\n')
+              for (const item of parsed) {
+                if (item.done) break
+                if (item.error) throw new Error(item.error)
+                if (item.text) {
+                  fullContent += item.text
+                  setMessages((prev) =>
+                    prev.map((msg) =>
+                      msg.id === assistantMessageId
+                        ? {...msg, content: fullContent}
+                        : msg
+                    )
                   )
-                )
+                }
               }
             }
           }
@@ -553,28 +527,28 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
 
         // Parse actions from complete response
         const actions = parseActions(fullContent)
-        console.log('[useClaudeChat] Parsed actions from response:', {
-          actionCount: actions.length,
-          actions: actions.map(a => ({ id: a.id, type: a.type, description: a.description })),
-          responseLength: fullContent.length,
-        })
-        const textContent = extractTextContent(fullContent)
 
-        // Finalize the message
+        // Finalize the message — store fullContent (including action blocks)
+        // Action blocks are stripped at render time in Message.tsx
         const finalMessage: Message = {
           id: assistantMessageId,
           role: 'assistant',
-          content: textContent || fullContent,
+          content: fullContent,
           timestamp: new Date(),
           status: 'complete',
           actions: actions.length > 0 ? actions : undefined,
         }
 
-        setMessages((prev) =>
-          prev.map((msg) =>
-            msg.id === assistantMessageId ? finalMessage : msg
-          )
-        )
+        setMessages((prev) => {
+          const exists = prev.some((msg) => msg.id === assistantMessageId)
+          if (exists) {
+            return prev.map((msg) =>
+              msg.id === assistantMessageId ? finalMessage : msg
+            )
+          }
+          // Placeholder was removed (e.g., by conversation sync during follow-up) — append
+          return [...prev, finalMessage]
+        })
 
         // Persist assistant message if we have a conversation
         if (conversationId && onAddMessage) {
@@ -586,30 +560,13 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
         }
 
         // Generate title if this is the first exchange
-        console.log('[useClaudeChat] Title generation check:', {
-          isFirstMessage: isFirstMessageRef.current,
-          hasConversation: !!conversationId,
-          hasCallback: !!onGenerateTitle,
-          conversationId,
-        })
         if (isFirstMessageRef.current && conversationId && onGenerateTitle) {
           isFirstMessageRef.current = false
-          console.log('[useClaudeChat] Calling onGenerateTitle with:', {
-            conversationId,
-            userMessageLength: content.length,
-            responseLength: fullContent.length,
-          })
           try {
             await onGenerateTitle(conversationId, content, fullContent)
           } catch (err) {
             console.error('Failed to generate title:', err)
           }
-        } else {
-          console.log('[useClaudeChat] Title generation skipped because:', {
-            notFirstMessage: !isFirstMessageRef.current,
-            noConversation: !conversationId,
-            noCallback: !onGenerateTitle,
-          })
         }
 
         // Notify about actions
@@ -618,8 +575,10 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') {
           // User cancelled - update message to show cancellation
-          setMessages((prev) =>
-            prev.map((msg) =>
+          setMessages((prev) => {
+            const exists = prev.some((msg) => msg.id === assistantMessageId)
+            if (!exists) return prev // Placeholder gone, nothing to update
+            return prev.map((msg) =>
               msg.id === assistantMessageId
                 ? {
                     ...msg,
@@ -628,14 +587,16 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
                   }
                 : msg
             )
-          )
+          })
         } else {
           // Handle error
           const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred'
           setError(errorMessage)
 
-          setMessages((prev) =>
-            prev.map((msg) =>
+          setMessages((prev) => {
+            const exists = prev.some((msg) => msg.id === assistantMessageId)
+            if (!exists) return prev // Placeholder gone, nothing to update
+            return prev.map((msg) =>
               msg.id === assistantMessageId
                 ? {
                     ...msg,
@@ -644,16 +605,17 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
                   }
                 : msg
             )
-          )
+          })
         }
       } finally {
-        setIsLoading(false)
+        if (mountedRef.current) {
+          setIsLoading(false)
+        }
         abortControllerRef.current = null
       }
     },
     [
       apiEndpoint,
-      messages,
       schemaContext,
       customInstructions,
       workflowContext,
@@ -684,13 +646,11 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
    * Retry the last message
    */
   const retryLastMessage = useCallback(async () => {
-    // Find the last user message
-    const lastUserMessage = [...messages].reverse().find((m) => m.role === 'user')
+    const lastUserMessage = [...messagesRef.current].reverse().find((m) => m.role === 'user')
 
     if (lastUserMessage) {
-      // Remove last assistant message if it exists
-      setMessages((prev) => {
-        // Find last assistant index (compatible with older ES targets)
+      const updatedMessages = (() => {
+        const prev = messagesRef.current
         let lastAssistantIndex = -1
         for (let i = prev.length - 1; i >= 0; i--) {
           if (prev[i].role === 'assistant') {
@@ -698,15 +658,13 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
             break
           }
         }
-        if (lastAssistantIndex > -1) {
-          return prev.slice(0, lastAssistantIndex)
-        }
-        return prev.slice(0, -1) // Remove last user message, will be re-sent
-      })
-
+        return lastAssistantIndex > -1 ? prev.slice(0, lastAssistantIndex) : prev.slice(0, -1)
+      })()
+      messagesRef.current = updatedMessages
+      setMessages(updatedMessages)
       await sendMessage(lastUserMessage.content)
     }
-  }, [messages, sendMessage])
+  }, [sendMessage])
 
   return {
     messages,

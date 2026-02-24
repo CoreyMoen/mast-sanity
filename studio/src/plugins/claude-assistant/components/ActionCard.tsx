@@ -1,15 +1,14 @@
 /**
  * ActionCard Component
  *
- * Displays a parsed action from Claude with:
- * - Confirmation UI for destructive actions (delete, unpublish)
- * - Auto-execution for non-destructive actions
- * - Success/error states with meaningful feedback
- * - Links to open document in Structure and Preview
+ * Displays a parsed action from Claude as a compact, collapsible row
+ * matching the Claude.ai tool-use UX:
+ * - Collapsed (default): chevron + icon + description + status indicator
+ * - Expanded (on click): payload, result, inline JSON, navigation, action buttons
  */
 
-import {useEffect, useRef, useCallback} from 'react'
-import {Box, Button, Card, Flex, Stack, Text, Badge, Spinner} from '@sanity/ui'
+import {useEffect, useRef, useCallback, useState} from 'react'
+import {Box, Button, Card, Flex, Stack, Text, Code, Spinner} from '@sanity/ui'
 import {
   AddIcon,
   EditIcon,
@@ -27,6 +26,8 @@ import {
   RefreshIcon,
   UndoIcon,
   ImageIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
 } from '@sanity/icons'
 import type {ParsedAction, ActionType, ActionStatus} from '../types'
 import {isDestructiveAction, shouldAutoExecute} from '../lib/actions'
@@ -66,40 +67,93 @@ function getActionIcon(type: ActionType) {
     uploadImage: <UploadIcon />,
     fetchFigmaFrame: <ImageIcon />,
     uploadFigmaImage: <UploadIcon />,
+    createPinboard: <AddIcon />,
   }
   return icons[type]
 }
 
 /**
- * Get badge tone for action status
+ * Get status indicator for the collapsed header row
  */
-function getStatusTone(status: ActionStatus): 'default' | 'primary' | 'positive' | 'critical' | 'caution' {
-  const tones: Record<ActionStatus, 'default' | 'primary' | 'positive' | 'critical' | 'caution'> = {
-    pending: 'default',
-    executing: 'primary',
-    completed: 'positive',
-    failed: 'critical',
-    cancelled: 'caution',
-  }
-  return tones[status]
-}
-
-/**
- * Get status icon
- */
-function getStatusIcon(status: ActionStatus) {
+function StatusIndicator({status}: {status: ActionStatus}) {
   switch (status) {
     case 'executing':
-      return <Spinner />
+      return <Spinner style={{width: 14, height: 14}} />
     case 'completed':
-      return <CheckmarkIcon />
+      return (
+        <Box style={{color: 'var(--card-badge-positive-dot-color, #43a047)', display: 'flex', alignItems: 'center'}}>
+          <CheckmarkIcon style={{width: 16, height: 16}} />
+        </Box>
+      )
     case 'failed':
-      return <WarningOutlineIcon />
+      return (
+        <Box style={{color: 'var(--card-badge-critical-dot-color, #e53935)', display: 'flex', alignItems: 'center'}}>
+          <WarningOutlineIcon style={{width: 16, height: 16}} />
+        </Box>
+      )
     case 'cancelled':
-      return <CloseIcon />
+      return (
+        <Box style={{color: 'var(--card-muted-fg-color)', display: 'flex', alignItems: 'center'}}>
+          <CloseIcon style={{width: 16, height: 16}} />
+        </Box>
+      )
     default:
       return null
   }
+}
+
+/**
+ * Collapsible JSON preview for result data
+ */
+function ResultDataPreview({data}: {data: unknown}) {
+  const [isExpanded, setIsExpanded] = useState(false)
+  const jsonString = JSON.stringify(data, null, 2)
+  const lines = jsonString.split('\n')
+  const isLong = lines.length > 6
+
+  return (
+    <Box marginTop={2}>
+      <Flex align="center" gap={1} marginBottom={2}>
+        <Text size={0} weight="semibold" muted>
+          Result data
+        </Text>
+        {isLong && (
+          <Button
+            mode="bleed"
+            tone="primary"
+            fontSize={0}
+            padding={1}
+            text={isExpanded ? 'Collapse' : `Expand (${lines.length} lines)`}
+            icon={isExpanded ? ChevronDownIcon : ChevronRightIcon}
+            onClick={(e) => {
+              e.stopPropagation()
+              setIsExpanded(!isExpanded)
+            }}
+          />
+        )}
+      </Flex>
+      <Card padding={2} radius={2} tone="transparent" style={{backgroundColor: 'var(--card-code-bg-color)', overflow: 'hidden'}}>
+        <Box style={{maxHeight: isExpanded || !isLong ? 'none' : '120px', overflow: 'hidden', position: 'relative'}}>
+          <Code size={0} style={{display: 'block', whiteSpace: 'pre-wrap', overflowX: 'auto'}}>
+            {isExpanded || !isLong ? jsonString : lines.slice(0, 6).join('\n') + '\n...'}
+          </Code>
+          {!isExpanded && isLong && (
+            <Box
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: '30px',
+                background: 'linear-gradient(transparent, var(--card-code-bg-color, #1a1a1a))',
+                pointerEvents: 'none',
+              }}
+            />
+          )}
+        </Box>
+      </Card>
+    </Box>
+  )
 }
 
 export function ActionCard({
@@ -131,11 +185,9 @@ export function ActionCard({
   // Track if action has been executed before (has a result or was auto-executed)
   const hasBeenExecuted = !!action.result || hasAutoExecuted.current
 
-  // Actions can be executed if:
-  // - They are pending AND not explain type (first execution)
-  // - OR they completed successfully (re-execution)
-  const canExecute = (isPending && action.type !== 'explain') ||
-                     (isCompleted && action.result?.success)
+  // Actions can be executed if they are NOT auto-executable (query, explain, navigate, etc.)
+  // AND either pending (first execution) or completed successfully (re-execution)
+  const canExecute = !shouldAutoExec && (isPending || (isCompleted && action.result?.success))
   const needsConfirmation = canExecute && isDestructive && !hasBeenExecuted
 
   // Undo is available if:
@@ -164,6 +216,8 @@ export function ActionCard({
   const isRecentMessage = messageTimestamp
     ? Date.now() - messageTimestamp.getTime() < 10000
     : true // If no timestamp provided, assume it's recent (backwards compatibility)
+
+  const [isExpanded, setIsExpanded] = useState(false)
 
   // Auto-execute non-destructive actions when enabled
   useEffect(() => {
@@ -232,185 +286,218 @@ export function ActionCard({
     [documentId, documentType, documentSlug, onOpenInPreview, saveConversationForFloatingChat]
   )
 
-  // Determine card tone based on action type and status
-  const getTone = (): 'default' | 'caution' | 'critical' | 'positive' => {
-    if (isCompleted && action.result?.success) return 'positive'
-    if (isFailed || (action.result && !action.result.success)) return 'critical'
-    if (isDestructive) return 'caution'
-    return 'default'
-  }
+  const toggleExpanded = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation()
+    setIsExpanded((prev) => !prev)
+  }, [])
 
   return (
-    <Card
-      padding={3}
-      radius={2}
-      border
-      tone={getTone()}
-      style={{cursor: onClick ? 'pointer' : 'default'}}
-      onClick={onClick}
-    >
-      <Stack space={3}>
-        {/* Header */}
-        <Flex align="center" gap={2}>
-          <Box style={{color: 'var(--card-icon-color)'}}>
-            {getActionIcon(action.type)}
-          </Box>
-          <Text size={1} weight="semibold" style={{flex: 1}}>
-            {action.description}
-          </Text>
-          <Badge tone={getStatusTone(action.status)} fontSize={0}>
-            <Flex align="center" gap={1}>
-              {getStatusIcon(action.status)}
-              <span>{action.status}</span>
-            </Flex>
-          </Badge>
-        </Flex>
+    <Box>
+      {/* Collapsed header row */}
+      <Flex
+        align="center"
+        gap={2}
+        style={{
+          cursor: 'pointer',
+          padding: '6px 8px',
+          userSelect: 'none',
+        }}
+        onClick={toggleExpanded}
+      >
+        {/* Chevron */}
+        <Box style={{color: 'var(--card-muted-fg-color)', display: 'flex', alignItems: 'center', flexShrink: 0}}>
+          {isExpanded ? <ChevronDownIcon style={{width: 16, height: 16}} /> : <ChevronRightIcon style={{width: 16, height: 16}} />}
+        </Box>
 
-        {/* Destructive action warning */}
-        {needsConfirmation && (
-          <Card padding={2} radius={2} tone="caution">
-            <Flex align="center" gap={2}>
-              <WarningOutlineIcon />
-              <Text size={1}>
-                This action requires confirmation. Please review before executing.
-              </Text>
-            </Flex>
-          </Card>
-        )}
+        {/* Action type icon */}
+        <Box style={{color: 'var(--card-muted-fg-color)', display: 'flex', alignItems: 'center', flexShrink: 0}}>
+          {getActionIcon(action.type)}
+        </Box>
 
-        {/* Payload preview */}
-        {showPreview && action.payload && (
-          <Card padding={2} radius={2} tone="transparent" style={{overflow: 'hidden'}}>
-            <Stack space={2}>
-              {action.payload.documentType && (
-                <Text size={0} muted style={{wordBreak: 'break-all'}}>
-                  Type: <code>{action.payload.documentType}</code>
-                </Text>
-              )}
-              {action.payload.documentId && (
-                <Text size={0} muted style={{wordBreak: 'break-all'}}>
-                  ID: <code>{action.payload.documentId}</code>
-                </Text>
-              )}
-              {action.payload.query && (
-                <Text size={0} muted style={{fontFamily: 'monospace', wordBreak: 'break-all'}}>
-                  {action.payload.query}
-                </Text>
-              )}
-              {action.payload.fields && Object.keys(action.payload.fields).length > 0 && (
-                <Text size={0} muted style={{wordBreak: 'break-all'}}>
-                  Fields: {Object.keys(action.payload.fields).join(', ')}
-                </Text>
-              )}
-            </Stack>
-          </Card>
-        )}
+        {/* Description */}
+        <Text size={1} style={{flex: 1, wordBreak: 'break-word'}}>
+          {action.description}
+        </Text>
 
-        {/* Result */}
-        {action.result && (
-          <Card
-            padding={2}
-            radius={2}
-            tone={action.result.success ? 'positive' : 'critical'}
-          >
-            <Stack space={2}>
-              <Text size={1}>{action.result.message}</Text>
-              {action.result.documentId && (
-                <Text size={0} muted>
-                  Document ID: {action.result.documentId}
-                </Text>
-              )}
-            </Stack>
-          </Card>
-        )}
+        {/* Status indicator */}
+        <Box style={{flexShrink: 0}}>
+          <StatusIndicator status={action.status} />
+        </Box>
+      </Flex>
 
-        {/* Error */}
-        {action.error && (
-          <Card padding={2} radius={2} tone="critical">
-            <Text size={1}>{action.error}</Text>
-          </Card>
-        )}
-
-        {/* Success state with navigation links (hidden in floating chat) */}
-        {!hideNavigationLinks && isCompleted && action.result?.success && documentId && (
-          <Flex gap={2} wrap="wrap">
-            <Button
-              mode="ghost"
-              tone="primary"
-              text="Open in Structure"
-              icon={DocumentIcon}
-              fontSize={1}
-              padding={2}
-              onClick={handleOpenInStructure}
-            />
-            {documentType === 'page' && (
-              <Button
-                mode="ghost"
-                tone="primary"
-                text="Open Preview"
-                icon={LaunchIcon}
-                fontSize={1}
-                padding={2}
-                onClick={handleOpenInPreview}
-              />
+      {/* Expanded content */}
+      {isExpanded && (
+        <Box style={{padding: '0.5rem 0.5rem 0.5rem 2rem'}}>
+          <Stack space={3}>
+            {/* Destructive action warning */}
+            {needsConfirmation && (
+              <Card padding={2} radius={2} tone="caution">
+                <Flex align="center" gap={2}>
+                  <WarningOutlineIcon />
+                  <Text size={1}>
+                    This action requires confirmation. Please review before executing.
+                  </Text>
+                </Flex>
+              </Card>
             )}
-          </Flex>
-        )}
 
-        {/* Action buttons for pending actions */}
-        {(canExecute || canCancel || canUndo) && (
-          <Flex gap={2} justify="flex-end">
-            {canCancel && (
-              <Button
-                text="Cancel"
-                tone="default"
-                mode="ghost"
-                icon={CloseIcon}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onCancel?.()
-                }}
-              />
+            {/* Payload preview */}
+            {showPreview && !!action.payload && (
+              <Card padding={2} radius={2} tone="transparent" style={{overflow: 'hidden'}}>
+                <Stack space={2}>
+                  {action.payload.documentType && (
+                    <Text size={0} muted style={{wordBreak: 'break-all'}}>
+                      Type: <code>{action.payload.documentType}</code>
+                    </Text>
+                  )}
+                  {action.payload.documentId && (
+                    <Text size={0} muted style={{wordBreak: 'break-all'}}>
+                      ID: <code>{action.payload.documentId}</code>
+                    </Text>
+                  )}
+                  {action.payload.query && (
+                    <Text size={0} muted style={{fontFamily: 'monospace', wordBreak: 'break-all'}}>
+                      {action.payload.query}
+                    </Text>
+                  )}
+                  {action.payload.fields && Object.keys(action.payload.fields).length > 0 && (
+                    <Text size={0} muted style={{wordBreak: 'break-all'}}>
+                      Fields: {Object.keys(action.payload.fields).join(', ')}
+                    </Text>
+                  )}
+                </Stack>
+              </Card>
             )}
-            {canUndo && (
-              <Button
-                text="Undo"
-                tone="caution"
-                mode="ghost"
-                icon={UndoIcon}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onUndo?.()
-                }}
-              />
+
+            {/* Result message */}
+            {action.result && (
+              <Box>
+                <Text size={1} style={{color: action.result.success ? 'var(--card-badge-positive-dot-color, #43a047)' : 'var(--card-badge-critical-dot-color, #e53935)'}}>
+                  {action.result.message}
+                </Text>
+                {action.result.documentId && (
+                  <Text size={0} muted style={{marginTop: 4}}>
+                    Document ID: {action.result.documentId}
+                  </Text>
+                )}
+              </Box>
             )}
-            {canExecute && (
-              <Button
-                text={
-                  needsConfirmation
-                    ? 'Confirm & Execute'
-                    : hasBeenExecuted
-                    ? 'Retry'
-                    : 'Execute'
-                }
-                tone={isDestructive ? 'critical' : 'primary'}
-                mode={hasBeenExecuted ? 'ghost' : 'default'}
-                icon={
-                  needsConfirmation
-                    ? CheckmarkIcon
-                    : hasBeenExecuted
-                    ? RefreshIcon
-                    : PlayIcon
-                }
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onExecute?.()
-                }}
-              />
+
+            {/* Inline result data (replaces the hidden follow-up message) */}
+            {!!action.result?.data && (
+              <ResultDataPreview data={action.result.data} />
             )}
-          </Flex>
-        )}
-      </Stack>
-    </Card>
+
+            {/* Error */}
+            {action.error && (
+              <Card padding={2} radius={2} tone="critical">
+                <Text size={1}>{action.error}</Text>
+              </Card>
+            )}
+
+            {/* Success state with navigation links (hidden in floating chat) */}
+            {!hideNavigationLinks && isCompleted && action.result?.success && documentId && (
+              <Flex gap={2} wrap="wrap">
+                <Button
+                  mode="ghost"
+                  tone="primary"
+                  text="Open in Structure"
+                  icon={DocumentIcon}
+                  fontSize={1}
+                  padding={2}
+                  onClick={handleOpenInStructure}
+                />
+                {documentType === 'page' && (
+                  <Button
+                    mode="ghost"
+                    tone="primary"
+                    text="Open Preview"
+                    icon={LaunchIcon}
+                    fontSize={1}
+                    padding={2}
+                    onClick={handleOpenInPreview}
+                  />
+                )}
+              </Flex>
+            )}
+
+            {/* Open in Pinboard for createPinboard actions */}
+            {!hideNavigationLinks && isCompleted && action.result?.success && action.type === 'createPinboard' && action.result.documentId && (
+              <Flex gap={2}>
+                <Button
+                  mode="ghost"
+                  tone="primary"
+                  text="Open in Pinboard"
+                  icon={LaunchIcon}
+                  fontSize={1}
+                  padding={2}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (conversationId) {
+                      saveConversationForFloatingChat()
+                    }
+                    window.location.href = `/pinboard/${action.result!.documentId}`
+                  }}
+                />
+              </Flex>
+            )}
+
+            {/* Action buttons */}
+            {(canExecute || canCancel || canUndo) && (
+              <Flex gap={2} justify="flex-end">
+                {canCancel && (
+                  <Button
+                    text="Cancel"
+                    tone="default"
+                    mode="ghost"
+                    icon={CloseIcon}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onCancel?.()
+                    }}
+                  />
+                )}
+                {canUndo && (
+                  <Button
+                    text="Undo"
+                    tone="caution"
+                    mode="ghost"
+                    icon={UndoIcon}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onUndo?.()
+                    }}
+                  />
+                )}
+                {canExecute && (
+                  <Button
+                    text={
+                      needsConfirmation
+                        ? 'Confirm & Execute'
+                        : hasBeenExecuted
+                        ? 'Retry'
+                        : 'Execute'
+                    }
+                    tone={isDestructive ? 'critical' : 'primary'}
+                    mode={hasBeenExecuted ? 'ghost' : 'default'}
+                    icon={
+                      needsConfirmation
+                        ? CheckmarkIcon
+                        : hasBeenExecuted
+                        ? RefreshIcon
+                        : PlayIcon
+                    }
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onExecute?.()
+                    }}
+                  />
+                )}
+              </Flex>
+            )}
+          </Stack>
+        </Box>
+      )}
+    </Box>
   )
 }
