@@ -217,7 +217,8 @@ export function ActionCard({
     ? Date.now() - messageTimestamp.getTime() < 10000
     : true // If no timestamp provided, assume it's recent (backwards compatibility)
 
-  const [isExpanded, setIsExpanded] = useState(false)
+  // Default open when action needs user interaction (has Execute button)
+  const [isExpanded, setIsExpanded] = useState(!shouldAutoExec && isPending)
 
   // Auto-execute non-destructive actions when enabled
   useEffect(() => {

@@ -987,11 +987,35 @@ export class ContentOperations {
       )
       const nextOrder = (maxOrderResult ?? -1) + 1
 
-      // Build page references from pageIds
-      const pages = (payload.pageIds || []).map((id) => ({
+      // Build page references from pageIds, validating they exist first
+      const rawPageIds = (payload.pageIds || []).map((id) => id.replace(/^drafts\./, ''))
+
+      if (rawPageIds.length > 0) {
+        // Check both published and draft versions of referenced documents
+        const existingDocs = await this.client.fetch<{_id: string}[]>(
+          `*[_id in $ids || _id in $draftIds]{ _id }`,
+          {
+            ids: rawPageIds,
+            draftIds: rawPageIds.map((id) => `drafts.${id}`),
+          }
+        )
+        const existingIdSet = new Set(
+          existingDocs.map((d) => d._id.replace(/^drafts\./, ''))
+        )
+        const missingIds = rawPageIds.filter((id) => !existingIdSet.has(id))
+
+        if (missingIds.length > 0) {
+          return {
+            success: false,
+            message: `Cannot create pinboard: referenced documents do not exist: ${missingIds.join(', ')}. Make sure the pages are created first, then create the pinboard.`,
+          }
+        }
+      }
+
+      const pages = rawPageIds.map((id) => ({
         _key: generateKey(),
         _type: 'reference' as const,
-        _ref: id.replace(/^drafts\./, ''),
+        _ref: id,
       }))
 
       const doc = {
