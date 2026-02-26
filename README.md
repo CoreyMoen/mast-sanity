@@ -103,6 +103,14 @@ npm install
 
 2. Create environment files:
 
+**`.env`** (project root — used by seed scripts)
+
+```
+SANITY_API_TOKEN="your-write-token"
+```
+
+> Create a token with **Editor** permissions at [sanity.io/manage](https://www.sanity.io/manage) → your project → API → Tokens
+
 **`studio/.env`**
 
 ```
@@ -118,10 +126,31 @@ NEXT_PUBLIC_SANITY_PROJECT_ID="your-project-id"
 NEXT_PUBLIC_SANITY_DATASET="production"
 NEXT_PUBLIC_SANITY_API_VERSION="2025-09-25"
 NEXT_PUBLIC_SANITY_STUDIO_URL="http://localhost:3333"
-SANITY_API_READ_TOKEN="your-api-token"
+SANITY_API_READ_TOKEN="your-read-token"
+ANTHROPIC_API_KEY="your-anthropic-key"  # Optional — enables Claude assistant
 ```
 
-3. Start the development servers:
+3. Seed starter content:
+
+```shell
+npm run seed
+```
+
+This single command populates your Sanity dataset with everything you need to get started:
+
+| Category | What gets created |
+|----------|-------------------|
+| **Singletons** | Site Settings, Navigation (links + CTA), Footer (link columns + social links) |
+| **Pages** | Home page (hero section) + Mast demo page (all block types) |
+| **Blog** | 3 categories + 5 sample blog posts |
+| **People** | 2 sample authors (Jane Doe, Alex Chen) |
+| **Section Templates** | Hero Center, Features 3-Column, CTA Banner, FAQ Accordion |
+| **Content Variables** | Brand Name, Support Email, Tagline |
+| **Claude AI Config** | API Settings, Training/Instructions, 4 Quick Actions |
+
+After seeding, open Sanity Studio and **publish all documents** so they appear on the frontend.
+
+4. Start the development servers:
 
 ```shell
 npm run dev
