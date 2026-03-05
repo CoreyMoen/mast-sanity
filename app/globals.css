@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+/* Landing page gradient for hero */
+.hero-gradient {
+  background: linear-gradient(
+    135deg,
+    #eef2ff 0%,
+    #e0e7ff 25%,
+    #ede9fe 50%,
+    #f5f3ff 75%,
+    #eef2ff 100%
+  );
+}
+
+/* Subtle animated gradient shimmer for the hero headline */
+.hero-headline-gradient {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed, #6366f1);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Pricing card highlight ring */
+.pricing-highlight {
+  box-shadow:
+    0 0 0 2px #6366f1,
+    0 25px 50px -12px rgba(99, 102, 241, 0.15);
+}
+
+/* ─── Mobile Drawer Animation ──────────────────────────────────────────────── */
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+/* ─── Performance Optimizations ─────────────────────────────────────────────── */
+
+/* Defer rendering of off-screen content for faster initial paint */
+.content-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 500px;
+}
+
+/* Ensure custom fonts display fallback text while loading */
+@font-face {
+  font-display: swap;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

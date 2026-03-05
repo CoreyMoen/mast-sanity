@@ -1,47 +1,41 @@
 {
-  "name": "mast-sanity",
-  "description": "Mast Component Framework for Sanity + Next.js with AI-powered content creation",
-  "author": "Corey Moen",
-  "license": "MIT",
-  "keywords": [
-    "Sanity",
-    "Next.js",
-    "Headless CMS",
-    "Visual Editing",
-    "Page Builder",
-    "Mast",
-    "Claude AI"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/CoreyMoen/mast-sanity.git"
-  },
-  "homepage": "https://github.com/CoreyMoen/mast-sanity#readme",
-  "bugs": {
-    "url": "https://github.com/CoreyMoen/mast-sanity/issues"
-  },
-  "workspaces": [
-    "studio",
-    "frontend"
-  ],
+  "name": "angela",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "dev": "npm-run-all --parallel --print-label dev:*",
-    "dev:next": "npm run dev --workspace=frontend",
-    "dev:studio": "npm run dev --workspace=studio",
-    "format": "prettier --cache --write .",
-    "import-sample-data": "cd studio && sanity dataset import sample-data.tar.gz --replace",
-    "lint": "npm run lint --workspace=frontend",
-    "seed": "node --env-file=.env scripts/seed-starter.mjs",
-    "type-check": "npm run type-check --workspaces"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
   },
-  "prettier": "@sanity/prettier-config",
-  "overrides": {
-    "@sanity/types": "5.9.0"
+  "dependencies": {
+    "@clerk/nextjs": "^6.39.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@stripe/stripe-js": "^8.8.0",
+    "clsx": "^2.1.1",
+    "convex": "^1.32.0",
+    "date-fns": "^4.1.0",
+    "date-fns-tz": "^3.2.0",
+    "lucide-react": "^0.575.0",
+    "next": "16.1.6",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "recharts": "^3.7.0",
+    "stripe": "^20.4.0",
+    "svix": "^1.86.0",
+    "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {
-    "@sanity/client": "^7.14.1",
-    "@sanity/prettier-config": "^2.0.2",
-    "npm-run-all2": "^5.0.2",
-    "prettier": "^3.7.3"
+    "@next/bundle-analyzer": "^16.1.6",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.1.6",
+    "prettier": "^3.8.1",
+    "tailwindcss": "^4",
+    "typescript": "^5"
   }
 }
