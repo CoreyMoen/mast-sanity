@@ -35,6 +35,7 @@ import type {
   SchemaContext,
   ImageAttachment,
   DocumentContext as DocumentContextType,
+  UseContentReleaseReturn,
 } from '../types'
 import {MessageList} from './MessageList'
 import {MessageInput, WorkflowOption} from './MessageInput'
@@ -44,6 +45,7 @@ import {ImagePickerDialog} from './ImagePickerDialog'
 import {DocumentPickerDialog} from './DocumentPicker'
 import {WorkflowPickerDialog} from './WorkflowPicker'
 import {useKeyboardShortcuts, announceToScreenReader} from '../hooks/useKeyboardShortcuts'
+import {ReleaseStatusBar} from './ReleaseStatusBar'
 import type {Workflow} from '../hooks/useWorkflows'
 
 /**
@@ -108,6 +110,9 @@ export interface ChatInterfaceProps {
   onRemoveDocument?: (documentId: string) => void
   // API config
   apiEndpoint?: string
+  // Content Releases
+  release?: UseContentReleaseReturn
+  onPublishRelease?: () => void
 }
 
 const SIDEBAR_STATE_KEY = 'claude-assistant-sidebar-open'
@@ -342,6 +347,9 @@ export function ChatInterface({
   onRemoveDocument: onRemoveDocumentProp,
   // API config (optional)
   apiEndpoint,
+  // Content Releases (optional)
+  release,
+  onPublishRelease,
 }: ChatInterfaceProps) {
   const [sidebarOpen, setSidebarOpen] = useState(loadSidebarState)
   // State for pre-populated input from quick actions
@@ -1079,6 +1087,12 @@ export function ChatInterface({
               }}
             >
               <Box style={{maxWidth: 680, width: '100%'}}>
+                {/* Content Release status bar */}
+                {release && onPublishRelease && (
+                  <Box marginBottom={2}>
+                    <ReleaseStatusBar release={release} onPublish={onPublishRelease} />
+                  </Box>
+                )}
                 <MessageInput
                   ref={messageInputRef}
                   onSend={handleSend}

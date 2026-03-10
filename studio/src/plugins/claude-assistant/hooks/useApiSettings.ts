@@ -28,6 +28,7 @@ interface SanityApiSettings {
   maxTokens?: number
   temperature?: number
   enableStreaming?: boolean
+  useContentReleases?: boolean
 }
 
 /**
@@ -40,6 +41,7 @@ const DEFAULT_API_SETTINGS_DOC = {
   maxTokens: 4096,
   temperature: 0.7,
   enableStreaming: true,
+  useContentReleases: true,
 }
 
 /**
@@ -121,7 +123,8 @@ export function useApiSettings(): UseApiSettingsReturn {
         model,
         maxTokens,
         temperature,
-        enableStreaming
+        enableStreaming,
+        useContentReleases
       }`
 
       let result = await client.fetch<SanityApiSettings | null>(query)
@@ -144,6 +147,7 @@ export function useApiSettings(): UseApiSettingsReturn {
           maxTokens: result.maxTokens ?? DEFAULT_SETTINGS.maxTokens,
           temperature: result.temperature ?? DEFAULT_SETTINGS.temperature,
           enableStreaming: result.enableStreaming ?? DEFAULT_SETTINGS.enableStreaming,
+          useContentReleases: result.useContentReleases ?? DEFAULT_SETTINGS.useContentReleases,
           // customInstructions is kept in localStorage (user preference, not shared)
           customInstructions: '',
         }

@@ -172,11 +172,91 @@ function ensureKeys<T extends {_key?: string}>(items: T[]): T[] {
   }))
 }
 
+/** API version required for Content Releases */
+const RELEASES_API_VERSION = '2025-02-19'
+
 export class ContentOperations {
   private client: SanityClient
+  /** Optional release ID for batching document mutations */
+  private releaseId: string | null = null
+  /** Cached releases-capable client */
+  private releasesClient: SanityClient | null = null
 
   constructor(client: SanityClient) {
     this.client = client
+  }
+
+  /**
+   * Set the active release ID for batching mutations.
+   * When set, create and update operations will create version documents
+   * in the release instead of directly modifying drafts/published docs.
+   */
+  setReleaseId(releaseId: string | null): void {
+    this.releaseId = releaseId
+  }
+
+  /**
+   * Get a client configured for the releases API version
+   */
+  private getReleasesClient(): SanityClient {
+    if (!this.releasesClient) {
+      this.releasesClient = this.client.withConfig({apiVersion: RELEASES_API_VERSION})
+    }
+    return this.releasesClient
+  }
+
+  /**
+   * Create a version document in a release.
+   * This adds a document to the release without publishing it.
+   */
+  async createVersionInRelease(
+    publishedId: string,
+    document: Record<string, unknown>
+  ): Promise<ActionResult> {
+    if (!this.releaseId) {
+      return {success: false, message: 'No active release ID set'}
+    }
+
+    try {
+      const releasesClient = this.getReleasesClient()
+
+      // The version document ID follows the pattern: versions.<releaseId>.<publishedId>
+      const versionId = `versions.${this.releaseId}.${publishedId}`
+
+      // Create the version document via the actions API
+      await releasesClient.request({
+        method: 'POST',
+        uri: `/data/actions/${releasesClient.config().dataset}`,
+        body: {
+          actions: [
+            {
+              actionType: 'sanity.action.document.version.create',
+              publishedId,
+              document: {
+                ...document,
+                _id: versionId,
+              },
+            },
+          ],
+        },
+      })
+
+      console.log('[ContentOperations] Created version in release:', this.releaseId, publishedId)
+
+      return {
+        success: true,
+        documentId: publishedId,
+        message: `Added to release (not yet published)`,
+        data: {versionId, releaseId: this.releaseId},
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to create version'
+      console.error('[ContentOperations] createVersionInRelease error:', errorMessage)
+      return {
+        success: false,
+        message: `Failed to add document to release: ${errorMessage}`,
+      }
+    }
   }
 
   /**
@@ -311,7 +391,8 @@ export class ContentOperations {
   }
 
   /**
-   * Create a new document
+   * Create a new document.
+   * If a release ID is active, the document is created as a version in the release.
    */
   async createDocument(payload: ActionPayload): Promise<ActionResult> {
     if (!payload.documentType) {
@@ -321,6 +402,37 @@ export class ContentOperations {
     const doc = {
       _type: payload.documentType,
       ...payload.fields,
+    }
+
+    // If release mode is active, create the document then add a version to the release
+    if (this.releaseId) {
+      // First create the document as a draft so it exists
+      const result = await this.client.create(doc)
+      const publishedId = result._id.replace(/^drafts\./, '')
+
+      // Then create a version in the release
+      const versionResult = await this.createVersionInRelease(publishedId, {
+        ...doc,
+        _id: `versions.${this.releaseId}.${publishedId}`,
+      })
+
+      if (versionResult.success) {
+        return {
+          success: true,
+          documentId: result._id,
+          message: `Created ${payload.documentType} document and added to release (pending publish)`,
+          data: result,
+        }
+      }
+
+      // If version creation failed, still return success for the document creation
+      // but warn about the release
+      return {
+        success: true,
+        documentId: result._id,
+        message: `Created ${payload.documentType} document (warning: failed to add to release — ${versionResult.message})`,
+        data: result,
+      }
     }
 
     const result = await this.client.create(doc)
@@ -438,6 +550,28 @@ export class ContentOperations {
         .patch(draftId)
         .set(payload.fields)
         .commit()
+
+      // If release mode is active, also create a version in the release
+      if (this.releaseId) {
+        // Get the full updated document to use as the version
+        const updatedDoc = await this.client.getDocument(draftId)
+        if (updatedDoc) {
+          const publishedId = baseId
+          const {_id, _rev, ...docWithoutMeta} = updatedDoc
+          await this.createVersionInRelease(publishedId, {
+            ...docWithoutMeta,
+            _id: `versions.${this.releaseId}.${publishedId}`,
+          })
+        }
+
+        return {
+          success: true,
+          documentId: result._id,
+          message: `Updated document and added to release (pending publish).`,
+          data: result,
+          preState,
+        }
+      }
 
       return {
         success: true,

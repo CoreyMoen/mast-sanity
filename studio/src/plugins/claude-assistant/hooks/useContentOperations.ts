@@ -38,8 +38,10 @@ export interface UseContentOperationsExtendedReturn extends UseContentOperations
 
 /**
  * Hook for executing content operations in Sanity
+ *
+ * @param releaseId - Optional release ID for batching mutations into a Content Release
  */
-export function useContentOperations(): UseContentOperationsExtendedReturn {
+export function useContentOperations(releaseId?: string | null): UseContentOperationsExtendedReturn {
   const client = useClient({apiVersion: '2024-01-01'})
   const router = useRouter()
   const [isExecuting, setIsExecuting] = useState(false)
@@ -54,8 +56,10 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
     if (!operationsRef.current) {
       operationsRef.current = new ContentOperations(client)
     }
+    // Update the release ID on the operations instance
+    operationsRef.current.setReleaseId(releaseId || null)
     return operationsRef.current
-  }, [client])
+  }, [client, releaseId])
 
   /**
    * Execute a parsed action

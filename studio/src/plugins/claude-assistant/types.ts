@@ -170,6 +170,8 @@ export interface Conversation {
   context?: ConversationContext
   /** IDs of workflows applied to this conversation */
   workflowIds?: string[]
+  /** Content Release ID associated with this conversation */
+  releaseId?: string
 }
 
 export interface ConversationContext {
@@ -303,6 +305,8 @@ export interface PluginSettings {
   temperature: number
   customInstructions: string
   enableStreaming: boolean
+  /** Whether to batch document mutations into Content Releases */
+  useContentReleases: boolean
 }
 
 export const DEFAULT_SETTINGS: PluginSettings = {
@@ -311,6 +315,7 @@ export const DEFAULT_SETTINGS: PluginSettings = {
   temperature: 0.7,
   customInstructions: '',
   enableStreaming: true,
+  useContentReleases: true,
 }
 
 // ============================================================================
@@ -406,6 +411,53 @@ export interface SettingsPanelProps {
   onSettingsChange: (settings: PluginSettings) => void
   isOpen: boolean
   onClose: () => void
+}
+
+// ============================================================================
+// Content Release Types
+// ============================================================================
+
+/**
+ * Represents a Sanity Content Release associated with a conversation.
+ * All document mutations within the conversation are batched into this release.
+ */
+export interface ContentRelease {
+  /** The release ID (e.g., 'rSC2jjcUJ') */
+  releaseId: string
+  /** Human-readable title */
+  title: string
+  /** Current state of the release */
+  state: 'active' | 'scheduled' | 'published' | 'deleted'
+  /** Number of document versions in this release */
+  documentCount: number
+  /** When the release was created */
+  createdAt: Date
+}
+
+/**
+ * Return type for the useContentRelease hook
+ */
+export interface UseContentReleaseReturn {
+  /** Current active release ID */
+  releaseId: string | null
+  /** Human-readable release title */
+  releaseTitle: string | null
+  /** Whether release mode is enabled and available */
+  isReleaseMode: boolean
+  /** Number of documents in the current release */
+  documentCount: number
+  /** Whether a release operation is in progress */
+  isProcessing: boolean
+  /** Create or get a release for the current conversation */
+  ensureRelease: (conversationTitle: string) => Promise<string | null>
+  /** Publish the current release */
+  publishRelease: () => Promise<boolean>
+  /** Error message if release operations fail */
+  error: string | null
+  /** Whether Content Releases feature is available (Enterprise) */
+  isAvailable: boolean | null
+  /** Increment the document count after adding a document */
+  incrementDocumentCount: () => void
 }
 
 // ============================================================================

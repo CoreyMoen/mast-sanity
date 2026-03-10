@@ -62,6 +62,13 @@ export const claudeApiSettings = defineType({
       description: 'Show responses as they are generated instead of waiting for the complete response.',
       initialValue: true,
     }),
+    defineField({
+      name: 'useContentReleases',
+      title: 'Use Content Releases',
+      type: 'boolean',
+      description: 'Batch document changes into a Content Release for review before publishing. Requires Sanity Enterprise plan.',
+      initialValue: true,
+    }),
   ],
   preview: {
     select: {

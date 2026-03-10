@@ -612,6 +612,24 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
                   />
                 </Flex>
               </Card>
+
+              {/* Content Releases */}
+              <Card padding={3} radius={2} border>
+                <Flex align="center" justify="space-between">
+                  <Stack space={2}>
+                    <Text size={1} weight="semibold">
+                      Use Content Releases
+                    </Text>
+                    <Text size={0} muted>
+                      Batch document changes into a release for review before publishing. Requires Enterprise plan.
+                    </Text>
+                  </Stack>
+                  <Switch
+                    checked={settings.useContentReleases}
+                    onChange={() => updateSetting('useContentReleases', !settings.useContentReleases)}
+                  />
+                </Flex>
+              </Card>
             </Stack>
           </TabPanel>
 

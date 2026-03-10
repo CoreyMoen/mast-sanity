@@ -211,6 +211,13 @@ export const claudeConversation = defineType({
       of: [{type: 'string'}],
       hidden: true,
     }),
+    defineField({
+      name: 'releaseId',
+      title: 'Content Release ID',
+      type: 'string',
+      description: 'Associated content release for batched publishing',
+      hidden: true,
+    }),
   ],
   orderings: [
     {

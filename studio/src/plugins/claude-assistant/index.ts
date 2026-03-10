@@ -75,6 +75,8 @@ export type {
   SchemaContext,
   SchemaInfo,
   FieldInfo,
+  ContentRelease,
+  UseContentReleaseReturn,
 } from './types'
 
 // Re-export components for potential customization
@@ -94,6 +96,7 @@ export {StudioLayout, createStudioLayout} from './components/StudioLayout'
 export {useClaudeChat} from './hooks/useClaudeChat'
 export {useConversations} from './hooks/useConversations'
 export {useContentOperations} from './hooks/useContentOperations'
+export {useContentRelease} from './hooks/useContentRelease'
 export {useInstructions} from './hooks/useInstructions'
 
 // Re-export utilities

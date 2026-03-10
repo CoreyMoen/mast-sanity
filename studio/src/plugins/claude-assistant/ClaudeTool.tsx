@@ -18,6 +18,7 @@ import {useClaudeChat} from './hooks/useClaudeChat'
 import {useInstructions} from './hooks/useInstructions'
 import {useApiSettings} from './hooks/useApiSettings'
 import {useContentOperations} from './hooks/useContentOperations'
+import {useContentRelease} from './hooks/useContentRelease'
 import {useWorkflows} from './hooks/useWorkflows'
 import {extractSchemaContext} from './lib/schema-context'
 import type {ClaudeAssistantOptions} from './index'
@@ -59,8 +60,11 @@ export function ClaudeTool(props: ClaudeToolProps) {
   // Selected workflows as context for Claude
   const [pendingWorkflows, setPendingWorkflows] = useState<WorkflowOption[]>([])
 
-  // Content operations hook
-  const {executeAction, undoAction} = useContentOperations()
+  // Content Release hook — batches mutations into a release per conversation
+  const release = useContentRelease(client, settings.useContentReleases)
+
+  // Content operations hook — passes release ID for batching
+  const {executeAction, undoAction} = useContentOperations(release.releaseId)
 
   // Conversation management hook
   const {
@@ -200,11 +204,36 @@ export function ClaudeTool(props: ClaudeToolProps) {
     [updateMessage]
   )
 
+  // Handle publishing the content release
+  const handlePublishRelease = useCallback(async () => {
+    const success = await release.publishRelease()
+    if (success) {
+      toast.push({
+        status: 'success',
+        title: 'Release published',
+        description: 'All changes are now live.',
+      })
+    } else {
+      toast.push({
+        status: 'error',
+        title: 'Publish failed',
+        description: release.error || 'Failed to publish the release.',
+      })
+    }
+  }, [release, toast])
+
   // Handle action execution
   // Only modifying actions (create, update, delete) require confirmation
   // Read-only actions (query, navigate, explain) execute automatically
   const handleAction = useCallback(
     async (action: ParsedAction) => {
+      // For mutating actions, ensure a release exists if release mode is active
+      const isMutatingAction = ['create', 'update', 'delete'].includes(action.type)
+      if (isMutatingAction && release.isReleaseMode) {
+        const conversationTitle = activeConversationRef.current?.title || 'Untitled'
+        await release.ensureRelease(conversationTitle)
+      }
+
       // Update status to executing
       updateActionStatus(action.id, 'executing')
 
@@ -227,6 +256,11 @@ export function ClaudeTool(props: ClaudeToolProps) {
       )
 
       if (result.success) {
+        // Track document additions to the release
+        if (isMutatingAction && release.isReleaseMode && release.releaseId) {
+          release.incrementDocumentCount()
+        }
+
         toast.push({
           status: 'success',
           title: 'Action completed',
@@ -283,7 +317,7 @@ export function ClaudeTool(props: ClaudeToolProps) {
         })
       }
     },
-    [executeAction, toast, updateActionStatus, persistActionResult]
+    [executeAction, toast, updateActionStatus, persistActionResult, release]
   )
 
   // Handle undo of a previously executed action
@@ -562,6 +596,9 @@ export function ClaudeTool(props: ClaudeToolProps) {
         onRemoveDocument={handleRemoveDocument}
         // API config
         apiEndpoint={apiEndpoint}
+        // Content Releases
+        release={release}
+        onPublishRelease={handlePublishRelease}
       />
     </Card>
   )
