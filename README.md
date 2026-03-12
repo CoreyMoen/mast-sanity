@@ -90,50 +90,71 @@ See the [Claude Assistant Porting Guide](docs/claude-assistant-porting-guide.md)
 
 ### Prerequisites
 
-- Node.js 18+
-- A Sanity account ([sanity.io](https://www.sanity.io/))
+- A [Sanity](https://www.sanity.io/) account and project; you can create a project from the web interface, or from the CLI using `sanity projects create`.
+
+- EITHER:
+    - Bun 1.3 or later
+    - Docker Desktop or a compatible runtime like [OrbStack](https://orbstack.dev/)
+
 
 ### Installation
 
-1. Clone the repository and install dependencies:
+
+#### Create environment files:
+
+You'll need to create `.env.local` files at the project root and in each of the two sub-apps, `frontend` and `studio`. However, to make things easy to manage, I recommend putting all env vars in the root and symlinking that file to the other apps. (If you're using Docker, you can skip this step as the env vars will be set up within the containers.)
+
+First, copy the `.env.example` at the root to `.env.local`:
 
 ```shell
-npm install
+cp .env.example .env.local
 ```
 
-2. Create environment files:
-
-**`.env`** (project root — used by seed scripts)
-
-```
-SANITY_API_TOKEN="your-write-token"
-```
-
-> Create a token with **Editor** permissions at [sanity.io/manage](https://www.sanity.io/manage) → your project → API → Tokens
-
-**`studio/.env`**
-
-```
-SANITY_STUDIO_PROJECT_ID="your-project-id"
-SANITY_STUDIO_DATASET="production"
-SANITY_STUDIO_PREVIEW_URL="http://localhost:4000"
-```
-
-**`frontend/.env.local`**
-
-```
-NEXT_PUBLIC_SANITY_PROJECT_ID="your-project-id"
-NEXT_PUBLIC_SANITY_DATASET="production"
-NEXT_PUBLIC_SANITY_API_VERSION="2025-09-25"
-NEXT_PUBLIC_SANITY_STUDIO_URL="http://localhost:3333"
-SANITY_API_READ_TOKEN="your-read-token"
-ANTHROPIC_API_KEY="your-anthropic-key"  # Optional — enables Claude assistant
-```
-
-3. Seed starter content:
+Then add symbolic links in each sub-app:
 
 ```shell
-npm run seed
+cd website && ln -s ../.env.local .env.local && cd ..
+cd studio && ln -s ../.env.local .env.local && cd ..
+```
+
+The root `.env.local` file will have all the variables needed for both apps; note you'll need to enter some values twice, e.g. `NEXT_PUBLIC_SANITY_PROJECT_ID` _and_ `SANITY_STUDIO_PROJECT_ID`.
+
+#### Get and populate Sanity read/write tokens
+
+In that file, you'll need to fill in your Sanity project ID and read/write tokens. If you don't already have tokens set up, you can create them in either of two ways:
+
+**Web console at [sanity.io/manage](https://www.sanity.io/manage)**: From your project settings, go to _API → Tokens_. Create one new token with **Editor** permissions (for seeding your database and running scripts) and another with **Viewer** permissions.
+
+**CLI:** Once your project ID is entered in your `.env.local` file, you can use the Sanity CLI to create and get tokens:
+
+```shell
+cd studio
+
+bun sanity tokens create "Read/Write Token" --role=editor
+# Copy the token displayed into your .env file's SANITY_API_TOKEN variable; it won't be shown again
+
+bun sanity tokens create "Read-only Token" --role=viewer
+# Copy the token displayed into your .env file's SANITY_API_READ_TOKEN variable; it won't be shown again
+```
+
+#### Don't forget to add CORS origins!
+
+This project makes use of Sanity's visual editing and Live Content APIs, which require your dev server URLs to be registered with Sanity's CDN. As with tokens, you can use either the web GUI or the CLI:
+
+**Web console at [sanity.io/manage](https://www.sanity.io/manage)**: From your project settings, go to _API → CORS Origins_. Add _both_ app URLs — `http://localhost:3001` and `http://localhost:3334`.
+
+**CLI:** Once your project ID is entered in your `.env.local` file, you can use the Sanity CLI to add CORS origins:
+
+```shell
+cd studio
+bun sanity cors add http://localhost:3001
+bun sanity cors add http://localhost:3334
+```
+
+#### Seed your project's dataset
+
+```shell
+bun run seed
 ```
 
 This single command populates your Sanity dataset with everything you need to get started:
@@ -150,29 +171,50 @@ This single command populates your Sanity dataset with everything you need to ge
 
 After seeding, open Sanity Studio and **publish all documents** so they appear on the frontend.
 
-4. Start the development servers:
+### Running the dev servers
+
+Option 1: Local development using [Bun](https://bun.com/):
 
 ```shell
-npm run dev
+gh repo clone CoreyMoren/mast-sanity
+cd mast-sanity && bun install
+
+# To run everything:
+bun dev
 ```
 
-- **Sanity Studio:** http://localhost:3333
-- **Next.js Frontend:** http://localhost:4000
-
-## Development
-
-### Running Dev Servers
+Option 2: Container-based setup using Docker/OrbStack:
 
 ```shell
-npm run dev           # Run both Studio and Next.js
-npm run dev:studio    # Run only Sanity Studio
-npm run dev:next      # Run only Next.js frontend
+gh repo clone CoreyMoren/mast-sanity
+cd mast-sanity
+bun dev:docker # or docker compose up
 ```
+
+With either setup, you can access your project's apps at the following URLs:
+
+- **Sanity Studio:** http://localhost:3334
+- **Next.js Frontend:** http://localhost:3001
+
 
 ### Type Generation
 
+TypeScript types for your Sanity schema and queries are generated automatically when you start the dev server. If you need to regenerate these for any reason, you can run _either_ of these commands (they do the same thing):
+
 ```shell
-npm run type-check    # Check TypeScript types
+# In the frontend/ directory
+bun run typegen
+
+# In the studio directory
+bun sanity typegen generate
+```
+
+To check types across the whole project you can run `bun type-check` at the project root, which runs `turbo run type-check` under the hood.
+
+
+```shell
+bun run type-check                    # Check TypeScript types for both projects
+bun run type-check --filter=frontend  # Check TypeScript types for frontend 
 ```
 
 ## Documentation
