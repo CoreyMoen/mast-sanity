@@ -16,8 +16,8 @@
 
 import {createClient} from '@sanity/client'
 
-const projectId = '6lj3hi0f'
-const dataset = 'production'
+const projectId = process.env.SANITY_STUDIO_PROJECT_ID || '6lj3hi0f'
+const dataset = process.env.SANITY_STUDIO_DATASET || 'production'
 const token = process.env.SANITY_API_TOKEN
 
 if (!token) {
