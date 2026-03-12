@@ -12,7 +12,6 @@
     "build": "sanity build",
     "deploy": "sanity deploy",
     "dev": "sanity dev",
-    "dev:docker": "sanity dev --host 0.0.0.0",
     "extract-types": "sanity schema extract --enforce-required-fields",
     "start": "sanity start",
     "type-check": "tsc --noEmit"
@@ -23,13 +22,13 @@
     "@sanity/code-input": "^7.0.8",
     "@sanity/icons": "^3.7.4",
     "@sanity/orderable-document-list": "^1.4.2",
-    "@sanity/vision": "^5.9.0",
+    "@sanity/vision": "^5.14.1",
     "date-fns": "^4.1.0",
     "pluralize-esm": "^9.0.5",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "rxjs": "^7.8.2",
-    "sanity": "^5.9.0",
+    "sanity": "^5.14.1",
     "sanity-plugin-asset-source-unsplash": "^7.0.3",
     "styled-components": "^6.1.19"
   },

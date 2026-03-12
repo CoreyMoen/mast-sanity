@@ -3,6 +3,11 @@
   "description": "Mast Component Framework for Sanity + Next.js with AI-powered content creation",
   "author": "Corey Moen",
   "license": "MIT",
+  "packageManager": "bun@1.3.10",
+  "workspaces": [
+    "studio",
+    "frontend"
+  ],
   "keywords": [
     "Sanity",
     "Next.js",
@@ -20,14 +25,9 @@
   "bugs": {
     "url": "https://github.com/CoreyMoen/mast-sanity/issues"
   },
-  "workspaces": [
-    "studio",
-    "frontend"
-  ],
   "scripts": {
-    "dev": "npm-run-all --parallel --print-label dev:*",
-    "dev:next": "npm run dev --workspace=frontend",
-    "dev:studio": "npm run dev --workspace=studio",
+    "dev": "turbo dev",
+    "dev:docker": "docker compose up",
     "format": "prettier --cache --write .",
     "import-sample-data": "cd studio && sanity dataset import sample-data.tar.gz --replace",
     "lint": "npm run lint --workspace=frontend",
@@ -41,7 +41,9 @@
   "devDependencies": {
     "@sanity/client": "^7.14.1",
     "@sanity/prettier-config": "^2.0.2",
-    "npm-run-all2": "^5.0.2",
     "prettier": "^3.7.3"
+  },
+  "dependencies": {
+    "turbo": "^2.8.16"
   }
 }

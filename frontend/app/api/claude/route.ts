@@ -10,7 +10,7 @@ const anthropic = new Anthropic({
  * Get allowed CORS origins from environment variable
  * In development, defaults to '*' for convenience
  * In production, set ALLOWED_CORS_ORIGINS to comma-separated list of allowed origins
- * Example: ALLOWED_CORS_ORIGINS=https://your-studio.sanity.studio,http://localhost:3333
+ * Example: ALLOWED_CORS_ORIGINS=https://your-studio.sanity.studio,http://localhost:3334
  */
 function getAllowedOrigins(): string[] {
   const originsEnv = process.env.ALLOWED_CORS_ORIGINS

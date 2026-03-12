@@ -17,14 +17,13 @@ The `npx tsx` command does not work due to esbuild issues. When creating seed sc
 - Run with plain `node scripts/filename.mjs`
 - Avoid TypeScript for scripts that need to run directly
 
-### Dev Servers via Docker/OrbStack
-**IMPORTANT**: Dev servers cannot be started directly from the terminal on this machine. They must be run via Docker containers in the OrbStack app.
+### Dev Servers
+Two ways to run dev servers:
 
-- **Do NOT** attempt to run `npm run dev`, `npm run dev:next`, or `npm run dev:studio` directly
-- The user manages dev servers through OrbStack's Docker interface
-- Frontend runs in Docker on port 4000, Studio on port 3333
-- For verification, use TypeScript compilation (`npx tsc --noEmit`) instead of starting dev servers
-- If the user needs to restart servers, they will do it manually via OrbStack
+- **Turbo (preferred)**: `bun run dev` — runs both frontend (port 3001) and studio (port 3334) via Turborepo
+- **Docker**: `bun run dev:docker` — runs both via Docker Compose (Bun-based containers)
+
+For verification without starting servers, use `npx tsc --noEmit`.
 
 ## Sanity Content Architecture
 
@@ -288,17 +287,11 @@ Located in CSS custom properties:
 
 ### Running the project
 ```bash
-npm run dev          # Start both frontend and studio
-npm run dev:next     # Frontend only (port 4000)
-npm run dev:studio   # Studio only (port 3333)
+bun run dev          # Start both frontend and studio via Turbo
+bun run dev:docker   # Start both via Docker Compose
 ```
 
 ### Seeding pages
 ```bash
-# Requires SANITY_API_TOKEN
-SANITY_API_TOKEN="token" npm run seed-mast-sanity
-SANITY_API_TOKEN="token" npm run seed-layouts
+bun run seed         # Requires SANITY_API_TOKEN in .env.local
 ```
-
-### Docker/OrbStack
-Frontend runs in Docker via OrbStack on port 4000.
