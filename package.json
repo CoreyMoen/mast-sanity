@@ -32,7 +32,7 @@
     "import-sample-data": "cd studio && sanity dataset import sample-data.tar.gz --replace",
     "lint": "npm run lint --workspace=frontend",
     "seed": "node --env-file=.env scripts/seed-starter.mjs",
-    "type-check": "npm run type-check --workspaces"
+    "type-check": "turbo run type-check"
   },
   "prettier": "@sanity/prettier-config",
   "overrides": {
