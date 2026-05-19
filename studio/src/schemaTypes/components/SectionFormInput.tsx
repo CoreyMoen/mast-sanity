@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback} from 'react'
-import {BlockElementIcon} from '@sanity/icons'
+import {BlockElementIcon, AddIcon} from '@sanity/icons'
 import {
   Button,
   Card,
@@ -11,6 +11,7 @@ import {
   Badge,
   Dialog,
   Grid,
+  useToast,
 } from '@sanity/ui'
 import {
   type ObjectInputProps,
@@ -20,6 +21,7 @@ import {
   unset,
   PatchEvent,
 } from 'sanity'
+import {useRouter} from 'sanity/router'
 
 interface SectionTemplate {
   _id: string
@@ -100,6 +102,8 @@ function deepCloneWithNewKeys(obj: any): any {
 export function SectionFormInput(props: ObjectInputProps) {
   const {onChange} = props
   const client = useClient({apiVersion: '2024-01-01'})
+  const router = useRouter()
+  const toast = useToast()
 
   const [templates, setTemplates] = useState<SectionTemplate[]>([])
   const [loading, setLoading] = useState(true)
@@ -107,9 +111,15 @@ export function SectionFormInput(props: ObjectInputProps) {
   const [appliedTemplate, setAppliedTemplate] = useState<string | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [savingTemplate, setSavingTemplate] = useState(false)
 
-  // Check if section already has content
+  // Read live values for this section so we save what the user currently sees
   const rows = useFormValue([...props.path, 'rows']) as any[] | undefined
+  const backgroundColor = useFormValue([...props.path, 'backgroundColor']) as string | undefined
+  const minHeight = useFormValue([...props.path, 'minHeight']) as string | undefined
+  const verticalAlign = useFormValue([...props.path, 'verticalAlign']) as string | undefined
+  const maxWidth = useFormValue([...props.path, 'maxWidth']) as string | undefined
+  const paddingTop = useFormValue([...props.path, 'paddingTop']) as string | undefined
   const hasContent = rows && rows.length > 0
 
   // Fetch templates on mount
@@ -209,13 +219,88 @@ export function SectionFormInput(props: ObjectInputProps) {
     [onChange]
   )
 
+  const saveAsTemplate = useCallback(async () => {
+    if (!hasContent || savingTemplate) return
+
+    setSavingTemplate(true)
+    try {
+      // Generate a fresh id; create directly as a draft so the user
+      // lands on a draftable document with empty template-info fields.
+      const newId =
+        typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
+
+      // Clone array items with fresh _keys so nothing collides with the source section.
+      const clonedRows = rows ? deepCloneWithNewKeys(rows) : []
+
+      await client.create({
+        _id: `drafts.${newId}`,
+        _type: 'sectionTemplate',
+        isGlobal: false,
+        rows: clonedRows,
+        ...(backgroundColor ? {backgroundColor} : {}),
+        ...(minHeight ? {minHeight} : {}),
+        ...(verticalAlign ? {verticalAlign} : {}),
+        ...(maxWidth ? {maxWidth} : {}),
+        ...(paddingTop ? {paddingTop} : {}),
+      })
+
+      toast.push({
+        status: 'success',
+        title: 'Template created',
+        description: 'Fill in the name, description, and category to finish.',
+      })
+
+      try {
+        router.navigateIntent('edit', {id: newId, type: 'sectionTemplate'})
+      } catch {
+        window.location.href = `/structure/intent/edit/id=${newId};type=sectionTemplate/`
+      }
+    } catch (error) {
+      console.error('Failed to create section template:', error)
+      toast.push({
+        status: 'error',
+        title: 'Failed to create template',
+        description: error instanceof Error ? error.message : 'Unknown error',
+      })
+    } finally {
+      setSavingTemplate(false)
+    }
+  }, [
+    hasContent,
+    savingTemplate,
+    rows,
+    backgroundColor,
+    minHeight,
+    verticalAlign,
+    maxWidth,
+    paddingTop,
+    client,
+    router,
+    toast,
+  ])
+
   // Don't show template selector if no templates exist
   if (!loading && templates.length === 0) {
-    return props.renderDefault(props)
+    return (
+      <>
+        {hasContent && (
+          <SaveAsTemplateCard
+            saving={savingTemplate}
+            onSave={saveAsTemplate}
+          />
+        )}
+        {props.renderDefault(props)}
+      </>
+    )
   }
 
   return (
     <>
+      {hasContent && (
+        <SaveAsTemplateCard saving={savingTemplate} onSave={saveAsTemplate} />
+      )}
       <Card padding={3} tone="transparent" border radius={2} marginBottom={4}>
         <Flex align="center" justify="space-between" gap={3}>
           <Flex align="center" gap={2}>
@@ -409,5 +494,40 @@ export function SectionFormInput(props: ObjectInputProps) {
 
       {props.renderDefault(props)}
     </>
+  )
+}
+
+/**
+ * Small card with a button that copies the current section's content into a
+ * new draft `sectionTemplate` document and navigates the editor to it.
+ */
+function SaveAsTemplateCard({saving, onSave}: {saving: boolean; onSave: () => void}) {
+  return (
+    <Card padding={3} tone="transparent" border radius={2} marginBottom={3}>
+      <Flex align="center" justify="space-between" gap={3}>
+        <Flex align="center" gap={2}>
+          <Text size={1}>
+            <AddIcon />
+          </Text>
+          <Text size={1}>Reuse this section elsewhere — save it as a template</Text>
+        </Flex>
+        {saving ? (
+          <Flex align="center" gap={2}>
+            <Spinner />
+            <Text size={1}>Creating template...</Text>
+          </Flex>
+        ) : (
+          <Button
+            text="Save as Template"
+            tone="primary"
+            icon={AddIcon}
+            mode="ghost"
+            fontSize={1}
+            padding={2}
+            onClick={onSave}
+          />
+        )}
+      </Flex>
+    </Card>
   )
 }
