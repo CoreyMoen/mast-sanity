@@ -16,9 +16,23 @@
 
 import {createClient} from '@sanity/client'
 
-const projectId = '6lj3hi0f'
-const dataset = 'production'
+const projectId =
+  process.env.SANITY_STUDIO_PROJECT_ID ||
+  process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ||
+  process.env.SANITY_PROJECT_ID
+const dataset =
+  process.env.SANITY_STUDIO_DATASET ||
+  process.env.NEXT_PUBLIC_SANITY_DATASET ||
+  'production'
 const token = process.env.SANITY_API_TOKEN
+
+if (!projectId) {
+  console.error('❌ Sanity project ID environment variable is required')
+  console.error('   Add one of these to your root .env file:')
+  console.error('     SANITY_STUDIO_PROJECT_ID="your-project-id"')
+  console.error('     NEXT_PUBLIC_SANITY_PROJECT_ID="your-project-id"')
+  process.exit(1)
+}
 
 if (!token) {
   console.error('❌ SANITY_API_TOKEN environment variable is required')
@@ -424,6 +438,15 @@ async function createDocs(label, emoji, docs, nameField = 'name') {
 async function seed() {
   console.log('🌱 Seeding starter content...')
 
+  // Order matters: pages/posts/people are created first so that singletons
+  // (Navigation, Footer, etc.) can safely reference them on the first run.
+  await createDocs('Creating people', '👤', people, 'firstName')
+  await createDocs('Creating content variables', '🏷️ ', contentVariables)
+  await createDocs('Creating section templates', '🧩', sectionTemplates)
+  await createDocs('Creating pages', '📄', [homePage, mastDemoPage])
+  await createDocs('Creating categories', '📂', categories, 'title')
+  await createDocs('Creating blog posts', '✏️ ', posts, 'title')
+
   const singletonLabels = ['Site Settings', 'Navigation', 'Footer', 'Claude API Settings']
   const singletonDocs = [settingsDoc, navigationDoc, footerDoc, claudeApiSettingsDoc]
   console.log('\n📋 Creating singletons...')
@@ -435,13 +458,6 @@ async function seed() {
       console.error(`   ✗ ${singletonLabels[i]}: ${error.message}`)
     }
   }
-
-  await createDocs('Creating people', '👤', people, 'firstName')
-  await createDocs('Creating content variables', '🏷️ ', contentVariables)
-  await createDocs('Creating section templates', '🧩', sectionTemplates)
-  await createDocs('Creating pages', '📄', [homePage, mastDemoPage])
-  await createDocs('Creating categories', '📂', categories, 'title')
-  await createDocs('Creating blog posts', '✏️ ', posts, 'title')
 
   console.log('\n🤖 Creating Claude training...')
   try {

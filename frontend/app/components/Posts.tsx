@@ -1,37 +1,75 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 import {sanityFetch} from '@/sanity/lib/live'
 import {morePostsQuery, allPostsQuery} from '@/sanity/lib/queries'
-import {Post as PostType, AllPostsQueryResult} from '@/sanity.types'
+import {AllPostsQueryResult} from '@/sanity.types'
 import DateComponent from '@/app/components/Date'
 import OnBoarding from '@/app/components/Onboarding'
-import Avatar from '@/app/components/Avatar'
+import {urlForImage} from '@/sanity/lib/utils'
 
 const Post = ({post}: {post: AllPostsQueryResult[number]}) => {
-  const {_id, title, slug, excerpt, date, author} = post
+  const {_id, title, slug, summary, coverImage, date, author, categories} = post as any
+
+  const imageUrl = coverImage?.asset?._ref
+    ? urlForImage(coverImage)?.width(600).height(400).url()
+    : null
 
   return (
     <article
       key={_id}
-      className="border border-border rounded-sm p-6 bg-muted-background flex flex-col justify-between transition-colors hover:bg-background relative"
+      className="group border border-border rounded-lg overflow-hidden bg-muted-background flex flex-col transition-colors hover:bg-background relative"
     >
-      <Link className="hover:text-brand underline transition-colors" href={`/posts/${slug}`}>
-        <span className="absolute inset-0 z-10" />
+      <Link href={`/posts/${slug}`} className="absolute inset-0 z-10">
+        <span className="sr-only">Read {title}</span>
       </Link>
-      <div>
-        <h3 className="text-2xl font-bold mb-4 leading-tight">{title}</h3>
 
-        <p className="line-clamp-3 text-sm leading-6 text-muted-foreground max-w-[70ch]">{excerpt}</p>
-      </div>
-      <div className="flex items-center justify-between mt-6 pt-4 border-t border-border">
-        {author && author.firstName && author.lastName && (
-          <div className="flex items-center">
-            <Avatar person={author} small={true} />
+      {imageUrl && (
+        <div className="relative aspect-[16/9] overflow-hidden">
+          <Image
+            src={imageUrl}
+            alt={coverImage?.alt || title || ''}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
+        </div>
+      )}
+
+      <div className="flex flex-col flex-1 p-5">
+        {categories && categories.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {categories.map((category: any) => (
+              <span
+                key={category._id}
+                className="text-xs font-medium text-brand uppercase tracking-wide"
+              >
+                {category.title}
+              </span>
+            ))}
           </div>
         )}
-        <time className="text-muted-foreground text-xs font-mono" dateTime={date}>
-          <DateComponent dateString={date} />
-        </time>
+
+        <h3 className="text-xl font-bold mb-2 leading-tight group-hover:text-brand transition-colors">
+          {title}
+        </h3>
+
+        {summary && (
+          <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground flex-1">
+            {summary}
+          </p>
+        )}
+
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
+          {author && author.firstName && author.lastName && (
+            <span className="text-sm font-medium">
+              {author.firstName} {author.lastName}
+            </span>
+          )}
+          <time className="text-muted-foreground text-xs font-mono" dateTime={date}>
+            <DateComponent dateString={date} />
+          </time>
+        </div>
       </div>
     </article>
   )
@@ -53,7 +91,7 @@ const Posts = ({
       </h2>
     )}
     {subHeading && <p className="mt-2 text-lg leading-8 text-muted-foreground">{subHeading}</p>}
-    <div className="pt-6 space-y-6">{children}</div>
+    <div className="pt-6 grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">{children}</div>
   </div>
 )
 
@@ -68,7 +106,7 @@ export const MorePosts = async ({skip, limit}: {skip: string; limit: number}) =>
   }
 
   return (
-    <Posts heading={`Recent Posts (${data?.length})`}>
+    <Posts heading="Other posts">
       {data?.map((post: any) => (
         <Post key={post._id} post={post} />
       ))}

@@ -12,7 +12,7 @@
  * ---------------------------------------------------------------------------------
  */
 
-// Source: schema.json
+// Source: ../studio/schema.json
 export type Link = {
   _type: 'link'
   linkType?: 'href' | 'page' | 'post'
@@ -495,8 +495,10 @@ export type AllSanitySchemaTypes =
   | SanityAssetSourceData
   | SanityImageAsset
   | Geopoint
+
 export declare const internalGroqTypeReferenceTo: unique symbol
-// Source: ./sanity/lib/queries.ts
+
+// Source: sanity/lib/queries.ts
 // Variable: settingsQuery
 // Query: *[_type == "settings"][0]
 export type SettingsQueryResult = {
@@ -553,14 +555,20 @@ export type SettingsQueryResult = {
     _type: 'image'
   }
 } | null
+
+// Source: sanity/lib/queries.ts
 // Variable: navigationQuery
 // Query: *[_type == "navigation"][0]{  logoText,  logoImage,  items[]{    _key,    label,    type,    link{      linkType,      href,      openInNewTab,      "page": page->slug.current,      "post": post->slug.current    },    dropdownLinks[]{      _key,      label,      link{        linkType,        href,        openInNewTab,        "page": page->slug.current,        "post": post->slug.current      }    }  },  showCta,  ctaLabel,  ctaLink{    linkType,    href,    openInNewTab,    "page": page->slug.current,    "post": post->slug.current  },  ctaStyle}
 export type NavigationQueryResult = null
+
+// Source: sanity/lib/queries.ts
 // Variable: footerQuery
 // Query: *[_type == "footer"][0]{  showLogo,  logoText,  logoImage,  linkColumns[]{    _key,    title,    links[]{      _key,      label,      link{        linkType,        href,        openInNewTab,        "page": page->slug.current,        "post": post->slug.current      }    }  },  socialLinks[]{    _key,    platform,    url  },  companyName,  showThemeToggle}
 export type FooterQueryResult = null
+
+// Source: sanity/lib/queries.ts
 // Variable: getPageQuery
-// Query: *[_type == 'page' && slug.current == $slug][0]{    _id,    _type,    name,    slug,    heading,    subheading,    "pageBuilder": pageBuilder[]{      ...,      _type == "callToAction" => {          link {      ...,        "page": page->slug.current,  "post": post->slug.current      },      },      _type == "infoSection" => {        content[]{          ...,          markDefs[]{            ...,              "page": page->slug.current,  "post": post->slug.current          }        }      },        _type == "section" => {    ...,      rows[]{    ...,      columns[]{    ...,      content[]{    ...,    _type == "buttonBlock" => {        link {      ...,        "page": page->slug.current,  "post": post->slug.current      }    },    _type == "richTextBlock" => {        content[]{    ...,    markDefs[]{      ...,        "page": page->slug.current,  "post": post->slug.current    }  }    },    _type == "inlineVideoBlock" => {      ...,      videoFile {        asset-> {          url        }      },      poster {        ...,        asset->      }    }  }  }  }  }    },  }
+// Query: *[_type == 'page' && slug.current == $slug][0]{    _id,    _type,    name,    slug,    heading,    subheading,    "pageBuilder": pageBuilder[]{      ...,        _type == "section" => {    ...,      rows[]{    ...,      columns[]{    ...,      content[]{    ...,    _type == "headingBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } }    },    _type == "eyebrowBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } }    },    _type == "buttonBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } },        link {      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }      }    },    _type == "richTextBlock" => {        content[]{    ...,    // Expand inline content variables within block children    children[]{      ...,      _type == "contentVariableInline" => {        ...,        reference->{          _id,          name,          key,          variableType,          textValue        }      }    },    markDefs[]{      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }    }  }    },    _type == "inlineVideoBlock" => {      ...,      videoFile {        asset-> {          url        }      },      poster {        ...,        asset->      }    },    _type == "row" => {      ...,      columns[]{        ...,          content[]{    ...,    _type == "headingBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } }    },    _type == "eyebrowBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } }    },    _type == "buttonBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } },        link {      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }      }    },    _type == "richTextBlock" => {        content[]{    ...,    // Expand inline content variables within block children    children[]{      ...,      _type == "contentVariableInline" => {        ...,        reference->{          _id,          name,          key,          variableType,          textValue        }      }    },    markDefs[]{      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }    }  }    },    _type == "inlineVideoBlock" => {      ...,      videoFile {        asset-> {          url        }      },      poster {        ...,        asset->      }    }  }      }    }  }  }  }  },        _type == "reference" => {    _key,    "_type": "section",    "isGlobal": true,    ...@->{      "sourceId": _id,      "sourceType": _type,      "label": name,        rows[]{    ...,      columns[]{    ...,      content[]{    ...,    _type == "headingBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } }    },    _type == "eyebrowBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } }    },    _type == "buttonBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } },        link {      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }      }    },    _type == "richTextBlock" => {        content[]{    ...,    // Expand inline content variables within block children    children[]{      ...,      _type == "contentVariableInline" => {        ...,        reference->{          _id,          name,          key,          variableType,          textValue        }      }    },    markDefs[]{      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }    }  }    },    _type == "inlineVideoBlock" => {      ...,      videoFile {        asset-> {          url        }      },      poster {        ...,        asset->      }    },    _type == "row" => {      ...,      columns[]{        ...,          content[]{    ...,    _type == "headingBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } }    },    _type == "eyebrowBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } }    },    _type == "buttonBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } },        link {      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }      }    },    _type == "richTextBlock" => {        content[]{    ...,    // Expand inline content variables within block children    children[]{      ...,      _type == "contentVariableInline" => {        ...,        reference->{          _id,          name,          key,          variableType,          textValue        }      }    },    markDefs[]{      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }    }  }    },    _type == "inlineVideoBlock" => {      ...,      videoFile {        asset-> {          url        }      },      poster {        ...,        asset->      }    }  }      }    }  }  }  },      backgroundColor,      backgroundImage,      backgroundOverlay,      minHeight,      customMinHeight,      verticalAlign,      maxWidth,      paddingTop    }  }    },  }
 export type GetPageQueryResult = {
   _id: string
   _type: 'page'
@@ -575,45 +583,19 @@ export type GetPageQueryResult = {
         heading: string
         text?: string
         buttonText?: string
-        link: {
-          _type: 'link'
-          linkType?: 'href' | 'page' | 'post'
-          href?: string
-          page: string | null
-          post: string | null
-          openInNewTab?: boolean
-        } | null
+        link?: Link
       }
     | {
         _key: string
         _type: 'infoSection'
         heading?: string
         subheading?: string
-        content: Array<{
-          children?: Array<{
-            marks?: Array<string>
-            text?: string
-            _type: 'span'
-            _key: string
-          }>
-          style?: 'blockquote' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'normal'
-          listItem?: 'bullet' | 'number'
-          markDefs: Array<{
-            linkType?: 'href' | 'page' | 'post'
-            href?: string
-            page: string | null
-            post: string | null
-            openInNewTab?: boolean
-            _type: 'link'
-            _key: string
-          }> | null
-          level?: number
-          _type: 'block'
-          _key: string
-        }> | null
+        content?: BlockContent
       }
   > | null
 } | null
+
+// Source: sanity/lib/queries.ts
 // Variable: sitemapData
 // Query: *[_type == "page" || _type == "post" && defined(slug.current)] | order(_type asc) {    "slug": slug.current,    _type,    _updatedAt,  }
 export type SitemapDataResult = Array<
@@ -628,14 +610,16 @@ export type SitemapDataResult = Array<
       _updatedAt: string
     }
 >
+
+// Source: sanity/lib/queries.ts
 // Variable: allPostsQuery
-// Query: *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc) {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  excerpt,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  }
+// Query: *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc) {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  summary,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  "categories": categories[]->{ _id, title, "slug": slug.current },  }
 export type AllPostsQueryResult = Array<{
   _id: string
   status: 'draft' | 'published'
   title: string
   slug: string
-  excerpt: string | null
+  summary: null
   coverImage: {
     asset?: {
       _ref: string
@@ -667,15 +651,18 @@ export type AllPostsQueryResult = Array<{
       _type: 'image'
     }
   } | null
+  categories: null
 }>
+
+// Source: sanity/lib/queries.ts
 // Variable: morePostsQuery
-// Query: *[_type == "post" && _id != $skip && defined(slug.current)] | order(date desc, _updatedAt desc) [0...$limit] {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  excerpt,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  }
+// Query: *[_type == "post" && _id != $skip && defined(slug.current)] | order(date desc, _updatedAt desc) [0...$limit] {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  summary,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  "categories": categories[]->{ _id, title, "slug": slug.current },  }
 export type MorePostsQueryResult = Array<{
   _id: string
   status: 'draft' | 'published'
   title: string
   slug: string
-  excerpt: string | null
+  summary: null
   coverImage: {
     asset?: {
       _ref: string
@@ -707,9 +694,12 @@ export type MorePostsQueryResult = Array<{
       _type: 'image'
     }
   } | null
+  categories: null
 }>
+
+// Source: sanity/lib/queries.ts
 // Variable: postQuery
-// Query: *[_type == "post" && slug.current == $slug] [0] {    content[]{    ...,    markDefs[]{      ...,        "page": page->slug.current,  "post": post->slug.current    }  },      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  excerpt,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  }
+// Query: *[_type == "post" && slug.current == $slug] [0] {    content[]{    ...,    markDefs[]{      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }    }  },      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  summary,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  "categories": categories[]->{ _id, title, "slug": slug.current },  }
 export type PostQueryResult = {
   content: Array<{
     children?: Array<{
@@ -728,6 +718,7 @@ export type PostQueryResult = {
       openInNewTab?: boolean
       _type: 'link'
       _key: string
+      variable: null
     }> | null
     level?: number
     _type: 'block'
@@ -737,7 +728,7 @@ export type PostQueryResult = {
   status: 'draft' | 'published'
   title: string
   slug: string
-  excerpt: string | null
+  summary: null
   coverImage: {
     asset?: {
       _ref: string
@@ -769,17 +760,414 @@ export type PostQueryResult = {
       _type: 'image'
     }
   } | null
+  categories: null
 } | null
+
+// Source: sanity/lib/queries.ts
 // Variable: postPagesSlugs
 // Query: *[_type == "post" && defined(slug.current)]  {"slug": slug.current}
 export type PostPagesSlugsResult = Array<{
   slug: string
 }>
+
+// Source: sanity/lib/queries.ts
 // Variable: pagesSlugs
 // Query: *[_type == "page" && defined(slug.current)]  {"slug": slug.current}
 export type PagesSlugsResult = Array<{
   slug: string
 }>
+
+// Source: sanity/lib/queries.ts
+// Variable: blogGridAllPostsDateDescQuery
+// Query: *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc) [0...$limit] {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  summary,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  "categories": categories[]->{ _id, title, "slug": slug.current },    "categories": categories[]->{ _id, title, "slug": slug.current }  }
+export type BlogGridAllPostsDateDescQueryResult = Array<{
+  _id: string
+  status: 'draft' | 'published'
+  title: string
+  slug: string
+  summary: null
+  coverImage: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  } | null
+  date: string
+  author: {
+    firstName: string
+    lastName: string
+    picture: {
+      asset?: {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+      }
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt?: string
+      _type: 'image'
+    }
+  } | null
+  categories: null
+}>
+
+// Source: sanity/lib/queries.ts
+// Variable: blogGridAllPostsDateAscQuery
+// Query: *[_type == "post" && defined(slug.current)] | order(date asc, _updatedAt asc) [0...$limit] {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  summary,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  "categories": categories[]->{ _id, title, "slug": slug.current },    "categories": categories[]->{ _id, title, "slug": slug.current }  }
+export type BlogGridAllPostsDateAscQueryResult = Array<{
+  _id: string
+  status: 'draft' | 'published'
+  title: string
+  slug: string
+  summary: null
+  coverImage: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  } | null
+  date: string
+  author: {
+    firstName: string
+    lastName: string
+    picture: {
+      asset?: {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+      }
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt?: string
+      _type: 'image'
+    }
+  } | null
+  categories: null
+}>
+
+// Source: sanity/lib/queries.ts
+// Variable: blogGridAllPostsTitleDescQuery
+// Query: *[_type == "post" && defined(slug.current)] | order(title desc) [0...$limit] {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  summary,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  "categories": categories[]->{ _id, title, "slug": slug.current },    "categories": categories[]->{ _id, title, "slug": slug.current }  }
+export type BlogGridAllPostsTitleDescQueryResult = Array<{
+  _id: string
+  status: 'draft' | 'published'
+  title: string
+  slug: string
+  summary: null
+  coverImage: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  } | null
+  date: string
+  author: {
+    firstName: string
+    lastName: string
+    picture: {
+      asset?: {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+      }
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt?: string
+      _type: 'image'
+    }
+  } | null
+  categories: null
+}>
+
+// Source: sanity/lib/queries.ts
+// Variable: blogGridAllPostsTitleAscQuery
+// Query: *[_type == "post" && defined(slug.current)] | order(title asc) [0...$limit] {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  summary,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  "categories": categories[]->{ _id, title, "slug": slug.current },    "categories": categories[]->{ _id, title, "slug": slug.current }  }
+export type BlogGridAllPostsTitleAscQueryResult = Array<{
+  _id: string
+  status: 'draft' | 'published'
+  title: string
+  slug: string
+  summary: null
+  coverImage: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  } | null
+  date: string
+  author: {
+    firstName: string
+    lastName: string
+    picture: {
+      asset?: {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+      }
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt?: string
+      _type: 'image'
+    }
+  } | null
+  categories: null
+}>
+
+// Source: sanity/lib/queries.ts
+// Variable: blogGridByIdsQuery
+// Query: *[_type == "post" && _id in $ids && defined(slug.current)] {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  summary,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  "categories": categories[]->{ _id, title, "slug": slug.current },    "categories": categories[]->{ _id, title, "slug": slug.current }  }
+export type BlogGridByIdsQueryResult = Array<{
+  _id: string
+  status: 'draft' | 'published'
+  title: string
+  slug: string
+  summary: null
+  coverImage: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  } | null
+  date: string
+  author: {
+    firstName: string
+    lastName: string
+    picture: {
+      asset?: {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+      }
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt?: string
+      _type: 'image'
+    }
+  } | null
+  categories: null
+}>
+
+// Source: sanity/lib/queries.ts
+// Variable: blogGridByCategoryDateDescQuery
+// Query: *[_type == "post" && defined(slug.current) && $categoryId in categories[]._ref] | order(date desc, _updatedAt desc) [0...$limit] {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  summary,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  "categories": categories[]->{ _id, title, "slug": slug.current },    "categories": categories[]->{ _id, title, "slug": slug.current }  }
+export type BlogGridByCategoryDateDescQueryResult = Array<{
+  _id: string
+  status: 'draft' | 'published'
+  title: string
+  slug: string
+  summary: null
+  coverImage: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  } | null
+  date: string
+  author: {
+    firstName: string
+    lastName: string
+    picture: {
+      asset?: {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+      }
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt?: string
+      _type: 'image'
+    }
+  } | null
+  categories: null
+}>
+
+// Source: sanity/lib/queries.ts
+// Variable: blogGridByCategoryDateAscQuery
+// Query: *[_type == "post" && defined(slug.current) && $categoryId in categories[]._ref] | order(date asc, _updatedAt asc) [0...$limit] {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  summary,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  "categories": categories[]->{ _id, title, "slug": slug.current },    "categories": categories[]->{ _id, title, "slug": slug.current }  }
+export type BlogGridByCategoryDateAscQueryResult = Array<{
+  _id: string
+  status: 'draft' | 'published'
+  title: string
+  slug: string
+  summary: null
+  coverImage: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  } | null
+  date: string
+  author: {
+    firstName: string
+    lastName: string
+    picture: {
+      asset?: {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+      }
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt?: string
+      _type: 'image'
+    }
+  } | null
+  categories: null
+}>
+
+// Source: sanity/lib/queries.ts
+// Variable: blogGridByCategoryTitleDescQuery
+// Query: *[_type == "post" && defined(slug.current) && $categoryId in categories[]._ref] | order(title desc) [0...$limit] {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  summary,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  "categories": categories[]->{ _id, title, "slug": slug.current },    "categories": categories[]->{ _id, title, "slug": slug.current }  }
+export type BlogGridByCategoryTitleDescQueryResult = Array<{
+  _id: string
+  status: 'draft' | 'published'
+  title: string
+  slug: string
+  summary: null
+  coverImage: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  } | null
+  date: string
+  author: {
+    firstName: string
+    lastName: string
+    picture: {
+      asset?: {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+      }
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt?: string
+      _type: 'image'
+    }
+  } | null
+  categories: null
+}>
+
+// Source: sanity/lib/queries.ts
+// Variable: blogGridByCategoryTitleAscQuery
+// Query: *[_type == "post" && defined(slug.current) && $categoryId in categories[]._ref] | order(title asc) [0...$limit] {      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  summary,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  "categories": categories[]->{ _id, title, "slug": slug.current },    "categories": categories[]->{ _id, title, "slug": slug.current }  }
+export type BlogGridByCategoryTitleAscQueryResult = Array<{
+  _id: string
+  status: 'draft' | 'published'
+  title: string
+  slug: string
+  summary: null
+  coverImage: {
+    asset?: {
+      _ref: string
+      _type: 'reference'
+      _weak?: boolean
+      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+    }
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  } | null
+  date: string
+  author: {
+    firstName: string
+    lastName: string
+    picture: {
+      asset?: {
+        _ref: string
+        _type: 'reference'
+        _weak?: boolean
+        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+      }
+      media?: unknown
+      hotspot?: SanityImageHotspot
+      crop?: SanityImageCrop
+      alt?: string
+      _type: 'image'
+    }
+  } | null
+  categories: null
+}>
+
+// Source: sanity/lib/queries.ts
+// Variable: sectionTemplateQuery
+// Query: *[_type == "sectionTemplate" && _id == $id][0]{    _id,    _type,    name,    description,    category,    rows[]{      ...,        columns[]{    ...,      content[]{    ...,    _type == "headingBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } }    },    _type == "eyebrowBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } }    },    _type == "buttonBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } },        link {      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }      }    },    _type == "richTextBlock" => {        content[]{    ...,    // Expand inline content variables within block children    children[]{      ...,      _type == "contentVariableInline" => {        ...,        reference->{          _id,          name,          key,          variableType,          textValue        }      }    },    markDefs[]{      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }    }  }    },    _type == "inlineVideoBlock" => {      ...,      videoFile {        asset-> {          url        }      },      poster {        ...,        asset->      }    },    _type == "row" => {      ...,      columns[]{        ...,          content[]{    ...,    _type == "headingBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } }    },    _type == "eyebrowBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } }    },    _type == "buttonBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } },        link {      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }      }    },    _type == "richTextBlock" => {        content[]{    ...,    // Expand inline content variables within block children    children[]{      ...,      _type == "contentVariableInline" => {        ...,        reference->{          _id,          name,          key,          variableType,          textValue        }      }    },    markDefs[]{      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }    }  }    },    _type == "inlineVideoBlock" => {      ...,      videoFile {        asset-> {          url        }      },      poster {        ...,        asset->      }    }  }      }    }  }  }    },    backgroundColor,    minHeight,    verticalAlign,    maxWidth,    paddingTop  }
+export type SectionTemplateQueryResult = null
 
 // Query TypeMap
 import '@sanity/client'
@@ -788,12 +1176,22 @@ declare module '@sanity/client' {
     '*[_type == "settings"][0]': SettingsQueryResult
     '*[_type == "navigation"][0]{\n  logoText,\n  logoImage,\n  items[]{\n    _key,\n    label,\n    type,\n    link{\n      linkType,\n      href,\n      openInNewTab,\n      "page": page->slug.current,\n      "post": post->slug.current\n    },\n    dropdownLinks[]{\n      _key,\n      label,\n      link{\n        linkType,\n        href,\n        openInNewTab,\n        "page": page->slug.current,\n        "post": post->slug.current\n      }\n    }\n  },\n  showCta,\n  ctaLabel,\n  ctaLink{\n    linkType,\n    href,\n    openInNewTab,\n    "page": page->slug.current,\n    "post": post->slug.current\n  },\n  ctaStyle\n}': NavigationQueryResult
     '*[_type == "footer"][0]{\n  showLogo,\n  logoText,\n  logoImage,\n  linkColumns[]{\n    _key,\n    title,\n    links[]{\n      _key,\n      label,\n      link{\n        linkType,\n        href,\n        openInNewTab,\n        "page": page->slug.current,\n        "post": post->slug.current\n      }\n    }\n  },\n  socialLinks[]{\n    _key,\n    platform,\n    url\n  },\n  companyName,\n  showThemeToggle\n}': FooterQueryResult
-    '\n  *[_type == \'page\' && slug.current == $slug][0]{\n    _id,\n    _type,\n    name,\n    slug,\n    heading,\n    subheading,\n    "pageBuilder": pageBuilder[]{\n      ...,\n      _type == "callToAction" => {\n        \n  link {\n      ...,\n      \n  "page": page->slug.current,\n  "post": post->slug.current\n\n      }\n,\n      },\n      _type == "infoSection" => {\n        content[]{\n          ...,\n          markDefs[]{\n            ...,\n            \n  "page": page->slug.current,\n  "post": post->slug.current\n\n          }\n        }\n      },\n      \n  _type == "section" => {\n    ...,\n    \n  rows[]{\n    ...,\n    \n  columns[]{\n    ...,\n    \n  content[]{\n    ...,\n    _type == "buttonBlock" => {\n      \n  link {\n      ...,\n      \n  "page": page->slug.current,\n  "post": post->slug.current\n\n      }\n\n    },\n    _type == "richTextBlock" => {\n      \n  content[]{\n    ...,\n    markDefs[]{\n      ...,\n      \n  "page": page->slug.current,\n  "post": post->slug.current\n\n    }\n  }\n\n    },\n    _type == "inlineVideoBlock" => {\n      ...,\n      videoFile {\n        asset-> {\n          url\n        }\n      },\n      poster {\n        ...,\n        asset->\n      }\n    }\n  }\n\n  }\n\n  }\n\n  }\n\n    },\n  }\n': GetPageQueryResult
+    '\n  *[_type == \'page\' && slug.current == $slug][0]{\n    _id,\n    _type,\n    name,\n    slug,\n    heading,\n    subheading,\n    "pageBuilder": pageBuilder[]{\n      ...,\n      \n  _type == "section" => {\n    ...,\n    \n  rows[]{\n    ...,\n    \n  columns[]{\n    ...,\n    \n  content[]{\n    ...,\n    _type == "headingBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n }\n    },\n    _type == "eyebrowBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n }\n    },\n    _type == "buttonBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n },\n      \n  link {\n      ...,\n      \n  "page": page->slug.current,\n  "post": post->slug.current,\n  variable->{\n    _id,\n    variableType,\n    linkValue{\n      ...,\n      "page": page->slug.current,\n      "post": post->slug.current\n    }\n  }\n\n      }\n\n    },\n    _type == "richTextBlock" => {\n      \n  content[]{\n    ...,\n    // Expand inline content variables within block children\n    children[]{\n      ...,\n      _type == "contentVariableInline" => {\n        ...,\n        reference->{\n          _id,\n          name,\n          key,\n          variableType,\n          textValue\n        }\n      }\n    },\n    markDefs[]{\n      ...,\n      \n  "page": page->slug.current,\n  "post": post->slug.current,\n  variable->{\n    _id,\n    variableType,\n    linkValue{\n      ...,\n      "page": page->slug.current,\n      "post": post->slug.current\n    }\n  }\n\n    }\n  }\n\n    },\n    _type == "inlineVideoBlock" => {\n      ...,\n      videoFile {\n        asset-> {\n          url\n        }\n      },\n      poster {\n        ...,\n        asset->\n      }\n    },\n    _type == "row" => {\n      ...,\n      columns[]{\n        ...,\n        \n  content[]{\n    ...,\n    _type == "headingBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n }\n    },\n    _type == "eyebrowBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n }\n    },\n    _type == "buttonBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n },\n      \n  link {\n      ...,\n      \n  "page": page->slug.current,\n  "post": post->slug.current,\n  variable->{\n    _id,\n    variableType,\n    linkValue{\n      ...,\n      "page": page->slug.current,\n      "post": post->slug.current\n    }\n  }\n\n      }\n\n    },\n    _type == "richTextBlock" => {\n      \n  content[]{\n    ...,\n    // Expand inline content variables within block children\n    children[]{\n      ...,\n      _type == "contentVariableInline" => {\n        ...,\n        reference->{\n          _id,\n          name,\n          key,\n          variableType,\n          textValue\n        }\n      }\n    },\n    markDefs[]{\n      ...,\n      \n  "page": page->slug.current,\n  "post": post->slug.current,\n  variable->{\n    _id,\n    variableType,\n    linkValue{\n      ...,\n      "page": page->slug.current,\n      "post": post->slug.current\n    }\n  }\n\n    }\n  }\n\n    },\n    _type == "inlineVideoBlock" => {\n      ...,\n      videoFile {\n        asset-> {\n          url\n        }\n      },\n      poster {\n        ...,\n        asset->\n      }\n    }\n  }\n\n      }\n    }\n  }\n\n  }\n\n  }\n\n  }\n,\n      \n  _type == "reference" => {\n    _key,\n    "_type": "section",\n    "isGlobal": true,\n    ...@->{\n      "sourceId": _id,\n      "sourceType": _type,\n      "label": name,\n      \n  rows[]{\n    ...,\n    \n  columns[]{\n    ...,\n    \n  content[]{\n    ...,\n    _type == "headingBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n }\n    },\n    _type == "eyebrowBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n }\n    },\n    _type == "buttonBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n },\n      \n  link {\n      ...,\n      \n  "page": page->slug.current,\n  "post": post->slug.current,\n  variable->{\n    _id,\n    variableType,\n    linkValue{\n      ...,\n      "page": page->slug.current,\n      "post": post->slug.current\n    }\n  }\n\n      }\n\n    },\n    _type == "richTextBlock" => {\n      \n  content[]{\n    ...,\n    // Expand inline content variables within block children\n    children[]{\n      ...,\n      _type == "contentVariableInline" => {\n        ...,\n        reference->{\n          _id,\n          name,\n          key,\n          variableType,\n          textValue\n        }\n      }\n    },\n    markDefs[]{\n      ...,\n      \n  "page": page->slug.current,\n  "post": post->slug.current,\n  variable->{\n    _id,\n    variableType,\n    linkValue{\n      ...,\n      "page": page->slug.current,\n      "post": post->slug.current\n    }\n  }\n\n    }\n  }\n\n    },\n    _type == "inlineVideoBlock" => {\n      ...,\n      videoFile {\n        asset-> {\n          url\n        }\n      },\n      poster {\n        ...,\n        asset->\n      }\n    },\n    _type == "row" => {\n      ...,\n      columns[]{\n        ...,\n        \n  content[]{\n    ...,\n    _type == "headingBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n }\n    },\n    _type == "eyebrowBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n }\n    },\n    _type == "buttonBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n },\n      \n  link {\n      ...,\n      \n  "page": page->slug.current,\n  "post": post->slug.current,\n  variable->{\n    _id,\n    variableType,\n    linkValue{\n      ...,\n      "page": page->slug.current,\n      "post": post->slug.current\n    }\n  }\n\n      }\n\n    },\n    _type == "richTextBlock" => {\n      \n  content[]{\n    ...,\n    // Expand inline content variables within block children\n    children[]{\n      ...,\n      _type == "contentVariableInline" => {\n        ...,\n        reference->{\n          _id,\n          name,\n          key,\n          variableType,\n          textValue\n        }\n      }\n    },\n    markDefs[]{\n      ...,\n      \n  "page": page->slug.current,\n  "post": post->slug.current,\n  variable->{\n    _id,\n    variableType,\n    linkValue{\n      ...,\n      "page": page->slug.current,\n      "post": post->slug.current\n    }\n  }\n\n    }\n  }\n\n    },\n    _type == "inlineVideoBlock" => {\n      ...,\n      videoFile {\n        asset-> {\n          url\n        }\n      },\n      poster {\n        ...,\n        asset->\n      }\n    }\n  }\n\n      }\n    }\n  }\n\n  }\n\n  }\n,\n      backgroundColor,\n      backgroundImage,\n      backgroundOverlay,\n      minHeight,\n      customMinHeight,\n      verticalAlign,\n      maxWidth,\n      paddingTop\n    }\n  }\n\n    },\n  }\n': GetPageQueryResult
     '\n  *[_type == "page" || _type == "post" && defined(slug.current)] | order(_type asc) {\n    "slug": slug.current,\n    _type,\n    _updatedAt,\n  }\n': SitemapDataResult
-    '\n  *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc) {\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  excerpt,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n\n  }\n': AllPostsQueryResult
-    '\n  *[_type == "post" && _id != $skip && defined(slug.current)] | order(date desc, _updatedAt desc) [0...$limit] {\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  excerpt,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n\n  }\n': MorePostsQueryResult
-    '\n  *[_type == "post" && slug.current == $slug] [0] {\n    content[]{\n    ...,\n    markDefs[]{\n      ...,\n      \n  "page": page->slug.current,\n  "post": post->slug.current\n\n    }\n  },\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  excerpt,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n\n  }\n': PostQueryResult
+    '\n  *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc) {\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  summary,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n  "categories": categories[]->{ _id, title, "slug": slug.current },\n\n  }\n': AllPostsQueryResult
+    '\n  *[_type == "post" && _id != $skip && defined(slug.current)] | order(date desc, _updatedAt desc) [0...$limit] {\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  summary,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n  "categories": categories[]->{ _id, title, "slug": slug.current },\n\n  }\n': MorePostsQueryResult
+    '\n  *[_type == "post" && slug.current == $slug] [0] {\n    content[]{\n    ...,\n    markDefs[]{\n      ...,\n      \n  "page": page->slug.current,\n  "post": post->slug.current,\n  variable->{\n    _id,\n    variableType,\n    linkValue{\n      ...,\n      "page": page->slug.current,\n      "post": post->slug.current\n    }\n  }\n\n    }\n  },\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  summary,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n  "categories": categories[]->{ _id, title, "slug": slug.current },\n\n  }\n': PostQueryResult
     '\n  *[_type == "post" && defined(slug.current)]\n  {"slug": slug.current}\n': PostPagesSlugsResult
     '\n  *[_type == "page" && defined(slug.current)]\n  {"slug": slug.current}\n': PagesSlugsResult
+    '\n  *[_type == "post" && defined(slug.current)] | order(date desc, _updatedAt desc) [0...$limit] {\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  summary,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n  "categories": categories[]->{ _id, title, "slug": slug.current },\n\n    "categories": categories[]->{ _id, title, "slug": slug.current }\n  }\n': BlogGridAllPostsDateDescQueryResult
+    '\n  *[_type == "post" && defined(slug.current)] | order(date asc, _updatedAt asc) [0...$limit] {\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  summary,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n  "categories": categories[]->{ _id, title, "slug": slug.current },\n\n    "categories": categories[]->{ _id, title, "slug": slug.current }\n  }\n': BlogGridAllPostsDateAscQueryResult
+    '\n  *[_type == "post" && defined(slug.current)] | order(title desc) [0...$limit] {\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  summary,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n  "categories": categories[]->{ _id, title, "slug": slug.current },\n\n    "categories": categories[]->{ _id, title, "slug": slug.current }\n  }\n': BlogGridAllPostsTitleDescQueryResult
+    '\n  *[_type == "post" && defined(slug.current)] | order(title asc) [0...$limit] {\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  summary,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n  "categories": categories[]->{ _id, title, "slug": slug.current },\n\n    "categories": categories[]->{ _id, title, "slug": slug.current }\n  }\n': BlogGridAllPostsTitleAscQueryResult
+    '\n  *[_type == "post" && _id in $ids && defined(slug.current)] {\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  summary,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n  "categories": categories[]->{ _id, title, "slug": slug.current },\n\n    "categories": categories[]->{ _id, title, "slug": slug.current }\n  }\n': BlogGridByIdsQueryResult
+    '\n  *[_type == "post" && defined(slug.current) && $categoryId in categories[]._ref] | order(date desc, _updatedAt desc) [0...$limit] {\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  summary,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n  "categories": categories[]->{ _id, title, "slug": slug.current },\n\n    "categories": categories[]->{ _id, title, "slug": slug.current }\n  }\n': BlogGridByCategoryDateDescQueryResult
+    '\n  *[_type == "post" && defined(slug.current) && $categoryId in categories[]._ref] | order(date asc, _updatedAt asc) [0...$limit] {\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  summary,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n  "categories": categories[]->{ _id, title, "slug": slug.current },\n\n    "categories": categories[]->{ _id, title, "slug": slug.current }\n  }\n': BlogGridByCategoryDateAscQueryResult
+    '\n  *[_type == "post" && defined(slug.current) && $categoryId in categories[]._ref] | order(title desc) [0...$limit] {\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  summary,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n  "categories": categories[]->{ _id, title, "slug": slug.current },\n\n    "categories": categories[]->{ _id, title, "slug": slug.current }\n  }\n': BlogGridByCategoryTitleDescQueryResult
+    '\n  *[_type == "post" && defined(slug.current) && $categoryId in categories[]._ref] | order(title asc) [0...$limit] {\n    \n  _id,\n  "status": select(_originalId in path("drafts.**") => "draft", "published"),\n  "title": coalesce(title, "Untitled"),\n  "slug": slug.current,\n  summary,\n  coverImage,\n  "date": coalesce(date, _updatedAt),\n  "author": author->{firstName, lastName, picture},\n  "categories": categories[]->{ _id, title, "slug": slug.current },\n\n    "categories": categories[]->{ _id, title, "slug": slug.current }\n  }\n': BlogGridByCategoryTitleAscQueryResult
+    '\n  *[_type == "sectionTemplate" && _id == $id][0]{\n    _id,\n    _type,\n    name,\n    description,\n    category,\n    rows[]{\n      ...,\n      \n  columns[]{\n    ...,\n    \n  content[]{\n    ...,\n    _type == "headingBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n }\n    },\n    _type == "eyebrowBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n }\n    },\n    _type == "buttonBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n },\n      \n  link {\n      ...,\n      \n  "page": page->slug.current,\n  "post": post->slug.current,\n  variable->{\n    _id,\n    variableType,\n    linkValue{\n      ...,\n      "page": page->slug.current,\n      "post": post->slug.current\n    }\n  }\n\n      }\n\n    },\n    _type == "richTextBlock" => {\n      \n  content[]{\n    ...,\n    // Expand inline content variables within block children\n    children[]{\n      ...,\n      _type == "contentVariableInline" => {\n        ...,\n        reference->{\n          _id,\n          name,\n          key,\n          variableType,\n          textValue\n        }\n      }\n    },\n    markDefs[]{\n      ...,\n      \n  "page": page->slug.current,\n  "post": post->slug.current,\n  variable->{\n    _id,\n    variableType,\n    linkValue{\n      ...,\n      "page": page->slug.current,\n      "post": post->slug.current\n    }\n  }\n\n    }\n  }\n\n    },\n    _type == "inlineVideoBlock" => {\n      ...,\n      videoFile {\n        asset-> {\n          url\n        }\n      },\n      poster {\n        ...,\n        asset->\n      }\n    },\n    _type == "row" => {\n      ...,\n      columns[]{\n        ...,\n        \n  content[]{\n    ...,\n    _type == "headingBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n }\n    },\n    _type == "eyebrowBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n }\n    },\n    _type == "buttonBlock" => {\n      ...,\n      text{ \n  ...,\n  variableRef->{\n    _id,\n    name,\n    key,\n    variableType,\n    textValue\n  }\n },\n      \n  link {\n      ...,\n      \n  "page": page->slug.current,\n  "post": post->slug.current,\n  variable->{\n    _id,\n    variableType,\n    linkValue{\n      ...,\n      "page": page->slug.current,\n      "post": post->slug.current\n    }\n  }\n\n      }\n\n    },\n    _type == "richTextBlock" => {\n      \n  content[]{\n    ...,\n    // Expand inline content variables within block children\n    children[]{\n      ...,\n      _type == "contentVariableInline" => {\n        ...,\n        reference->{\n          _id,\n          name,\n          key,\n          variableType,\n          textValue\n        }\n      }\n    },\n    markDefs[]{\n      ...,\n      \n  "page": page->slug.current,\n  "post": post->slug.current,\n  variable->{\n    _id,\n    variableType,\n    linkValue{\n      ...,\n      "page": page->slug.current,\n      "post": post->slug.current\n    }\n  }\n\n    }\n  }\n\n    },\n    _type == "inlineVideoBlock" => {\n      ...,\n      videoFile {\n        asset-> {\n          url\n        }\n      },\n      poster {\n        ...,\n        asset->\n      }\n    }\n  }\n\n      }\n    }\n  }\n\n  }\n\n    },\n    backgroundColor,\n    minHeight,\n    verticalAlign,\n    maxWidth,\n    paddingTop\n  }\n': SectionTemplateQueryResult
   }
 }

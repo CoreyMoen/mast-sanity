@@ -79,6 +79,7 @@ const postFields = /* groq */ `
   coverImage,
   "date": coalesce(date, _updatedAt),
   "author": author->{firstName, lastName, picture},
+  "categories": categories[]->{ _id, title, "slug": slug.current },
 `
 
 // Resolve page/post/variable references in link objects

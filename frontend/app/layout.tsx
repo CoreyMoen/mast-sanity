@@ -121,27 +121,26 @@ export default async function RootLayout({children}: {children: React.ReactNode}
             }
           });
 
-          // 2. Force inline overrides on elements with viewport-height classes.
-          //    The CSS override in globals.css should handle this, but React
-          //    hydration can re-apply the original class-based value.
-          document.querySelectorAll('.min-h-screen').forEach(function(el) {
-            if (el !== document.body && el !== document.documentElement) {
-              el.style.setProperty('min-height', '900px', 'important');
-            }
-          });
-          document.querySelectorAll('.h-screen').forEach(function(el) {
-            if (el !== document.body && el !== document.documentElement) {
-              el.style.setProperty('height', '900px', 'important');
-            }
-          });
+          // 2. Viewport-height classes (.min-h-screen, .h-screen) are handled
+          //    purely via CSS !important rules in globals.css under .pinboard-mode.
+          //    Avoid setting inline styles here — it causes React hydration mismatches
+          //    since the server-rendered HTML won't have those inline styles.
 
           fixing = false;
         }
 
+        // Only report when the height changes meaningfully. Small oscillations
+        // (a few pixels from layout thrash, Swiper, etc.) cause feedback loops
+        // because the parent resizes the iframe, which makes the iframe content
+        // reflow and report a new height, ad infinitum.
+        var lastReportedHeight = 0;
         function reportHeight() {
+          var h = document.documentElement.scrollHeight;
+          if (Math.abs(h - lastReportedHeight) < 8) return;
+          lastReportedHeight = h;
           window.parent.postMessage({
             type: 'pinboard-height',
-            height: document.documentElement.scrollHeight
+            height: h
           }, '*');
         }
 
@@ -179,7 +178,16 @@ export default async function RootLayout({children}: {children: React.ReactNode}
 
         // Watch for body resizes (images loading, fonts swapping, etc.)
         if (typeof ResizeObserver !== 'undefined') {
-          new ResizeObserver(reportHeightDebounced).observe(document.body);
+          var observeBody = function() {
+            if (document.body) {
+              new ResizeObserver(reportHeightDebounced).observe(document.body);
+            }
+          };
+          if (document.body) {
+            observeBody();
+          } else {
+            document.addEventListener('DOMContentLoaded', observeBody);
+          }
         }
 
         window.addEventListener('message', function(e) {

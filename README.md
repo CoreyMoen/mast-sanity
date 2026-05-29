@@ -90,7 +90,7 @@ See the [Claude Assistant Porting Guide](docs/claude-assistant-porting-guide.md)
 
 ### Prerequisites
 
-- Node.js 18+
+- **Node.js 22 LTS** (recommended — Node 24 has been reported to segfault during `npm install` on macOS; use Node 22 if you hit install issues)
 - A Sanity account ([sanity.io](https://www.sanity.io/))
 
 ### Installation
@@ -106,10 +106,12 @@ npm install
 **`.env`** (project root — used by seed scripts)
 
 ```
+SANITY_STUDIO_PROJECT_ID="your-project-id"
+SANITY_STUDIO_DATASET="production"
 SANITY_API_TOKEN="your-write-token"
 ```
 
-> Create a token with **Editor** permissions at [sanity.io/manage](https://www.sanity.io/manage) → your project → API → Tokens
+> Create a token with **Editor** permissions at [sanity.io/manage](https://www.sanity.io/manage) → your project → API → Tokens. The seed script reads `SANITY_STUDIO_PROJECT_ID` (or `NEXT_PUBLIC_SANITY_PROJECT_ID`) to know which project to write to.
 
 **`studio/.env`**
 

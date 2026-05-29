@@ -113,12 +113,22 @@ export function PageCard({
   const [contentHeight, setContentHeight] = useState<number | null>(null)
   const iframeRef = useRef<HTMLIFrameElement>(null)
 
-  // Listen for postMessage from the iframe reporting its scrollHeight
+  // Listen for postMessage from the iframe reporting its scrollHeight.
+  // Pages with dynamic content (Swiper, animations) can oscillate by 1-2px
+  // as the iframe resize feeds back into the iframe's own ResizeObserver.
+  // Ignore changes below a threshold to break that loop.
   useEffect(() => {
+    const HEIGHT_CHANGE_THRESHOLD = 8
     const handleMessage = (e: MessageEvent) => {
       if (e.data?.type !== 'pinboard-height') return
       if (iframeRef.current && e.source === iframeRef.current.contentWindow) {
-        setContentHeight(e.data.height)
+        const newHeight = e.data.height
+        setContentHeight((prev) => {
+          if (prev !== null && Math.abs(prev - newHeight) < HEIGHT_CHANGE_THRESHOLD) {
+            return prev
+          }
+          return newHeight
+        })
       }
     }
     window.addEventListener('message', handleMessage)
