@@ -285,34 +285,32 @@ export function SectionFormInput(props: ObjectInputProps) {
   if (!loading && templates.length === 0) {
     return (
       <>
-        {hasContent && (
-          <SaveAsTemplateCard
-            saving={savingTemplate}
-            onSave={saveAsTemplate}
-          />
-        )}
         {props.renderDefault(props)}
+        {hasContent && (
+          <Box marginTop={4}>
+            <SaveAsTemplateCard
+              saving={savingTemplate}
+              onSave={saveAsTemplate}
+            />
+          </Box>
+        )}
       </>
     )
   }
 
   return (
     <>
-      {hasContent && (
-        <SaveAsTemplateCard saving={savingTemplate} onSave={saveAsTemplate} />
-      )}
-      <Card padding={3} tone="transparent" border radius={2} marginBottom={4}>
-        <Flex align="center" justify="space-between" gap={3}>
-          <Flex align="center" gap={2}>
-            <Text size={1}>
-              <BlockElementIcon />
-            </Text>
-            <Text size={1}>
-              {hasContent
-                ? 'Replace content with a template'
-                : 'Start from a template (optional)'}
-            </Text>
-          </Flex>
+      {props.renderDefault(props)}
+      <Box marginTop={4}>
+        <Card padding={3} tone="transparent" border radius={2} marginBottom={3}>
+          <Flex align="center" justify="space-between" gap={3}>
+            <Flex align="center" gap={2}>
+              <Text size={1}>
+                {hasContent
+                  ? 'Replace content with a template'
+                  : 'Start from a template (optional)'}
+              </Text>
+            </Flex>
 
           {loading ? (
             <Flex align="center" gap={2}>
@@ -330,7 +328,7 @@ export function SectionFormInput(props: ObjectInputProps) {
             </Flex>
           ) : (
             <Button
-              text="Choose Template"
+              text="Pick Template"
               tone="primary"
               icon={BlockElementIcon}
               mode="ghost"
@@ -341,14 +339,18 @@ export function SectionFormInput(props: ObjectInputProps) {
           )}
         </Flex>
 
-        {hasContent && !applying && (
-          <Box marginTop={2}>
-            <Text size={0} muted>
-              Warning: Applying a template will replace all existing content in this section.
-            </Text>
-          </Box>
+          {hasContent && !applying && (
+            <Box marginTop={2}>
+              <Text size={0} muted>
+                Warning: Applying a template will replace all existing content in this section.
+              </Text>
+            </Box>
+          )}
+        </Card>
+        {hasContent && (
+          <SaveAsTemplateCard saving={savingTemplate} onSave={saveAsTemplate} />
         )}
-      </Card>
+      </Box>
 
       {/* Template Selection Dialog */}
       {dialogOpen && (
@@ -491,8 +493,6 @@ export function SectionFormInput(props: ObjectInputProps) {
           </Box>
         </Dialog>
       )}
-
-      {props.renderDefault(props)}
     </>
   )
 }
@@ -506,10 +506,7 @@ function SaveAsTemplateCard({saving, onSave}: {saving: boolean; onSave: () => vo
     <Card padding={3} tone="transparent" border radius={2} marginBottom={3}>
       <Flex align="center" justify="space-between" gap={3}>
         <Flex align="center" gap={2}>
-          <Text size={1}>
-            <AddIcon />
-          </Text>
-          <Text size={1}>Reuse this section elsewhere — save it as a template</Text>
+          <Text size={1}>Make section a template</Text>
         </Flex>
         {saving ? (
           <Flex align="center" gap={2}>
@@ -518,7 +515,7 @@ function SaveAsTemplateCard({saving, onSave}: {saving: boolean; onSave: () => vo
           </Flex>
         ) : (
           <Button
-            text="Save as Template"
+            text="Save Template"
             tone="primary"
             icon={AddIcon}
             mode="ghost"
