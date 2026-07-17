@@ -17,3 +17,6 @@ out/
 # Other generated files
 *.min.js
 *.min.css
+# Sanity generated files (typegen formats these itself)
+frontend/sanity.types.ts
+studio/schema.json
