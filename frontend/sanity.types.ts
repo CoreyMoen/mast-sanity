@@ -12,6 +12,14 @@
  * ---------------------------------------------------------------------------------
  */
 
+export declare const internalGroqTypeReferenceTo: unique symbol
+
+type ArrayOf<T> = Array<
+  T & {
+    _key: string
+  }
+>
+
 // Source: ../studio/schema.json
 export type SanityImageAssetReference = {
   _ref: string
@@ -159,20 +167,7 @@ export type Column = {
       } & BlogGridBlock)
   >
   widthDesktop?:
-    | 'auto'
-    | 'fill'
-    | '1'
-    | '2'
-    | '3'
-    | '4'
-    | '5'
-    | '6'
-    | '7'
-    | '8'
-    | '9'
-    | '10'
-    | '11'
-    | '12'
+    'auto' | 'fill' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12'
   widthTablet?:
     | 'inherit'
     | 'auto'
@@ -1106,14 +1101,7 @@ export type SectionTemplate = {
   name: string
   description?: string
   category?:
-    | 'heroes'
-    | 'features'
-    | 'content'
-    | 'testimonials'
-    | 'ctas'
-    | 'pricing'
-    | 'faq'
-    | 'other'
+    'heroes' | 'features' | 'content' | 'testimonials' | 'ctas' | 'pricing' | 'faq' | 'other'
   isGlobal?: boolean
   thumbnail?: {
     asset?: SanityImageAssetReference
@@ -1598,14 +1586,14 @@ export type SanityFileAsset = {
   title?: string
   description?: string
   altText?: string
-  sha1hash?: string
-  extension?: string
-  mimeType?: string
-  size?: number
-  assetId?: string
+  sha1hash: string
+  extension: string
+  mimeType: string
+  size: number
+  assetId: string
   uploadId?: string
-  path?: string
-  url?: string
+  path: string
+  url: string
   source?: SanityAssetSourceData
 }
 
@@ -1627,14 +1615,14 @@ export type SanityImageAsset = {
   title?: string
   description?: string
   altText?: string
-  sha1hash?: string
-  extension?: string
-  mimeType?: string
-  size?: number
-  assetId?: string
+  sha1hash: string
+  extension: string
+  mimeType: string
+  size: number
+  assetId: string
   uploadId?: string
-  path?: string
-  url?: string
+  path: string
+  url: string
   metadata?: SanityImageMetadata
   source?: SanityAssetSourceData
 }
@@ -1722,14 +1710,6 @@ export type AllSanitySchemaTypes =
   | SanityAssetSourceData
   | SanityImageAsset
   | Geopoint
-
-export declare const internalGroqTypeReferenceTo: unique symbol
-
-type ArrayOf<T> = Array<
-  T & {
-    _key: string
-  }
->
 
 // Source: sanity/lib/queries.ts
 // Variable: settingsQuery
@@ -1950,17 +1930,7 @@ export type GetPageQueryResult = {
               content?: BlockContent
               align?: 'center' | 'left' | 'right'
               size?:
-                | 'base'
-                | 'h1'
-                | 'h2'
-                | 'h3'
-                | 'h4'
-                | 'h5'
-                | 'h6'
-                | 'inherit'
-                | 'lg'
-                | 'sm'
-                | 'xl'
+                'base' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'inherit' | 'lg' | 'sm' | 'xl'
               maxWidth?: 'none' | 'prose-lg' | 'prose-xl' | 'prose'
               color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
               customStyle?: string
@@ -2318,7 +2288,7 @@ export type GetPageQueryResult = {
                       _type: 'inlineVideoBlock'
                       videoFile: {
                         asset: {
-                          url: string | null
+                          url: string
                         } | null
                       } | null
                       videoUrl?: string
@@ -2334,14 +2304,14 @@ export type GetPageQueryResult = {
                           title?: string
                           description?: string
                           altText?: string
-                          sha1hash?: string
-                          extension?: string
-                          mimeType?: string
-                          size?: number
-                          assetId?: string
+                          sha1hash: string
+                          extension: string
+                          mimeType: string
+                          size: number
+                          assetId: string
                           uploadId?: string
-                          path?: string
-                          url?: string
+                          path: string
+                          url: string
                           metadata?: SanityImageMetadata
                           source?: SanityAssetSourceData
                         } | null
@@ -2368,11 +2338,7 @@ export type GetPageQueryResult = {
                         | '9\xD716'
                         | '9x16'
                       controlPosition?:
-                        | 'bottom-left'
-                        | 'bottom-right'
-                        | 'center'
-                        | 'top-left'
-                        | 'top-right'
+                        'bottom-left' | 'bottom-right' | 'center' | 'top-left' | 'top-right'
                       showControls?: boolean
                       autoplayOnScroll?: boolean
                       loop?: boolean
@@ -2858,7 +2824,7 @@ export type GetPageQueryResult = {
                               _type: 'inlineVideoBlock'
                               videoFile: {
                                 asset: {
-                                  url: string | null
+                                  url: string
                                 } | null
                               } | null
                               videoUrl?: string
@@ -2874,14 +2840,14 @@ export type GetPageQueryResult = {
                                   title?: string
                                   description?: string
                                   altText?: string
-                                  sha1hash?: string
-                                  extension?: string
-                                  mimeType?: string
-                                  size?: number
-                                  assetId?: string
+                                  sha1hash: string
+                                  extension: string
+                                  mimeType: string
+                                  size: number
+                                  assetId: string
                                   uploadId?: string
-                                  path?: string
-                                  url?: string
+                                  path: string
+                                  url: string
                                   metadata?: SanityImageMetadata
                                   source?: SanityAssetSourceData
                                 } | null
@@ -2908,11 +2874,7 @@ export type GetPageQueryResult = {
                                 | '9\xD716'
                                 | '9x16'
                               controlPosition?:
-                                | 'bottom-left'
-                                | 'bottom-right'
-                                | 'center'
-                                | 'top-left'
-                                | 'top-right'
+                                'bottom-left' | 'bottom-right' | 'center' | 'top-left' | 'top-right'
                               showControls?: boolean
                               autoplayOnScroll?: boolean
                               loop?: boolean
@@ -3002,14 +2964,7 @@ export type GetPageQueryResult = {
                                     }
                                 > | null
                                 style?:
-                                  | 'blockquote'
-                                  | 'h1'
-                                  | 'h2'
-                                  | 'h3'
-                                  | 'h4'
-                                  | 'h5'
-                                  | 'h6'
-                                  | 'normal'
+                                  'blockquote' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'normal'
                                 listItem?: 'bullet' | 'number'
                                 markDefs: Array<{
                                   linkType?: 'href' | 'page' | 'post' | 'variable'
@@ -3063,19 +3018,9 @@ export type GetPageQueryResult = {
                                 } & Column
                               >
                               horizontalAlign?:
-                                | 'around'
-                                | 'between'
-                                | 'center'
-                                | 'end'
-                                | 'evenly'
-                                | 'start'
+                                'around' | 'between' | 'center' | 'end' | 'evenly' | 'start'
                               verticalAlign?:
-                                | 'baseline'
-                                | 'between'
-                                | 'center'
-                                | 'end'
-                                | 'start'
-                                | 'stretch'
+                                'baseline' | 'between' | 'center' | 'end' | 'start' | 'stretch'
                               gap?: '0' | '12' | '2' | '4' | '6' | '8'
                               wrap?: boolean
                               reverseOnMobile?: boolean
@@ -3117,10 +3062,7 @@ export type GetPageQueryResult = {
                               loop?: boolean
                               showNavigation?: boolean
                               navigationPosition?:
-                                | 'below'
-                                | 'overlay-center'
-                                | 'overlay-edges'
-                                | 'sides'
+                                'below' | 'overlay-center' | 'overlay-edges' | 'sides'
                               showPagination?: boolean
                               effect?: 'fade' | 'slide'
                               speed?: number
@@ -3262,12 +3204,7 @@ export type GetPageQueryResult = {
                       }> | null
                       horizontalAlign?: 'around' | 'between' | 'center' | 'end' | 'evenly' | 'start'
                       verticalAlign?:
-                        | 'baseline'
-                        | 'between'
-                        | 'center'
-                        | 'end'
-                        | 'start'
-                        | 'stretch'
+                        'baseline' | 'between' | 'center' | 'end' | 'start' | 'stretch'
                       gap?: '0' | '12' | '2' | '4' | '6' | '8'
                       wrap?: boolean
                       reverseOnMobile?: boolean
@@ -3663,17 +3600,7 @@ export type GetPageQueryResult = {
               content?: BlockContent
               align?: 'center' | 'left' | 'right'
               size?:
-                | 'base'
-                | 'h1'
-                | 'h2'
-                | 'h3'
-                | 'h4'
-                | 'h5'
-                | 'h6'
-                | 'inherit'
-                | 'lg'
-                | 'sm'
-                | 'xl'
+                'base' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'inherit' | 'lg' | 'sm' | 'xl'
               maxWidth?: 'none' | 'prose-lg' | 'prose-xl' | 'prose'
               color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
               customStyle?: string
@@ -4031,7 +3958,7 @@ export type GetPageQueryResult = {
                       _type: 'inlineVideoBlock'
                       videoFile: {
                         asset: {
-                          url: string | null
+                          url: string
                         } | null
                       } | null
                       videoUrl?: string
@@ -4047,14 +3974,14 @@ export type GetPageQueryResult = {
                           title?: string
                           description?: string
                           altText?: string
-                          sha1hash?: string
-                          extension?: string
-                          mimeType?: string
-                          size?: number
-                          assetId?: string
+                          sha1hash: string
+                          extension: string
+                          mimeType: string
+                          size: number
+                          assetId: string
                           uploadId?: string
-                          path?: string
-                          url?: string
+                          path: string
+                          url: string
                           metadata?: SanityImageMetadata
                           source?: SanityAssetSourceData
                         } | null
@@ -4081,11 +4008,7 @@ export type GetPageQueryResult = {
                         | '9\xD716'
                         | '9x16'
                       controlPosition?:
-                        | 'bottom-left'
-                        | 'bottom-right'
-                        | 'center'
-                        | 'top-left'
-                        | 'top-right'
+                        'bottom-left' | 'bottom-right' | 'center' | 'top-left' | 'top-right'
                       showControls?: boolean
                       autoplayOnScroll?: boolean
                       loop?: boolean
@@ -4571,7 +4494,7 @@ export type GetPageQueryResult = {
                               _type: 'inlineVideoBlock'
                               videoFile: {
                                 asset: {
-                                  url: string | null
+                                  url: string
                                 } | null
                               } | null
                               videoUrl?: string
@@ -4587,14 +4510,14 @@ export type GetPageQueryResult = {
                                   title?: string
                                   description?: string
                                   altText?: string
-                                  sha1hash?: string
-                                  extension?: string
-                                  mimeType?: string
-                                  size?: number
-                                  assetId?: string
+                                  sha1hash: string
+                                  extension: string
+                                  mimeType: string
+                                  size: number
+                                  assetId: string
                                   uploadId?: string
-                                  path?: string
-                                  url?: string
+                                  path: string
+                                  url: string
                                   metadata?: SanityImageMetadata
                                   source?: SanityAssetSourceData
                                 } | null
@@ -4621,11 +4544,7 @@ export type GetPageQueryResult = {
                                 | '9\xD716'
                                 | '9x16'
                               controlPosition?:
-                                | 'bottom-left'
-                                | 'bottom-right'
-                                | 'center'
-                                | 'top-left'
-                                | 'top-right'
+                                'bottom-left' | 'bottom-right' | 'center' | 'top-left' | 'top-right'
                               showControls?: boolean
                               autoplayOnScroll?: boolean
                               loop?: boolean
@@ -4715,14 +4634,7 @@ export type GetPageQueryResult = {
                                     }
                                 > | null
                                 style?:
-                                  | 'blockquote'
-                                  | 'h1'
-                                  | 'h2'
-                                  | 'h3'
-                                  | 'h4'
-                                  | 'h5'
-                                  | 'h6'
-                                  | 'normal'
+                                  'blockquote' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'normal'
                                 listItem?: 'bullet' | 'number'
                                 markDefs: Array<{
                                   linkType?: 'href' | 'page' | 'post' | 'variable'
@@ -4776,19 +4688,9 @@ export type GetPageQueryResult = {
                                 } & Column
                               >
                               horizontalAlign?:
-                                | 'around'
-                                | 'between'
-                                | 'center'
-                                | 'end'
-                                | 'evenly'
-                                | 'start'
+                                'around' | 'between' | 'center' | 'end' | 'evenly' | 'start'
                               verticalAlign?:
-                                | 'baseline'
-                                | 'between'
-                                | 'center'
-                                | 'end'
-                                | 'start'
-                                | 'stretch'
+                                'baseline' | 'between' | 'center' | 'end' | 'start' | 'stretch'
                               gap?: '0' | '12' | '2' | '4' | '6' | '8'
                               wrap?: boolean
                               reverseOnMobile?: boolean
@@ -4830,10 +4732,7 @@ export type GetPageQueryResult = {
                               loop?: boolean
                               showNavigation?: boolean
                               navigationPosition?:
-                                | 'below'
-                                | 'overlay-center'
-                                | 'overlay-edges'
-                                | 'sides'
+                                'below' | 'overlay-center' | 'overlay-edges' | 'sides'
                               showPagination?: boolean
                               effect?: 'fade' | 'slide'
                               speed?: number
@@ -4975,12 +4874,7 @@ export type GetPageQueryResult = {
                       }> | null
                       horizontalAlign?: 'around' | 'between' | 'center' | 'end' | 'evenly' | 'start'
                       verticalAlign?:
-                        | 'baseline'
-                        | 'between'
-                        | 'center'
-                        | 'end'
-                        | 'start'
-                        | 'stretch'
+                        'baseline' | 'between' | 'center' | 'end' | 'start' | 'stretch'
                       gap?: '0' | '12' | '2' | '4' | '6' | '8'
                       wrap?: boolean
                       reverseOnMobile?: boolean
@@ -5814,15 +5708,7 @@ export type SectionTemplateQueryResult = {
   name: string
   description: string | null
   category:
-    | 'content'
-    | 'ctas'
-    | 'faq'
-    | 'features'
-    | 'heroes'
-    | 'other'
-    | 'pricing'
-    | 'testimonials'
-    | null
+    'content' | 'ctas' | 'faq' | 'features' | 'heroes' | 'other' | 'pricing' | 'testimonials' | null
   rows: Array<
     | {
         _key: string
@@ -6250,7 +6136,7 @@ export type SectionTemplateQueryResult = {
                 _type: 'inlineVideoBlock'
                 videoFile: {
                   asset: {
-                    url: string | null
+                    url: string
                   } | null
                 } | null
                 videoUrl?: string
@@ -6266,14 +6152,14 @@ export type SectionTemplateQueryResult = {
                     title?: string
                     description?: string
                     altText?: string
-                    sha1hash?: string
-                    extension?: string
-                    mimeType?: string
-                    size?: number
-                    assetId?: string
+                    sha1hash: string
+                    extension: string
+                    mimeType: string
+                    size: number
+                    assetId: string
                     uploadId?: string
-                    path?: string
-                    url?: string
+                    path: string
+                    url: string
                     metadata?: SanityImageMetadata
                     source?: SanityAssetSourceData
                   } | null
@@ -6300,11 +6186,7 @@ export type SectionTemplateQueryResult = {
                   | '9\xD716'
                   | '9x16'
                 controlPosition?:
-                  | 'bottom-left'
-                  | 'bottom-right'
-                  | 'center'
-                  | 'top-left'
-                  | 'top-right'
+                  'bottom-left' | 'bottom-right' | 'center' | 'top-left' | 'top-right'
                 showControls?: boolean
                 autoplayOnScroll?: boolean
                 loop?: boolean
@@ -6423,17 +6305,7 @@ export type SectionTemplateQueryResult = {
                 }> | null
                 align?: 'center' | 'left' | 'right'
                 size?:
-                  | 'base'
-                  | 'h1'
-                  | 'h2'
-                  | 'h3'
-                  | 'h4'
-                  | 'h5'
-                  | 'h6'
-                  | 'inherit'
-                  | 'lg'
-                  | 'sm'
-                  | 'xl'
+                  'base' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'inherit' | 'lg' | 'sm' | 'xl'
                 maxWidth?: 'none' | 'prose-lg' | 'prose-xl' | 'prose'
                 color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
                 customStyle?: string
@@ -6790,7 +6662,7 @@ export type SectionTemplateQueryResult = {
                         _type: 'inlineVideoBlock'
                         videoFile: {
                           asset: {
-                            url: string | null
+                            url: string
                           } | null
                         } | null
                         videoUrl?: string
@@ -6806,14 +6678,14 @@ export type SectionTemplateQueryResult = {
                             title?: string
                             description?: string
                             altText?: string
-                            sha1hash?: string
-                            extension?: string
-                            mimeType?: string
-                            size?: number
-                            assetId?: string
+                            sha1hash: string
+                            extension: string
+                            mimeType: string
+                            size: number
+                            assetId: string
                             uploadId?: string
-                            path?: string
-                            url?: string
+                            path: string
+                            url: string
                             metadata?: SanityImageMetadata
                             source?: SanityAssetSourceData
                           } | null
@@ -6840,11 +6712,7 @@ export type SectionTemplateQueryResult = {
                           | '9\xD716'
                           | '9x16'
                         controlPosition?:
-                          | 'bottom-left'
-                          | 'bottom-right'
-                          | 'center'
-                          | 'top-left'
-                          | 'top-right'
+                          'bottom-left' | 'bottom-right' | 'center' | 'top-left' | 'top-right'
                         showControls?: boolean
                         autoplayOnScroll?: boolean
                         loop?: boolean
@@ -6987,19 +6855,9 @@ export type SectionTemplateQueryResult = {
                           } & Column
                         >
                         horizontalAlign?:
-                          | 'around'
-                          | 'between'
-                          | 'center'
-                          | 'end'
-                          | 'evenly'
-                          | 'start'
+                          'around' | 'between' | 'center' | 'end' | 'evenly' | 'start'
                         verticalAlign?:
-                          | 'baseline'
-                          | 'between'
-                          | 'center'
-                          | 'end'
-                          | 'start'
-                          | 'stretch'
+                          'baseline' | 'between' | 'center' | 'end' | 'start' | 'stretch'
                         gap?: '0' | '12' | '2' | '4' | '6' | '8'
                         wrap?: boolean
                         reverseOnMobile?: boolean

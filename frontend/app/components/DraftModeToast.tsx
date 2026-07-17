@@ -1,6 +1,6 @@
 'use client'
 
-import {useDraftModeEnvironment, useIsPresentationTool} from 'next-sanity/hooks'
+import {useIsPresentationTool, useVisualEditingEnvironment} from 'next-sanity/hooks'
 import {useRouter} from 'next/navigation'
 import {useEffect, useTransition} from 'react'
 import {toast} from 'sonner'
@@ -8,7 +8,7 @@ import {disableDraftMode} from '@/app/actions'
 
 export default function DraftModeToast() {
   const isPresentationTool = useIsPresentationTool()
-  const env = useDraftModeEnvironment()
+  const env = useVisualEditingEnvironment()
   const router = useRouter()
   const [pending, startTransition] = useTransition()
 
@@ -18,8 +18,10 @@ export default function DraftModeToast() {
        * We delay the toast in case we're inside Presentation Tool
        */
       const toastId = toast('Draft Mode Enabled', {
+        // Once Visual Editing has mounted (env !== null) SanityLive keeps
+        // standalone previews refreshing automatically via the browser token.
         description:
-          env === 'live'
+          env !== null
             ? 'Content is live, refreshing automatically'
             : 'Refresh manually to see changes',
         duration: Infinity,

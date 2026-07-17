@@ -35,9 +35,6 @@
     "type-check": "npm run type-check --workspaces"
   },
   "prettier": "@sanity/prettier-config",
-  "overrides": {
-    "@sanity/types": "5.9.0"
-  },
   "devDependencies": {
     "@sanity/client": "^7.23.2",
     "@sanity/prettier-config": "^2.0.2",
