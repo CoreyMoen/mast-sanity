@@ -1,4 +1,4 @@
-# Mast Component Framework for Sanity
+# Mast Component Framework for Sanity (beta)
 
 A Sanity + Next.js implementation of the [Mast Component Framework](https://www.nocodesupply.co/mast), originally built for Webflow. This project brings Mast's powerful page-building system to the headless CMS world with real-time visual editing and AI-powered content creation.
 
