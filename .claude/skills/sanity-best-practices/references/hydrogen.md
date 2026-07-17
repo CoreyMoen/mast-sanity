@@ -1,18 +1,22 @@
+---
+title: "Sanity + Shopify + Hydrogen Rules"
+description: Integration guide for Sanity with Shopify using the Hydrogen framework (React Router 7).
+---
+
 # Sanity + Shopify + Hydrogen Rules
 
 **Package:** [`hydrogen-sanity`](https://github.com/sanity-io/hydrogen-sanity) — requires `@shopify/hydrogen >= 2025.5.0`
 
 ## 1. Architecture Overview
 
-| Component          | Purpose                                                             |
-| ------------------ | ------------------------------------------------------------------- |
-| **Shopify**        | Product catalog, inventory, checkout (source of truth for commerce) |
-| **Sanity Connect** | Syncs Shopify data to Sanity in real-time                           |
-| **Sanity Studio**  | Editorial content, rich descriptions, media (enhances Shopify data) |
-| **Hydrogen**       | React Router 7 front-end optimized for Shopify                      |
+| Component | Purpose |
+|-----------|---------|
+| **Shopify** | Product catalog, inventory, checkout (source of truth for commerce) |
+| **Sanity Connect** | Syncs Shopify data to Sanity in real-time |
+| **Sanity Studio** | Editorial content, rich descriptions, media (enhances Shopify data) |
+| **Hydrogen** | React Router 7 front-end optimized for Shopify |
 
 **Project Structure:**
-
 ```
 ./
 ├── /studio    # Sanity Studio
@@ -23,22 +27,21 @@
 
 ```bash
 # web/.env
-PUBLIC_STOREFRONT_API_TOKEN="..."
-PRIVATE_STOREFRONT_API_TOKEN="shpat_..."
-PUBLIC_STORE_DOMAIN="<store>.myshopify.com"
-SESSION_SECRET="<random-string>"
+PUBLIC_STOREFRONT_API_TOKEN="your-public-storefront-token"
+PRIVATE_STOREFRONT_API_TOKEN="your-private-storefront-token"
+PUBLIC_STORE_DOMAIN="your-store.myshopify.com"
+SESSION_SECRET="your-random-session-secret"
 
 # Sanity
-SANITY_PROJECT_ID="..."
+SANITY_PROJECT_ID="your-project-id"
 SANITY_DATASET="production"
-SANITY_API_VERSION="v2025-01-01"
-SANITY_PREVIEW_TOKEN="sk..."  # Viewer token for previews
+SANITY_API_VERSION="2026-02-01"
+SANITY_PREVIEW_TOKEN="your-sanity-viewer-token"  # Viewer token for previews
 ```
 
 ## 3. Sanity Client Setup
 
 ### Vite Config
-
 ```typescript
 // web/vite.config.ts
 import {hydrogen} from '@shopify/hydrogen/vite'
@@ -50,7 +53,6 @@ export default defineConfig({
 ```
 
 ### Context Setup
-
 ```typescript
 // web/app/lib/context.ts
 import {createSanityContext, type SanityContext} from 'hydrogen-sanity'
@@ -64,22 +66,21 @@ const sanity = await createSanityContext({
   client: {
     projectId: env.SANITY_PROJECT_ID,
     dataset: env.SANITY_DATASET,
-    apiVersion: env.SANITY_API_VERSION || 'v2025-01-01',
+    apiVersion: env.SANITY_API_VERSION || '2026-02-01',
     useCdn: true,
     stega: {
       enabled: isPreviewEnabled(env.SANITY_PROJECT_ID, previewSession),
       studioUrl: 'http://localhost:3333',
-    },
+    }
   },
   preview: {
     token: env.SANITY_PREVIEW_TOKEN,
     session: previewSession,
-  },
+  }
 })
 ```
 
 ### Provider Setup (entry.server.tsx)
-
 ```typescript
 const {SanityProvider} = context.sanity
 
@@ -93,7 +94,6 @@ const body = await renderToReadableStream(
 ```
 
 ### Root Layout (root.tsx)
-
 ```typescript
 import {Sanity} from 'hydrogen-sanity'
 
@@ -116,7 +116,6 @@ export function Layout({children}) {
 Fetch from **both** Shopify (GraphQL) and Sanity (GROQ). Use `defineQuery` for TypeGen support.
 
 ### Recommended: `query` + `Query` component
-
 ```typescript
 import {defineQuery} from 'groq'
 import {Query} from 'hydrogen-sanity'
@@ -140,16 +139,14 @@ export default function ProductPage({loaderData}) {
 ```
 
 ### Alternative methods
-
-| Method                     | Use Case                        |
-| -------------------------- | ------------------------------- |
+| Method | Use Case |
+|--------|----------|
 | `sanity.query()` + `Query` | Recommended - auto preview mode |
-| `sanity.loadQuery()`       | Manual loader integration       |
-| `sanity.fetch()`           | No preview needed, lightweight  |
-| `sanity.client`            | Mutations in actions            |
+| `sanity.loadQuery()` | Manual loader integration |
+| `sanity.fetch()` | No preview needed, lightweight |
+| `sanity.client` | Mutations in actions |
 
 ### Images
-
 ```typescript
 import {useImageUrl} from 'hydrogen-sanity'
 
@@ -164,7 +161,6 @@ function Hero({image}) {
 ## 5. Visual Editing Setup
 
 ### Root Layout
-
 ```typescript
 // web/app/root.tsx
 import {usePreviewMode} from 'hydrogen-sanity/preview'
@@ -185,19 +181,20 @@ export function Layout({children}: {children?: React.ReactNode}) {
 ```
 
 ### Preview Route
-
 ```typescript
 // web/app/routes/api.preview.ts
 export {action, loader} from 'hydrogen-sanity/preview/route'
 ```
 
 ### Content Security Policy
-
 ```typescript
 // web/entry.server.tsx
 const {nonce, header, NonceProvider} = createContentSecurityPolicy({
   frameAncestors: isPreviewEnabled ? [studioHostname] : [],
-  connectSrc: [`https://${projectId}.api.sanity.io`, `wss://${projectId}.api.sanity.io`],
+  connectSrc: [
+    `https://${projectId}.api.sanity.io`,
+    `wss://${projectId}.api.sanity.io`,
+  ],
 })
 ```
 
@@ -213,11 +210,11 @@ export default defineConfig({
       resolve: {
         locations: {
           product: defineLocations({
-            select: {title: 'store.title', slug: 'store.slug.current'},
+            select: { title: 'store.title', slug: 'store.slug.current' },
             resolve: (doc) => ({
               locations: [
-                {title: doc?.title || 'Untitled', href: `/products/${doc?.slug}`},
-                {title: 'Products', href: `/collections/all`},
+                { title: doc?.title || 'Untitled', href: `/products/${doc?.slug}` },
+                { title: 'Products', href: `/collections/all` },
               ],
             }),
           }),
@@ -225,7 +222,7 @@ export default defineConfig({
       },
       previewUrl: {
         origin: 'http://localhost:3000',
-        previewMode: {enable: '/api/preview'},
+        previewMode: { enable: '/api/preview' },
       },
     }),
   ],
@@ -242,23 +239,23 @@ pnpm add hydrogen-sanity @sanity/client @portabletext/react
 cd studio && pnpm dev    # Studio at localhost:3333
 cd web && pnpm dev       # Hydrogen at localhost:3000
 
-# Sanity Manage (CORS, tokens)
+# Sanity Manage (CORS, tokens): https://www.sanity.io/manage
 pnpm dlx sanity manage
 ```
 
 ## 8. Boundaries
 
-- **Always:**
+- Always:
   - Query Shopify for commerce data (price, inventory, variants)
   - Query Sanity for editorial content (rich text, custom fields)
   - Use `hydrogen-sanity` package for Visual Editing
-  - Add Hydrogen URL to CORS origins in Sanity Manage
+  - Add Hydrogen URL to CORS origins in [Sanity Manage](https://www.sanity.io/manage)
 
-- **Ask First:**
+- Ask First:
   - Before modifying Sanity Connect sync settings
   - Before changing CSP configuration
 
-- **Never:**
+- Never:
   - Edit Shopify-synced fields in Sanity (they're `readOnly`)
   - Expose `SANITY_API_TOKEN` to client-side code
   - Query Sanity for commerce data that should come from Shopify
