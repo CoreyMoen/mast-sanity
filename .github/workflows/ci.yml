@@ -2,9 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main, feat/ci-renovate-prettier]
+    branches: [main]
   pull_request:
-    branches: [main, feat/ci-renovate-prettier]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -18,4 +18,8 @@ jobs:
           node-version: lts/*
       - run: npm install
       - run: npm run lint
+      # Regenerate Sanity types and fail if the checked-in generated files
+      # (studio/schema.json, frontend/sanity.types.ts) are stale
+      - run: npm run typegen --workspace=frontend
+      - run: git diff --exit-code studio/schema.json frontend/sanity.types.ts
       - run: npm run type-check

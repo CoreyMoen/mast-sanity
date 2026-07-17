@@ -5,26 +5,16 @@ This document contains project-specific instructions and context for Claude Code
 ## Project Overview
 
 This is a **Mast design system** implementation using:
-- **Frontend**: Next.js 15 with App Router
-- **CMS**: Sanity Studio v3 with Visual Editing/Presentation mode
+- **Frontend**: Next.js 16 with App Router
+- **CMS**: Sanity Studio v6 with Visual Editing/Presentation mode
 - **Styling**: Tailwind CSS v4 with CSS-first configuration
 
-## Environment Constraints
+## Development Environment
 
-### No esbuild/tsx on this machine
-The `npx tsx` command does not work due to esbuild issues. When creating seed scripts or Node.js utilities:
-- Use `.mjs` extension with ES modules (`import`/`export`)
-- Run with plain `node scripts/filename.mjs`
-- Avoid TypeScript for scripts that need to run directly
-
-### Dev Servers via Docker/OrbStack
-**IMPORTANT**: Dev servers cannot be started directly from the terminal on this machine. They must be run via Docker containers in the OrbStack app.
-
-- **Do NOT** attempt to run `npm run dev`, `npm run dev:next`, or `npm run dev:studio` directly
-- The user manages dev servers through OrbStack's Docker interface
-- Frontend runs in Docker on port 4000, Studio on port 3333
-- For verification, use TypeScript compilation (`npx tsc --noEmit`) instead of starting dev servers
-- If the user needs to restart servers, they will do it manually via OrbStack
+- Dev servers: frontend on port **3001** (`npm run dev:next`), Studio on port **3334** (`npm run dev:studio`), or both with `npm run dev`. Docker/OrbStack setups may map these to other host ports.
+- Verify changes with `npm run type-check` and `npm run lint`; `npm run build` in each workspace for full verification.
+- Seed scripts live in `/scripts` as `.mjs` ES modules and run with plain `node` (see "Creating Pages via Script" below).
+- Machine-specific overrides belong in `CLAUDE.local.md` (gitignored), not this file.
 
 ## Sanity Content Architecture
 
@@ -127,7 +117,7 @@ Example seed script pattern:
 import {createClient} from '@sanity/client'
 
 const client = createClient({
-  projectId: '6lj3hi0f',
+  projectId: process.env.SANITY_STUDIO_PROJECT_ID,
   dataset: 'production',
   token: process.env.SANITY_API_TOKEN,
   apiVersion: '2024-01-01',
@@ -289,16 +279,12 @@ Located in CSS custom properties:
 ### Running the project
 ```bash
 npm run dev          # Start both frontend and studio
-npm run dev:next     # Frontend only (port 4000)
-npm run dev:studio   # Studio only (port 3333)
+npm run dev:next     # Frontend only (port 3001)
+npm run dev:studio   # Studio only (port 3334)
 ```
 
-### Seeding pages
+### Seeding content
 ```bash
-# Requires SANITY_API_TOKEN
-SANITY_API_TOKEN="token" npm run seed-mast-sanity
-SANITY_API_TOKEN="token" npm run seed-layouts
+# Requires SANITY_STUDIO_PROJECT_ID and SANITY_API_TOKEN in .env
+npm run seed
 ```
-
-### Docker/OrbStack
-Frontend runs in Docker via OrbStack on port 4000.

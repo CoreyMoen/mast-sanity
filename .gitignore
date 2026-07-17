@@ -18,6 +18,9 @@ yarn-error.log*
 # env files
 .env
 .env.*
+
+# Local, machine-specific Claude Code instructions
+CLAUDE.local.md
 !.env.example
 
 # vercel
@@ -29,3 +32,6 @@ next-env.d.ts
 
 # VS Code
 .vscode
+# Third-party Mast framework reference material (commercial product — not redistributable under MIT)
+reference/
+docs/setup-audit-handoff.md
