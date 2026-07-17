@@ -39,7 +39,7 @@ export default async function Page() {
 
   return (
     <div>
-      <PageBuilderPage page={page as GetPageQueryResult} isDraftMode={isDraftMode} />
+      <PageBuilderPage page={page as GetPageQueryResult} slug="home" isDraftMode={isDraftMode} />
     </div>
   )
 }

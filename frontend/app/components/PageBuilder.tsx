@@ -1,16 +1,20 @@
 'use client'
 
 import {SanityDocument} from 'next-sanity'
-import {useOptimistic} from 'next-sanity/hooks'
+import {useOptimistic, usePresentationQuery} from 'next-sanity/hooks'
 import Link from 'next/link'
+import {useMemo, useState} from 'react'
 
 import BlockRenderer from '@/app/components/BlockRenderer'
 import {GetPageQueryResult} from '@/sanity.types'
+import {getPageQuery} from '@/sanity/lib/queries'
 import {dataAttr} from '@/sanity/lib/utils'
 import {studioUrl} from '@/sanity/lib/api'
 
 type PageBuilderPageProps = {
   page: GetPageQueryResult
+  /** The page slug — lets the Presentation tool stream live query results per keystroke */
+  slug?: string
   isDraftMode?: boolean
 }
 
@@ -87,16 +91,41 @@ function renderEmptyState(page: GetPageQueryResult) {
   )
 }
 
-export default function PageBuilder({page, isDraftMode}: PageBuilderPageProps) {
+/** Normalizes a Sanity id: strips `drafts.` and `versions.<release>.` prefixes. */
+function baseIdOf(id: string | undefined): string {
+  return (id ?? '').replace(/^drafts\./, '').replace(/^versions\.[^.]+\./, '')
+}
+
+export default function PageBuilder({page, slug, isDraftMode}: PageBuilderPageProps) {
+  // Live query results streamed from the Presentation tool over postMessage.
+  // The Studio runs the query against its in-memory draft on every keystroke,
+  // so edits appear here immediately — no Content Lake round-trip, no server
+  // refetch. Inactive (data: null) outside the Presentation iframe.
+  const liveParams = useMemo(() => ({slug: slug ?? ''}), [slug])
+  const {data: liveData} = usePresentationQuery({
+    query: getPageQuery,
+    params: liveParams,
+  })
+
+  // Keep the last non-null live result so a transient null doesn't flash the
+  // stale server-fetched page mid-edit (render-phase state adjustment, per
+  // https://react.dev/reference/react/useState#storing-information-from-previous-renders)
+  const [lastLive, setLastLive] = useState<GetPageQueryResult | null>(null)
+  const currentLive = slug ? (liveData as GetPageQueryResult | null) : null
+  if (currentLive && currentLive !== lastLive) {
+    setLastLive(currentLive)
+  }
+  const basePage = currentLive ?? lastLive ?? page
+
   const pageBuilderSections = useOptimistic<
     PageBuilderSection[] | undefined,
     SanityDocument<PageData>
-  >(page?.pageBuilder || [], (currentSections, action) => {
+  >(basePage?.pageBuilder || [], (currentSections, action) => {
     // The action contains updated document data from Sanity
     // when someone makes an edit in the Studio
 
     // If the edit was to a different document, ignore it
-    if (action.id !== page?._id) {
+    if (baseIdOf(action.id) !== baseIdOf(page?._id)) {
       return currentSections
     }
 

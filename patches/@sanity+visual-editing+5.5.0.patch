@@ -1,0 +1,13 @@
+diff --git a/node_modules/@sanity/visual-editing/dist/react/index.js b/node_modules/@sanity/visual-editing/dist/react/index.js
+index 2b31f37..b28c49a 100644
+--- a/node_modules/@sanity/visual-editing/dist/react/index.js
++++ b/node_modules/@sanity/visual-editing/dist/react/index.js
+@@ -90,7 +90,7 @@ function usePresentationQuery(props) {
+     };
+   }, $[12] = comlink2, $[13] = handleQueryChange, $[14] = handleQueryHeartbeat, $[15] = t5) : t5 = $[15];
+   let t6;
+-  $[16] !== comlink2 ? (t6 = [comlink2], $[16] = comlink2, $[17] = t6) : t6 = $[17], useEffect(t5, t6);
++  $[16] !== comlink2 ? (t6 = [comlink2], $[16] = comlink2, $[17] = t6) : t6 = $[17], useEffect(t5, [comlink2, perspective]);
+   let t7;
+   bb0: {
+     if (stega && state.sourceMap) {

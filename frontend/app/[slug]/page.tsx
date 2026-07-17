@@ -66,7 +66,11 @@ export default async function Page(props: Props) {
 
   return (
     <div>
-      <PageBuilderPage page={page as GetPageQueryResult} isDraftMode={isDraftMode} />
+      <PageBuilderPage
+        page={page as GetPageQueryResult}
+        slug={params.slug}
+        isDraftMode={isDraftMode}
+      />
     </div>
   )
 }

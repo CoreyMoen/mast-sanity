@@ -30,6 +30,7 @@
     "dev:studio": "npm run dev --workspace=studio",
     "format": "prettier --cache --write .",
     "import-sample-data": "cd studio && sanity dataset import sample-data.tar.gz --replace",
+    "postinstall": "patch-package",
     "lint": "npm run lint --workspace=frontend",
     "seed": "node --env-file=.env scripts/seed-starter.mjs",
     "type-check": "npm run type-check --workspaces"
@@ -39,6 +40,7 @@
     "@sanity/client": "^7.23.2",
     "@sanity/prettier-config": "^2.0.2",
     "npm-run-all2": "^5.0.2",
+    "patch-package": "^8.0.1",
     "prettier": "^3.7.3"
   },
   "engines": {
