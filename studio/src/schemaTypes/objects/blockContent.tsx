@@ -24,9 +24,7 @@ export const blockContent = defineType({
     defineArrayMember({
       type: 'block',
       // Inline objects - allows inserting Content Variables inline with text
-      of: [
-        {type: 'contentVariableInline'},
-      ],
+      of: [{type: 'contentVariableInline'}],
       marks: {
         annotations: [
           // Standard link annotation

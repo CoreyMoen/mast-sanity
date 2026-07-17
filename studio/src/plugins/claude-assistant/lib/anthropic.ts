@@ -4,12 +4,7 @@
  * Handles communication with the Claude API, including streaming responses
  */
 
-import type {
-  ClaudeConfig,
-  ClaudeRequest,
-  ClaudeResponse,
-  ClaudeStreamChunk,
-} from '../types'
+import type {ClaudeConfig, ClaudeRequest, ClaudeResponse, ClaudeStreamChunk} from '../types'
 
 const ANTHROPIC_API_URL = 'https://api.anthropic.com/v1/messages'
 const ANTHROPIC_VERSION = '2023-06-01'
@@ -43,9 +38,7 @@ export class AnthropicClient {
   /**
    * Send a message to Claude with streaming response
    */
-  async *streamMessage(
-    request: ClaudeRequest
-  ): AsyncGenerator<ClaudeStreamChunk, void, unknown> {
+  async *streamMessage(request: ClaudeRequest): AsyncGenerator<ClaudeStreamChunk, void, unknown> {
     const response = await fetch(ANTHROPIC_API_URL, {
       method: 'POST',
       headers: this.getHeaders(),

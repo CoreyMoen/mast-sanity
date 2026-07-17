@@ -9,26 +9,24 @@
 
 import {useEffect, useRef, useCallback, useState} from 'react'
 import {Box, Button, Card, Flex, Stack, Text, Code, Spinner} from '@sanity/ui'
-import {
-  AddIcon,
-  EditIcon,
-  TrashIcon,
-  SearchIcon,
-  LinkIcon,
-  InfoOutlineIcon,
-  PlayIcon,
-  UploadIcon,
-  CloseIcon,
-  CheckmarkIcon,
-  WarningOutlineIcon,
-  LaunchIcon,
-  DocumentIcon,
-  RefreshIcon,
-  UndoIcon,
-  ImageIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
-} from '@sanity/icons'
+import {AddIcon} from '@sanity/icons/Add'
+import {EditIcon} from '@sanity/icons/Edit'
+import {TrashIcon} from '@sanity/icons/Trash'
+import {SearchIcon} from '@sanity/icons/Search'
+import {LinkIcon} from '@sanity/icons/Link'
+import {InfoOutlineIcon} from '@sanity/icons/InfoOutline'
+import {PlayIcon} from '@sanity/icons/Play'
+import {UploadIcon} from '@sanity/icons/Upload'
+import {CloseIcon} from '@sanity/icons/Close'
+import {CheckmarkIcon} from '@sanity/icons/Checkmark'
+import {WarningOutlineIcon} from '@sanity/icons/WarningOutline'
+import {LaunchIcon} from '@sanity/icons/Launch'
+import {DocumentIcon} from '@sanity/icons/Document'
+import {RefreshIcon} from '@sanity/icons/Refresh'
+import {UndoIcon} from '@sanity/icons/Undo'
+import {ImageIcon} from '@sanity/icons/Image'
+import {ChevronDownIcon} from '@sanity/icons/ChevronDown'
+import {ChevronRightIcon} from '@sanity/icons/ChevronRight'
 import type {ParsedAction, ActionType, ActionStatus} from '../types'
 import {isDestructiveAction, shouldAutoExecute} from '../lib/actions'
 
@@ -81,13 +79,25 @@ function StatusIndicator({status}: {status: ActionStatus}) {
       return <Spinner style={{width: 14, height: 14}} />
     case 'completed':
       return (
-        <Box style={{color: 'var(--card-badge-positive-dot-color, #43a047)', display: 'flex', alignItems: 'center'}}>
+        <Box
+          style={{
+            color: 'var(--card-badge-positive-dot-color, #43a047)',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
           <CheckmarkIcon style={{width: 16, height: 16}} />
         </Box>
       )
     case 'failed':
       return (
-        <Box style={{color: 'var(--card-badge-critical-dot-color, #e53935)', display: 'flex', alignItems: 'center'}}>
+        <Box
+          style={{
+            color: 'var(--card-badge-critical-dot-color, #e53935)',
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
           <WarningOutlineIcon style={{width: 16, height: 16}} />
         </Box>
       )
@@ -132,8 +142,19 @@ function ResultDataPreview({data}: {data: unknown}) {
           />
         )}
       </Flex>
-      <Card padding={2} radius={2} tone="transparent" style={{backgroundColor: 'var(--card-code-bg-color)', overflow: 'hidden'}}>
-        <Box style={{maxHeight: isExpanded || !isLong ? 'none' : '120px', overflow: 'hidden', position: 'relative'}}>
+      <Card
+        padding={2}
+        radius={2}
+        tone="transparent"
+        style={{backgroundColor: 'var(--card-code-bg-color)', overflow: 'hidden'}}
+      >
+        <Box
+          style={{
+            maxHeight: isExpanded || !isLong ? 'none' : '120px',
+            overflow: 'hidden',
+            position: 'relative',
+          }}
+        >
           <Code size={0} style={{display: 'block', whiteSpace: 'pre-wrap', overflowX: 'auto'}}>
             {isExpanded || !isLong ? jsonString : lines.slice(0, 6).join('\n') + '\n...'}
           </Code>
@@ -196,11 +217,12 @@ export function ActionCard({
   // - onUndo callback is provided
   // - Action type is undoable (update, delete, create)
   const undoableTypes: ActionType[] = ['update', 'delete', 'create']
-  const canUndo = isCompleted &&
-                  action.result?.success &&
-                  action.result?.preState !== undefined &&
-                  onUndo &&
-                  undoableTypes.includes(action.type)
+  const canUndo =
+    isCompleted &&
+    action.result?.success &&
+    action.result?.preState !== undefined &&
+    onUndo &&
+    undoableTypes.includes(action.type)
 
   // Extract result data for document info
   const resultData = action.result?.data as Record<string, unknown> | undefined
@@ -213,9 +235,7 @@ export function ActionCard({
   const documentSlug = resultData?.slug as {current?: string} | undefined
 
   // Check if message is recent (within last 10 seconds) to prevent auto-executing old actions
-  const isRecentMessage = messageTimestamp
-    ? Date.now() - messageTimestamp.getTime() < 10000
-    : true // If no timestamp provided, assume it's recent (backwards compatibility)
+  const isRecentMessage = messageTimestamp ? Date.now() - messageTimestamp.getTime() < 10000 : true // If no timestamp provided, assume it's recent (backwards compatibility)
 
   // Default open when action needs user interaction (has Execute button)
   const [isExpanded, setIsExpanded] = useState(!shouldAutoExec && isPending)
@@ -234,7 +254,16 @@ export function ActionCard({
       hasAutoExecuted.current = true
       onExecute()
     }
-  }, [autoExecuteEnabled, isPending, shouldAutoExec, isDestructive, isRecentMessage, onExecute, action.id, action.type])
+  }, [
+    autoExecuteEnabled,
+    isPending,
+    shouldAutoExec,
+    isDestructive,
+    isRecentMessage,
+    onExecute,
+    action.id,
+    action.type,
+  ])
 
   // Save conversation ID to localStorage for floating chat to continue
   const saveConversationForFloatingChat = useCallback(() => {
@@ -261,7 +290,7 @@ export function ActionCard({
         window.location.href = `/structure/${documentType};${documentId}`
       }
     },
-    [documentId, documentType, onOpenInStructure, saveConversationForFloatingChat]
+    [documentId, documentType, onOpenInStructure, saveConversationForFloatingChat],
   )
 
   // Handle opening in Preview/Presentation
@@ -284,7 +313,7 @@ export function ActionCard({
         window.location.href = `/structure/${documentType};${documentId}`
       }
     },
-    [documentId, documentType, documentSlug, onOpenInPreview, saveConversationForFloatingChat]
+    [documentId, documentType, documentSlug, onOpenInPreview, saveConversationForFloatingChat],
   )
 
   const toggleExpanded = useCallback((e: React.MouseEvent) => {
@@ -306,12 +335,30 @@ export function ActionCard({
         onClick={toggleExpanded}
       >
         {/* Chevron */}
-        <Box style={{color: 'var(--card-muted-fg-color)', display: 'flex', alignItems: 'center', flexShrink: 0}}>
-          {isExpanded ? <ChevronDownIcon style={{width: 16, height: 16}} /> : <ChevronRightIcon style={{width: 16, height: 16}} />}
+        <Box
+          style={{
+            color: 'var(--card-muted-fg-color)',
+            display: 'flex',
+            alignItems: 'center',
+            flexShrink: 0,
+          }}
+        >
+          {isExpanded ? (
+            <ChevronDownIcon style={{width: 16, height: 16}} />
+          ) : (
+            <ChevronRightIcon style={{width: 16, height: 16}} />
+          )}
         </Box>
 
         {/* Action type icon */}
-        <Box style={{color: 'var(--card-muted-fg-color)', display: 'flex', alignItems: 'center', flexShrink: 0}}>
+        <Box
+          style={{
+            color: 'var(--card-muted-fg-color)',
+            display: 'flex',
+            alignItems: 'center',
+            flexShrink: 0,
+          }}
+        >
           {getActionIcon(action.type)}
         </Box>
 
@@ -373,7 +420,14 @@ export function ActionCard({
             {/* Result message */}
             {action.result && (
               <Box>
-                <Text size={1} style={{color: action.result.success ? 'var(--card-badge-positive-dot-color, #43a047)' : 'var(--card-badge-critical-dot-color, #e53935)'}}>
+                <Text
+                  size={1}
+                  style={{
+                    color: action.result.success
+                      ? 'var(--card-badge-positive-dot-color, #43a047)'
+                      : 'var(--card-badge-critical-dot-color, #e53935)',
+                  }}
+                >
                   {action.result.message}
                 </Text>
                 {action.result.documentId && (
@@ -385,9 +439,7 @@ export function ActionCard({
             )}
 
             {/* Inline result data (replaces the hidden follow-up message) */}
-            {!!action.result?.data && (
-              <ResultDataPreview data={action.result.data} />
-            )}
+            {!!action.result?.data && <ResultDataPreview data={action.result.data} />}
 
             {/* Error */}
             {action.error && (
@@ -423,25 +475,29 @@ export function ActionCard({
             )}
 
             {/* Open in Pinboard for createPinboard actions */}
-            {!hideNavigationLinks && isCompleted && action.result?.success && action.type === 'createPinboard' && action.result.documentId && (
-              <Flex gap={2}>
-                <Button
-                  mode="ghost"
-                  tone="primary"
-                  text="Open in Pinboard"
-                  icon={LaunchIcon}
-                  fontSize={1}
-                  padding={2}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                    if (conversationId) {
-                      saveConversationForFloatingChat()
-                    }
-                    window.location.href = `/pinboard/${action.result!.documentId}`
-                  }}
-                />
-              </Flex>
-            )}
+            {!hideNavigationLinks &&
+              isCompleted &&
+              action.result?.success &&
+              action.type === 'createPinboard' &&
+              action.result.documentId && (
+                <Flex gap={2}>
+                  <Button
+                    mode="ghost"
+                    tone="primary"
+                    text="Open in Pinboard"
+                    icon={LaunchIcon}
+                    fontSize={1}
+                    padding={2}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (conversationId) {
+                        saveConversationForFloatingChat()
+                      }
+                      window.location.href = `/pinboard/${action.result!.documentId}`
+                    }}
+                  />
+                </Flex>
+              )}
 
             {/* Action buttons */}
             {(canExecute || canCancel || canUndo) && (
@@ -476,17 +532,13 @@ export function ActionCard({
                       needsConfirmation
                         ? 'Confirm & Execute'
                         : hasBeenExecuted
-                        ? 'Retry'
-                        : 'Execute'
+                          ? 'Retry'
+                          : 'Execute'
                     }
                     tone={isDestructive ? 'critical' : 'primary'}
                     mode={hasBeenExecuted ? 'ghost' : 'default'}
                     icon={
-                      needsConfirmation
-                        ? CheckmarkIcon
-                        : hasBeenExecuted
-                        ? RefreshIcon
-                        : PlayIcon
+                      needsConfirmation ? CheckmarkIcon : hasBeenExecuted ? RefreshIcon : PlayIcon
                     }
                     onClick={(e) => {
                       e.stopPropagation()

@@ -32,9 +32,9 @@
  * }
  */
 
-import { createHash, timingSafeEqual } from 'crypto'
+import {createHash, timingSafeEqual} from 'crypto'
 import Anthropic from '@anthropic-ai/sdk'
-import { NextRequest, NextResponse } from 'next/server'
+import {NextRequest, NextResponse} from 'next/server'
 import {
   createSanityClient,
   loadInstructions,
@@ -42,7 +42,7 @@ import {
   loadWorkflow,
   loadDocumentsForContext,
 } from './sanity-loader'
-import { buildSystemPrompt } from './prompt-builder'
+import {buildSystemPrompt} from './prompt-builder'
 import type {
   RemoteClaudeRequest,
   RemoteClaudeResponse,
@@ -51,8 +51,8 @@ import type {
 } from './types'
 
 // Import local utilities for server-side action parsing and execution
-import { parseActions, extractTextContent } from './action-parser'
-import { executeAction } from './content-operations'
+import {parseActions, extractTextContent} from './action-parser'
+import {executeAction} from './content-operations'
 
 // Initialize Anthropic client
 const anthropic = new Anthropic({
@@ -60,9 +60,15 @@ const anthropic = new Anthropic({
 })
 
 // Default values
-const DEFAULT_MODEL = 'claude-sonnet-4-20250514'
+const DEFAULT_MODEL = 'claude-sonnet-5'
 const DEFAULT_MAX_TOKENS = 4096
 const DEFAULT_TEMPERATURE = 0.7
+
+// Claude Fable 5 / Mythos, Sonnet 5, and Opus 4.7+ reject non-default sampling
+// parameters (temperature/top_p/top_k) with a 400 — omit temperature for them.
+function supportsTemperature(model: string): boolean {
+  return !/^claude-(fable|mythos|sonnet-5|opus-4-[789])/.test(model)
+}
 
 // Input size limits
 const MAX_MESSAGE_LENGTH = 50000
@@ -75,13 +81,13 @@ const RATE_LIMIT_MAX_REQUESTS = parseInt(process.env.CLAUDE_REMOTE_RATE_LIMIT ||
 
 // In-memory rate limit store (for single-instance deployments)
 // For production with multiple instances, use Redis or similar
-const rateLimitStore = new Map<string, { count: number; windowStart: number }>()
+const rateLimitStore = new Map<string, {count: number; windowStart: number}>()
 
 /**
  * Simple sliding window rate limiter
  * Returns { allowed: boolean, remaining: number, resetIn: number }
  */
-function checkRateLimit(clientId: string): { allowed: boolean; remaining: number; resetIn: number } {
+function checkRateLimit(clientId: string): {allowed: boolean; remaining: number; resetIn: number} {
   const now = Date.now()
   const record = rateLimitStore.get(clientId)
 
@@ -96,18 +102,18 @@ function checkRateLimit(clientId: string): { allowed: boolean; remaining: number
 
   if (!record || now - record.windowStart > RATE_LIMIT_WINDOW_MS) {
     // New window
-    rateLimitStore.set(clientId, { count: 1, windowStart: now })
-    return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1, resetIn: RATE_LIMIT_WINDOW_MS }
+    rateLimitStore.set(clientId, {count: 1, windowStart: now})
+    return {allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1, resetIn: RATE_LIMIT_WINDOW_MS}
   }
 
   if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
     const resetIn = RATE_LIMIT_WINDOW_MS - (now - record.windowStart)
-    return { allowed: false, remaining: 0, resetIn }
+    return {allowed: false, remaining: 0, resetIn}
   }
 
   record.count++
   const resetIn = RATE_LIMIT_WINDOW_MS - (now - record.windowStart)
-  return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - record.count, resetIn }
+  return {allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - record.count, resetIn}
 }
 
 /**
@@ -136,7 +142,7 @@ function logRequest(
     actionsExecuted: number
     error?: string
     processingTime: number
-  }
+  },
 ): void {
   const logLevel = response.success ? 'info' : 'warn'
   const logEntry = {
@@ -144,7 +150,8 @@ function logRequest(
     clientId,
     request: {
       messageLength: request.message.length,
-      messagePreview: request.message.substring(0, 100) + (request.message.length > 100 ? '...' : ''),
+      messagePreview:
+        request.message.substring(0, 100) + (request.message.length > 100 ? '...' : ''),
       workflow: request.workflow || null,
       dryRun: request.dryRun || false,
     },
@@ -173,93 +180,107 @@ function secureCompare(a: string, b: string): boolean {
 /**
  * Validate the API secret using timing-safe comparison
  */
-function validateAuth(request: NextRequest): { valid: boolean; error?: string } {
+function validateAuth(request: NextRequest): {valid: boolean; error?: string} {
   const authHeader = request.headers.get('authorization')
 
   if (!authHeader) {
-    return { valid: false, error: 'Missing Authorization header' }
+    return {valid: false, error: 'Missing Authorization header'}
   }
 
   const secret = process.env.CLAUDE_REMOTE_API_SECRET
   if (!secret) {
-    return { valid: false, error: 'CLAUDE_REMOTE_API_SECRET not configured on server' }
+    return {valid: false, error: 'CLAUDE_REMOTE_API_SECRET not configured on server'}
   }
 
   // Support both "Bearer <token>" and just "<token>"
-  const token = authHeader.startsWith('Bearer ')
-    ? authHeader.slice(7)
-    : authHeader
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader
 
   // Use timing-safe comparison to prevent timing attacks
   if (!secureCompare(token, secret)) {
-    return { valid: false, error: 'Invalid API secret' }
+    return {valid: false, error: 'Invalid API secret'}
   }
 
-  return { valid: true }
+  return {valid: true}
 }
 
 /**
  * Validate the request body with size limits
  */
-function validateRequest(body: unknown): { valid: boolean; error?: string; data?: RemoteClaudeRequest } {
+function validateRequest(body: unknown): {
+  valid: boolean
+  error?: string
+  data?: RemoteClaudeRequest
+} {
   if (!body || typeof body !== 'object') {
-    return { valid: false, error: 'Request body must be a JSON object' }
+    return {valid: false, error: 'Request body must be a JSON object'}
   }
 
   const request = body as RemoteClaudeRequest
 
   if (!request.message || typeof request.message !== 'string') {
-    return { valid: false, error: 'message field is required and must be a string' }
+    return {valid: false, error: 'message field is required and must be a string'}
   }
 
   if (request.message.trim().length === 0) {
-    return { valid: false, error: 'message cannot be empty' }
+    return {valid: false, error: 'message cannot be empty'}
   }
 
   // Input size limits
   if (request.message.length > MAX_MESSAGE_LENGTH) {
-    return { valid: false, error: `Message exceeds maximum length of ${MAX_MESSAGE_LENGTH} characters` }
+    return {
+      valid: false,
+      error: `Message exceeds maximum length of ${MAX_MESSAGE_LENGTH} characters`,
+    }
   }
 
   // Validate optional fields
   if (request.workflow !== undefined && typeof request.workflow !== 'string') {
-    return { valid: false, error: 'workflow must be a string (name or ID)' }
+    return {valid: false, error: 'workflow must be a string (name or ID)'}
   }
 
   if (request.includeInstructions !== undefined) {
     if (!Array.isArray(request.includeInstructions)) {
-      return { valid: false, error: 'includeInstructions must be an array' }
+      return {valid: false, error: 'includeInstructions must be an array'}
     }
     const validCategories: InstructionCategory[] = ['writing', 'design', 'technical']
     for (const cat of request.includeInstructions) {
       if (!validCategories.includes(cat)) {
-        return { valid: false, error: `Invalid instruction category: ${cat}. Valid: ${validCategories.join(', ')}` }
+        return {
+          valid: false,
+          error: `Invalid instruction category: ${cat}. Valid: ${validCategories.join(', ')}`,
+        }
       }
     }
   }
 
   if (request.conversationHistory !== undefined) {
     if (!Array.isArray(request.conversationHistory)) {
-      return { valid: false, error: 'conversationHistory must be an array' }
+      return {valid: false, error: 'conversationHistory must be an array'}
     }
     if (request.conversationHistory.length > MAX_CONVERSATION_HISTORY) {
-      return { valid: false, error: `Conversation history exceeds maximum of ${MAX_CONVERSATION_HISTORY} messages` }
+      return {
+        valid: false,
+        error: `Conversation history exceeds maximum of ${MAX_CONVERSATION_HISTORY} messages`,
+      }
     }
     for (const msg of request.conversationHistory) {
       if (!msg.role || !['user', 'assistant'].includes(msg.role)) {
-        return { valid: false, error: 'Each message in conversationHistory must have role "user" or "assistant"' }
+        return {
+          valid: false,
+          error: 'Each message in conversationHistory must have role "user" or "assistant"',
+        }
       }
       if (typeof msg.content !== 'string') {
-        return { valid: false, error: 'Each message in conversationHistory must have string content' }
+        return {valid: false, error: 'Each message in conversationHistory must have string content'}
       }
     }
   }
 
   if (request.context?.documents && request.context.documents.length > MAX_CONTEXT_DOCUMENTS) {
-    return { valid: false, error: `Context documents exceeds maximum of ${MAX_CONTEXT_DOCUMENTS}` }
+    return {valid: false, error: `Context documents exceeds maximum of ${MAX_CONTEXT_DOCUMENTS}`}
   }
 
-  return { valid: true, data: request }
+  return {valid: true, data: request}
 }
 
 /**
@@ -267,11 +288,11 @@ function validateRequest(body: unknown): { valid: boolean; error?: string; data?
  */
 function generateStudioLinks(
   documentIds: string[],
-  documentTypes: Map<string, string>
+  documentTypes: Map<string, string>,
 ): RemoteClaudeResponse['studioLinks'] {
   const studioUrl = process.env.SANITY_STUDIO_URL || process.env.NEXT_PUBLIC_SANITY_STUDIO_URL || ''
 
-  return documentIds.map(docId => {
+  return documentIds.map((docId) => {
     const docType = documentTypes.get(docId) || 'document'
     const baseDocId = docId.replace(/^drafts\./, '')
 
@@ -279,7 +300,8 @@ function generateStudioLinks(
       documentId: docId,
       documentType: docType,
       structureUrl: `${studioUrl}/structure/${docType};${docId}`,
-      presentationUrl: docType === 'page' ? `${studioUrl}/presentation?preview=/${baseDocId}` : undefined,
+      presentationUrl:
+        docType === 'page' ? `${studioUrl}/presentation?preview=/${baseDocId}` : undefined,
     }
   })
 }
@@ -288,7 +310,7 @@ function generateStudioLinks(
  * Get allowed CORS origin from environment or request
  */
 function getAllowedOrigin(requestOrigin: string | null): string {
-  const allowedOrigins = process.env.ALLOWED_CORS_ORIGINS?.split(',').map(o => o.trim())
+  const allowedOrigins = process.env.ALLOWED_CORS_ORIGINS?.split(',').map((o) => o.trim())
 
   // If no restrictions configured, allow all (development mode)
   if (!allowedOrigins || allowedOrigins.length === 0) {
@@ -330,12 +352,16 @@ export async function POST(request: NextRequest) {
   // Check rate limit first (before auth to prevent auth timing attacks under load)
   const rateLimit = checkRateLimit(clientId)
   if (!rateLimit.allowed) {
-    logRequest(clientId, { message: '[rate limited]' }, {
-      success: false,
-      actionsExecuted: 0,
-      error: 'Rate limit exceeded',
-      processingTime: Date.now() - startTime,
-    })
+    logRequest(
+      clientId,
+      {message: '[rate limited]'},
+      {
+        success: false,
+        actionsExecuted: 0,
+        error: 'Rate limit exceeded',
+        processingTime: Date.now() - startTime,
+      },
+    )
 
     return NextResponse.json(
       {
@@ -350,31 +376,35 @@ export async function POST(request: NextRequest) {
           'X-RateLimit-Reset': Math.ceil((Date.now() + rateLimit.resetIn) / 1000).toString(),
           'Retry-After': Math.ceil(rateLimit.resetIn / 1000).toString(),
         },
-      }
+      },
     )
   }
 
   // Validate authentication
   const authResult = validateAuth(request)
   if (!authResult.valid) {
-    logRequest(clientId, { message: '[auth failed]' }, {
-      success: false,
-      actionsExecuted: 0,
-      error: authResult.error,
-      processingTime: Date.now() - startTime,
-    })
+    logRequest(
+      clientId,
+      {message: '[auth failed]'},
+      {
+        success: false,
+        actionsExecuted: 0,
+        error: authResult.error,
+        processingTime: Date.now() - startTime,
+      },
+    )
 
     return NextResponse.json(
-      { success: false, error: authResult.error } as Partial<RemoteClaudeResponse>,
-      { status: 401 }
+      {success: false, error: authResult.error} as Partial<RemoteClaudeResponse>,
+      {status: 401},
     )
   }
 
   // Check for required environment variables
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json(
-      { success: false, error: 'ANTHROPIC_API_KEY not configured' } as Partial<RemoteClaudeResponse>,
-      { status: 500 }
+      {success: false, error: 'ANTHROPIC_API_KEY not configured'} as Partial<RemoteClaudeResponse>,
+      {status: 500},
     )
   }
 
@@ -383,32 +413,40 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json()
   } catch {
-    logRequest(clientId, { message: '[invalid json]' }, {
-      success: false,
-      actionsExecuted: 0,
-      error: 'Invalid JSON in request body',
-      processingTime: Date.now() - startTime,
-    })
+    logRequest(
+      clientId,
+      {message: '[invalid json]'},
+      {
+        success: false,
+        actionsExecuted: 0,
+        error: 'Invalid JSON in request body',
+        processingTime: Date.now() - startTime,
+      },
+    )
 
     return NextResponse.json(
-      { success: false, error: 'Invalid JSON in request body' } as Partial<RemoteClaudeResponse>,
-      { status: 400 }
+      {success: false, error: 'Invalid JSON in request body'} as Partial<RemoteClaudeResponse>,
+      {status: 400},
     )
   }
 
   // Validate request
   const validation = validateRequest(body)
   if (!validation.valid || !validation.data) {
-    logRequest(clientId, { message: '[validation failed]' }, {
-      success: false,
-      actionsExecuted: 0,
-      error: validation.error,
-      processingTime: Date.now() - startTime,
-    })
+    logRequest(
+      clientId,
+      {message: '[validation failed]'},
+      {
+        success: false,
+        actionsExecuted: 0,
+        error: validation.error,
+        processingTime: Date.now() - startTime,
+      },
+    )
 
     return NextResponse.json(
-      { success: false, error: validation.error } as Partial<RemoteClaudeResponse>,
-      { status: 400 }
+      {success: false, error: validation.error} as Partial<RemoteClaudeResponse>,
+      {status: 400},
     )
   }
 
@@ -422,7 +460,9 @@ export async function POST(request: NextRequest) {
     const [instructions, apiSettings, workflow, contextDocuments] = await Promise.all([
       loadInstructions(sanityClient),
       loadApiSettings(sanityClient),
-      requestData.workflow ? loadWorkflow(sanityClient, requestData.workflow) : Promise.resolve(null),
+      requestData.workflow
+        ? loadWorkflow(sanityClient, requestData.workflow)
+        : Promise.resolve(null),
       requestData.context?.documents
         ? loadDocumentsForContext(sanityClient, requestData.context.documents)
         : Promise.resolve([]),
@@ -435,19 +475,22 @@ export async function POST(request: NextRequest) {
           success: false,
           error: `Workflow not found: "${requestData.workflow}". Make sure the workflow exists and is active.`,
         } as Partial<RemoteClaudeResponse>,
-        { status: 404 }
+        {status: 404},
       )
     }
 
     // Build the system prompt
-    const { prompt: systemPrompt, includedCategories } = buildSystemPrompt({
+    const {prompt: systemPrompt, includedCategories} = buildSystemPrompt({
       userMessage: requestData.message,
       instructions,
       workflow,
       includeCategories: requestData.includeInstructions,
-      contextDocuments: contextDocuments.map(doc => ({
+      contextDocuments: contextDocuments.map((doc) => ({
         ...doc,
-        slug: typeof doc.slug === 'object' && doc.slug ? (doc.slug as { current: string }).current : doc.slug as string | undefined,
+        slug:
+          typeof doc.slug === 'object' && doc.slug
+            ? (doc.slug as {current: string}).current
+            : (doc.slug as string | undefined),
       })),
       additionalContext: requestData.context?.additionalContext,
     })
@@ -480,14 +523,14 @@ export async function POST(request: NextRequest) {
     const claudeResponse = await anthropic.messages.create({
       model,
       max_tokens: maxTokens,
-      temperature,
+      ...(supportsTemperature(model) ? {temperature} : {}),
       system: systemPrompt,
       messages,
     })
 
     // Extract the response content
     const responseContent = claudeResponse.content
-      .filter((block: { type: string }): block is Anthropic.TextBlock => block.type === 'text')
+      .filter((block: {type: string}): block is Anthropic.TextBlock => block.type === 'text')
       .map((block: Anthropic.TextBlock) => block.text)
       .join('\n')
 
@@ -507,7 +550,7 @@ export async function POST(request: NextRequest) {
           const result = await executeAction(sanityClient, action)
 
           executedActions.push({
-            action: { ...action, status: result.success ? 'completed' : 'failed', result },
+            action: {...action, status: result.success ? 'completed' : 'failed', result},
             result,
             dryRun: false,
           })
@@ -544,22 +587,23 @@ export async function POST(request: NextRequest) {
       // For dry run, just include the parsed actions without executing
       for (const action of parsedActions) {
         executedActions.push({
-          action: { ...action, status: 'pending' },
-          result: { success: true, message: 'Dry run - action not executed' },
+          action: {...action, status: 'pending'},
+          result: {success: true, message: 'Dry run - action not executed'},
           dryRun: true,
         })
       }
     }
 
     // Calculate success metrics
-    const successfulActions = executedActions.filter(a => a.result.success).length
-    const failedActions = executedActions.filter(a => !a.result.success).length
+    const successfulActions = executedActions.filter((a) => a.result.success).length
+    const failedActions = executedActions.filter((a) => !a.result.success).length
 
     // Generate studio links for created/updated documents
     const allAffectedDocuments = [...createdDocuments, ...updatedDocuments]
-    const studioLinks = allAffectedDocuments.length > 0
-      ? generateStudioLinks(allAffectedDocuments, documentTypes)
-      : undefined
+    const studioLinks =
+      allAffectedDocuments.length > 0
+        ? generateStudioLinks(allAffectedDocuments, documentTypes)
+        : undefined
 
     // Build response
     const processingTime = Date.now() - startTime
@@ -576,7 +620,7 @@ export async function POST(request: NextRequest) {
         deletedDocuments,
       },
       studioLinks,
-      appliedWorkflow: workflow ? { id: workflow._id, name: workflow.name } : undefined,
+      appliedWorkflow: workflow ? {id: workflow._id, name: workflow.name} : undefined,
       includedInstructions: includedCategories,
       metadata: {
         processingTime,
@@ -586,15 +630,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Log successful request
-    logRequest(clientId, {
-      message: requestData.message,
-      workflow: requestData.workflow,
-      dryRun: requestData.dryRun,
-    }, {
-      success: true,
-      actionsExecuted: successfulActions,
-      processingTime,
-    })
+    logRequest(
+      clientId,
+      {
+        message: requestData.message,
+        workflow: requestData.workflow,
+        dryRun: requestData.dryRun,
+      },
+      {
+        success: true,
+        actionsExecuted: successfulActions,
+        processingTime,
+      },
+    )
 
     return NextResponse.json(response, {
       headers: {
@@ -608,16 +656,20 @@ export async function POST(request: NextRequest) {
     const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred'
 
     // Log the error
-    logRequest(clientId, {
-      message: requestData.message,
-      workflow: requestData.workflow,
-      dryRun: requestData.dryRun,
-    }, {
-      success: false,
-      actionsExecuted: 0,
-      error: errorMessage,
-      processingTime,
-    })
+    logRequest(
+      clientId,
+      {
+        message: requestData.message,
+        workflow: requestData.workflow,
+        dryRun: requestData.dryRun,
+      },
+      {
+        success: false,
+        actionsExecuted: 0,
+        error: errorMessage,
+        processingTime,
+      },
+    )
 
     console.error('[Remote Claude API] Error:', error)
 
@@ -630,9 +682,9 @@ export async function POST(request: NextRequest) {
           {
             success: false,
             error: 'Anthropic rate limit exceeded. Please wait and try again.',
-            metadata: { processingTime, model: DEFAULT_MODEL, dryRun: false },
+            metadata: {processingTime, model: DEFAULT_MODEL, dryRun: false},
           } as Partial<RemoteClaudeResponse>,
-          { status: 429 }
+          {status: 429},
         )
       }
 
@@ -641,9 +693,9 @@ export async function POST(request: NextRequest) {
           {
             success: false,
             error: 'Invalid Anthropic API key',
-            metadata: { processingTime, model: DEFAULT_MODEL, dryRun: false },
+            metadata: {processingTime, model: DEFAULT_MODEL, dryRun: false},
           } as Partial<RemoteClaudeResponse>,
-          { status: 500 }
+          {status: 500},
         )
       }
 
@@ -651,9 +703,9 @@ export async function POST(request: NextRequest) {
         {
           success: false,
           error: error.message,
-          metadata: { processingTime, model: DEFAULT_MODEL, dryRun: false },
+          metadata: {processingTime, model: DEFAULT_MODEL, dryRun: false},
         } as Partial<RemoteClaudeResponse>,
-        { status: statusCode }
+        {status: statusCode},
       )
     }
 
@@ -661,9 +713,9 @@ export async function POST(request: NextRequest) {
       {
         success: false,
         error: errorMessage,
-        metadata: { processingTime, model: DEFAULT_MODEL, dryRun: false },
+        metadata: {processingTime, model: DEFAULT_MODEL, dryRun: false},
       } as Partial<RemoteClaudeResponse>,
-      { status: 500 }
+      {status: 500},
     )
   }
 }

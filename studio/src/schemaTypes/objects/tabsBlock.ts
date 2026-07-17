@@ -1,5 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {InlineIcon} from '@sanity/icons'
+import {InlineIcon} from '@sanity/icons/Inline'
 
 // Tab item with label and content
 const tabItem = defineArrayMember({
@@ -37,8 +37,16 @@ const tabItem = defineArrayMember({
       options: {
         insertMenu: {
           groups: [
-            {name: 'layout', title: 'Layout', of: ['row', 'spacerBlock', 'dividerBlock', 'cardBlock', 'tableBlock']},
-            {name: 'content', title: 'Content', of: ['headingBlock', 'richTextBlock', 'eyebrowBlock', 'buttonBlock']},
+            {
+              name: 'layout',
+              title: 'Layout',
+              of: ['row', 'spacerBlock', 'dividerBlock', 'cardBlock', 'tableBlock'],
+            },
+            {
+              name: 'content',
+              title: 'Content',
+              of: ['headingBlock', 'richTextBlock', 'eyebrowBlock', 'buttonBlock'],
+            },
             {name: 'media', title: 'Media', of: ['imageBlock', 'iconBlock']},
           ],
         },

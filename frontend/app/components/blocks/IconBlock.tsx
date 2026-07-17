@@ -67,59 +67,59 @@ interface IconBlockProps {
 // Map of icon names to Phosphor components
 const iconMap: Record<string, PhosphorIcon> = {
   'check-circle': CheckCircle,
-  target: Target,
-  star: Star,
-  trophy: Trophy,
+  'target': Target,
+  'star': Star,
+  'trophy': Trophy,
   'arrow-right': ArrowRight,
   'arrow-up-right': ArrowUpRight,
   'arrow-left': ArrowLeft,
   'arrow-down': ArrowDown,
   'shuffle-simple': ShuffleSimple,
   'lightbulb-filament': LightbulbFilament,
-  barbell: Barbell,
-  feather: Feather,
-  heart: Heart,
-  lightning: Lightning,
-  rocket: Rocket,
-  globe: Globe,
-  users: Users,
+  'barbell': Barbell,
+  'feather': Feather,
+  'heart': Heart,
+  'lightning': Lightning,
+  'rocket': Rocket,
+  'globe': Globe,
+  'users': Users,
   'chart-line-up': ChartLineUp,
   'shield-check': ShieldCheck,
-  clock: Clock,
-  calendar: Calendar,
-  envelope: Envelope,
-  phone: Phone,
+  'clock': Clock,
+  'calendar': Calendar,
+  'envelope': Envelope,
+  'phone': Phone,
   'map-pin': MapPin,
-  link: Link,
-  code: Code,
-  gear: Gear,
-  palette: Palette,
-  pencil: Pencil,
-  trash: Trash,
-  download: Download,
-  upload: Upload,
-  eye: Eye,
-  lock: Lock,
-  key: Key,
-  sparkle: Sparkle,
-  fire: Fire,
-  sun: Sun,
-  moon: Moon,
+  'link': Link,
+  'code': Code,
+  'gear': Gear,
+  'palette': Palette,
+  'pencil': Pencil,
+  'trash': Trash,
+  'download': Download,
+  'upload': Upload,
+  'eye': Eye,
+  'lock': Lock,
+  'key': Key,
+  'sparkle': Sparkle,
+  'fire': Fire,
+  'sun': Sun,
+  'moon': Moon,
   'moon-stars': MoonStars,
-  cloud: Cloud,
-  tree: Tree,
-  leaf: Leaf,
-  compass: Compass,
-  anchor: Anchor,
-  boat: Boat,
+  'cloud': Cloud,
+  'tree': Tree,
+  'leaf': Leaf,
+  'compass': Compass,
+  'anchor': Anchor,
+  'boat': Boat,
 }
 
 // Margin bottom classes
 const marginClasses: Record<string, string> = {
   '0': 'mb-0',
-  sm: 'mb-2',
-  md: 'mb-4',
-  lg: 'mb-6',
+  'sm': 'mb-2',
+  'md': 'mb-4',
+  'lg': 'mb-6',
 }
 
 // Alignment classes
@@ -130,7 +130,13 @@ const alignClasses: Record<string, string> = {
 }
 
 export default function IconBlock({block}: IconBlockProps) {
-  const {icon = 'check-circle', size = 'md', color = 'inherit', align = 'left', marginBottom = 'sm'} = block
+  const {
+    icon = 'check-circle',
+    size = 'md',
+    color = 'inherit',
+    align = 'left',
+    marginBottom = 'sm',
+  } = block
 
   // Clean stega encoding
   const cleanIcon = stegaClean(icon)
@@ -150,7 +156,7 @@ export default function IconBlock({block}: IconBlockProps) {
       className={cn(
         'flex',
         alignClasses[cleanAlign] || alignClasses.left,
-        marginClasses[cleanMargin] || marginClasses.sm
+        marginClasses[cleanMargin] || marginClasses.sm,
       )}
     >
       <Icon icon={IconComponent} size={cleanSize} color={cleanColor} />

@@ -8,11 +8,7 @@
 
 import {useState, useCallback, useEffect, useRef} from 'react'
 import {useClient} from 'sanity'
-import type {
-  InstructionSet,
-  SystemPromptContext,
-  UseInstructionsReturn,
-} from '../types'
+import type {InstructionSet, SystemPromptContext, UseInstructionsReturn} from '../types'
 import {buildSystemPrompt} from '../lib/instructions'
 import {
   formatInstructionsForClaude,
@@ -22,7 +18,11 @@ import {
 } from '../lib/format-instructions'
 
 // Re-export for convenience
-export {formatInstructionsForClaude, type SanityClaudeInstructions, type SectionTemplateForContext} from '../lib/format-instructions'
+export {
+  formatInstructionsForClaude,
+  type SanityClaudeInstructions,
+  type SectionTemplateForContext,
+} from '../lib/format-instructions'
 
 const API_VERSION = '2024-01-01'
 
@@ -173,40 +173,37 @@ export function useInstructions(): UseInstructionsReturn & {
   /**
    * Create a new instruction set (not supported with Sanity backend - use Studio to edit)
    */
-  const createInstruction = useCallback(
-    (name: string, content: string): InstructionSet => {
-      console.warn('Creating training is not supported. Please use Sanity Studio to edit Claude Training.')
-      const newInstruction: InstructionSet = {
-        id: `local_${Date.now()}`,
-        name,
-        content,
-        isDefault: false,
-        createdAt: new Date(),
-      }
-      return newInstruction
-    },
-    []
-  )
+  const createInstruction = useCallback((name: string, content: string): InstructionSet => {
+    console.warn(
+      'Creating training is not supported. Please use Sanity Studio to edit Claude Training.',
+    )
+    const newInstruction: InstructionSet = {
+      id: `local_${Date.now()}`,
+      name,
+      content,
+      isDefault: false,
+      createdAt: new Date(),
+    }
+    return newInstruction
+  }, [])
 
   /**
    * Update an instruction set (not supported with Sanity backend - use Studio to edit)
    */
-  const updateInstruction = useCallback(
-    (id: string, updates: Partial<InstructionSet>) => {
-      console.warn('Updating training is not supported. Please use Sanity Studio to edit Claude Training.')
-    },
-    []
-  )
+  const updateInstruction = useCallback((id: string, updates: Partial<InstructionSet>) => {
+    console.warn(
+      'Updating training is not supported. Please use Sanity Studio to edit Claude Training.',
+    )
+  }, [])
 
   /**
    * Delete an instruction set (not supported with Sanity backend)
    */
-  const deleteInstruction = useCallback(
-    (id: string) => {
-      console.warn('Deleting training is not supported. Please use Sanity Studio to manage Claude Training.')
-    },
-    []
-  )
+  const deleteInstruction = useCallback((id: string) => {
+    console.warn(
+      'Deleting training is not supported. Please use Sanity Studio to manage Claude Training.',
+    )
+  }, [])
 
   /**
    * Set the active instruction set
@@ -223,11 +220,10 @@ export function useInstructions(): UseInstructionsReturn & {
       const customInstructions = activeInstruction?.content || getDefaultInstructions()
       return buildSystemPrompt({
         ...context,
-        customInstructions:
-          context.customInstructions || customInstructions,
+        customInstructions: context.customInstructions || customInstructions,
       })
     },
-    [activeInstruction]
+    [activeInstruction],
   )
 
   /**

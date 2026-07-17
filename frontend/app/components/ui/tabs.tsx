@@ -80,7 +80,7 @@ const Tabs = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Root>, TabsP
       id,
       ...props
     },
-    ref
+    ref,
   ) => {
     // Use React's useId for stable SSR-compatible ID generation
     const generatedId = React.useId()
@@ -140,7 +140,7 @@ const Tabs = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Root>, TabsP
 
       progressRef.current = setInterval(() => {
         setProgress((prev) => {
-          const next = prev + (100 / totalSteps)
+          const next = prev + 100 / totalSteps
           return next >= 100 ? 100 : next
         })
       }, progressInterval)
@@ -200,7 +200,7 @@ const Tabs = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Root>, TabsP
             isVerticalLayout && `flex ${gapClass}`,
             isReversed && isVerticalLayout && 'flex-row-reverse',
             isReversed && !isVerticalLayout && 'flex flex-col-reverse',
-            className
+            className,
           )}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
@@ -224,7 +224,7 @@ const Tabs = React.forwardRef<React.ElementRef<typeof TabsPrimitive.Root>, TabsP
         </TabsPrimitive.Root>
       </TabsContext.Provider>
     )
-  }
+  },
 )
 Tabs.displayName = 'Tabs'
 
@@ -253,7 +253,7 @@ const TabsList = React.forwardRef<React.ElementRef<typeof TabsPrimitive.List>, T
       children,
       ...props
     },
-    ref
+    ref,
   ) => {
     const {orientation, menuPosition} = React.useContext(TabsContext)
     const [dropdownOpen, setDropdownOpen] = React.useState(false)
@@ -264,7 +264,10 @@ const TabsList = React.forwardRef<React.ElementRef<typeof TabsPrimitive.List>, T
       let label = 'Select tab'
       React.Children.forEach(children, (child) => {
         if (React.isValidElement(child)) {
-          const triggerEl = child as React.ReactElement<{value?: string; children?: React.ReactNode}>
+          const triggerEl = child as React.ReactElement<{
+            value?: string
+            children?: React.ReactNode
+          }>
           if (triggerEl.props.value === activeValue) {
             label = String(triggerEl.props.children) || 'Tab'
           }
@@ -274,27 +277,19 @@ const TabsList = React.forwardRef<React.ElementRef<typeof TabsPrimitive.List>, T
     }, [children, activeValue])
 
     return (
-      <div
-        className={cn(
-          isVerticalLayout && 'flex-shrink-0',
-          !isVerticalLayout && 'w-full'
-        )}
-      >
+      <div className={cn(isVerticalLayout && 'flex-shrink-0', !isVerticalLayout && 'w-full')}>
         {/* Mobile dropdown toggle */}
         {mobileDropdown && (
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
             className={cn(
               'flex w-full items-center justify-between rounded-lg bg-muted-background px-4 py-3 text-body font-medium md:hidden',
-              dropdownOpen && 'rounded-b-none'
+              dropdownOpen && 'rounded-b-none',
             )}
           >
             <span>{activeLabel}</span>
             <CaretDown
-              className={cn(
-                'h-4 w-4 transition-transform',
-                dropdownOpen && 'rotate-180'
-              )}
+              className={cn('h-4 w-4 transition-transform', dropdownOpen && 'rotate-180')}
               weight="bold"
             />
           </button>
@@ -308,7 +303,7 @@ const TabsList = React.forwardRef<React.ElementRef<typeof TabsPrimitive.List>, T
             orientation === 'vertical' && 'flex-col border-b-0 border-r',
             mobileDropdown && 'hidden md:flex',
             mobileDropdown && dropdownOpen && 'flex flex-col',
-            className
+            className,
           )}
           {...props}
         >
@@ -328,7 +323,7 @@ const TabsList = React.forwardRef<React.ElementRef<typeof TabsPrimitive.List>, T
         </TabsPrimitive.List>
       </div>
     )
-  }
+  },
 )
 TabsList.displayName = 'TabsList'
 
@@ -356,9 +351,11 @@ const TabsTrigger = React.forwardRef<
         'disabled:pointer-events-none disabled:opacity-50',
         // Active state: bottom border instead of background
         'data-[state=active]:text-foreground',
-        orientation === 'vertical' && 'flex-1-0-auto justify-start border-r-2 border-transparent data-[state=active]:border-r-foreground',
-        orientation === 'horizontal' && 'border-b-2 border-transparent -mb-[1px] data-[state=active]:border-b-foreground',
-        className
+        orientation === 'vertical' &&
+          'flex-1-0-auto justify-start border-r-2 border-transparent data-[state=active]:border-r-foreground',
+        orientation === 'horizontal' &&
+          'border-b-2 border-transparent -mb-[1px] data-[state=active]:border-b-foreground',
+        className,
       )}
       {...props}
     >
@@ -371,7 +368,7 @@ const TabsTrigger = React.forwardRef<
             'absolute bg-brand',
             orientation === 'horizontal'
               ? 'bottom-0 left-0 h-0.5 -mb-[2px]'
-              : 'top-0 right-0 w-0.5'
+              : 'top-0 right-0 w-0.5',
           )}
           style={{
             [orientation === 'horizontal' ? 'width' : 'height']: `${progress}%`,
@@ -400,7 +397,7 @@ const TabsContent = React.forwardRef<
         'data-[state=inactive]:hidden',
         'data-[state=active]:animate-in data-[state=active]:fade-in-50 data-[state=active]:duration-200',
         isVerticalLayout ? 'mt-0 flex-1' : marginClass,
-        className
+        className,
       )}
       {...props}
     />
@@ -423,7 +420,7 @@ const TabsPlayPause = React.forwardRef<
       onClick={onTogglePause}
       className={cn(
         'inline-flex items-center justify-center w-10 h-10 border border-border text-muted-foreground transition-colors hover:text-foreground hover:bg-muted-background rounded-[var(--component-button-radius)]',
-        className
+        className,
       )}
       aria-label={isPaused ? 'Resume autoplay' : 'Pause autoplay'}
       {...props}

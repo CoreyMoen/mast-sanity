@@ -1,5 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {ThListIcon} from '@sanity/icons'
+import {ThListIcon} from '@sanity/icons/ThList'
 
 // Table column definition
 const tableColumn = defineArrayMember({

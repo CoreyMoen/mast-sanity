@@ -203,7 +203,7 @@ export default async function RootLayout({children}: {children: React.ReactNode}
   return (
     <html lang="en" className={generalSans.variable} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{__html: themeScript}} />
       </head>
       <body className="flex min-h-screen flex-col">
         {/* The <Toaster> component is responsible for rendering toast notifications used in /app/client-utils.ts and /app/components/DraftModeToast.tsx */}
@@ -219,7 +219,9 @@ export default async function RootLayout({children}: {children: React.ReactNode}
         <SanityLive onError={handleError} />
         <Navigation data={navigation} siteTitle={siteTitle} />
         <OverlayHoverProvider>
-          <main id="main" className="flex-1 pt-16 md:pt-20">{children}</main>
+          <main id="main" className="flex-1 pt-16 md:pt-20">
+            {children}
+          </main>
         </OverlayHoverProvider>
         <FooterNew data={footer} siteTitle={siteTitle} />
         <SpeedInsights />

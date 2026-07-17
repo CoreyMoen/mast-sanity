@@ -50,20 +50,36 @@ export function Marquee({
       {/* Inject keyframes */}
       <style jsx global>{`
         @keyframes marquee-scroll-left {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-100%); }
+          0% {
+            transform: translateX(0);
+          }
+          100% {
+            transform: translateX(-100%);
+          }
         }
         @keyframes marquee-scroll-right {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(0); }
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(0);
+          }
         }
         @keyframes marquee-scroll-up {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(0); }
+          0% {
+            transform: translateY(-100%);
+          }
+          100% {
+            transform: translateY(0);
+          }
         }
         @keyframes marquee-scroll-down {
-          0% { transform: translateY(0); }
-          100% { transform: translateY(-100%); }
+          0% {
+            transform: translateY(0);
+          }
+          100% {
+            transform: translateY(-100%);
+          }
         }
       `}</style>
 
@@ -72,7 +88,7 @@ export function Marquee({
           'relative overflow-hidden',
           isVertical ? 'flex flex-col' : 'flex',
           pauseOnHover && '[&:hover_.marquee-group]:pause',
-          className
+          className,
         )}
         style={{
           maskImage: getFadeMask(),
@@ -80,10 +96,7 @@ export function Marquee({
         }}
       >
         <div
-          className={cn(
-            'flex',
-            isVertical ? 'flex-col' : 'flex-row'
-          )}
+          className={cn('flex', isVertical ? 'flex-col' : 'flex-row')}
           style={{
             [isVertical ? 'marginTop' : 'marginLeft']: `calc(0px - ${gap}px)`,
             [isVertical ? 'marginBottom' : 'marginRight']: `calc(0px - ${gap}px)`,
@@ -91,10 +104,7 @@ export function Marquee({
         >
           {/* First group */}
           <div
-            className={cn(
-              'marquee-group flex shrink-0',
-              isVertical ? 'flex-col' : 'flex-row'
-            )}
+            className={cn('marquee-group flex shrink-0', isVertical ? 'flex-col' : 'flex-row')}
             style={{
               gap: `${gap}px`,
               [isVertical ? 'paddingTop' : 'paddingLeft']: `${gap / 2}px`,
@@ -107,10 +117,7 @@ export function Marquee({
 
           {/* Duplicate group for seamless loop */}
           <div
-            className={cn(
-              'marquee-group flex shrink-0',
-              isVertical ? 'flex-col' : 'flex-row'
-            )}
+            className={cn('marquee-group flex shrink-0', isVertical ? 'flex-col' : 'flex-row')}
             aria-hidden="true"
             style={{
               gap: `${gap}px`,
@@ -136,10 +143,7 @@ interface MarqueeItemProps {
 
 export function MarqueeItem({children, className, minWidth}: MarqueeItemProps) {
   return (
-    <div
-      className={cn('shrink-0', className)}
-      style={{minWidth}}
-    >
+    <div className={cn('shrink-0', className)} style={{minWidth}}>
       {children}
     </div>
   )

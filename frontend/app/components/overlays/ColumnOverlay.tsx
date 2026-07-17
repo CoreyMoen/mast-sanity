@@ -8,10 +8,10 @@ import {SANITY_SELECTORS} from './constants'
 // Map gap values to pixel widths (half of gap on each side)
 const gapToPixels: Record<string, number> = {
   '0': 0,
-  '2': 4,   // px-1 = 0.25rem = 4px
-  '4': 8,   // px-2 = 0.5rem = 8px
-  '6': 12,  // px-3 = 0.75rem = 12px
-  '8': 16,  // px-4 = 1rem = 16px
+  '2': 4, // px-1 = 0.25rem = 4px
+  '4': 8, // px-2 = 0.5rem = 8px
+  '6': 12, // px-3 = 0.75rem = 12px
+  '8': 16, // px-4 = 1rem = 16px
   '12': 24, // px-6 = 1.5rem = 24px
 }
 
@@ -32,7 +32,11 @@ const verticalAlignClasses: Record<string, string> = {
   between: 'justify-between',
 }
 
-export default function ColumnOverlay({gap = '6', verticalAlign = 'start', children}: ColumnOverlayProps) {
+export default function ColumnOverlay({
+  gap = '6',
+  verticalAlign = 'start',
+  children,
+}: ColumnOverlayProps) {
   const overlayId = useId()
   const [isSelected, setIsSelected] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)

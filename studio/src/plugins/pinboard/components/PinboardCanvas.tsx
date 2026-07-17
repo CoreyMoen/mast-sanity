@@ -1,6 +1,6 @@
 import type {ReactNode} from 'react'
 import {Flex, Stack, Text, Button, Card} from '@sanity/ui'
-import {AddIcon} from '@sanity/icons'
+import {AddIcon} from '@sanity/icons/Add'
 import type {PinboardTransform} from '../types'
 
 interface PinboardCanvasProps {

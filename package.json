@@ -1,8 +1,6 @@
 {
   "name": "mast-sanity",
   "description": "Mast Component Framework for Sanity + Next.js with AI-powered content creation",
-  "author": "Corey Moen",
-  "license": "MIT",
   "keywords": [
     "Sanity",
     "Next.js",
@@ -12,14 +10,16 @@
     "Mast",
     "Claude AI"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/CoreyMoen/mast-sanity.git"
-  },
   "homepage": "https://github.com/CoreyMoen/mast-sanity#readme",
   "bugs": {
     "url": "https://github.com/CoreyMoen/mast-sanity/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CoreyMoen/mast-sanity.git"
+  },
+  "license": "MIT",
+  "author": "Corey Moen",
   "workspaces": [
     "studio",
     "frontend"
@@ -35,13 +35,13 @@
     "type-check": "npm run type-check --workspaces"
   },
   "prettier": "@sanity/prettier-config",
-  "overrides": {
-    "@sanity/types": "5.9.0"
-  },
   "devDependencies": {
-    "@sanity/client": "^7.14.1",
+    "@sanity/client": "^7.23.2",
     "@sanity/prettier-config": "^2.0.2",
     "npm-run-all2": "^5.0.2",
     "prettier": "^3.7.3"
+  },
+  "engines": {
+    "node": ">=22.12"
   }
 }

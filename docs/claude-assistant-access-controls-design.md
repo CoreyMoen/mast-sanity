@@ -98,7 +98,7 @@ if (context.schemaContext && accessControl?.allowedDocumentTypes?.length) {
   const filteredSchema = {
     ...context.schemaContext,
     documentTypes: context.schemaContext.documentTypes.filter((dt) =>
-      accessControl.allowedDocumentTypes.includes(dt.name)
+      accessControl.allowedDocumentTypes.includes(dt.name),
     ),
   }
   parts.push(formatSchemaForPrompt(filteredSchema))
@@ -173,11 +173,9 @@ export function useAccessControl() {
     client.fetch(query).then(setAccessControl)
 
     // Listen for real-time changes
-    const subscription = client
-      .listen(query)
-      .subscribe((update) => {
-        if (update.result) setAccessControl(update.result)
-      })
+    const subscription = client.listen(query).subscribe((update) => {
+      if (update.result) setAccessControl(update.result)
+    })
 
     return () => subscription.unsubscribe()
   }, [client])
@@ -214,7 +212,8 @@ defineField({
   name: 'adminApproved',
   title: 'Admin Approved',
   type: 'boolean',
-  description: 'Only administrators can see and toggle this field. Must be enabled before publishing.',
+  description:
+    'Only administrators can see and toggle this field. Must be enabled before publishing.',
   initialValue: false,
   group: 'admin', // Put in a separate admin group
   // HIDDEN from non-admins - this is a UI-level restriction
@@ -355,20 +354,18 @@ export const structure: StructureResolver = (S: StructureBuilder, context) => {
                     .child(
                       S.document()
                         .schemaType('claudeAccessControl')
-                        .documentId('claudeAccessControl')
+                        .documentId('claudeAccessControl'),
                     )
                     .icon(LockIcon),
                   S.listItem()
                     .id('claudeApiSettings')
                     .title('API Settings')
                     .child(
-                      S.document()
-                        .schemaType('claudeApiSettings')
-                        .documentId('claudeApiSettings')
+                      S.document().schemaType('claudeApiSettings').documentId('claudeApiSettings'),
                     )
                     .icon(CogIcon),
                   // ... other Claude settings items
-                ])
+                ]),
             ),
         ]
       : []),
@@ -422,12 +419,14 @@ However, since the tool registration happens at config time (before user context
 ```tsx
 // In ClaudeTool.tsx
 const currentUser = useCurrentUser()
-const hasAccess = currentUser?.roles?.some(
-  (r) => r.name === 'administrator' || r.name === 'editor'
-)
+const hasAccess = currentUser?.roles?.some((r) => r.name === 'administrator' || r.name === 'editor')
 
 if (!hasAccess) {
-  return <Card padding={4}><Text>You don't have access to the Claude Assistant.</Text></Card>
+  return (
+    <Card padding={4}>
+      <Text>You don't have access to the Claude Assistant.</Text>
+    </Card>
+  )
 }
 ```
 
@@ -441,19 +440,19 @@ if (!hasAccess) {
 
 ## 4. Sanity Plan Requirements
 
-| Capability | Free | Growth | Enterprise |
-|---|---|---|---|
-| Hide structure items by role (Structure Builder) | Yes | Yes | Yes |
-| Hide fields by role (`hidden` callback) | Yes | Yes | Yes |
-| `readOnly` fields by role | Yes | Yes | Yes |
-| Custom Document Actions (approval workflow) | Yes | Yes | Yes |
-| Filter `newDocumentOptions` by role | Yes | Yes | Yes |
-| `useCurrentUser()` hook in components | Yes | Yes | Yes |
-| Private datasets (API-level read restriction) | No | Yes | Yes |
-| Custom roles | No | No | Yes |
-| GROQ filter resources (server-side doc-level permissions) | No | No | Yes |
-| Content Releases (grouped publishing) | No | No | Yes (add-on) |
-| SAML SSO | No | No | Yes |
+| Capability                                                | Free | Growth | Enterprise   |
+| --------------------------------------------------------- | ---- | ------ | ------------ |
+| Hide structure items by role (Structure Builder)          | Yes  | Yes    | Yes          |
+| Hide fields by role (`hidden` callback)                   | Yes  | Yes    | Yes          |
+| `readOnly` fields by role                                 | Yes  | Yes    | Yes          |
+| Custom Document Actions (approval workflow)               | Yes  | Yes    | Yes          |
+| Filter `newDocumentOptions` by role                       | Yes  | Yes    | Yes          |
+| `useCurrentUser()` hook in components                     | Yes  | Yes    | Yes          |
+| Private datasets (API-level read restriction)             | No   | Yes    | Yes          |
+| Custom roles                                              | No   | No     | Yes          |
+| GROQ filter resources (server-side doc-level permissions) | No   | No     | Yes          |
+| Content Releases (grouped publishing)                     | No   | No     | Yes (add-on) |
+| SAML SSO                                                  | No   | No     | Yes          |
 
 ### What You Can Do on Free/Growth Plans
 
@@ -466,6 +465,7 @@ Everything in this design document is implementable on **Free or Growth plans** 
 ### When Enterprise Is Worth It
 
 Consider Enterprise if:
+
 - You have external collaborators or contractors who shouldn't be able to bypass UI restrictions
 - You need custom roles beyond Administrator/Editor/Viewer
 - You want server-side guarantees that document type access is enforced regardless of client
@@ -478,26 +478,27 @@ Consider Enterprise if:
 
 ### New Files to Create
 
-| File | Purpose |
-|---|---|
-| `studio/src/schemaTypes/documents/claudeAccessControl.ts` | Access control settings schema |
+| File                                                            | Purpose                                    |
+| --------------------------------------------------------------- | ------------------------------------------ |
+| `studio/src/schemaTypes/documents/claudeAccessControl.ts`       | Access control settings schema             |
 | `studio/src/plugins/claude-assistant/hooks/useAccessControl.ts` | Hook to load/cache access control settings |
-| `studio/src/actions/ApprovedPublishAction.tsx` | Custom publish action with approval gate |
+| `studio/src/actions/ApprovedPublishAction.tsx`                  | Custom publish action with approval gate   |
 
 ### Files to Modify
 
-| File | Change |
-|---|---|
-| `studio/src/structure/index.ts` | Conditionally show Claude Settings based on user role |
-| `studio/src/plugins/claude-assistant/lib/instructions.ts` | Filter schema context by allowed types; inject access constraints into system prompt |
-| `studio/src/plugins/claude-assistant/lib/operations.ts` | Add pre-execution type/operation validation in `executeAction()` |
-| `studio/src/plugins/claude-assistant/hooks/useContentOperations.ts` | Integrate `useAccessControl` to block disallowed operations before execution |
-| `studio/sanity.config.ts` | Register new schema, filter `newDocumentOptions`, register custom Document Action |
-| `frontend/app/api/claude/remote/content-operations.ts` | Add server-side access control checks for remote API |
+| File                                                                | Change                                                                               |
+| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `studio/src/structure/index.ts`                                     | Conditionally show Claude Settings based on user role                                |
+| `studio/src/plugins/claude-assistant/lib/instructions.ts`           | Filter schema context by allowed types; inject access constraints into system prompt |
+| `studio/src/plugins/claude-assistant/lib/operations.ts`             | Add pre-execution type/operation validation in `executeAction()`                     |
+| `studio/src/plugins/claude-assistant/hooks/useContentOperations.ts` | Integrate `useAccessControl` to block disallowed operations before execution         |
+| `studio/sanity.config.ts`                                           | Register new schema, filter `newDocumentOptions`, register custom Document Action    |
+| `frontend/app/api/claude/remote/content-operations.ts`              | Add server-side access control checks for remote API                                 |
 
 ### Per-Project Schema Changes
 
 For each document type Claude should manage (e.g., `adLandingPage`):
+
 - Add `adminApproved` boolean field with `hidden`/`readOnly` callbacks
 - Add an `admin` field group for admin-only fields
 

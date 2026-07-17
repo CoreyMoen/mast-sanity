@@ -1,4 +1,4 @@
-import {CommentIcon} from '@sanity/icons'
+import {CommentIcon} from '@sanity/icons/Comment'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 import {format, parseISO} from 'date-fns'
 

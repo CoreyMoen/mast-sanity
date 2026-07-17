@@ -47,24 +47,10 @@ const colorClasses: Record<EyebrowColor, Record<EyebrowVariant, string>> = {
  * - overline: Text with a border line above
  * - pill: Text in a pill/badge shape
  */
-export function Eyebrow({
-  children,
-  variant = 'text',
-  color = 'default',
-  className,
-}: EyebrowProps) {
-  const classes = [
-    'text-eyebrow',
-    variantClasses[variant],
-    colorClasses[color][variant],
-    className,
-  ]
+export function Eyebrow({children, variant = 'text', color = 'default', className}: EyebrowProps) {
+  const classes = ['text-eyebrow', variantClasses[variant], colorClasses[color][variant], className]
     .filter(Boolean)
     .join(' ')
 
-  return (
-    <span className={classes}>
-      {children}
-    </span>
-  )
+  return <span className={classes}>{children}</span>
 }

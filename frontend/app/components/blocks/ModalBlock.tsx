@@ -60,12 +60,16 @@ export default function ModalBlock({
   const cleanTriggerVariant = stegaClean(triggerVariant)
   // Map legacy 'blue' color to 'brand' for backwards compatibility
   const rawTriggerColor = stegaClean(triggerColor)
-  const cleanTriggerColor = (rawTriggerColor === 'blue' ? 'brand' : rawTriggerColor) as 'brand' | 'black' | 'white'
+  const cleanTriggerColor = (rawTriggerColor === 'blue' ? 'brand' : rawTriggerColor) as
+    | 'brand'
+    | 'black'
+    | 'white'
   const cleanModalId = stegaClean(modalId)
 
   // Check URL parameter for opening modal
   React.useEffect(() => {
     if (cleanModalId && searchParams.get('modal') === cleanModalId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing modal state from the URL, an external system
       setIsOpen(true)
     }
   }, [searchParams, cleanModalId])

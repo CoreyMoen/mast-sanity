@@ -12,65 +12,783 @@
  * ---------------------------------------------------------------------------------
  */
 
+export declare const internalGroqTypeReferenceTo: unique symbol
+
+type ArrayOf<T> = Array<
+  T & {
+    _key: string
+  }
+>
+
 // Source: ../studio/schema.json
+export type SanityImageAssetReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
+}
+
+export type ImageSlideImage = {
+  asset?: SanityImageAssetReference
+  media?: unknown // Unable to locate the referenced type "image.media" in schema
+  hotspot?: SanityImageHotspot
+  crop?: SanityImageCrop
+  _type: 'image'
+}
+
+export type Section = {
+  _type: 'section'
+  label?: string
+  rows?: Array<
+    | ({
+        _key: string
+      } & Row)
+    | ({
+        _key: string
+      } & SpacerBlock)
+    | ({
+        _key: string
+      } & DividerBlock)
+    | ({
+        _key: string
+      } & HeadingBlock)
+    | ({
+        _key: string
+      } & RichTextBlock)
+    | ({
+        _key: string
+      } & ButtonBlock)
+    | ({
+        _key: string
+      } & ImageBlock)
+    | ({
+        _key: string
+      } & SliderBlock)
+    | ({
+        _key: string
+      } & TabsBlock)
+    | ({
+        _key: string
+      } & BlogGridBlock)
+  >
+  backgroundColor?: 'primary' | 'secondary'
+  backgroundImage?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
+  backgroundOverlay?: 0 | 20 | 40 | 60 | 80
+  minHeight?: 'auto' | 'small' | 'medium' | 'large' | 'screen' | 'custom'
+  customMinHeight?: string
+  verticalAlign?: 'start' | 'center' | 'end'
+  maxWidth?: 'full' | 'container' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+  paddingTop?: 'none' | 'compact' | 'default' | 'spacious'
+}
+
+export type Row = {
+  _type: 'row'
+  columns?: Array<
+    {
+      _key: string
+    } & Column
+  >
+  horizontalAlign?: 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly'
+  verticalAlign?: 'start' | 'center' | 'end' | 'stretch' | 'baseline' | 'between'
+  gap?: '0' | '2' | '4' | '6' | '8' | '12'
+  wrap?: boolean
+  reverseOnMobile?: boolean
+  customStyle?: string
+}
+
+export type Column = {
+  _type: 'column'
+  content?: Array<
+    | ({
+        _key: string
+      } & Row)
+    | ({
+        _key: string
+      } & ContentWrap)
+    | ({
+        _key: string
+      } & SpacerBlock)
+    | ({
+        _key: string
+      } & DividerBlock)
+    | ({
+        _key: string
+      } & CardBlock)
+    | ({
+        _key: string
+      } & TableBlock)
+    | ({
+        _key: string
+      } & HeadingBlock)
+    | ({
+        _key: string
+      } & RichTextBlock)
+    | ({
+        _key: string
+      } & EyebrowBlock)
+    | ({
+        _key: string
+      } & ButtonBlock)
+    | ({
+        _key: string
+      } & BreadcrumbBlock)
+    | ({
+        _key: string
+      } & ImageBlock)
+    | ({
+        _key: string
+      } & InlineVideoBlock)
+    | ({
+        _key: string
+      } & IconBlock)
+    | ({
+        _key: string
+      } & TabsBlock)
+    | ({
+        _key: string
+      } & AccordionBlock)
+    | ({
+        _key: string
+      } & ModalBlock)
+    | ({
+        _key: string
+      } & SliderBlock)
+    | ({
+        _key: string
+      } & MarqueeBlock)
+    | ({
+        _key: string
+      } & BlogGridBlock)
+  >
+  widthDesktop?:
+    'auto' | 'fill' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12'
+  widthTablet?:
+    | 'inherit'
+    | 'auto'
+    | 'fill'
+    | '1'
+    | '2'
+    | '3'
+    | '4'
+    | '5'
+    | '6'
+    | '7'
+    | '8'
+    | '9'
+    | '10'
+    | '11'
+    | '12'
+  widthMobile?:
+    | 'inherit'
+    | 'auto'
+    | 'fill'
+    | '1'
+    | '2'
+    | '3'
+    | '4'
+    | '5'
+    | '6'
+    | '7'
+    | '8'
+    | '9'
+    | '10'
+    | '11'
+    | '12'
+  verticalAlign?: 'start' | 'center' | 'end' | 'between'
+  padding?: '0' | '2' | '4' | '6' | '8'
+  customStyle?: string
+}
+
+export type ContentWrap = {
+  _type: 'contentWrap'
+  content?: Array<
+    | ({
+        _key: string
+      } & HeadingBlock)
+    | ({
+        _key: string
+      } & RichTextBlock)
+    | ({
+        _key: string
+      } & ImageBlock)
+    | ({
+        _key: string
+      } & ButtonBlock)
+    | ({
+        _key: string
+      } & SpacerBlock)
+    | ({
+        _key: string
+      } & DividerBlock)
+    | ({
+        _key: string
+      } & CardBlock)
+    | ({
+        _key: string
+      } & EyebrowBlock)
+    | ({
+        _key: string
+      } & IconBlock)
+    | ({
+        _key: string
+      } & AccordionBlock)
+    | ({
+        _key: string
+      } & BreadcrumbBlock)
+    | ({
+        _key: string
+      } & TableBlock)
+    | ({
+        _key: string
+      } & SliderBlock)
+    | ({
+        _key: string
+      } & TabsBlock)
+    | ({
+        _key: string
+      } & ModalBlock)
+    | ({
+        _key: string
+      } & InlineVideoBlock)
+    | ({
+        _key: string
+      } & MarqueeBlock)
+  >
+  gap?: '0' | '2' | '4' | '6' | '8'
+  align?: 'start' | 'center' | 'end' | 'stretch'
+  customStyle?: string
+}
+
+export type PostReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'post'
+}
+
+export type CategoryReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'category'
+}
+
+export type BlogGridBlock = {
+  _type: 'blogGridBlock'
+  selectionMode?: 'all' | 'specific' | 'category'
+  specificPosts?: Array<
+    {
+      _key: string
+    } & PostReference
+  >
+  category?: CategoryReference
+  limit?: number
+  sortBy?: 'date' | 'title'
+  sortOrder?: 'desc' | 'asc'
+  columnsDesktop?: '1' | '2' | '3' | '4'
+  columnsTablet?: 'inherit' | '1' | '2' | '3' | '4'
+  columnsMobile?: 'inherit' | '1' | '2'
+  gap?: '0' | '2' | '4' | '6' | '8' | '12'
+  customStyle?: string
+}
+
+export type MarqueeBlock = {
+  _type: 'marqueeBlock'
+  items?: Array<
+    | ({
+        _key: string
+      } & HeadingBlock)
+    | ({
+        _key: string
+      } & RichTextBlock)
+    | ({
+        _key: string
+      } & ImageBlock)
+    | ({
+        _key: string
+      } & IconBlock)
+    | ({
+        _key: string
+      } & CardBlock)
+  >
+  orientation?: 'horizontal' | 'vertical'
+  reverse?: boolean
+  pauseOnHover?: boolean
+  fadeEdges?: boolean
+  duration?: number
+  gap?: '16' | '24' | '32' | '48'
+  height?: '200' | '300' | '400' | 'auto'
+}
+
+export type SanityFileAssetReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'sanity.fileAsset'
+}
+
+export type InlineVideoBlock = {
+  _type: 'inlineVideoBlock'
+  videoFile?: {
+    asset?: SanityFileAssetReference
+    media?: unknown
+    _type: 'file'
+  }
+  videoUrl?: string
+  poster?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
+  aspectRatio?:
+    | '16/9'
+    | '4/3'
+    | '1/1'
+    | '9/16'
+    | '21/9'
+    | '16\xD79'
+    | '4\xD73'
+    | '1\xD71'
+    | '9\xD716'
+    | '21\xD79'
+    | '16x9'
+    | '4x3'
+    | '1x1'
+    | '9x16'
+    | '21x9'
+  controlPosition?: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' | 'center'
+  showControls?: boolean
+  autoplayOnScroll?: boolean
+  loop?: boolean
+  muted?: boolean
+}
+
+export type ModalBlock = {
+  _type: 'modalBlock'
+  triggerLabel: string
+  triggerVariant?: 'primary' | 'secondary' | 'ghost'
+  triggerColor?: 'brand' | 'black' | 'blue' | 'white'
+  contentType?: 'content' | 'video'
+  modalTitle?: string
+  content?: Array<
+    | ({
+        _key: string
+      } & HeadingBlock)
+    | ({
+        _key: string
+      } & RichTextBlock)
+    | ({
+        _key: string
+      } & ImageBlock)
+    | ({
+        _key: string
+      } & ButtonBlock)
+    | ({
+        _key: string
+      } & DividerBlock)
+    | ({
+        _key: string
+      } & SpacerBlock)
+  >
+  youtubeUrl?: string
+  modalSize?: 'sm' | 'md' | 'lg' | 'xl' | 'full'
+  modalId?: string
+}
+
+export type TabsBlock = {
+  _type: 'tabsBlock'
+  tabs?: Array<{
+    label: string
+    content?: Array<
+      | ({
+          _key: string
+        } & Row)
+      | ({
+          _key: string
+        } & SpacerBlock)
+      | ({
+          _key: string
+        } & DividerBlock)
+      | ({
+          _key: string
+        } & CardBlock)
+      | ({
+          _key: string
+        } & TableBlock)
+      | ({
+          _key: string
+        } & HeadingBlock)
+      | ({
+          _key: string
+        } & RichTextBlock)
+      | ({
+          _key: string
+        } & EyebrowBlock)
+      | ({
+          _key: string
+        } & ButtonBlock)
+      | ({
+          _key: string
+        } & ImageBlock)
+      | ({
+          _key: string
+        } & IconBlock)
+    >
+    _type: 'tabItem'
+    _key: string
+  }>
+  orientation?: 'horizontal' | 'vertical'
+  menuPosition?: 'above' | 'below' | 'left' | 'right'
+  mobileDropdown?: boolean
+  contentGap?: '0' | '2' | '4' | '6' | '8' | '12'
+  defaultTab?: string
+  autoplay?: boolean
+  autoplayDuration?: number
+  pauseOnHover?: boolean
+  showProgress?: boolean
+}
+
+export type SliderBlock = {
+  _type: 'sliderBlock'
+  slides?: Array<{
+    image: ImageSlideImage
+    alt?: string
+    caption?: string
+    _type: 'imageSlide'
+    _key: string
+  }>
+  slidesPerViewDesktop?: 1 | 2 | 3 | 4 | 5 | 6
+  slidesPerViewTablet?: 1 | 2 | 3 | 4
+  slidesPerViewMobile?: 1 | 2
+  gap?: '0' | '2' | '4' | '6' | '8'
+  aspectRatio?:
+    | 'original'
+    | '16/9'
+    | '4/3'
+    | '1/1'
+    | '3/4'
+    | '9/16'
+    | '16\xD79'
+    | '4\xD73'
+    | '1\xD71'
+    | '3\xD74'
+    | '9\xD716'
+    | '16x9'
+    | '4x3'
+    | '1x1'
+    | '3x4'
+    | '9x16'
+  autoplay?: boolean
+  autoplayDelay?: number
+  loop?: boolean
+  showNavigation?: boolean
+  navigationPosition?: 'below' | 'overlay-center' | 'overlay-edges' | 'sides'
+  showPagination?: boolean
+  effect?: 'slide' | 'fade'
+  speed?: number
+  centeredSlides?: boolean
+  overflowVisible?: boolean
+}
+
+export type AccordionBlock = {
+  _type: 'accordionBlock'
+  items?: Array<{
+    title: string
+    content?: Array<
+      | ({
+          _key: string
+        } & SpacerBlock)
+      | ({
+          _key: string
+        } & DividerBlock)
+      | ({
+          _key: string
+        } & HeadingBlock)
+      | ({
+          _key: string
+        } & RichTextBlock)
+      | ({
+          _key: string
+        } & ButtonBlock)
+      | ({
+          _key: string
+        } & ImageBlock)
+      | ({
+          _key: string
+        } & IconBlock)
+    >
+    defaultOpen?: boolean
+    _type: 'accordionItem'
+    _key: string
+  }>
+  allowMultiple?: boolean
+  titleStyle?: 'h3' | 'h4' | 'h5' | 'body'
+  dividers?: boolean
+}
+
+export type IconBlock = {
+  _type: 'iconBlock'
+  icon:
+    | 'check-circle'
+    | 'target'
+    | 'star'
+    | 'trophy'
+    | 'arrow-right'
+    | 'arrow-up-right'
+    | 'arrow-left'
+    | 'arrow-down'
+    | 'shuffle-simple'
+    | 'lightbulb-filament'
+    | 'barbell'
+    | 'feather'
+    | 'heart'
+    | 'lightning'
+    | 'rocket'
+    | 'globe'
+    | 'users'
+    | 'chart-line-up'
+    | 'shield-check'
+    | 'clock'
+    | 'calendar'
+    | 'envelope'
+    | 'phone'
+    | 'map-pin'
+    | 'link'
+    | 'code'
+    | 'gear'
+    | 'palette'
+    | 'pencil'
+    | 'trash'
+    | 'download'
+    | 'upload'
+    | 'eye'
+    | 'lock'
+    | 'key'
+    | 'sparkle'
+    | 'fire'
+    | 'sun'
+    | 'moon'
+    | 'moon-stars'
+    | 'cloud'
+    | 'tree'
+    | 'leaf'
+    | 'compass'
+    | 'anchor'
+    | 'boat'
+  size?: 'sm' | 'md' | 'lg' | 'xl'
+  color?: 'inherit' | 'brand' | 'blue' | 'black' | 'gray'
+  align?: 'left' | 'center' | 'right'
+  marginBottom?: '0' | 'sm' | 'md' | 'lg'
+}
+
+export type TableBlock = {
+  _type: 'tableBlock'
+  columns?: Array<{
+    header: string
+    align?: 'left' | 'center' | 'right'
+    _type: 'tableColumn'
+    _key: string
+  }>
+  rows?: Array<{
+    cells?: Array<{
+      content?: string
+      _type: 'tableCell'
+      _key: string
+    }>
+    _type: 'tableRow'
+    _key: string
+  }>
+  variant?: 'default' | 'striped' | 'bordered'
+  showHeader?: boolean
+  caption?: string
+}
+
+export type BreadcrumbBlock = {
+  _type: 'breadcrumbBlock'
+  items?: Array<{
+    label: string
+    link?: Link
+    _type: 'breadcrumbItem'
+    _key: string
+  }>
+  separator?: 'chevron' | 'slash'
+  align?: 'left' | 'center' | 'right'
+}
+
+export type EyebrowBlock = {
+  _type: 'eyebrowBlock'
+  text: SmartString
+  variant?: 'text' | 'overline' | 'pill'
+  color?: 'default' | 'brand' | 'blue' | 'muted'
+  align?: 'left' | 'center' | 'right'
+  customStyle?: string
+}
+
+export type CardBlock = {
+  _type: 'cardBlock'
+  content?: Array<
+    | ({
+        _key: string
+      } & HeadingBlock)
+    | ({
+        _key: string
+      } & RichTextBlock)
+    | ({
+        _key: string
+      } & ImageBlock)
+    | ({
+        _key: string
+      } & ButtonBlock)
+    | ({
+        _key: string
+      } & SpacerBlock)
+    | ({
+        _key: string
+      } & DividerBlock)
+  >
+  variant?: 'default' | 'outline' | 'filled' | 'ghost'
+  padding?: 'none' | 'sm' | 'md' | 'lg'
+  backgroundImage?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
+  backgroundOverlay?: 0 | 20 | 40 | 60 | 80
+  href?: string
+  openInNewTab?: boolean
+  hoverEffect?: boolean
+}
+
+export type DividerBlock = {
+  _type: 'dividerBlock'
+  marginTop?: '0' | '2' | '4' | '6' | '8' | '12' | '16' | '24'
+  marginBottom?: '0' | '2' | '4' | '6' | '8' | '12' | '16' | '24'
+  color?: 'default' | 'light' | 'dark' | 'brand' | 'blue'
+}
+
+export type SpacerBlock = {
+  _type: 'spacerBlock'
+  sizeDesktop?: '2' | '4' | '6' | '8' | '12' | '16' | '24'
+  sizeMobile?: 'inherit' | '2' | '4' | '6' | '8' | '12' | '16' | '24'
+}
+
+export type ButtonBlock = {
+  _type: 'buttonBlock'
+  text: SmartString
+  link: Link
+  variant?: 'primary' | 'secondary' | 'ghost'
+  color?: 'brand' | 'black' | 'white'
+  icon?: 'none' | 'arrow-right' | 'external' | 'download'
+}
+
+export type ImageBlock = {
+  _type: 'imageBlock'
+  image: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
+  alt: string
+  caption?: string
+  size?: 'full' | 'lg' | 'md' | 'sm' | 'thumb'
+  aspectRatio?:
+    | 'original'
+    | '16/9'
+    | '4/3'
+    | '1/1'
+    | '3/4'
+    | '9/16'
+    | '16\xD79'
+    | '4\xD73'
+    | '1\xD71'
+    | '3\xD74'
+    | '9\xD716'
+    | '16x9'
+    | '4x3'
+    | '1x1'
+    | '3x4'
+    | '9x16'
+  rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full'
+  shadow?: boolean
+}
+
+export type RichTextBlock = {
+  _type: 'richTextBlock'
+  content?: BlockContent
+  align?: 'left' | 'center' | 'right'
+  size?: 'inherit' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'xl' | 'lg' | 'base' | 'sm'
+  maxWidth?: 'none' | 'prose' | 'prose-lg' | 'prose-xl'
+  color?: 'default' | 'gray' | 'white' | 'brand' | 'blue'
+  customStyle?: string
+}
+
+export type HeadingBlock = {
+  _type: 'headingBlock'
+  text: SmartString
+  level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+  size?: 'inherit' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+  align?: 'left' | 'center' | 'right'
+  color?: 'default' | 'gray' | 'white' | 'brand' | 'blue'
+  customStyle?: string
+}
+
+export type PageReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'page'
+}
+
+export type ContentVariableReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'contentVariable'
+}
+
 export type Link = {
   _type: 'link'
-  linkType?: 'href' | 'page' | 'post'
+  linkType?: 'href' | 'page' | 'post' | 'variable'
   href?: string
-  page?: {
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    [internalGroqTypeReferenceTo]?: 'page'
-  }
-  post?: {
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    [internalGroqTypeReferenceTo]?: 'post'
-  }
+  page?: PageReference
+  post?: PostReference
+  variable?: ContentVariableReference
   openInNewTab?: boolean
 }
 
-export type CallToAction = {
-  _type: 'callToAction'
-  heading: string
-  text?: string
-  buttonText?: string
-  link?: Link
-}
-
-export type InfoSection = {
-  _type: 'infoSection'
-  heading?: string
-  subheading?: string
-  content?: BlockContent
-}
-
 export type BlockContent = Array<{
-  children?: Array<{
-    marks?: Array<string>
-    text?: string
-    _type: 'span'
-    _key: string
-  }>
+  children?: Array<
+    | {
+        marks?: Array<string>
+        text?: string
+        _type: 'span'
+        _key: string
+      }
+    | ({
+        _key: string
+      } & ContentVariableInline)
+  >
   style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'blockquote'
   listItem?: 'bullet' | 'number'
   markDefs?: Array<{
-    linkType?: 'href' | 'page' | 'post'
+    linkType?: 'href' | 'page' | 'post' | 'variable'
     href?: string
-    page?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'page'
-    }
-    post?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'post'
-    }
+    page?: PageReference
+    post?: PostReference
+    variable?: ContentVariableReference
     openInNewTab?: boolean
     _type: 'link'
     _key: string
@@ -79,6 +797,458 @@ export type BlockContent = Array<{
   _type: 'block'
   _key: string
 }>
+
+export type ContentVariableInline = {
+  _type: 'contentVariableInline'
+  reference: ContentVariableReference
+}
+
+export type SmartString = {
+  _type: 'smartString'
+  mode?: 'static' | 'variable'
+  staticValue?: string
+  variableRef?: ContentVariableReference
+}
+
+export type PersonReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'person'
+}
+
+export type Pinboard = {
+  _id: string
+  _type: 'pinboard'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  name: string
+  description?: string
+  order?: number
+  pages?: ArrayOf<PageReference | PostReference | CategoryReference | PersonReference>
+  comments?: Array<{
+    pageRef?: string
+    xPercent?: number
+    yPercent?: number
+    authorId?: string
+    authorName?: string
+    text?: string
+    createdAt?: string
+    resolved?: boolean
+    replies?: Array<{
+      authorId?: string
+      authorName?: string
+      text?: string
+      createdAt?: string
+      _type: 'pinboardReply'
+      _key: string
+    }>
+    _type: 'pinboardComment'
+    _key: string
+  }>
+}
+
+export type ClaudeWorkflow = {
+  _id: string
+  _type: 'claudeWorkflow'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  name: string
+  description?: string
+  systemInstructions?: Array<
+    | {
+        children?: Array<{
+          marks?: Array<string>
+          text?: string
+          _type: 'span'
+          _key: string
+        }>
+        style?: 'normal' | 'h2' | 'h3' | 'h4'
+        listItem?: 'bullet' | 'number'
+        markDefs?: null
+        level?: number
+        _type: 'block'
+        _key: string
+      }
+    | ({
+        _key: string
+      } & Code)
+  >
+  starterPrompt?: string
+  order?: number
+  enableFigmaFetch?: boolean
+  roles?: Array<string>
+  active?: boolean
+}
+
+export type ClaudeQuickAction = {
+  _id: string
+  _type: 'claudeQuickAction'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  label: string
+  description?: string
+  icon?:
+    | 'add'
+    | 'search'
+    | 'edit'
+    | 'help'
+    | 'document'
+    | 'trash'
+    | 'copy'
+    | 'image'
+    | 'settings'
+    | 'code'
+  prompt: string
+  category?: 'content' | 'query' | 'help' | 'navigation'
+  order?: number
+  active?: boolean
+}
+
+export type ClaudeApiSettings = {
+  _id: string
+  _type: 'claudeApiSettings'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  model: 'claude-opus-4-8' | 'claude-sonnet-5'
+  maxTokens: number
+  temperature: 0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 | 0.6 | 0.7 | 0.8 | 0.9 | 1
+  enableStreaming?: boolean
+}
+
+export type ClaudeInstructions = {
+  _id: string
+  _type: 'claudeInstructions'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  writingGuidelines?: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'normal' | 'h2' | 'h3' | 'h4'
+    listItem?: 'bullet' | 'number'
+    markDefs?: null
+    level?: number
+    _type: 'block'
+    _key: string
+  }>
+  brandVoice?: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'normal' | 'h2' | 'h3' | 'h4'
+    listItem?: 'bullet' | 'number'
+    markDefs?: null
+    level?: number
+    _type: 'block'
+    _key: string
+  }>
+  forbiddenTerms?: Array<string>
+  preferredTerms?: Array<{
+    avoid: string
+    useInstead: string
+    _type: 'preferredTerm'
+    _key: string
+  }>
+  writingKeywords?: string
+  designSystemRules?: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'normal' | 'h2' | 'h3' | 'h4'
+    listItem?: 'bullet' | 'number'
+    markDefs?: null
+    level?: number
+    _type: 'block'
+    _key: string
+  }>
+  componentGuidelines?: Array<{
+    component:
+      | 'section'
+      | 'row'
+      | 'column'
+      | 'headingBlock'
+      | 'richTextBlock'
+      | 'eyebrowBlock'
+      | 'imageBlock'
+      | 'buttonBlock'
+      | 'iconBlock'
+      | 'spacerBlock'
+      | 'dividerBlock'
+      | 'cardBlock'
+      | 'tableBlock'
+      | 'accordionBlock'
+      | 'breadcrumbBlock'
+      | 'sliderBlock'
+      | 'tabsBlock'
+      | 'modalBlock'
+      | 'inlineVideoBlock'
+      | 'marqueeBlock'
+    guidelines?: string
+    doNot?: string
+    _type: 'componentGuideline'
+    _key: string
+  }>
+  designKeywords?: string
+  includeSectionTemplates?: boolean
+  sectionTemplateGuidance?: string
+  technicalConstraints?: Array<{
+    children?: Array<{
+      marks?: Array<string>
+      text?: string
+      _type: 'span'
+      _key: string
+    }>
+    style?: 'normal' | 'h2' | 'h3' | 'h4'
+    listItem?: 'bullet' | 'number'
+    markDefs?: null
+    level?: number
+    _type: 'block'
+    _key: string
+  }>
+  maxNestingDepth?: number
+  requiredFields?: Array<{
+    component:
+      | 'section'
+      | 'row'
+      | 'column'
+      | 'headingBlock'
+      | 'richTextBlock'
+      | 'eyebrowBlock'
+      | 'imageBlock'
+      | 'buttonBlock'
+      | 'iconBlock'
+      | 'spacerBlock'
+      | 'dividerBlock'
+      | 'cardBlock'
+      | 'tableBlock'
+      | 'accordionBlock'
+      | 'breadcrumbBlock'
+      | 'sliderBlock'
+      | 'tabsBlock'
+      | 'modalBlock'
+      | 'inlineVideoBlock'
+      | 'marqueeBlock'
+    fields?: Array<string>
+    _type: 'requiredFieldsRule'
+    _key: string
+  }>
+  technicalKeywords?: string
+}
+
+export type ClaudeConversation = {
+  _id: string
+  _type: 'claudeConversation'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  title: string
+  userId?: string
+  messages?: Array<{
+    role: 'user' | 'assistant'
+    content: string
+    timestamp: string
+    hidden?: boolean
+    actions?: Array<{
+      type:
+        | 'create'
+        | 'update'
+        | 'delete'
+        | 'query'
+        | 'navigate'
+        | 'explain'
+        | 'uploadImage'
+        | 'fetchFigmaFrame'
+        | 'uploadFigmaImage'
+      description?: string
+      documentId?: string
+      documentType?: string
+      status?: 'pending' | 'executing' | 'completed' | 'failed' | 'cancelled'
+      error?: string
+      payloadJson?: string
+      resultJson?: string
+      _type: 'action'
+      _key: string
+    }>
+    _type: 'message'
+    _key: string
+  }>
+  lastActivity?: string
+  archived?: boolean
+  workflowIds?: Array<string>
+}
+
+export type SectionTemplate = {
+  _id: string
+  _type: 'sectionTemplate'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  name: string
+  description?: string
+  category?:
+    'heroes' | 'features' | 'content' | 'testimonials' | 'ctas' | 'pricing' | 'faq' | 'other'
+  isGlobal?: boolean
+  thumbnail?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
+  rows?: Array<
+    | ({
+        _key: string
+      } & Row)
+    | ({
+        _key: string
+      } & SpacerBlock)
+    | ({
+        _key: string
+      } & DividerBlock)
+    | ({
+        _key: string
+      } & HeadingBlock)
+    | ({
+        _key: string
+      } & RichTextBlock)
+    | ({
+        _key: string
+      } & ButtonBlock)
+    | ({
+        _key: string
+      } & ImageBlock)
+    | ({
+        _key: string
+      } & SliderBlock)
+    | ({
+        _key: string
+      } & TabsBlock)
+  >
+  backgroundColor?: 'primary' | 'secondary'
+  minHeight?: 'auto' | 'small' | 'medium' | 'large' | 'screen'
+  verticalAlign?: 'start' | 'center' | 'end'
+  maxWidth?: 'full' | 'container' | 'sm' | 'md' | 'lg' | 'xl' | '2xl'
+  paddingTop?: 'none' | 'compact' | 'default' | 'spacious'
+}
+
+export type SanityImageCrop = {
+  _type: 'sanity.imageCrop'
+  top: number
+  bottom: number
+  left: number
+  right: number
+}
+
+export type SanityImageHotspot = {
+  _type: 'sanity.imageHotspot'
+  x: number
+  y: number
+  height: number
+  width: number
+}
+
+export type Category = {
+  _id: string
+  _type: 'category'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  title: string
+  slug: Slug
+  description?: string
+}
+
+export type Slug = {
+  _type: 'slug'
+  current: string
+  source?: string
+}
+
+export type Footer = {
+  _id: string
+  _type: 'footer'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  showLogo?: boolean
+  logoText?: string
+  logoImage?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
+  linkColumns?: Array<{
+    title?: string
+    links?: Array<{
+      label: string
+      link?: Link
+      _type: 'footerLink'
+      _key: string
+    }>
+    _type: 'linkColumn'
+    _key: string
+  }>
+  socialLinks?: Array<{
+    platform: 'linkedin' | 'x' | 'instagram' | 'facebook' | 'youtube' | 'github' | 'tiktok'
+    url: string
+    _type: 'socialLink'
+    _key: string
+  }>
+  companyName?: string
+  showThemeToggle?: boolean
+}
+
+export type Navigation = {
+  _id: string
+  _type: 'navigation'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  logoText?: string
+  logoImage?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
+  items?: Array<{
+    label: string
+    type?: 'link' | 'dropdown'
+    link?: Link
+    dropdownLinks?: Array<{
+      label: string
+      link?: Link
+      _type: 'navLink'
+      _key: string
+    }>
+    _type: 'navItem'
+    _key: string
+  }>
+  showCta?: boolean
+  ctaLabel?: string
+  ctaLink?: Link
+  ctaStyle?: 'primary' | 'secondary'
+}
 
 export type Settings = {
   _id: string
@@ -99,18 +1269,8 @@ export type Settings = {
     markDefs?: Array<{
       linkType?: 'href' | 'page' | 'post'
       href?: string
-      page?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'page'
-      }
-      post?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'post'
-      }
+      page?: PageReference
+      post?: PostReference
       openInNewTab?: boolean
       _type: 'link'
       _key: string
@@ -120,12 +1280,7 @@ export type Settings = {
     _key: string
   }>
   ogImage?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -135,20 +1290,11 @@ export type Settings = {
   }
 }
 
-export type SanityImageCrop = {
-  _type: 'sanity.imageCrop'
-  top: number
-  bottom: number
-  left: number
-  right: number
-}
-
-export type SanityImageHotspot = {
-  _type: 'sanity.imageHotspot'
-  x: number
-  y: number
-  height: number
-  width: number
+export type SectionTemplateReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'sectionTemplate'
 }
 
 export type Page = {
@@ -159,16 +1305,25 @@ export type Page = {
   _rev: string
   name: string
   slug: Slug
-  heading: string
-  subheading?: string
   pageBuilder?: Array<
     | ({
         _key: string
-      } & CallToAction)
+      } & Section)
     | ({
         _key: string
-      } & InfoSection)
+      } & SectionTemplateReference)
   >
+  seoTitle?: string
+  seoDescription?: string
+  ogImage?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  }
+  indexable?: boolean
 }
 
 export type Post = {
@@ -180,14 +1335,9 @@ export type Post = {
   title: string
   slug: Slug
   content?: BlockContent
-  excerpt?: string
+  summary?: string
   coverImage?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -195,12 +1345,12 @@ export type Post = {
     _type: 'image'
   }
   date?: string
-  author?: {
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    [internalGroqTypeReferenceTo]?: 'person'
-  }
+  author?: PersonReference
+  categories?: Array<
+    {
+      _key: string
+    } & CategoryReference
+  >
 }
 
 export type Person = {
@@ -212,12 +1362,7 @@ export type Person = {
   firstName: string
   lastName: string
   picture: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -226,10 +1371,25 @@ export type Person = {
   }
 }
 
-export type Slug = {
-  _type: 'slug'
-  current: string
-  source?: string
+export type ContentVariable = {
+  _id: string
+  _type: 'contentVariable'
+  _createdAt: string
+  _updatedAt: string
+  _rev: string
+  name: string
+  key: Slug
+  variableType: 'text' | 'link' | 'image'
+  textValue?: string
+  linkValue?: Link
+  imageValue?: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    _type: 'image'
+  }
+  description?: string
 }
 
 export type SanityAssistInstructionTask = {
@@ -270,14 +1430,16 @@ export type SanityAssistOutputField = {
   path?: string
 }
 
+export type AssistInstructionContextReference = {
+  _ref: string
+  _type: 'reference'
+  _weak?: boolean
+  [internalGroqTypeReferenceTo]?: 'assist.instruction.context'
+}
+
 export type SanityAssistInstructionContext = {
   _type: 'sanity.assist.instruction.context'
-  reference: {
-    _ref: string
-    _type: 'reference'
-    _weak?: boolean
-    [internalGroqTypeReferenceTo]?: 'assist.instruction.context'
-  }
+  reference: AssistInstructionContextReference
 }
 
 export type AssistInstructionContext = {
@@ -367,6 +1529,14 @@ export type SanityAssistSchemaTypeField = {
   >
 }
 
+export type Code = {
+  _type: 'code'
+  language?: string
+  filename?: string
+  code?: string
+  highlightedLines?: Array<number>
+}
+
 export type SanityImagePaletteSwatch = {
   _type: 'sanity.imagePaletteSwatch'
   background?: string
@@ -400,6 +1570,7 @@ export type SanityImageMetadata = {
   palette?: SanityImagePalette
   lqip?: string
   blurHash?: string
+  thumbHash?: string
   hasAlpha?: boolean
   isOpaque?: boolean
 }
@@ -415,14 +1586,14 @@ export type SanityFileAsset = {
   title?: string
   description?: string
   altText?: string
-  sha1hash?: string
-  extension?: string
-  mimeType?: string
-  size?: number
-  assetId?: string
+  sha1hash: string
+  extension: string
+  mimeType: string
+  size: number
+  assetId: string
   uploadId?: string
-  path?: string
-  url?: string
+  path: string
+  url: string
   source?: SanityAssetSourceData
 }
 
@@ -444,14 +1615,14 @@ export type SanityImageAsset = {
   title?: string
   description?: string
   altText?: string
-  sha1hash?: string
-  extension?: string
-  mimeType?: string
-  size?: number
-  assetId?: string
+  sha1hash: string
+  extension: string
+  mimeType: string
+  size: number
+  assetId: string
   uploadId?: string
-  path?: string
-  url?: string
+  path: string
+  url: string
   metadata?: SanityImageMetadata
   source?: SanityAssetSourceData
 }
@@ -464,22 +1635,65 @@ export type Geopoint = {
 }
 
 export type AllSanitySchemaTypes =
+  | SanityImageAssetReference
+  | ImageSlideImage
+  | Section
+  | Row
+  | Column
+  | ContentWrap
+  | PostReference
+  | CategoryReference
+  | BlogGridBlock
+  | MarqueeBlock
+  | SanityFileAssetReference
+  | InlineVideoBlock
+  | ModalBlock
+  | TabsBlock
+  | SliderBlock
+  | AccordionBlock
+  | IconBlock
+  | TableBlock
+  | BreadcrumbBlock
+  | EyebrowBlock
+  | CardBlock
+  | DividerBlock
+  | SpacerBlock
+  | ButtonBlock
+  | ImageBlock
+  | RichTextBlock
+  | HeadingBlock
+  | PageReference
+  | ContentVariableReference
   | Link
-  | CallToAction
-  | InfoSection
   | BlockContent
-  | Settings
+  | ContentVariableInline
+  | SmartString
+  | PersonReference
+  | Pinboard
+  | ClaudeWorkflow
+  | ClaudeQuickAction
+  | ClaudeApiSettings
+  | ClaudeInstructions
+  | ClaudeConversation
+  | SectionTemplate
   | SanityImageCrop
   | SanityImageHotspot
+  | Category
+  | Slug
+  | Footer
+  | Navigation
+  | Settings
+  | SectionTemplateReference
   | Page
   | Post
   | Person
-  | Slug
+  | ContentVariable
   | SanityAssistInstructionTask
   | SanityAssistTaskStatus
   | SanityAssistSchemaTypeAnnotations
   | SanityAssistOutputType
   | SanityAssistOutputField
+  | AssistInstructionContextReference
   | SanityAssistInstructionContext
   | AssistInstructionContext
   | SanityAssistInstructionUserInput
@@ -487,6 +1701,7 @@ export type AllSanitySchemaTypes =
   | SanityAssistInstructionFieldRef
   | SanityAssistInstruction
   | SanityAssistSchemaTypeField
+  | Code
   | SanityImagePaletteSwatch
   | SanityImagePalette
   | SanityImageDimensions
@@ -495,8 +1710,6 @@ export type AllSanitySchemaTypes =
   | SanityAssetSourceData
   | SanityImageAsset
   | Geopoint
-
-export declare const internalGroqTypeReferenceTo: unique symbol
 
 // Source: sanity/lib/queries.ts
 // Variable: settingsQuery
@@ -520,18 +1733,8 @@ export type SettingsQueryResult = {
     markDefs?: Array<{
       linkType?: 'href' | 'page' | 'post'
       href?: string
-      page?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'page'
-      }
-      post?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'post'
-      }
+      page?: PageReference
+      post?: PostReference
       openInNewTab?: boolean
       _type: 'link'
       _key: string
@@ -541,12 +1744,7 @@ export type SettingsQueryResult = {
     _key: string
   }>
   ogImage?: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -559,12 +1757,88 @@ export type SettingsQueryResult = {
 // Source: sanity/lib/queries.ts
 // Variable: navigationQuery
 // Query: *[_type == "navigation"][0]{  logoText,  logoImage,  items[]{    _key,    label,    type,    link{      linkType,      href,      openInNewTab,      "page": page->slug.current,      "post": post->slug.current    },    dropdownLinks[]{      _key,      label,      link{        linkType,        href,        openInNewTab,        "page": page->slug.current,        "post": post->slug.current      }    }  },  showCta,  ctaLabel,  ctaLink{    linkType,    href,    openInNewTab,    "page": page->slug.current,    "post": post->slug.current  },  ctaStyle}
-export type NavigationQueryResult = null
+export type NavigationQueryResult = {
+  logoText: string | null
+  logoImage: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  } | null
+  items: Array<{
+    _key: string
+    label: string
+    type: 'dropdown' | 'link' | null
+    link: {
+      linkType: 'href' | 'page' | 'post' | 'variable' | null
+      href: string | null
+      openInNewTab: boolean | null
+      page: string | null
+      post: string | null
+    } | null
+    dropdownLinks: Array<{
+      _key: string
+      label: string
+      link: {
+        linkType: 'href' | 'page' | 'post' | 'variable' | null
+        href: string | null
+        openInNewTab: boolean | null
+        page: string | null
+        post: string | null
+      } | null
+    }> | null
+  }> | null
+  showCta: boolean | null
+  ctaLabel: string | null
+  ctaLink: {
+    linkType: 'href' | 'page' | 'post' | 'variable' | null
+    href: string | null
+    openInNewTab: boolean | null
+    page: string | null
+    post: string | null
+  } | null
+  ctaStyle: 'primary' | 'secondary' | null
+} | null
 
 // Source: sanity/lib/queries.ts
 // Variable: footerQuery
 // Query: *[_type == "footer"][0]{  showLogo,  logoText,  logoImage,  linkColumns[]{    _key,    title,    links[]{      _key,      label,      link{        linkType,        href,        openInNewTab,        "page": page->slug.current,        "post": post->slug.current      }    }  },  socialLinks[]{    _key,    platform,    url  },  companyName,  showThemeToggle}
-export type FooterQueryResult = null
+export type FooterQueryResult = {
+  showLogo: boolean | null
+  logoText: string | null
+  logoImage: {
+    asset?: SanityImageAssetReference
+    media?: unknown
+    hotspot?: SanityImageHotspot
+    crop?: SanityImageCrop
+    alt?: string
+    _type: 'image'
+  } | null
+  linkColumns: Array<{
+    _key: string
+    title: string | null
+    links: Array<{
+      _key: string
+      label: string
+      link: {
+        linkType: 'href' | 'page' | 'post' | 'variable' | null
+        href: string | null
+        openInNewTab: boolean | null
+        page: string | null
+        post: string | null
+      } | null
+    }> | null
+  }> | null
+  socialLinks: Array<{
+    _key: string
+    platform: 'facebook' | 'github' | 'instagram' | 'linkedin' | 'tiktok' | 'x' | 'youtube'
+    url: string
+  }> | null
+  companyName: string | null
+  showThemeToggle: boolean | null
+} | null
 
 // Source: sanity/lib/queries.ts
 // Variable: getPageQuery
@@ -574,23 +1848,3339 @@ export type GetPageQueryResult = {
   _type: 'page'
   name: string
   slug: Slug
-  heading: string
-  subheading: string | null
+  heading: null
+  subheading: null
   pageBuilder: Array<
     | {
         _key: string
-        _type: 'callToAction'
-        heading: string
-        text?: string
-        buttonText?: string
-        link?: Link
+        _ref: string
+        _type: 'section'
+        _weak?: boolean
+        isGlobal: true
+        sourceId: string
+        sourceType: 'sectionTemplate'
+        label: string
+        rows: Array<
+          | {
+              _key: string
+              _type: 'buttonBlock'
+              text: SmartString
+              link: Link
+              variant?: 'ghost' | 'primary' | 'secondary'
+              color?: 'black' | 'brand' | 'white'
+              icon?: 'arrow-right' | 'download' | 'external' | 'none'
+              columns: null
+            }
+          | {
+              _key: string
+              _type: 'dividerBlock'
+              marginTop?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+              marginBottom?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+              color?: 'blue' | 'brand' | 'dark' | 'default' | 'light'
+              columns: null
+            }
+          | {
+              _key: string
+              _type: 'headingBlock'
+              text: SmartString
+              level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+              size?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'inherit'
+              align?: 'center' | 'left' | 'right'
+              color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+              customStyle?: string
+              columns: null
+            }
+          | {
+              _key: string
+              _type: 'imageBlock'
+              image: {
+                asset?: SanityImageAssetReference
+                media?: unknown
+                hotspot?: SanityImageHotspot
+                crop?: SanityImageCrop
+                _type: 'image'
+              }
+              alt: string
+              caption?: string
+              size?: 'full' | 'lg' | 'md' | 'sm' | 'thumb'
+              aspectRatio?:
+                | '1/1'
+                | '1\xD71'
+                | '16/9'
+                | '16\xD79'
+                | '16x9'
+                | '1x1'
+                | '3/4'
+                | '3\xD74'
+                | '3x4'
+                | '4/3'
+                | '4\xD73'
+                | '4x3'
+                | '9/16'
+                | '9\xD716'
+                | '9x16'
+                | 'original'
+              rounded?: 'full' | 'lg' | 'md' | 'none' | 'sm'
+              shadow?: boolean
+              columns: null
+            }
+          | {
+              _key: string
+              _type: 'richTextBlock'
+              content?: BlockContent
+              align?: 'center' | 'left' | 'right'
+              size?:
+                'base' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'inherit' | 'lg' | 'sm' | 'xl'
+              maxWidth?: 'none' | 'prose-lg' | 'prose-xl' | 'prose'
+              color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+              customStyle?: string
+              columns: null
+            }
+          | {
+              _key: string
+              _type: 'row'
+              columns: Array<{
+                _key: string
+                _type: 'column'
+                content: Array<
+                  | {
+                      _key: string
+                      _type: 'accordionBlock'
+                      items?: Array<{
+                        title: string
+                        content?: Array<
+                          | ({
+                              _key: string
+                            } & ButtonBlock)
+                          | ({
+                              _key: string
+                            } & DividerBlock)
+                          | ({
+                              _key: string
+                            } & HeadingBlock)
+                          | ({
+                              _key: string
+                            } & IconBlock)
+                          | ({
+                              _key: string
+                            } & ImageBlock)
+                          | ({
+                              _key: string
+                            } & RichTextBlock)
+                          | ({
+                              _key: string
+                            } & SpacerBlock)
+                        >
+                        defaultOpen?: boolean
+                        _type: 'accordionItem'
+                        _key: string
+                      }>
+                      allowMultiple?: boolean
+                      titleStyle?: 'body' | 'h3' | 'h4' | 'h5'
+                      dividers?: boolean
+                    }
+                  | {
+                      _key: string
+                      _type: 'blogGridBlock'
+                      selectionMode?: 'all' | 'category' | 'specific'
+                      specificPosts?: Array<
+                        {
+                          _key: string
+                        } & PostReference
+                      >
+                      category?: CategoryReference
+                      limit?: number
+                      sortBy?: 'date' | 'title'
+                      sortOrder?: 'asc' | 'desc'
+                      columnsDesktop?: '1' | '2' | '3' | '4'
+                      columnsTablet?: '1' | '2' | '3' | '4' | 'inherit'
+                      columnsMobile?: '1' | '2' | 'inherit'
+                      gap?: '0' | '12' | '2' | '4' | '6' | '8'
+                      customStyle?: string
+                    }
+                  | {
+                      _key: string
+                      _type: 'breadcrumbBlock'
+                      items?: Array<{
+                        label: string
+                        link?: Link
+                        _type: 'breadcrumbItem'
+                        _key: string
+                      }>
+                      separator?: 'chevron' | 'slash'
+                      align?: 'center' | 'left' | 'right'
+                    }
+                  | {
+                      _key: string
+                      _type: 'buttonBlock'
+                      text: {
+                        _type: 'smartString'
+                        mode?: 'static' | 'variable'
+                        staticValue?: string
+                        variableRef: {
+                          _id: string
+                          name: string
+                          key: Slug
+                          variableType: 'image' | 'link' | 'text'
+                          textValue: string | null
+                        } | null
+                      }
+                      link: {
+                        _type: 'link'
+                        linkType?: 'href' | 'page' | 'post' | 'variable'
+                        href?: string
+                        page: string | null
+                        post: string | null
+                        variable: {
+                          _id: string
+                          variableType: 'image' | 'link' | 'text'
+                          linkValue: {
+                            _type: 'link'
+                            linkType?: 'href' | 'page' | 'post' | 'variable'
+                            href?: string
+                            page: string | null
+                            post: string | null
+                            variable?: ContentVariableReference
+                            openInNewTab?: boolean
+                          } | null
+                        } | null
+                        openInNewTab?: boolean
+                      }
+                      variant?: 'ghost' | 'primary' | 'secondary'
+                      color?: 'black' | 'brand' | 'white'
+                      icon?: 'arrow-right' | 'download' | 'external' | 'none'
+                    }
+                  | {
+                      _key: string
+                      _type: 'cardBlock'
+                      content?: Array<
+                        | ({
+                            _key: string
+                          } & ButtonBlock)
+                        | ({
+                            _key: string
+                          } & DividerBlock)
+                        | ({
+                            _key: string
+                          } & HeadingBlock)
+                        | ({
+                            _key: string
+                          } & ImageBlock)
+                        | ({
+                            _key: string
+                          } & RichTextBlock)
+                        | ({
+                            _key: string
+                          } & SpacerBlock)
+                      >
+                      variant?: 'default' | 'filled' | 'ghost' | 'outline'
+                      padding?: 'lg' | 'md' | 'none' | 'sm'
+                      backgroundImage?: {
+                        asset?: SanityImageAssetReference
+                        media?: unknown
+                        hotspot?: SanityImageHotspot
+                        crop?: SanityImageCrop
+                        _type: 'image'
+                      }
+                      backgroundOverlay?: 0 | 20 | 40 | 60 | 80
+                      href?: string
+                      openInNewTab?: boolean
+                      hoverEffect?: boolean
+                    }
+                  | {
+                      _key: string
+                      _type: 'contentWrap'
+                      content?: Array<
+                        | ({
+                            _key: string
+                          } & AccordionBlock)
+                        | ({
+                            _key: string
+                          } & BreadcrumbBlock)
+                        | ({
+                            _key: string
+                          } & ButtonBlock)
+                        | ({
+                            _key: string
+                          } & CardBlock)
+                        | ({
+                            _key: string
+                          } & DividerBlock)
+                        | ({
+                            _key: string
+                          } & EyebrowBlock)
+                        | ({
+                            _key: string
+                          } & HeadingBlock)
+                        | ({
+                            _key: string
+                          } & IconBlock)
+                        | ({
+                            _key: string
+                          } & ImageBlock)
+                        | ({
+                            _key: string
+                          } & InlineVideoBlock)
+                        | ({
+                            _key: string
+                          } & MarqueeBlock)
+                        | ({
+                            _key: string
+                          } & ModalBlock)
+                        | ({
+                            _key: string
+                          } & RichTextBlock)
+                        | ({
+                            _key: string
+                          } & SliderBlock)
+                        | ({
+                            _key: string
+                          } & SpacerBlock)
+                        | ({
+                            _key: string
+                          } & TableBlock)
+                        | ({
+                            _key: string
+                          } & TabsBlock)
+                      >
+                      gap?: '0' | '2' | '4' | '6' | '8'
+                      align?: 'center' | 'end' | 'start' | 'stretch'
+                      customStyle?: string
+                    }
+                  | {
+                      _key: string
+                      _type: 'dividerBlock'
+                      marginTop?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                      marginBottom?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                      color?: 'blue' | 'brand' | 'dark' | 'default' | 'light'
+                    }
+                  | {
+                      _key: string
+                      _type: 'eyebrowBlock'
+                      text: {
+                        _type: 'smartString'
+                        mode?: 'static' | 'variable'
+                        staticValue?: string
+                        variableRef: {
+                          _id: string
+                          name: string
+                          key: Slug
+                          variableType: 'image' | 'link' | 'text'
+                          textValue: string | null
+                        } | null
+                      }
+                      variant?: 'overline' | 'pill' | 'text'
+                      color?: 'blue' | 'brand' | 'default' | 'muted'
+                      align?: 'center' | 'left' | 'right'
+                      customStyle?: string
+                    }
+                  | {
+                      _key: string
+                      _type: 'headingBlock'
+                      text: {
+                        _type: 'smartString'
+                        mode?: 'static' | 'variable'
+                        staticValue?: string
+                        variableRef: {
+                          _id: string
+                          name: string
+                          key: Slug
+                          variableType: 'image' | 'link' | 'text'
+                          textValue: string | null
+                        } | null
+                      }
+                      level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+                      size?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'inherit'
+                      align?: 'center' | 'left' | 'right'
+                      color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+                      customStyle?: string
+                    }
+                  | {
+                      _key: string
+                      _type: 'iconBlock'
+                      icon:
+                        | 'anchor'
+                        | 'arrow-down'
+                        | 'arrow-left'
+                        | 'arrow-right'
+                        | 'arrow-up-right'
+                        | 'barbell'
+                        | 'boat'
+                        | 'calendar'
+                        | 'chart-line-up'
+                        | 'check-circle'
+                        | 'clock'
+                        | 'cloud'
+                        | 'code'
+                        | 'compass'
+                        | 'download'
+                        | 'envelope'
+                        | 'eye'
+                        | 'feather'
+                        | 'fire'
+                        | 'gear'
+                        | 'globe'
+                        | 'heart'
+                        | 'key'
+                        | 'leaf'
+                        | 'lightbulb-filament'
+                        | 'lightning'
+                        | 'link'
+                        | 'lock'
+                        | 'map-pin'
+                        | 'moon-stars'
+                        | 'moon'
+                        | 'palette'
+                        | 'pencil'
+                        | 'phone'
+                        | 'rocket'
+                        | 'shield-check'
+                        | 'shuffle-simple'
+                        | 'sparkle'
+                        | 'star'
+                        | 'sun'
+                        | 'target'
+                        | 'trash'
+                        | 'tree'
+                        | 'trophy'
+                        | 'upload'
+                        | 'users'
+                      size?: 'lg' | 'md' | 'sm' | 'xl'
+                      color?: 'black' | 'blue' | 'brand' | 'gray' | 'inherit'
+                      align?: 'center' | 'left' | 'right'
+                      marginBottom?: '0' | 'lg' | 'md' | 'sm'
+                    }
+                  | {
+                      _key: string
+                      _type: 'imageBlock'
+                      image: {
+                        asset?: SanityImageAssetReference
+                        media?: unknown
+                        hotspot?: SanityImageHotspot
+                        crop?: SanityImageCrop
+                        _type: 'image'
+                      }
+                      alt: string
+                      caption?: string
+                      size?: 'full' | 'lg' | 'md' | 'sm' | 'thumb'
+                      aspectRatio?:
+                        | '1/1'
+                        | '1\xD71'
+                        | '16/9'
+                        | '16\xD79'
+                        | '16x9'
+                        | '1x1'
+                        | '3/4'
+                        | '3\xD74'
+                        | '3x4'
+                        | '4/3'
+                        | '4\xD73'
+                        | '4x3'
+                        | '9/16'
+                        | '9\xD716'
+                        | '9x16'
+                        | 'original'
+                      rounded?: 'full' | 'lg' | 'md' | 'none' | 'sm'
+                      shadow?: boolean
+                    }
+                  | {
+                      _key: string
+                      _type: 'inlineVideoBlock'
+                      videoFile: {
+                        asset: {
+                          url: string
+                        } | null
+                      } | null
+                      videoUrl?: string
+                      poster: {
+                        asset: {
+                          _id: string
+                          _type: 'sanity.imageAsset'
+                          _createdAt: string
+                          _updatedAt: string
+                          _rev: string
+                          originalFilename?: string
+                          label?: string
+                          title?: string
+                          description?: string
+                          altText?: string
+                          sha1hash: string
+                          extension: string
+                          mimeType: string
+                          size: number
+                          assetId: string
+                          uploadId?: string
+                          path: string
+                          url: string
+                          metadata?: SanityImageMetadata
+                          source?: SanityAssetSourceData
+                        } | null
+                        media?: unknown
+                        hotspot?: SanityImageHotspot
+                        crop?: SanityImageCrop
+                        alt?: string
+                        _type: 'image'
+                      } | null
+                      aspectRatio?:
+                        | '1/1'
+                        | '1\xD71'
+                        | '16/9'
+                        | '16\xD79'
+                        | '16x9'
+                        | '1x1'
+                        | '21/9'
+                        | '21\xD79'
+                        | '21x9'
+                        | '4/3'
+                        | '4\xD73'
+                        | '4x3'
+                        | '9/16'
+                        | '9\xD716'
+                        | '9x16'
+                      controlPosition?:
+                        'bottom-left' | 'bottom-right' | 'center' | 'top-left' | 'top-right'
+                      showControls?: boolean
+                      autoplayOnScroll?: boolean
+                      loop?: boolean
+                      muted?: boolean
+                    }
+                  | {
+                      _key: string
+                      _type: 'marqueeBlock'
+                      items?: Array<
+                        | ({
+                            _key: string
+                          } & CardBlock)
+                        | ({
+                            _key: string
+                          } & HeadingBlock)
+                        | ({
+                            _key: string
+                          } & IconBlock)
+                        | ({
+                            _key: string
+                          } & ImageBlock)
+                        | ({
+                            _key: string
+                          } & RichTextBlock)
+                      >
+                      orientation?: 'horizontal' | 'vertical'
+                      reverse?: boolean
+                      pauseOnHover?: boolean
+                      fadeEdges?: boolean
+                      duration?: number
+                      gap?: '16' | '24' | '32' | '48'
+                      height?: '200' | '300' | '400' | 'auto'
+                    }
+                  | {
+                      _key: string
+                      _type: 'modalBlock'
+                      triggerLabel: string
+                      triggerVariant?: 'ghost' | 'primary' | 'secondary'
+                      triggerColor?: 'black' | 'blue' | 'brand' | 'white'
+                      contentType?: 'content' | 'video'
+                      modalTitle?: string
+                      content?: Array<
+                        | ({
+                            _key: string
+                          } & ButtonBlock)
+                        | ({
+                            _key: string
+                          } & DividerBlock)
+                        | ({
+                            _key: string
+                          } & HeadingBlock)
+                        | ({
+                            _key: string
+                          } & ImageBlock)
+                        | ({
+                            _key: string
+                          } & RichTextBlock)
+                        | ({
+                            _key: string
+                          } & SpacerBlock)
+                      >
+                      youtubeUrl?: string
+                      modalSize?: 'full' | 'lg' | 'md' | 'sm' | 'xl'
+                      modalId?: string
+                    }
+                  | {
+                      _key: string
+                      _type: 'richTextBlock'
+                      content: Array<{
+                        children: Array<
+                          | {
+                              _key: string
+                              _type: 'contentVariableInline'
+                              reference: {
+                                _id: string
+                                name: string
+                                key: Slug
+                                variableType: 'image' | 'link' | 'text'
+                                textValue: string | null
+                              }
+                            }
+                          | {
+                              marks?: Array<string>
+                              text?: string
+                              _type: 'span'
+                              _key: string
+                            }
+                        > | null
+                        style?: 'blockquote' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'normal'
+                        listItem?: 'bullet' | 'number'
+                        markDefs: Array<{
+                          linkType?: 'href' | 'page' | 'post' | 'variable'
+                          href?: string
+                          page: string | null
+                          post: string | null
+                          variable: {
+                            _id: string
+                            variableType: 'image' | 'link' | 'text'
+                            linkValue: {
+                              _type: 'link'
+                              linkType?: 'href' | 'page' | 'post' | 'variable'
+                              href?: string
+                              page: string | null
+                              post: string | null
+                              variable?: ContentVariableReference
+                              openInNewTab?: boolean
+                            } | null
+                          } | null
+                          openInNewTab?: boolean
+                          _type: 'link'
+                          _key: string
+                        }> | null
+                        level?: number
+                        _type: 'block'
+                        _key: string
+                      }> | null
+                      align?: 'center' | 'left' | 'right'
+                      size?:
+                        | 'base'
+                        | 'h1'
+                        | 'h2'
+                        | 'h3'
+                        | 'h4'
+                        | 'h5'
+                        | 'h6'
+                        | 'inherit'
+                        | 'lg'
+                        | 'sm'
+                        | 'xl'
+                      maxWidth?: 'none' | 'prose-lg' | 'prose-xl' | 'prose'
+                      color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+                      customStyle?: string
+                    }
+                  | {
+                      _key: string
+                      _type: 'row'
+                      columns: Array<{
+                        _key: string
+                        _type: 'column'
+                        content: Array<
+                          | {
+                              _key: string
+                              _type: 'accordionBlock'
+                              items?: Array<{
+                                title: string
+                                content?: Array<
+                                  | ({
+                                      _key: string
+                                    } & ButtonBlock)
+                                  | ({
+                                      _key: string
+                                    } & DividerBlock)
+                                  | ({
+                                      _key: string
+                                    } & HeadingBlock)
+                                  | ({
+                                      _key: string
+                                    } & IconBlock)
+                                  | ({
+                                      _key: string
+                                    } & ImageBlock)
+                                  | ({
+                                      _key: string
+                                    } & RichTextBlock)
+                                  | ({
+                                      _key: string
+                                    } & SpacerBlock)
+                                >
+                                defaultOpen?: boolean
+                                _type: 'accordionItem'
+                                _key: string
+                              }>
+                              allowMultiple?: boolean
+                              titleStyle?: 'body' | 'h3' | 'h4' | 'h5'
+                              dividers?: boolean
+                            }
+                          | {
+                              _key: string
+                              _type: 'blogGridBlock'
+                              selectionMode?: 'all' | 'category' | 'specific'
+                              specificPosts?: Array<
+                                {
+                                  _key: string
+                                } & PostReference
+                              >
+                              category?: CategoryReference
+                              limit?: number
+                              sortBy?: 'date' | 'title'
+                              sortOrder?: 'asc' | 'desc'
+                              columnsDesktop?: '1' | '2' | '3' | '4'
+                              columnsTablet?: '1' | '2' | '3' | '4' | 'inherit'
+                              columnsMobile?: '1' | '2' | 'inherit'
+                              gap?: '0' | '12' | '2' | '4' | '6' | '8'
+                              customStyle?: string
+                            }
+                          | {
+                              _key: string
+                              _type: 'breadcrumbBlock'
+                              items?: Array<{
+                                label: string
+                                link?: Link
+                                _type: 'breadcrumbItem'
+                                _key: string
+                              }>
+                              separator?: 'chevron' | 'slash'
+                              align?: 'center' | 'left' | 'right'
+                            }
+                          | {
+                              _key: string
+                              _type: 'buttonBlock'
+                              text: {
+                                _type: 'smartString'
+                                mode?: 'static' | 'variable'
+                                staticValue?: string
+                                variableRef: {
+                                  _id: string
+                                  name: string
+                                  key: Slug
+                                  variableType: 'image' | 'link' | 'text'
+                                  textValue: string | null
+                                } | null
+                              }
+                              link: {
+                                _type: 'link'
+                                linkType?: 'href' | 'page' | 'post' | 'variable'
+                                href?: string
+                                page: string | null
+                                post: string | null
+                                variable: {
+                                  _id: string
+                                  variableType: 'image' | 'link' | 'text'
+                                  linkValue: {
+                                    _type: 'link'
+                                    linkType?: 'href' | 'page' | 'post' | 'variable'
+                                    href?: string
+                                    page: string | null
+                                    post: string | null
+                                    variable?: ContentVariableReference
+                                    openInNewTab?: boolean
+                                  } | null
+                                } | null
+                                openInNewTab?: boolean
+                              }
+                              variant?: 'ghost' | 'primary' | 'secondary'
+                              color?: 'black' | 'brand' | 'white'
+                              icon?: 'arrow-right' | 'download' | 'external' | 'none'
+                            }
+                          | {
+                              _key: string
+                              _type: 'cardBlock'
+                              content?: Array<
+                                | ({
+                                    _key: string
+                                  } & ButtonBlock)
+                                | ({
+                                    _key: string
+                                  } & DividerBlock)
+                                | ({
+                                    _key: string
+                                  } & HeadingBlock)
+                                | ({
+                                    _key: string
+                                  } & ImageBlock)
+                                | ({
+                                    _key: string
+                                  } & RichTextBlock)
+                                | ({
+                                    _key: string
+                                  } & SpacerBlock)
+                              >
+                              variant?: 'default' | 'filled' | 'ghost' | 'outline'
+                              padding?: 'lg' | 'md' | 'none' | 'sm'
+                              backgroundImage?: {
+                                asset?: SanityImageAssetReference
+                                media?: unknown
+                                hotspot?: SanityImageHotspot
+                                crop?: SanityImageCrop
+                                _type: 'image'
+                              }
+                              backgroundOverlay?: 0 | 20 | 40 | 60 | 80
+                              href?: string
+                              openInNewTab?: boolean
+                              hoverEffect?: boolean
+                            }
+                          | {
+                              _key: string
+                              _type: 'contentWrap'
+                              content?: Array<
+                                | ({
+                                    _key: string
+                                  } & AccordionBlock)
+                                | ({
+                                    _key: string
+                                  } & BreadcrumbBlock)
+                                | ({
+                                    _key: string
+                                  } & ButtonBlock)
+                                | ({
+                                    _key: string
+                                  } & CardBlock)
+                                | ({
+                                    _key: string
+                                  } & DividerBlock)
+                                | ({
+                                    _key: string
+                                  } & EyebrowBlock)
+                                | ({
+                                    _key: string
+                                  } & HeadingBlock)
+                                | ({
+                                    _key: string
+                                  } & IconBlock)
+                                | ({
+                                    _key: string
+                                  } & ImageBlock)
+                                | ({
+                                    _key: string
+                                  } & InlineVideoBlock)
+                                | ({
+                                    _key: string
+                                  } & MarqueeBlock)
+                                | ({
+                                    _key: string
+                                  } & ModalBlock)
+                                | ({
+                                    _key: string
+                                  } & RichTextBlock)
+                                | ({
+                                    _key: string
+                                  } & SliderBlock)
+                                | ({
+                                    _key: string
+                                  } & SpacerBlock)
+                                | ({
+                                    _key: string
+                                  } & TableBlock)
+                                | ({
+                                    _key: string
+                                  } & TabsBlock)
+                              >
+                              gap?: '0' | '2' | '4' | '6' | '8'
+                              align?: 'center' | 'end' | 'start' | 'stretch'
+                              customStyle?: string
+                            }
+                          | {
+                              _key: string
+                              _type: 'dividerBlock'
+                              marginTop?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                              marginBottom?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                              color?: 'blue' | 'brand' | 'dark' | 'default' | 'light'
+                            }
+                          | {
+                              _key: string
+                              _type: 'eyebrowBlock'
+                              text: {
+                                _type: 'smartString'
+                                mode?: 'static' | 'variable'
+                                staticValue?: string
+                                variableRef: {
+                                  _id: string
+                                  name: string
+                                  key: Slug
+                                  variableType: 'image' | 'link' | 'text'
+                                  textValue: string | null
+                                } | null
+                              }
+                              variant?: 'overline' | 'pill' | 'text'
+                              color?: 'blue' | 'brand' | 'default' | 'muted'
+                              align?: 'center' | 'left' | 'right'
+                              customStyle?: string
+                            }
+                          | {
+                              _key: string
+                              _type: 'headingBlock'
+                              text: {
+                                _type: 'smartString'
+                                mode?: 'static' | 'variable'
+                                staticValue?: string
+                                variableRef: {
+                                  _id: string
+                                  name: string
+                                  key: Slug
+                                  variableType: 'image' | 'link' | 'text'
+                                  textValue: string | null
+                                } | null
+                              }
+                              level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+                              size?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'inherit'
+                              align?: 'center' | 'left' | 'right'
+                              color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+                              customStyle?: string
+                            }
+                          | {
+                              _key: string
+                              _type: 'iconBlock'
+                              icon:
+                                | 'anchor'
+                                | 'arrow-down'
+                                | 'arrow-left'
+                                | 'arrow-right'
+                                | 'arrow-up-right'
+                                | 'barbell'
+                                | 'boat'
+                                | 'calendar'
+                                | 'chart-line-up'
+                                | 'check-circle'
+                                | 'clock'
+                                | 'cloud'
+                                | 'code'
+                                | 'compass'
+                                | 'download'
+                                | 'envelope'
+                                | 'eye'
+                                | 'feather'
+                                | 'fire'
+                                | 'gear'
+                                | 'globe'
+                                | 'heart'
+                                | 'key'
+                                | 'leaf'
+                                | 'lightbulb-filament'
+                                | 'lightning'
+                                | 'link'
+                                | 'lock'
+                                | 'map-pin'
+                                | 'moon-stars'
+                                | 'moon'
+                                | 'palette'
+                                | 'pencil'
+                                | 'phone'
+                                | 'rocket'
+                                | 'shield-check'
+                                | 'shuffle-simple'
+                                | 'sparkle'
+                                | 'star'
+                                | 'sun'
+                                | 'target'
+                                | 'trash'
+                                | 'tree'
+                                | 'trophy'
+                                | 'upload'
+                                | 'users'
+                              size?: 'lg' | 'md' | 'sm' | 'xl'
+                              color?: 'black' | 'blue' | 'brand' | 'gray' | 'inherit'
+                              align?: 'center' | 'left' | 'right'
+                              marginBottom?: '0' | 'lg' | 'md' | 'sm'
+                            }
+                          | {
+                              _key: string
+                              _type: 'imageBlock'
+                              image: {
+                                asset?: SanityImageAssetReference
+                                media?: unknown
+                                hotspot?: SanityImageHotspot
+                                crop?: SanityImageCrop
+                                _type: 'image'
+                              }
+                              alt: string
+                              caption?: string
+                              size?: 'full' | 'lg' | 'md' | 'sm' | 'thumb'
+                              aspectRatio?:
+                                | '1/1'
+                                | '1\xD71'
+                                | '16/9'
+                                | '16\xD79'
+                                | '16x9'
+                                | '1x1'
+                                | '3/4'
+                                | '3\xD74'
+                                | '3x4'
+                                | '4/3'
+                                | '4\xD73'
+                                | '4x3'
+                                | '9/16'
+                                | '9\xD716'
+                                | '9x16'
+                                | 'original'
+                              rounded?: 'full' | 'lg' | 'md' | 'none' | 'sm'
+                              shadow?: boolean
+                            }
+                          | {
+                              _key: string
+                              _type: 'inlineVideoBlock'
+                              videoFile: {
+                                asset: {
+                                  url: string
+                                } | null
+                              } | null
+                              videoUrl?: string
+                              poster: {
+                                asset: {
+                                  _id: string
+                                  _type: 'sanity.imageAsset'
+                                  _createdAt: string
+                                  _updatedAt: string
+                                  _rev: string
+                                  originalFilename?: string
+                                  label?: string
+                                  title?: string
+                                  description?: string
+                                  altText?: string
+                                  sha1hash: string
+                                  extension: string
+                                  mimeType: string
+                                  size: number
+                                  assetId: string
+                                  uploadId?: string
+                                  path: string
+                                  url: string
+                                  metadata?: SanityImageMetadata
+                                  source?: SanityAssetSourceData
+                                } | null
+                                media?: unknown
+                                hotspot?: SanityImageHotspot
+                                crop?: SanityImageCrop
+                                alt?: string
+                                _type: 'image'
+                              } | null
+                              aspectRatio?:
+                                | '1/1'
+                                | '1\xD71'
+                                | '16/9'
+                                | '16\xD79'
+                                | '16x9'
+                                | '1x1'
+                                | '21/9'
+                                | '21\xD79'
+                                | '21x9'
+                                | '4/3'
+                                | '4\xD73'
+                                | '4x3'
+                                | '9/16'
+                                | '9\xD716'
+                                | '9x16'
+                              controlPosition?:
+                                'bottom-left' | 'bottom-right' | 'center' | 'top-left' | 'top-right'
+                              showControls?: boolean
+                              autoplayOnScroll?: boolean
+                              loop?: boolean
+                              muted?: boolean
+                            }
+                          | {
+                              _key: string
+                              _type: 'marqueeBlock'
+                              items?: Array<
+                                | ({
+                                    _key: string
+                                  } & CardBlock)
+                                | ({
+                                    _key: string
+                                  } & HeadingBlock)
+                                | ({
+                                    _key: string
+                                  } & IconBlock)
+                                | ({
+                                    _key: string
+                                  } & ImageBlock)
+                                | ({
+                                    _key: string
+                                  } & RichTextBlock)
+                              >
+                              orientation?: 'horizontal' | 'vertical'
+                              reverse?: boolean
+                              pauseOnHover?: boolean
+                              fadeEdges?: boolean
+                              duration?: number
+                              gap?: '16' | '24' | '32' | '48'
+                              height?: '200' | '300' | '400' | 'auto'
+                            }
+                          | {
+                              _key: string
+                              _type: 'modalBlock'
+                              triggerLabel: string
+                              triggerVariant?: 'ghost' | 'primary' | 'secondary'
+                              triggerColor?: 'black' | 'blue' | 'brand' | 'white'
+                              contentType?: 'content' | 'video'
+                              modalTitle?: string
+                              content?: Array<
+                                | ({
+                                    _key: string
+                                  } & ButtonBlock)
+                                | ({
+                                    _key: string
+                                  } & DividerBlock)
+                                | ({
+                                    _key: string
+                                  } & HeadingBlock)
+                                | ({
+                                    _key: string
+                                  } & ImageBlock)
+                                | ({
+                                    _key: string
+                                  } & RichTextBlock)
+                                | ({
+                                    _key: string
+                                  } & SpacerBlock)
+                              >
+                              youtubeUrl?: string
+                              modalSize?: 'full' | 'lg' | 'md' | 'sm' | 'xl'
+                              modalId?: string
+                            }
+                          | {
+                              _key: string
+                              _type: 'richTextBlock'
+                              content: Array<{
+                                children: Array<
+                                  | {
+                                      _key: string
+                                      _type: 'contentVariableInline'
+                                      reference: {
+                                        _id: string
+                                        name: string
+                                        key: Slug
+                                        variableType: 'image' | 'link' | 'text'
+                                        textValue: string | null
+                                      }
+                                    }
+                                  | {
+                                      marks?: Array<string>
+                                      text?: string
+                                      _type: 'span'
+                                      _key: string
+                                    }
+                                > | null
+                                style?:
+                                  'blockquote' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'normal'
+                                listItem?: 'bullet' | 'number'
+                                markDefs: Array<{
+                                  linkType?: 'href' | 'page' | 'post' | 'variable'
+                                  href?: string
+                                  page: string | null
+                                  post: string | null
+                                  variable: {
+                                    _id: string
+                                    variableType: 'image' | 'link' | 'text'
+                                    linkValue: {
+                                      _type: 'link'
+                                      linkType?: 'href' | 'page' | 'post' | 'variable'
+                                      href?: string
+                                      page: string | null
+                                      post: string | null
+                                      variable?: ContentVariableReference
+                                      openInNewTab?: boolean
+                                    } | null
+                                  } | null
+                                  openInNewTab?: boolean
+                                  _type: 'link'
+                                  _key: string
+                                }> | null
+                                level?: number
+                                _type: 'block'
+                                _key: string
+                              }> | null
+                              align?: 'center' | 'left' | 'right'
+                              size?:
+                                | 'base'
+                                | 'h1'
+                                | 'h2'
+                                | 'h3'
+                                | 'h4'
+                                | 'h5'
+                                | 'h6'
+                                | 'inherit'
+                                | 'lg'
+                                | 'sm'
+                                | 'xl'
+                              maxWidth?: 'none' | 'prose-lg' | 'prose-xl' | 'prose'
+                              color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+                              customStyle?: string
+                            }
+                          | {
+                              _key: string
+                              _type: 'row'
+                              columns?: Array<
+                                {
+                                  _key: string
+                                } & Column
+                              >
+                              horizontalAlign?:
+                                'around' | 'between' | 'center' | 'end' | 'evenly' | 'start'
+                              verticalAlign?:
+                                'baseline' | 'between' | 'center' | 'end' | 'start' | 'stretch'
+                              gap?: '0' | '12' | '2' | '4' | '6' | '8'
+                              wrap?: boolean
+                              reverseOnMobile?: boolean
+                              customStyle?: string
+                            }
+                          | {
+                              _key: string
+                              _type: 'sliderBlock'
+                              slides?: Array<{
+                                image: ImageSlideImage
+                                alt?: string
+                                caption?: string
+                                _type: 'imageSlide'
+                                _key: string
+                              }>
+                              slidesPerViewDesktop?: 1 | 2 | 3 | 4 | 5 | 6
+                              slidesPerViewTablet?: 1 | 2 | 3 | 4
+                              slidesPerViewMobile?: 1 | 2
+                              gap?: '0' | '2' | '4' | '6' | '8'
+                              aspectRatio?:
+                                | '1/1'
+                                | '1\xD71'
+                                | '16/9'
+                                | '16\xD79'
+                                | '16x9'
+                                | '1x1'
+                                | '3/4'
+                                | '3\xD74'
+                                | '3x4'
+                                | '4/3'
+                                | '4\xD73'
+                                | '4x3'
+                                | '9/16'
+                                | '9\xD716'
+                                | '9x16'
+                                | 'original'
+                              autoplay?: boolean
+                              autoplayDelay?: number
+                              loop?: boolean
+                              showNavigation?: boolean
+                              navigationPosition?:
+                                'below' | 'overlay-center' | 'overlay-edges' | 'sides'
+                              showPagination?: boolean
+                              effect?: 'fade' | 'slide'
+                              speed?: number
+                              centeredSlides?: boolean
+                              overflowVisible?: boolean
+                            }
+                          | {
+                              _key: string
+                              _type: 'spacerBlock'
+                              sizeDesktop?: '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                              sizeMobile?: '12' | '16' | '2' | '24' | '4' | '6' | '8' | 'inherit'
+                            }
+                          | {
+                              _key: string
+                              _type: 'tableBlock'
+                              columns?: Array<{
+                                header: string
+                                align?: 'center' | 'left' | 'right'
+                                _type: 'tableColumn'
+                                _key: string
+                              }>
+                              rows?: Array<{
+                                cells?: Array<{
+                                  content?: string
+                                  _type: 'tableCell'
+                                  _key: string
+                                }>
+                                _type: 'tableRow'
+                                _key: string
+                              }>
+                              variant?: 'bordered' | 'default' | 'striped'
+                              showHeader?: boolean
+                              caption?: string
+                            }
+                          | {
+                              _key: string
+                              _type: 'tabsBlock'
+                              tabs?: Array<{
+                                label: string
+                                content?: Array<
+                                  | ({
+                                      _key: string
+                                    } & ButtonBlock)
+                                  | ({
+                                      _key: string
+                                    } & CardBlock)
+                                  | ({
+                                      _key: string
+                                    } & DividerBlock)
+                                  | ({
+                                      _key: string
+                                    } & EyebrowBlock)
+                                  | ({
+                                      _key: string
+                                    } & HeadingBlock)
+                                  | ({
+                                      _key: string
+                                    } & IconBlock)
+                                  | ({
+                                      _key: string
+                                    } & ImageBlock)
+                                  | ({
+                                      _key: string
+                                    } & RichTextBlock)
+                                  | ({
+                                      _key: string
+                                    } & Row)
+                                  | ({
+                                      _key: string
+                                    } & SpacerBlock)
+                                  | ({
+                                      _key: string
+                                    } & TableBlock)
+                                >
+                                _type: 'tabItem'
+                                _key: string
+                              }>
+                              orientation?: 'horizontal' | 'vertical'
+                              menuPosition?: 'above' | 'below' | 'left' | 'right'
+                              mobileDropdown?: boolean
+                              contentGap?: '0' | '12' | '2' | '4' | '6' | '8'
+                              defaultTab?: string
+                              autoplay?: boolean
+                              autoplayDuration?: number
+                              pauseOnHover?: boolean
+                              showProgress?: boolean
+                            }
+                        > | null
+                        widthDesktop?:
+                          | '1'
+                          | '10'
+                          | '11'
+                          | '12'
+                          | '2'
+                          | '3'
+                          | '4'
+                          | '5'
+                          | '6'
+                          | '7'
+                          | '8'
+                          | '9'
+                          | 'auto'
+                          | 'fill'
+                        widthTablet?:
+                          | '1'
+                          | '10'
+                          | '11'
+                          | '12'
+                          | '2'
+                          | '3'
+                          | '4'
+                          | '5'
+                          | '6'
+                          | '7'
+                          | '8'
+                          | '9'
+                          | 'auto'
+                          | 'fill'
+                          | 'inherit'
+                        widthMobile?:
+                          | '1'
+                          | '10'
+                          | '11'
+                          | '12'
+                          | '2'
+                          | '3'
+                          | '4'
+                          | '5'
+                          | '6'
+                          | '7'
+                          | '8'
+                          | '9'
+                          | 'auto'
+                          | 'fill'
+                          | 'inherit'
+                        verticalAlign?: 'between' | 'center' | 'end' | 'start'
+                        padding?: '0' | '2' | '4' | '6' | '8'
+                        customStyle?: string
+                      }> | null
+                      horizontalAlign?: 'around' | 'between' | 'center' | 'end' | 'evenly' | 'start'
+                      verticalAlign?:
+                        'baseline' | 'between' | 'center' | 'end' | 'start' | 'stretch'
+                      gap?: '0' | '12' | '2' | '4' | '6' | '8'
+                      wrap?: boolean
+                      reverseOnMobile?: boolean
+                      customStyle?: string
+                    }
+                  | {
+                      _key: string
+                      _type: 'sliderBlock'
+                      slides?: Array<{
+                        image: ImageSlideImage
+                        alt?: string
+                        caption?: string
+                        _type: 'imageSlide'
+                        _key: string
+                      }>
+                      slidesPerViewDesktop?: 1 | 2 | 3 | 4 | 5 | 6
+                      slidesPerViewTablet?: 1 | 2 | 3 | 4
+                      slidesPerViewMobile?: 1 | 2
+                      gap?: '0' | '2' | '4' | '6' | '8'
+                      aspectRatio?:
+                        | '1/1'
+                        | '1\xD71'
+                        | '16/9'
+                        | '16\xD79'
+                        | '16x9'
+                        | '1x1'
+                        | '3/4'
+                        | '3\xD74'
+                        | '3x4'
+                        | '4/3'
+                        | '4\xD73'
+                        | '4x3'
+                        | '9/16'
+                        | '9\xD716'
+                        | '9x16'
+                        | 'original'
+                      autoplay?: boolean
+                      autoplayDelay?: number
+                      loop?: boolean
+                      showNavigation?: boolean
+                      navigationPosition?: 'below' | 'overlay-center' | 'overlay-edges' | 'sides'
+                      showPagination?: boolean
+                      effect?: 'fade' | 'slide'
+                      speed?: number
+                      centeredSlides?: boolean
+                      overflowVisible?: boolean
+                    }
+                  | {
+                      _key: string
+                      _type: 'spacerBlock'
+                      sizeDesktop?: '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                      sizeMobile?: '12' | '16' | '2' | '24' | '4' | '6' | '8' | 'inherit'
+                    }
+                  | {
+                      _key: string
+                      _type: 'tableBlock'
+                      columns?: Array<{
+                        header: string
+                        align?: 'center' | 'left' | 'right'
+                        _type: 'tableColumn'
+                        _key: string
+                      }>
+                      rows?: Array<{
+                        cells?: Array<{
+                          content?: string
+                          _type: 'tableCell'
+                          _key: string
+                        }>
+                        _type: 'tableRow'
+                        _key: string
+                      }>
+                      variant?: 'bordered' | 'default' | 'striped'
+                      showHeader?: boolean
+                      caption?: string
+                    }
+                  | {
+                      _key: string
+                      _type: 'tabsBlock'
+                      tabs?: Array<{
+                        label: string
+                        content?: Array<
+                          | ({
+                              _key: string
+                            } & ButtonBlock)
+                          | ({
+                              _key: string
+                            } & CardBlock)
+                          | ({
+                              _key: string
+                            } & DividerBlock)
+                          | ({
+                              _key: string
+                            } & EyebrowBlock)
+                          | ({
+                              _key: string
+                            } & HeadingBlock)
+                          | ({
+                              _key: string
+                            } & IconBlock)
+                          | ({
+                              _key: string
+                            } & ImageBlock)
+                          | ({
+                              _key: string
+                            } & RichTextBlock)
+                          | ({
+                              _key: string
+                            } & Row)
+                          | ({
+                              _key: string
+                            } & SpacerBlock)
+                          | ({
+                              _key: string
+                            } & TableBlock)
+                        >
+                        _type: 'tabItem'
+                        _key: string
+                      }>
+                      orientation?: 'horizontal' | 'vertical'
+                      menuPosition?: 'above' | 'below' | 'left' | 'right'
+                      mobileDropdown?: boolean
+                      contentGap?: '0' | '12' | '2' | '4' | '6' | '8'
+                      defaultTab?: string
+                      autoplay?: boolean
+                      autoplayDuration?: number
+                      pauseOnHover?: boolean
+                      showProgress?: boolean
+                    }
+                > | null
+                widthDesktop?:
+                  | '1'
+                  | '10'
+                  | '11'
+                  | '12'
+                  | '2'
+                  | '3'
+                  | '4'
+                  | '5'
+                  | '6'
+                  | '7'
+                  | '8'
+                  | '9'
+                  | 'auto'
+                  | 'fill'
+                widthTablet?:
+                  | '1'
+                  | '10'
+                  | '11'
+                  | '12'
+                  | '2'
+                  | '3'
+                  | '4'
+                  | '5'
+                  | '6'
+                  | '7'
+                  | '8'
+                  | '9'
+                  | 'auto'
+                  | 'fill'
+                  | 'inherit'
+                widthMobile?:
+                  | '1'
+                  | '10'
+                  | '11'
+                  | '12'
+                  | '2'
+                  | '3'
+                  | '4'
+                  | '5'
+                  | '6'
+                  | '7'
+                  | '8'
+                  | '9'
+                  | 'auto'
+                  | 'fill'
+                  | 'inherit'
+                verticalAlign?: 'between' | 'center' | 'end' | 'start'
+                padding?: '0' | '2' | '4' | '6' | '8'
+                customStyle?: string
+              }> | null
+              horizontalAlign?: 'around' | 'between' | 'center' | 'end' | 'evenly' | 'start'
+              verticalAlign?: 'baseline' | 'between' | 'center' | 'end' | 'start' | 'stretch'
+              gap?: '0' | '12' | '2' | '4' | '6' | '8'
+              wrap?: boolean
+              reverseOnMobile?: boolean
+              customStyle?: string
+            }
+          | {
+              _key: string
+              _type: 'sliderBlock'
+              slides?: Array<{
+                image: ImageSlideImage
+                alt?: string
+                caption?: string
+                _type: 'imageSlide'
+                _key: string
+              }>
+              slidesPerViewDesktop?: 1 | 2 | 3 | 4 | 5 | 6
+              slidesPerViewTablet?: 1 | 2 | 3 | 4
+              slidesPerViewMobile?: 1 | 2
+              gap?: '0' | '2' | '4' | '6' | '8'
+              aspectRatio?:
+                | '1/1'
+                | '1\xD71'
+                | '16/9'
+                | '16\xD79'
+                | '16x9'
+                | '1x1'
+                | '3/4'
+                | '3\xD74'
+                | '3x4'
+                | '4/3'
+                | '4\xD73'
+                | '4x3'
+                | '9/16'
+                | '9\xD716'
+                | '9x16'
+                | 'original'
+              autoplay?: boolean
+              autoplayDelay?: number
+              loop?: boolean
+              showNavigation?: boolean
+              navigationPosition?: 'below' | 'overlay-center' | 'overlay-edges' | 'sides'
+              showPagination?: boolean
+              effect?: 'fade' | 'slide'
+              speed?: number
+              centeredSlides?: boolean
+              overflowVisible?: boolean
+              columns: null
+            }
+          | {
+              _key: string
+              _type: 'spacerBlock'
+              sizeDesktop?: '12' | '16' | '2' | '24' | '4' | '6' | '8'
+              sizeMobile?: '12' | '16' | '2' | '24' | '4' | '6' | '8' | 'inherit'
+              columns: null
+            }
+          | {
+              _key: string
+              _type: 'tabsBlock'
+              tabs?: Array<{
+                label: string
+                content?: Array<
+                  | ({
+                      _key: string
+                    } & ButtonBlock)
+                  | ({
+                      _key: string
+                    } & CardBlock)
+                  | ({
+                      _key: string
+                    } & DividerBlock)
+                  | ({
+                      _key: string
+                    } & EyebrowBlock)
+                  | ({
+                      _key: string
+                    } & HeadingBlock)
+                  | ({
+                      _key: string
+                    } & IconBlock)
+                  | ({
+                      _key: string
+                    } & ImageBlock)
+                  | ({
+                      _key: string
+                    } & RichTextBlock)
+                  | ({
+                      _key: string
+                    } & Row)
+                  | ({
+                      _key: string
+                    } & SpacerBlock)
+                  | ({
+                      _key: string
+                    } & TableBlock)
+                >
+                _type: 'tabItem'
+                _key: string
+              }>
+              orientation?: 'horizontal' | 'vertical'
+              menuPosition?: 'above' | 'below' | 'left' | 'right'
+              mobileDropdown?: boolean
+              contentGap?: '0' | '12' | '2' | '4' | '6' | '8'
+              defaultTab?: string
+              autoplay?: boolean
+              autoplayDuration?: number
+              pauseOnHover?: boolean
+              showProgress?: boolean
+              columns: null
+            }
+        > | null
+        backgroundColor: 'primary' | 'secondary' | null
+        backgroundImage: null
+        backgroundOverlay: null
+        minHeight: 'auto' | 'large' | 'medium' | 'screen' | 'small' | null
+        customMinHeight: null
+        verticalAlign: 'center' | 'end' | 'start' | null
+        maxWidth: '2xl' | 'container' | 'full' | 'lg' | 'md' | 'sm' | 'xl' | null
+        paddingTop: 'compact' | 'default' | 'none' | 'spacious' | null
       }
     | {
         _key: string
-        _type: 'infoSection'
-        heading?: string
-        subheading?: string
-        content?: BlockContent
+        _type: 'section'
+        label?: string
+        rows: Array<
+          | {
+              _key: string
+              _type: 'blogGridBlock'
+              selectionMode?: 'all' | 'category' | 'specific'
+              specificPosts?: Array<
+                {
+                  _key: string
+                } & PostReference
+              >
+              category?: CategoryReference
+              limit?: number
+              sortBy?: 'date' | 'title'
+              sortOrder?: 'asc' | 'desc'
+              columnsDesktop?: '1' | '2' | '3' | '4'
+              columnsTablet?: '1' | '2' | '3' | '4' | 'inherit'
+              columnsMobile?: '1' | '2' | 'inherit'
+              gap?: '0' | '12' | '2' | '4' | '6' | '8'
+              customStyle?: string
+              columns: null
+            }
+          | {
+              _key: string
+              _type: 'buttonBlock'
+              text: SmartString
+              link: Link
+              variant?: 'ghost' | 'primary' | 'secondary'
+              color?: 'black' | 'brand' | 'white'
+              icon?: 'arrow-right' | 'download' | 'external' | 'none'
+              columns: null
+            }
+          | {
+              _key: string
+              _type: 'dividerBlock'
+              marginTop?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+              marginBottom?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+              color?: 'blue' | 'brand' | 'dark' | 'default' | 'light'
+              columns: null
+            }
+          | {
+              _key: string
+              _type: 'headingBlock'
+              text: SmartString
+              level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+              size?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'inherit'
+              align?: 'center' | 'left' | 'right'
+              color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+              customStyle?: string
+              columns: null
+            }
+          | {
+              _key: string
+              _type: 'imageBlock'
+              image: {
+                asset?: SanityImageAssetReference
+                media?: unknown
+                hotspot?: SanityImageHotspot
+                crop?: SanityImageCrop
+                _type: 'image'
+              }
+              alt: string
+              caption?: string
+              size?: 'full' | 'lg' | 'md' | 'sm' | 'thumb'
+              aspectRatio?:
+                | '1/1'
+                | '1\xD71'
+                | '16/9'
+                | '16\xD79'
+                | '16x9'
+                | '1x1'
+                | '3/4'
+                | '3\xD74'
+                | '3x4'
+                | '4/3'
+                | '4\xD73'
+                | '4x3'
+                | '9/16'
+                | '9\xD716'
+                | '9x16'
+                | 'original'
+              rounded?: 'full' | 'lg' | 'md' | 'none' | 'sm'
+              shadow?: boolean
+              columns: null
+            }
+          | {
+              _key: string
+              _type: 'richTextBlock'
+              content?: BlockContent
+              align?: 'center' | 'left' | 'right'
+              size?:
+                'base' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'inherit' | 'lg' | 'sm' | 'xl'
+              maxWidth?: 'none' | 'prose-lg' | 'prose-xl' | 'prose'
+              color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+              customStyle?: string
+              columns: null
+            }
+          | {
+              _key: string
+              _type: 'row'
+              columns: Array<{
+                _key: string
+                _type: 'column'
+                content: Array<
+                  | {
+                      _key: string
+                      _type: 'accordionBlock'
+                      items?: Array<{
+                        title: string
+                        content?: Array<
+                          | ({
+                              _key: string
+                            } & ButtonBlock)
+                          | ({
+                              _key: string
+                            } & DividerBlock)
+                          | ({
+                              _key: string
+                            } & HeadingBlock)
+                          | ({
+                              _key: string
+                            } & IconBlock)
+                          | ({
+                              _key: string
+                            } & ImageBlock)
+                          | ({
+                              _key: string
+                            } & RichTextBlock)
+                          | ({
+                              _key: string
+                            } & SpacerBlock)
+                        >
+                        defaultOpen?: boolean
+                        _type: 'accordionItem'
+                        _key: string
+                      }>
+                      allowMultiple?: boolean
+                      titleStyle?: 'body' | 'h3' | 'h4' | 'h5'
+                      dividers?: boolean
+                    }
+                  | {
+                      _key: string
+                      _type: 'blogGridBlock'
+                      selectionMode?: 'all' | 'category' | 'specific'
+                      specificPosts?: Array<
+                        {
+                          _key: string
+                        } & PostReference
+                      >
+                      category?: CategoryReference
+                      limit?: number
+                      sortBy?: 'date' | 'title'
+                      sortOrder?: 'asc' | 'desc'
+                      columnsDesktop?: '1' | '2' | '3' | '4'
+                      columnsTablet?: '1' | '2' | '3' | '4' | 'inherit'
+                      columnsMobile?: '1' | '2' | 'inherit'
+                      gap?: '0' | '12' | '2' | '4' | '6' | '8'
+                      customStyle?: string
+                    }
+                  | {
+                      _key: string
+                      _type: 'breadcrumbBlock'
+                      items?: Array<{
+                        label: string
+                        link?: Link
+                        _type: 'breadcrumbItem'
+                        _key: string
+                      }>
+                      separator?: 'chevron' | 'slash'
+                      align?: 'center' | 'left' | 'right'
+                    }
+                  | {
+                      _key: string
+                      _type: 'buttonBlock'
+                      text: {
+                        _type: 'smartString'
+                        mode?: 'static' | 'variable'
+                        staticValue?: string
+                        variableRef: {
+                          _id: string
+                          name: string
+                          key: Slug
+                          variableType: 'image' | 'link' | 'text'
+                          textValue: string | null
+                        } | null
+                      }
+                      link: {
+                        _type: 'link'
+                        linkType?: 'href' | 'page' | 'post' | 'variable'
+                        href?: string
+                        page: string | null
+                        post: string | null
+                        variable: {
+                          _id: string
+                          variableType: 'image' | 'link' | 'text'
+                          linkValue: {
+                            _type: 'link'
+                            linkType?: 'href' | 'page' | 'post' | 'variable'
+                            href?: string
+                            page: string | null
+                            post: string | null
+                            variable?: ContentVariableReference
+                            openInNewTab?: boolean
+                          } | null
+                        } | null
+                        openInNewTab?: boolean
+                      }
+                      variant?: 'ghost' | 'primary' | 'secondary'
+                      color?: 'black' | 'brand' | 'white'
+                      icon?: 'arrow-right' | 'download' | 'external' | 'none'
+                    }
+                  | {
+                      _key: string
+                      _type: 'cardBlock'
+                      content?: Array<
+                        | ({
+                            _key: string
+                          } & ButtonBlock)
+                        | ({
+                            _key: string
+                          } & DividerBlock)
+                        | ({
+                            _key: string
+                          } & HeadingBlock)
+                        | ({
+                            _key: string
+                          } & ImageBlock)
+                        | ({
+                            _key: string
+                          } & RichTextBlock)
+                        | ({
+                            _key: string
+                          } & SpacerBlock)
+                      >
+                      variant?: 'default' | 'filled' | 'ghost' | 'outline'
+                      padding?: 'lg' | 'md' | 'none' | 'sm'
+                      backgroundImage?: {
+                        asset?: SanityImageAssetReference
+                        media?: unknown
+                        hotspot?: SanityImageHotspot
+                        crop?: SanityImageCrop
+                        _type: 'image'
+                      }
+                      backgroundOverlay?: 0 | 20 | 40 | 60 | 80
+                      href?: string
+                      openInNewTab?: boolean
+                      hoverEffect?: boolean
+                    }
+                  | {
+                      _key: string
+                      _type: 'contentWrap'
+                      content?: Array<
+                        | ({
+                            _key: string
+                          } & AccordionBlock)
+                        | ({
+                            _key: string
+                          } & BreadcrumbBlock)
+                        | ({
+                            _key: string
+                          } & ButtonBlock)
+                        | ({
+                            _key: string
+                          } & CardBlock)
+                        | ({
+                            _key: string
+                          } & DividerBlock)
+                        | ({
+                            _key: string
+                          } & EyebrowBlock)
+                        | ({
+                            _key: string
+                          } & HeadingBlock)
+                        | ({
+                            _key: string
+                          } & IconBlock)
+                        | ({
+                            _key: string
+                          } & ImageBlock)
+                        | ({
+                            _key: string
+                          } & InlineVideoBlock)
+                        | ({
+                            _key: string
+                          } & MarqueeBlock)
+                        | ({
+                            _key: string
+                          } & ModalBlock)
+                        | ({
+                            _key: string
+                          } & RichTextBlock)
+                        | ({
+                            _key: string
+                          } & SliderBlock)
+                        | ({
+                            _key: string
+                          } & SpacerBlock)
+                        | ({
+                            _key: string
+                          } & TableBlock)
+                        | ({
+                            _key: string
+                          } & TabsBlock)
+                      >
+                      gap?: '0' | '2' | '4' | '6' | '8'
+                      align?: 'center' | 'end' | 'start' | 'stretch'
+                      customStyle?: string
+                    }
+                  | {
+                      _key: string
+                      _type: 'dividerBlock'
+                      marginTop?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                      marginBottom?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                      color?: 'blue' | 'brand' | 'dark' | 'default' | 'light'
+                    }
+                  | {
+                      _key: string
+                      _type: 'eyebrowBlock'
+                      text: {
+                        _type: 'smartString'
+                        mode?: 'static' | 'variable'
+                        staticValue?: string
+                        variableRef: {
+                          _id: string
+                          name: string
+                          key: Slug
+                          variableType: 'image' | 'link' | 'text'
+                          textValue: string | null
+                        } | null
+                      }
+                      variant?: 'overline' | 'pill' | 'text'
+                      color?: 'blue' | 'brand' | 'default' | 'muted'
+                      align?: 'center' | 'left' | 'right'
+                      customStyle?: string
+                    }
+                  | {
+                      _key: string
+                      _type: 'headingBlock'
+                      text: {
+                        _type: 'smartString'
+                        mode?: 'static' | 'variable'
+                        staticValue?: string
+                        variableRef: {
+                          _id: string
+                          name: string
+                          key: Slug
+                          variableType: 'image' | 'link' | 'text'
+                          textValue: string | null
+                        } | null
+                      }
+                      level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+                      size?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'inherit'
+                      align?: 'center' | 'left' | 'right'
+                      color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+                      customStyle?: string
+                    }
+                  | {
+                      _key: string
+                      _type: 'iconBlock'
+                      icon:
+                        | 'anchor'
+                        | 'arrow-down'
+                        | 'arrow-left'
+                        | 'arrow-right'
+                        | 'arrow-up-right'
+                        | 'barbell'
+                        | 'boat'
+                        | 'calendar'
+                        | 'chart-line-up'
+                        | 'check-circle'
+                        | 'clock'
+                        | 'cloud'
+                        | 'code'
+                        | 'compass'
+                        | 'download'
+                        | 'envelope'
+                        | 'eye'
+                        | 'feather'
+                        | 'fire'
+                        | 'gear'
+                        | 'globe'
+                        | 'heart'
+                        | 'key'
+                        | 'leaf'
+                        | 'lightbulb-filament'
+                        | 'lightning'
+                        | 'link'
+                        | 'lock'
+                        | 'map-pin'
+                        | 'moon-stars'
+                        | 'moon'
+                        | 'palette'
+                        | 'pencil'
+                        | 'phone'
+                        | 'rocket'
+                        | 'shield-check'
+                        | 'shuffle-simple'
+                        | 'sparkle'
+                        | 'star'
+                        | 'sun'
+                        | 'target'
+                        | 'trash'
+                        | 'tree'
+                        | 'trophy'
+                        | 'upload'
+                        | 'users'
+                      size?: 'lg' | 'md' | 'sm' | 'xl'
+                      color?: 'black' | 'blue' | 'brand' | 'gray' | 'inherit'
+                      align?: 'center' | 'left' | 'right'
+                      marginBottom?: '0' | 'lg' | 'md' | 'sm'
+                    }
+                  | {
+                      _key: string
+                      _type: 'imageBlock'
+                      image: {
+                        asset?: SanityImageAssetReference
+                        media?: unknown
+                        hotspot?: SanityImageHotspot
+                        crop?: SanityImageCrop
+                        _type: 'image'
+                      }
+                      alt: string
+                      caption?: string
+                      size?: 'full' | 'lg' | 'md' | 'sm' | 'thumb'
+                      aspectRatio?:
+                        | '1/1'
+                        | '1\xD71'
+                        | '16/9'
+                        | '16\xD79'
+                        | '16x9'
+                        | '1x1'
+                        | '3/4'
+                        | '3\xD74'
+                        | '3x4'
+                        | '4/3'
+                        | '4\xD73'
+                        | '4x3'
+                        | '9/16'
+                        | '9\xD716'
+                        | '9x16'
+                        | 'original'
+                      rounded?: 'full' | 'lg' | 'md' | 'none' | 'sm'
+                      shadow?: boolean
+                    }
+                  | {
+                      _key: string
+                      _type: 'inlineVideoBlock'
+                      videoFile: {
+                        asset: {
+                          url: string
+                        } | null
+                      } | null
+                      videoUrl?: string
+                      poster: {
+                        asset: {
+                          _id: string
+                          _type: 'sanity.imageAsset'
+                          _createdAt: string
+                          _updatedAt: string
+                          _rev: string
+                          originalFilename?: string
+                          label?: string
+                          title?: string
+                          description?: string
+                          altText?: string
+                          sha1hash: string
+                          extension: string
+                          mimeType: string
+                          size: number
+                          assetId: string
+                          uploadId?: string
+                          path: string
+                          url: string
+                          metadata?: SanityImageMetadata
+                          source?: SanityAssetSourceData
+                        } | null
+                        media?: unknown
+                        hotspot?: SanityImageHotspot
+                        crop?: SanityImageCrop
+                        alt?: string
+                        _type: 'image'
+                      } | null
+                      aspectRatio?:
+                        | '1/1'
+                        | '1\xD71'
+                        | '16/9'
+                        | '16\xD79'
+                        | '16x9'
+                        | '1x1'
+                        | '21/9'
+                        | '21\xD79'
+                        | '21x9'
+                        | '4/3'
+                        | '4\xD73'
+                        | '4x3'
+                        | '9/16'
+                        | '9\xD716'
+                        | '9x16'
+                      controlPosition?:
+                        'bottom-left' | 'bottom-right' | 'center' | 'top-left' | 'top-right'
+                      showControls?: boolean
+                      autoplayOnScroll?: boolean
+                      loop?: boolean
+                      muted?: boolean
+                    }
+                  | {
+                      _key: string
+                      _type: 'marqueeBlock'
+                      items?: Array<
+                        | ({
+                            _key: string
+                          } & CardBlock)
+                        | ({
+                            _key: string
+                          } & HeadingBlock)
+                        | ({
+                            _key: string
+                          } & IconBlock)
+                        | ({
+                            _key: string
+                          } & ImageBlock)
+                        | ({
+                            _key: string
+                          } & RichTextBlock)
+                      >
+                      orientation?: 'horizontal' | 'vertical'
+                      reverse?: boolean
+                      pauseOnHover?: boolean
+                      fadeEdges?: boolean
+                      duration?: number
+                      gap?: '16' | '24' | '32' | '48'
+                      height?: '200' | '300' | '400' | 'auto'
+                    }
+                  | {
+                      _key: string
+                      _type: 'modalBlock'
+                      triggerLabel: string
+                      triggerVariant?: 'ghost' | 'primary' | 'secondary'
+                      triggerColor?: 'black' | 'blue' | 'brand' | 'white'
+                      contentType?: 'content' | 'video'
+                      modalTitle?: string
+                      content?: Array<
+                        | ({
+                            _key: string
+                          } & ButtonBlock)
+                        | ({
+                            _key: string
+                          } & DividerBlock)
+                        | ({
+                            _key: string
+                          } & HeadingBlock)
+                        | ({
+                            _key: string
+                          } & ImageBlock)
+                        | ({
+                            _key: string
+                          } & RichTextBlock)
+                        | ({
+                            _key: string
+                          } & SpacerBlock)
+                      >
+                      youtubeUrl?: string
+                      modalSize?: 'full' | 'lg' | 'md' | 'sm' | 'xl'
+                      modalId?: string
+                    }
+                  | {
+                      _key: string
+                      _type: 'richTextBlock'
+                      content: Array<{
+                        children: Array<
+                          | {
+                              _key: string
+                              _type: 'contentVariableInline'
+                              reference: {
+                                _id: string
+                                name: string
+                                key: Slug
+                                variableType: 'image' | 'link' | 'text'
+                                textValue: string | null
+                              }
+                            }
+                          | {
+                              marks?: Array<string>
+                              text?: string
+                              _type: 'span'
+                              _key: string
+                            }
+                        > | null
+                        style?: 'blockquote' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'normal'
+                        listItem?: 'bullet' | 'number'
+                        markDefs: Array<{
+                          linkType?: 'href' | 'page' | 'post' | 'variable'
+                          href?: string
+                          page: string | null
+                          post: string | null
+                          variable: {
+                            _id: string
+                            variableType: 'image' | 'link' | 'text'
+                            linkValue: {
+                              _type: 'link'
+                              linkType?: 'href' | 'page' | 'post' | 'variable'
+                              href?: string
+                              page: string | null
+                              post: string | null
+                              variable?: ContentVariableReference
+                              openInNewTab?: boolean
+                            } | null
+                          } | null
+                          openInNewTab?: boolean
+                          _type: 'link'
+                          _key: string
+                        }> | null
+                        level?: number
+                        _type: 'block'
+                        _key: string
+                      }> | null
+                      align?: 'center' | 'left' | 'right'
+                      size?:
+                        | 'base'
+                        | 'h1'
+                        | 'h2'
+                        | 'h3'
+                        | 'h4'
+                        | 'h5'
+                        | 'h6'
+                        | 'inherit'
+                        | 'lg'
+                        | 'sm'
+                        | 'xl'
+                      maxWidth?: 'none' | 'prose-lg' | 'prose-xl' | 'prose'
+                      color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+                      customStyle?: string
+                    }
+                  | {
+                      _key: string
+                      _type: 'row'
+                      columns: Array<{
+                        _key: string
+                        _type: 'column'
+                        content: Array<
+                          | {
+                              _key: string
+                              _type: 'accordionBlock'
+                              items?: Array<{
+                                title: string
+                                content?: Array<
+                                  | ({
+                                      _key: string
+                                    } & ButtonBlock)
+                                  | ({
+                                      _key: string
+                                    } & DividerBlock)
+                                  | ({
+                                      _key: string
+                                    } & HeadingBlock)
+                                  | ({
+                                      _key: string
+                                    } & IconBlock)
+                                  | ({
+                                      _key: string
+                                    } & ImageBlock)
+                                  | ({
+                                      _key: string
+                                    } & RichTextBlock)
+                                  | ({
+                                      _key: string
+                                    } & SpacerBlock)
+                                >
+                                defaultOpen?: boolean
+                                _type: 'accordionItem'
+                                _key: string
+                              }>
+                              allowMultiple?: boolean
+                              titleStyle?: 'body' | 'h3' | 'h4' | 'h5'
+                              dividers?: boolean
+                            }
+                          | {
+                              _key: string
+                              _type: 'blogGridBlock'
+                              selectionMode?: 'all' | 'category' | 'specific'
+                              specificPosts?: Array<
+                                {
+                                  _key: string
+                                } & PostReference
+                              >
+                              category?: CategoryReference
+                              limit?: number
+                              sortBy?: 'date' | 'title'
+                              sortOrder?: 'asc' | 'desc'
+                              columnsDesktop?: '1' | '2' | '3' | '4'
+                              columnsTablet?: '1' | '2' | '3' | '4' | 'inherit'
+                              columnsMobile?: '1' | '2' | 'inherit'
+                              gap?: '0' | '12' | '2' | '4' | '6' | '8'
+                              customStyle?: string
+                            }
+                          | {
+                              _key: string
+                              _type: 'breadcrumbBlock'
+                              items?: Array<{
+                                label: string
+                                link?: Link
+                                _type: 'breadcrumbItem'
+                                _key: string
+                              }>
+                              separator?: 'chevron' | 'slash'
+                              align?: 'center' | 'left' | 'right'
+                            }
+                          | {
+                              _key: string
+                              _type: 'buttonBlock'
+                              text: {
+                                _type: 'smartString'
+                                mode?: 'static' | 'variable'
+                                staticValue?: string
+                                variableRef: {
+                                  _id: string
+                                  name: string
+                                  key: Slug
+                                  variableType: 'image' | 'link' | 'text'
+                                  textValue: string | null
+                                } | null
+                              }
+                              link: {
+                                _type: 'link'
+                                linkType?: 'href' | 'page' | 'post' | 'variable'
+                                href?: string
+                                page: string | null
+                                post: string | null
+                                variable: {
+                                  _id: string
+                                  variableType: 'image' | 'link' | 'text'
+                                  linkValue: {
+                                    _type: 'link'
+                                    linkType?: 'href' | 'page' | 'post' | 'variable'
+                                    href?: string
+                                    page: string | null
+                                    post: string | null
+                                    variable?: ContentVariableReference
+                                    openInNewTab?: boolean
+                                  } | null
+                                } | null
+                                openInNewTab?: boolean
+                              }
+                              variant?: 'ghost' | 'primary' | 'secondary'
+                              color?: 'black' | 'brand' | 'white'
+                              icon?: 'arrow-right' | 'download' | 'external' | 'none'
+                            }
+                          | {
+                              _key: string
+                              _type: 'cardBlock'
+                              content?: Array<
+                                | ({
+                                    _key: string
+                                  } & ButtonBlock)
+                                | ({
+                                    _key: string
+                                  } & DividerBlock)
+                                | ({
+                                    _key: string
+                                  } & HeadingBlock)
+                                | ({
+                                    _key: string
+                                  } & ImageBlock)
+                                | ({
+                                    _key: string
+                                  } & RichTextBlock)
+                                | ({
+                                    _key: string
+                                  } & SpacerBlock)
+                              >
+                              variant?: 'default' | 'filled' | 'ghost' | 'outline'
+                              padding?: 'lg' | 'md' | 'none' | 'sm'
+                              backgroundImage?: {
+                                asset?: SanityImageAssetReference
+                                media?: unknown
+                                hotspot?: SanityImageHotspot
+                                crop?: SanityImageCrop
+                                _type: 'image'
+                              }
+                              backgroundOverlay?: 0 | 20 | 40 | 60 | 80
+                              href?: string
+                              openInNewTab?: boolean
+                              hoverEffect?: boolean
+                            }
+                          | {
+                              _key: string
+                              _type: 'contentWrap'
+                              content?: Array<
+                                | ({
+                                    _key: string
+                                  } & AccordionBlock)
+                                | ({
+                                    _key: string
+                                  } & BreadcrumbBlock)
+                                | ({
+                                    _key: string
+                                  } & ButtonBlock)
+                                | ({
+                                    _key: string
+                                  } & CardBlock)
+                                | ({
+                                    _key: string
+                                  } & DividerBlock)
+                                | ({
+                                    _key: string
+                                  } & EyebrowBlock)
+                                | ({
+                                    _key: string
+                                  } & HeadingBlock)
+                                | ({
+                                    _key: string
+                                  } & IconBlock)
+                                | ({
+                                    _key: string
+                                  } & ImageBlock)
+                                | ({
+                                    _key: string
+                                  } & InlineVideoBlock)
+                                | ({
+                                    _key: string
+                                  } & MarqueeBlock)
+                                | ({
+                                    _key: string
+                                  } & ModalBlock)
+                                | ({
+                                    _key: string
+                                  } & RichTextBlock)
+                                | ({
+                                    _key: string
+                                  } & SliderBlock)
+                                | ({
+                                    _key: string
+                                  } & SpacerBlock)
+                                | ({
+                                    _key: string
+                                  } & TableBlock)
+                                | ({
+                                    _key: string
+                                  } & TabsBlock)
+                              >
+                              gap?: '0' | '2' | '4' | '6' | '8'
+                              align?: 'center' | 'end' | 'start' | 'stretch'
+                              customStyle?: string
+                            }
+                          | {
+                              _key: string
+                              _type: 'dividerBlock'
+                              marginTop?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                              marginBottom?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                              color?: 'blue' | 'brand' | 'dark' | 'default' | 'light'
+                            }
+                          | {
+                              _key: string
+                              _type: 'eyebrowBlock'
+                              text: {
+                                _type: 'smartString'
+                                mode?: 'static' | 'variable'
+                                staticValue?: string
+                                variableRef: {
+                                  _id: string
+                                  name: string
+                                  key: Slug
+                                  variableType: 'image' | 'link' | 'text'
+                                  textValue: string | null
+                                } | null
+                              }
+                              variant?: 'overline' | 'pill' | 'text'
+                              color?: 'blue' | 'brand' | 'default' | 'muted'
+                              align?: 'center' | 'left' | 'right'
+                              customStyle?: string
+                            }
+                          | {
+                              _key: string
+                              _type: 'headingBlock'
+                              text: {
+                                _type: 'smartString'
+                                mode?: 'static' | 'variable'
+                                staticValue?: string
+                                variableRef: {
+                                  _id: string
+                                  name: string
+                                  key: Slug
+                                  variableType: 'image' | 'link' | 'text'
+                                  textValue: string | null
+                                } | null
+                              }
+                              level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+                              size?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'inherit'
+                              align?: 'center' | 'left' | 'right'
+                              color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+                              customStyle?: string
+                            }
+                          | {
+                              _key: string
+                              _type: 'iconBlock'
+                              icon:
+                                | 'anchor'
+                                | 'arrow-down'
+                                | 'arrow-left'
+                                | 'arrow-right'
+                                | 'arrow-up-right'
+                                | 'barbell'
+                                | 'boat'
+                                | 'calendar'
+                                | 'chart-line-up'
+                                | 'check-circle'
+                                | 'clock'
+                                | 'cloud'
+                                | 'code'
+                                | 'compass'
+                                | 'download'
+                                | 'envelope'
+                                | 'eye'
+                                | 'feather'
+                                | 'fire'
+                                | 'gear'
+                                | 'globe'
+                                | 'heart'
+                                | 'key'
+                                | 'leaf'
+                                | 'lightbulb-filament'
+                                | 'lightning'
+                                | 'link'
+                                | 'lock'
+                                | 'map-pin'
+                                | 'moon-stars'
+                                | 'moon'
+                                | 'palette'
+                                | 'pencil'
+                                | 'phone'
+                                | 'rocket'
+                                | 'shield-check'
+                                | 'shuffle-simple'
+                                | 'sparkle'
+                                | 'star'
+                                | 'sun'
+                                | 'target'
+                                | 'trash'
+                                | 'tree'
+                                | 'trophy'
+                                | 'upload'
+                                | 'users'
+                              size?: 'lg' | 'md' | 'sm' | 'xl'
+                              color?: 'black' | 'blue' | 'brand' | 'gray' | 'inherit'
+                              align?: 'center' | 'left' | 'right'
+                              marginBottom?: '0' | 'lg' | 'md' | 'sm'
+                            }
+                          | {
+                              _key: string
+                              _type: 'imageBlock'
+                              image: {
+                                asset?: SanityImageAssetReference
+                                media?: unknown
+                                hotspot?: SanityImageHotspot
+                                crop?: SanityImageCrop
+                                _type: 'image'
+                              }
+                              alt: string
+                              caption?: string
+                              size?: 'full' | 'lg' | 'md' | 'sm' | 'thumb'
+                              aspectRatio?:
+                                | '1/1'
+                                | '1\xD71'
+                                | '16/9'
+                                | '16\xD79'
+                                | '16x9'
+                                | '1x1'
+                                | '3/4'
+                                | '3\xD74'
+                                | '3x4'
+                                | '4/3'
+                                | '4\xD73'
+                                | '4x3'
+                                | '9/16'
+                                | '9\xD716'
+                                | '9x16'
+                                | 'original'
+                              rounded?: 'full' | 'lg' | 'md' | 'none' | 'sm'
+                              shadow?: boolean
+                            }
+                          | {
+                              _key: string
+                              _type: 'inlineVideoBlock'
+                              videoFile: {
+                                asset: {
+                                  url: string
+                                } | null
+                              } | null
+                              videoUrl?: string
+                              poster: {
+                                asset: {
+                                  _id: string
+                                  _type: 'sanity.imageAsset'
+                                  _createdAt: string
+                                  _updatedAt: string
+                                  _rev: string
+                                  originalFilename?: string
+                                  label?: string
+                                  title?: string
+                                  description?: string
+                                  altText?: string
+                                  sha1hash: string
+                                  extension: string
+                                  mimeType: string
+                                  size: number
+                                  assetId: string
+                                  uploadId?: string
+                                  path: string
+                                  url: string
+                                  metadata?: SanityImageMetadata
+                                  source?: SanityAssetSourceData
+                                } | null
+                                media?: unknown
+                                hotspot?: SanityImageHotspot
+                                crop?: SanityImageCrop
+                                alt?: string
+                                _type: 'image'
+                              } | null
+                              aspectRatio?:
+                                | '1/1'
+                                | '1\xD71'
+                                | '16/9'
+                                | '16\xD79'
+                                | '16x9'
+                                | '1x1'
+                                | '21/9'
+                                | '21\xD79'
+                                | '21x9'
+                                | '4/3'
+                                | '4\xD73'
+                                | '4x3'
+                                | '9/16'
+                                | '9\xD716'
+                                | '9x16'
+                              controlPosition?:
+                                'bottom-left' | 'bottom-right' | 'center' | 'top-left' | 'top-right'
+                              showControls?: boolean
+                              autoplayOnScroll?: boolean
+                              loop?: boolean
+                              muted?: boolean
+                            }
+                          | {
+                              _key: string
+                              _type: 'marqueeBlock'
+                              items?: Array<
+                                | ({
+                                    _key: string
+                                  } & CardBlock)
+                                | ({
+                                    _key: string
+                                  } & HeadingBlock)
+                                | ({
+                                    _key: string
+                                  } & IconBlock)
+                                | ({
+                                    _key: string
+                                  } & ImageBlock)
+                                | ({
+                                    _key: string
+                                  } & RichTextBlock)
+                              >
+                              orientation?: 'horizontal' | 'vertical'
+                              reverse?: boolean
+                              pauseOnHover?: boolean
+                              fadeEdges?: boolean
+                              duration?: number
+                              gap?: '16' | '24' | '32' | '48'
+                              height?: '200' | '300' | '400' | 'auto'
+                            }
+                          | {
+                              _key: string
+                              _type: 'modalBlock'
+                              triggerLabel: string
+                              triggerVariant?: 'ghost' | 'primary' | 'secondary'
+                              triggerColor?: 'black' | 'blue' | 'brand' | 'white'
+                              contentType?: 'content' | 'video'
+                              modalTitle?: string
+                              content?: Array<
+                                | ({
+                                    _key: string
+                                  } & ButtonBlock)
+                                | ({
+                                    _key: string
+                                  } & DividerBlock)
+                                | ({
+                                    _key: string
+                                  } & HeadingBlock)
+                                | ({
+                                    _key: string
+                                  } & ImageBlock)
+                                | ({
+                                    _key: string
+                                  } & RichTextBlock)
+                                | ({
+                                    _key: string
+                                  } & SpacerBlock)
+                              >
+                              youtubeUrl?: string
+                              modalSize?: 'full' | 'lg' | 'md' | 'sm' | 'xl'
+                              modalId?: string
+                            }
+                          | {
+                              _key: string
+                              _type: 'richTextBlock'
+                              content: Array<{
+                                children: Array<
+                                  | {
+                                      _key: string
+                                      _type: 'contentVariableInline'
+                                      reference: {
+                                        _id: string
+                                        name: string
+                                        key: Slug
+                                        variableType: 'image' | 'link' | 'text'
+                                        textValue: string | null
+                                      }
+                                    }
+                                  | {
+                                      marks?: Array<string>
+                                      text?: string
+                                      _type: 'span'
+                                      _key: string
+                                    }
+                                > | null
+                                style?:
+                                  'blockquote' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'normal'
+                                listItem?: 'bullet' | 'number'
+                                markDefs: Array<{
+                                  linkType?: 'href' | 'page' | 'post' | 'variable'
+                                  href?: string
+                                  page: string | null
+                                  post: string | null
+                                  variable: {
+                                    _id: string
+                                    variableType: 'image' | 'link' | 'text'
+                                    linkValue: {
+                                      _type: 'link'
+                                      linkType?: 'href' | 'page' | 'post' | 'variable'
+                                      href?: string
+                                      page: string | null
+                                      post: string | null
+                                      variable?: ContentVariableReference
+                                      openInNewTab?: boolean
+                                    } | null
+                                  } | null
+                                  openInNewTab?: boolean
+                                  _type: 'link'
+                                  _key: string
+                                }> | null
+                                level?: number
+                                _type: 'block'
+                                _key: string
+                              }> | null
+                              align?: 'center' | 'left' | 'right'
+                              size?:
+                                | 'base'
+                                | 'h1'
+                                | 'h2'
+                                | 'h3'
+                                | 'h4'
+                                | 'h5'
+                                | 'h6'
+                                | 'inherit'
+                                | 'lg'
+                                | 'sm'
+                                | 'xl'
+                              maxWidth?: 'none' | 'prose-lg' | 'prose-xl' | 'prose'
+                              color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+                              customStyle?: string
+                            }
+                          | {
+                              _key: string
+                              _type: 'row'
+                              columns?: Array<
+                                {
+                                  _key: string
+                                } & Column
+                              >
+                              horizontalAlign?:
+                                'around' | 'between' | 'center' | 'end' | 'evenly' | 'start'
+                              verticalAlign?:
+                                'baseline' | 'between' | 'center' | 'end' | 'start' | 'stretch'
+                              gap?: '0' | '12' | '2' | '4' | '6' | '8'
+                              wrap?: boolean
+                              reverseOnMobile?: boolean
+                              customStyle?: string
+                            }
+                          | {
+                              _key: string
+                              _type: 'sliderBlock'
+                              slides?: Array<{
+                                image: ImageSlideImage
+                                alt?: string
+                                caption?: string
+                                _type: 'imageSlide'
+                                _key: string
+                              }>
+                              slidesPerViewDesktop?: 1 | 2 | 3 | 4 | 5 | 6
+                              slidesPerViewTablet?: 1 | 2 | 3 | 4
+                              slidesPerViewMobile?: 1 | 2
+                              gap?: '0' | '2' | '4' | '6' | '8'
+                              aspectRatio?:
+                                | '1/1'
+                                | '1\xD71'
+                                | '16/9'
+                                | '16\xD79'
+                                | '16x9'
+                                | '1x1'
+                                | '3/4'
+                                | '3\xD74'
+                                | '3x4'
+                                | '4/3'
+                                | '4\xD73'
+                                | '4x3'
+                                | '9/16'
+                                | '9\xD716'
+                                | '9x16'
+                                | 'original'
+                              autoplay?: boolean
+                              autoplayDelay?: number
+                              loop?: boolean
+                              showNavigation?: boolean
+                              navigationPosition?:
+                                'below' | 'overlay-center' | 'overlay-edges' | 'sides'
+                              showPagination?: boolean
+                              effect?: 'fade' | 'slide'
+                              speed?: number
+                              centeredSlides?: boolean
+                              overflowVisible?: boolean
+                            }
+                          | {
+                              _key: string
+                              _type: 'spacerBlock'
+                              sizeDesktop?: '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                              sizeMobile?: '12' | '16' | '2' | '24' | '4' | '6' | '8' | 'inherit'
+                            }
+                          | {
+                              _key: string
+                              _type: 'tableBlock'
+                              columns?: Array<{
+                                header: string
+                                align?: 'center' | 'left' | 'right'
+                                _type: 'tableColumn'
+                                _key: string
+                              }>
+                              rows?: Array<{
+                                cells?: Array<{
+                                  content?: string
+                                  _type: 'tableCell'
+                                  _key: string
+                                }>
+                                _type: 'tableRow'
+                                _key: string
+                              }>
+                              variant?: 'bordered' | 'default' | 'striped'
+                              showHeader?: boolean
+                              caption?: string
+                            }
+                          | {
+                              _key: string
+                              _type: 'tabsBlock'
+                              tabs?: Array<{
+                                label: string
+                                content?: Array<
+                                  | ({
+                                      _key: string
+                                    } & ButtonBlock)
+                                  | ({
+                                      _key: string
+                                    } & CardBlock)
+                                  | ({
+                                      _key: string
+                                    } & DividerBlock)
+                                  | ({
+                                      _key: string
+                                    } & EyebrowBlock)
+                                  | ({
+                                      _key: string
+                                    } & HeadingBlock)
+                                  | ({
+                                      _key: string
+                                    } & IconBlock)
+                                  | ({
+                                      _key: string
+                                    } & ImageBlock)
+                                  | ({
+                                      _key: string
+                                    } & RichTextBlock)
+                                  | ({
+                                      _key: string
+                                    } & Row)
+                                  | ({
+                                      _key: string
+                                    } & SpacerBlock)
+                                  | ({
+                                      _key: string
+                                    } & TableBlock)
+                                >
+                                _type: 'tabItem'
+                                _key: string
+                              }>
+                              orientation?: 'horizontal' | 'vertical'
+                              menuPosition?: 'above' | 'below' | 'left' | 'right'
+                              mobileDropdown?: boolean
+                              contentGap?: '0' | '12' | '2' | '4' | '6' | '8'
+                              defaultTab?: string
+                              autoplay?: boolean
+                              autoplayDuration?: number
+                              pauseOnHover?: boolean
+                              showProgress?: boolean
+                            }
+                        > | null
+                        widthDesktop?:
+                          | '1'
+                          | '10'
+                          | '11'
+                          | '12'
+                          | '2'
+                          | '3'
+                          | '4'
+                          | '5'
+                          | '6'
+                          | '7'
+                          | '8'
+                          | '9'
+                          | 'auto'
+                          | 'fill'
+                        widthTablet?:
+                          | '1'
+                          | '10'
+                          | '11'
+                          | '12'
+                          | '2'
+                          | '3'
+                          | '4'
+                          | '5'
+                          | '6'
+                          | '7'
+                          | '8'
+                          | '9'
+                          | 'auto'
+                          | 'fill'
+                          | 'inherit'
+                        widthMobile?:
+                          | '1'
+                          | '10'
+                          | '11'
+                          | '12'
+                          | '2'
+                          | '3'
+                          | '4'
+                          | '5'
+                          | '6'
+                          | '7'
+                          | '8'
+                          | '9'
+                          | 'auto'
+                          | 'fill'
+                          | 'inherit'
+                        verticalAlign?: 'between' | 'center' | 'end' | 'start'
+                        padding?: '0' | '2' | '4' | '6' | '8'
+                        customStyle?: string
+                      }> | null
+                      horizontalAlign?: 'around' | 'between' | 'center' | 'end' | 'evenly' | 'start'
+                      verticalAlign?:
+                        'baseline' | 'between' | 'center' | 'end' | 'start' | 'stretch'
+                      gap?: '0' | '12' | '2' | '4' | '6' | '8'
+                      wrap?: boolean
+                      reverseOnMobile?: boolean
+                      customStyle?: string
+                    }
+                  | {
+                      _key: string
+                      _type: 'sliderBlock'
+                      slides?: Array<{
+                        image: ImageSlideImage
+                        alt?: string
+                        caption?: string
+                        _type: 'imageSlide'
+                        _key: string
+                      }>
+                      slidesPerViewDesktop?: 1 | 2 | 3 | 4 | 5 | 6
+                      slidesPerViewTablet?: 1 | 2 | 3 | 4
+                      slidesPerViewMobile?: 1 | 2
+                      gap?: '0' | '2' | '4' | '6' | '8'
+                      aspectRatio?:
+                        | '1/1'
+                        | '1\xD71'
+                        | '16/9'
+                        | '16\xD79'
+                        | '16x9'
+                        | '1x1'
+                        | '3/4'
+                        | '3\xD74'
+                        | '3x4'
+                        | '4/3'
+                        | '4\xD73'
+                        | '4x3'
+                        | '9/16'
+                        | '9\xD716'
+                        | '9x16'
+                        | 'original'
+                      autoplay?: boolean
+                      autoplayDelay?: number
+                      loop?: boolean
+                      showNavigation?: boolean
+                      navigationPosition?: 'below' | 'overlay-center' | 'overlay-edges' | 'sides'
+                      showPagination?: boolean
+                      effect?: 'fade' | 'slide'
+                      speed?: number
+                      centeredSlides?: boolean
+                      overflowVisible?: boolean
+                    }
+                  | {
+                      _key: string
+                      _type: 'spacerBlock'
+                      sizeDesktop?: '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                      sizeMobile?: '12' | '16' | '2' | '24' | '4' | '6' | '8' | 'inherit'
+                    }
+                  | {
+                      _key: string
+                      _type: 'tableBlock'
+                      columns?: Array<{
+                        header: string
+                        align?: 'center' | 'left' | 'right'
+                        _type: 'tableColumn'
+                        _key: string
+                      }>
+                      rows?: Array<{
+                        cells?: Array<{
+                          content?: string
+                          _type: 'tableCell'
+                          _key: string
+                        }>
+                        _type: 'tableRow'
+                        _key: string
+                      }>
+                      variant?: 'bordered' | 'default' | 'striped'
+                      showHeader?: boolean
+                      caption?: string
+                    }
+                  | {
+                      _key: string
+                      _type: 'tabsBlock'
+                      tabs?: Array<{
+                        label: string
+                        content?: Array<
+                          | ({
+                              _key: string
+                            } & ButtonBlock)
+                          | ({
+                              _key: string
+                            } & CardBlock)
+                          | ({
+                              _key: string
+                            } & DividerBlock)
+                          | ({
+                              _key: string
+                            } & EyebrowBlock)
+                          | ({
+                              _key: string
+                            } & HeadingBlock)
+                          | ({
+                              _key: string
+                            } & IconBlock)
+                          | ({
+                              _key: string
+                            } & ImageBlock)
+                          | ({
+                              _key: string
+                            } & RichTextBlock)
+                          | ({
+                              _key: string
+                            } & Row)
+                          | ({
+                              _key: string
+                            } & SpacerBlock)
+                          | ({
+                              _key: string
+                            } & TableBlock)
+                        >
+                        _type: 'tabItem'
+                        _key: string
+                      }>
+                      orientation?: 'horizontal' | 'vertical'
+                      menuPosition?: 'above' | 'below' | 'left' | 'right'
+                      mobileDropdown?: boolean
+                      contentGap?: '0' | '12' | '2' | '4' | '6' | '8'
+                      defaultTab?: string
+                      autoplay?: boolean
+                      autoplayDuration?: number
+                      pauseOnHover?: boolean
+                      showProgress?: boolean
+                    }
+                > | null
+                widthDesktop?:
+                  | '1'
+                  | '10'
+                  | '11'
+                  | '12'
+                  | '2'
+                  | '3'
+                  | '4'
+                  | '5'
+                  | '6'
+                  | '7'
+                  | '8'
+                  | '9'
+                  | 'auto'
+                  | 'fill'
+                widthTablet?:
+                  | '1'
+                  | '10'
+                  | '11'
+                  | '12'
+                  | '2'
+                  | '3'
+                  | '4'
+                  | '5'
+                  | '6'
+                  | '7'
+                  | '8'
+                  | '9'
+                  | 'auto'
+                  | 'fill'
+                  | 'inherit'
+                widthMobile?:
+                  | '1'
+                  | '10'
+                  | '11'
+                  | '12'
+                  | '2'
+                  | '3'
+                  | '4'
+                  | '5'
+                  | '6'
+                  | '7'
+                  | '8'
+                  | '9'
+                  | 'auto'
+                  | 'fill'
+                  | 'inherit'
+                verticalAlign?: 'between' | 'center' | 'end' | 'start'
+                padding?: '0' | '2' | '4' | '6' | '8'
+                customStyle?: string
+              }> | null
+              horizontalAlign?: 'around' | 'between' | 'center' | 'end' | 'evenly' | 'start'
+              verticalAlign?: 'baseline' | 'between' | 'center' | 'end' | 'start' | 'stretch'
+              gap?: '0' | '12' | '2' | '4' | '6' | '8'
+              wrap?: boolean
+              reverseOnMobile?: boolean
+              customStyle?: string
+            }
+          | {
+              _key: string
+              _type: 'sliderBlock'
+              slides?: Array<{
+                image: ImageSlideImage
+                alt?: string
+                caption?: string
+                _type: 'imageSlide'
+                _key: string
+              }>
+              slidesPerViewDesktop?: 1 | 2 | 3 | 4 | 5 | 6
+              slidesPerViewTablet?: 1 | 2 | 3 | 4
+              slidesPerViewMobile?: 1 | 2
+              gap?: '0' | '2' | '4' | '6' | '8'
+              aspectRatio?:
+                | '1/1'
+                | '1\xD71'
+                | '16/9'
+                | '16\xD79'
+                | '16x9'
+                | '1x1'
+                | '3/4'
+                | '3\xD74'
+                | '3x4'
+                | '4/3'
+                | '4\xD73'
+                | '4x3'
+                | '9/16'
+                | '9\xD716'
+                | '9x16'
+                | 'original'
+              autoplay?: boolean
+              autoplayDelay?: number
+              loop?: boolean
+              showNavigation?: boolean
+              navigationPosition?: 'below' | 'overlay-center' | 'overlay-edges' | 'sides'
+              showPagination?: boolean
+              effect?: 'fade' | 'slide'
+              speed?: number
+              centeredSlides?: boolean
+              overflowVisible?: boolean
+              columns: null
+            }
+          | {
+              _key: string
+              _type: 'spacerBlock'
+              sizeDesktop?: '12' | '16' | '2' | '24' | '4' | '6' | '8'
+              sizeMobile?: '12' | '16' | '2' | '24' | '4' | '6' | '8' | 'inherit'
+              columns: null
+            }
+          | {
+              _key: string
+              _type: 'tabsBlock'
+              tabs?: Array<{
+                label: string
+                content?: Array<
+                  | ({
+                      _key: string
+                    } & ButtonBlock)
+                  | ({
+                      _key: string
+                    } & CardBlock)
+                  | ({
+                      _key: string
+                    } & DividerBlock)
+                  | ({
+                      _key: string
+                    } & EyebrowBlock)
+                  | ({
+                      _key: string
+                    } & HeadingBlock)
+                  | ({
+                      _key: string
+                    } & IconBlock)
+                  | ({
+                      _key: string
+                    } & ImageBlock)
+                  | ({
+                      _key: string
+                    } & RichTextBlock)
+                  | ({
+                      _key: string
+                    } & Row)
+                  | ({
+                      _key: string
+                    } & SpacerBlock)
+                  | ({
+                      _key: string
+                    } & TableBlock)
+                >
+                _type: 'tabItem'
+                _key: string
+              }>
+              orientation?: 'horizontal' | 'vertical'
+              menuPosition?: 'above' | 'below' | 'left' | 'right'
+              mobileDropdown?: boolean
+              contentGap?: '0' | '12' | '2' | '4' | '6' | '8'
+              defaultTab?: string
+              autoplay?: boolean
+              autoplayDuration?: number
+              pauseOnHover?: boolean
+              showProgress?: boolean
+              columns: null
+            }
+        > | null
+        backgroundColor?: 'primary' | 'secondary'
+        backgroundImage?: {
+          asset?: SanityImageAssetReference
+          media?: unknown
+          hotspot?: SanityImageHotspot
+          crop?: SanityImageCrop
+          _type: 'image'
+        }
+        backgroundOverlay?: 0 | 20 | 40 | 60 | 80
+        minHeight?: 'auto' | 'custom' | 'large' | 'medium' | 'screen' | 'small'
+        customMinHeight?: string
+        verticalAlign?: 'center' | 'end' | 'start'
+        maxWidth?: '2xl' | 'container' | 'full' | 'lg' | 'md' | 'sm' | 'xl'
+        paddingTop?: 'compact' | 'default' | 'none' | 'spacious'
       }
   > | null
 } | null
@@ -619,14 +5209,9 @@ export type AllPostsQueryResult = Array<{
   status: 'draft' | 'published'
   title: string
   slug: string
-  summary: null
+  summary: string | null
   coverImage: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -638,12 +5223,7 @@ export type AllPostsQueryResult = Array<{
     firstName: string
     lastName: string
     picture: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
+      asset?: SanityImageAssetReference
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
@@ -651,7 +5231,11 @@ export type AllPostsQueryResult = Array<{
       _type: 'image'
     }
   } | null
-  categories: null
+  categories: Array<{
+    _id: string
+    title: string
+    slug: string
+  }> | null
 }>
 
 // Source: sanity/lib/queries.ts
@@ -662,14 +5246,9 @@ export type MorePostsQueryResult = Array<{
   status: 'draft' | 'published'
   title: string
   slug: string
-  summary: null
+  summary: string | null
   coverImage: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -681,12 +5260,7 @@ export type MorePostsQueryResult = Array<{
     firstName: string
     lastName: string
     picture: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
+      asset?: SanityImageAssetReference
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
@@ -694,7 +5268,11 @@ export type MorePostsQueryResult = Array<{
       _type: 'image'
     }
   } | null
-  categories: null
+  categories: Array<{
+    _id: string
+    title: string
+    slug: string
+  }> | null
 }>
 
 // Source: sanity/lib/queries.ts
@@ -702,23 +5280,40 @@ export type MorePostsQueryResult = Array<{
 // Query: *[_type == "post" && slug.current == $slug] [0] {    content[]{    ...,    markDefs[]{      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }    }  },      _id,  "status": select(_originalId in path("drafts.**") => "draft", "published"),  "title": coalesce(title, "Untitled"),  "slug": slug.current,  summary,  coverImage,  "date": coalesce(date, _updatedAt),  "author": author->{firstName, lastName, picture},  "categories": categories[]->{ _id, title, "slug": slug.current },  }
 export type PostQueryResult = {
   content: Array<{
-    children?: Array<{
-      marks?: Array<string>
-      text?: string
-      _type: 'span'
-      _key: string
-    }>
+    children?: Array<
+      | ({
+          _key: string
+        } & ContentVariableInline)
+      | {
+          marks?: Array<string>
+          text?: string
+          _type: 'span'
+          _key: string
+        }
+    >
     style?: 'blockquote' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'normal'
     listItem?: 'bullet' | 'number'
     markDefs: Array<{
-      linkType?: 'href' | 'page' | 'post'
+      linkType?: 'href' | 'page' | 'post' | 'variable'
       href?: string
       page: string | null
       post: string | null
+      variable: {
+        _id: string
+        variableType: 'image' | 'link' | 'text'
+        linkValue: {
+          _type: 'link'
+          linkType?: 'href' | 'page' | 'post' | 'variable'
+          href?: string
+          page: string | null
+          post: string | null
+          variable?: ContentVariableReference
+          openInNewTab?: boolean
+        } | null
+      } | null
       openInNewTab?: boolean
       _type: 'link'
       _key: string
-      variable: null
     }> | null
     level?: number
     _type: 'block'
@@ -728,14 +5323,9 @@ export type PostQueryResult = {
   status: 'draft' | 'published'
   title: string
   slug: string
-  summary: null
+  summary: string | null
   coverImage: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -747,12 +5337,7 @@ export type PostQueryResult = {
     firstName: string
     lastName: string
     picture: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
+      asset?: SanityImageAssetReference
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
@@ -760,7 +5345,11 @@ export type PostQueryResult = {
       _type: 'image'
     }
   } | null
-  categories: null
+  categories: Array<{
+    _id: string
+    title: string
+    slug: string
+  }> | null
 } | null
 
 // Source: sanity/lib/queries.ts
@@ -785,14 +5374,9 @@ export type BlogGridAllPostsDateDescQueryResult = Array<{
   status: 'draft' | 'published'
   title: string
   slug: string
-  summary: null
+  summary: string | null
   coverImage: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -804,12 +5388,7 @@ export type BlogGridAllPostsDateDescQueryResult = Array<{
     firstName: string
     lastName: string
     picture: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
+      asset?: SanityImageAssetReference
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
@@ -817,7 +5396,11 @@ export type BlogGridAllPostsDateDescQueryResult = Array<{
       _type: 'image'
     }
   } | null
-  categories: null
+  categories: Array<{
+    _id: string
+    title: string
+    slug: string
+  }> | null
 }>
 
 // Source: sanity/lib/queries.ts
@@ -828,14 +5411,9 @@ export type BlogGridAllPostsDateAscQueryResult = Array<{
   status: 'draft' | 'published'
   title: string
   slug: string
-  summary: null
+  summary: string | null
   coverImage: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -847,12 +5425,7 @@ export type BlogGridAllPostsDateAscQueryResult = Array<{
     firstName: string
     lastName: string
     picture: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
+      asset?: SanityImageAssetReference
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
@@ -860,7 +5433,11 @@ export type BlogGridAllPostsDateAscQueryResult = Array<{
       _type: 'image'
     }
   } | null
-  categories: null
+  categories: Array<{
+    _id: string
+    title: string
+    slug: string
+  }> | null
 }>
 
 // Source: sanity/lib/queries.ts
@@ -871,14 +5448,9 @@ export type BlogGridAllPostsTitleDescQueryResult = Array<{
   status: 'draft' | 'published'
   title: string
   slug: string
-  summary: null
+  summary: string | null
   coverImage: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -890,12 +5462,7 @@ export type BlogGridAllPostsTitleDescQueryResult = Array<{
     firstName: string
     lastName: string
     picture: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
+      asset?: SanityImageAssetReference
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
@@ -903,7 +5470,11 @@ export type BlogGridAllPostsTitleDescQueryResult = Array<{
       _type: 'image'
     }
   } | null
-  categories: null
+  categories: Array<{
+    _id: string
+    title: string
+    slug: string
+  }> | null
 }>
 
 // Source: sanity/lib/queries.ts
@@ -914,14 +5485,9 @@ export type BlogGridAllPostsTitleAscQueryResult = Array<{
   status: 'draft' | 'published'
   title: string
   slug: string
-  summary: null
+  summary: string | null
   coverImage: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -933,12 +5499,7 @@ export type BlogGridAllPostsTitleAscQueryResult = Array<{
     firstName: string
     lastName: string
     picture: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
+      asset?: SanityImageAssetReference
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
@@ -946,7 +5507,11 @@ export type BlogGridAllPostsTitleAscQueryResult = Array<{
       _type: 'image'
     }
   } | null
-  categories: null
+  categories: Array<{
+    _id: string
+    title: string
+    slug: string
+  }> | null
 }>
 
 // Source: sanity/lib/queries.ts
@@ -957,14 +5522,9 @@ export type BlogGridByIdsQueryResult = Array<{
   status: 'draft' | 'published'
   title: string
   slug: string
-  summary: null
+  summary: string | null
   coverImage: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -976,12 +5536,7 @@ export type BlogGridByIdsQueryResult = Array<{
     firstName: string
     lastName: string
     picture: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
+      asset?: SanityImageAssetReference
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
@@ -989,7 +5544,11 @@ export type BlogGridByIdsQueryResult = Array<{
       _type: 'image'
     }
   } | null
-  categories: null
+  categories: Array<{
+    _id: string
+    title: string
+    slug: string
+  }> | null
 }>
 
 // Source: sanity/lib/queries.ts
@@ -1000,14 +5559,9 @@ export type BlogGridByCategoryDateDescQueryResult = Array<{
   status: 'draft' | 'published'
   title: string
   slug: string
-  summary: null
+  summary: string | null
   coverImage: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -1019,12 +5573,7 @@ export type BlogGridByCategoryDateDescQueryResult = Array<{
     firstName: string
     lastName: string
     picture: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
+      asset?: SanityImageAssetReference
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
@@ -1032,7 +5581,11 @@ export type BlogGridByCategoryDateDescQueryResult = Array<{
       _type: 'image'
     }
   } | null
-  categories: null
+  categories: Array<{
+    _id: string
+    title: string
+    slug: string
+  }> | null
 }>
 
 // Source: sanity/lib/queries.ts
@@ -1043,14 +5596,9 @@ export type BlogGridByCategoryDateAscQueryResult = Array<{
   status: 'draft' | 'published'
   title: string
   slug: string
-  summary: null
+  summary: string | null
   coverImage: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -1062,12 +5610,7 @@ export type BlogGridByCategoryDateAscQueryResult = Array<{
     firstName: string
     lastName: string
     picture: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
+      asset?: SanityImageAssetReference
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
@@ -1075,7 +5618,11 @@ export type BlogGridByCategoryDateAscQueryResult = Array<{
       _type: 'image'
     }
   } | null
-  categories: null
+  categories: Array<{
+    _id: string
+    title: string
+    slug: string
+  }> | null
 }>
 
 // Source: sanity/lib/queries.ts
@@ -1086,14 +5633,9 @@ export type BlogGridByCategoryTitleDescQueryResult = Array<{
   status: 'draft' | 'published'
   title: string
   slug: string
-  summary: null
+  summary: string | null
   coverImage: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -1105,12 +5647,7 @@ export type BlogGridByCategoryTitleDescQueryResult = Array<{
     firstName: string
     lastName: string
     picture: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
+      asset?: SanityImageAssetReference
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
@@ -1118,7 +5655,11 @@ export type BlogGridByCategoryTitleDescQueryResult = Array<{
       _type: 'image'
     }
   } | null
-  categories: null
+  categories: Array<{
+    _id: string
+    title: string
+    slug: string
+  }> | null
 }>
 
 // Source: sanity/lib/queries.ts
@@ -1129,14 +5670,9 @@ export type BlogGridByCategoryTitleAscQueryResult = Array<{
   status: 'draft' | 'published'
   title: string
   slug: string
-  summary: null
+  summary: string | null
   coverImage: {
-    asset?: {
-      _ref: string
-      _type: 'reference'
-      _weak?: boolean
-      [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-    }
+    asset?: SanityImageAssetReference
     media?: unknown
     hotspot?: SanityImageHotspot
     crop?: SanityImageCrop
@@ -1148,12 +5684,7 @@ export type BlogGridByCategoryTitleAscQueryResult = Array<{
     firstName: string
     lastName: string
     picture: {
-      asset?: {
-        _ref: string
-        _type: 'reference'
-        _weak?: boolean
-        [internalGroqTypeReferenceTo]?: 'sanity.imageAsset'
-      }
+      asset?: SanityImageAssetReference
       media?: unknown
       hotspot?: SanityImageHotspot
       crop?: SanityImageCrop
@@ -1161,13 +5692,1652 @@ export type BlogGridByCategoryTitleAscQueryResult = Array<{
       _type: 'image'
     }
   } | null
-  categories: null
+  categories: Array<{
+    _id: string
+    title: string
+    slug: string
+  }> | null
 }>
 
 // Source: sanity/lib/queries.ts
 // Variable: sectionTemplateQuery
 // Query: *[_type == "sectionTemplate" && _id == $id][0]{    _id,    _type,    name,    description,    category,    rows[]{      ...,        columns[]{    ...,      content[]{    ...,    _type == "headingBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } }    },    _type == "eyebrowBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } }    },    _type == "buttonBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } },        link {      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }      }    },    _type == "richTextBlock" => {        content[]{    ...,    // Expand inline content variables within block children    children[]{      ...,      _type == "contentVariableInline" => {        ...,        reference->{          _id,          name,          key,          variableType,          textValue        }      }    },    markDefs[]{      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }    }  }    },    _type == "inlineVideoBlock" => {      ...,      videoFile {        asset-> {          url        }      },      poster {        ...,        asset->      }    },    _type == "row" => {      ...,      columns[]{        ...,          content[]{    ...,    _type == "headingBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } }    },    _type == "eyebrowBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } }    },    _type == "buttonBlock" => {      ...,      text{   ...,  variableRef->{    _id,    name,    key,    variableType,    textValue  } },        link {      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }      }    },    _type == "richTextBlock" => {        content[]{    ...,    // Expand inline content variables within block children    children[]{      ...,      _type == "contentVariableInline" => {        ...,        reference->{          _id,          name,          key,          variableType,          textValue        }      }    },    markDefs[]{      ...,        "page": page->slug.current,  "post": post->slug.current,  variable->{    _id,    variableType,    linkValue{      ...,      "page": page->slug.current,      "post": post->slug.current    }  }    }  }    },    _type == "inlineVideoBlock" => {      ...,      videoFile {        asset-> {          url        }      },      poster {        ...,        asset->      }    }  }      }    }  }  }    },    backgroundColor,    minHeight,    verticalAlign,    maxWidth,    paddingTop  }
-export type SectionTemplateQueryResult = null
+export type SectionTemplateQueryResult = {
+  _id: string
+  _type: 'sectionTemplate'
+  name: string
+  description: string | null
+  category:
+    'content' | 'ctas' | 'faq' | 'features' | 'heroes' | 'other' | 'pricing' | 'testimonials' | null
+  rows: Array<
+    | {
+        _key: string
+        _type: 'buttonBlock'
+        text: SmartString
+        link: Link
+        variant?: 'ghost' | 'primary' | 'secondary'
+        color?: 'black' | 'brand' | 'white'
+        icon?: 'arrow-right' | 'download' | 'external' | 'none'
+        columns: null
+      }
+    | {
+        _key: string
+        _type: 'dividerBlock'
+        marginTop?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+        marginBottom?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+        color?: 'blue' | 'brand' | 'dark' | 'default' | 'light'
+        columns: null
+      }
+    | {
+        _key: string
+        _type: 'headingBlock'
+        text: SmartString
+        level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+        size?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'inherit'
+        align?: 'center' | 'left' | 'right'
+        color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+        customStyle?: string
+        columns: null
+      }
+    | {
+        _key: string
+        _type: 'imageBlock'
+        image: {
+          asset?: SanityImageAssetReference
+          media?: unknown
+          hotspot?: SanityImageHotspot
+          crop?: SanityImageCrop
+          _type: 'image'
+        }
+        alt: string
+        caption?: string
+        size?: 'full' | 'lg' | 'md' | 'sm' | 'thumb'
+        aspectRatio?:
+          | '1/1'
+          | '1\xD71'
+          | '16/9'
+          | '16\xD79'
+          | '16x9'
+          | '1x1'
+          | '3/4'
+          | '3\xD74'
+          | '3x4'
+          | '4/3'
+          | '4\xD73'
+          | '4x3'
+          | '9/16'
+          | '9\xD716'
+          | '9x16'
+          | 'original'
+        rounded?: 'full' | 'lg' | 'md' | 'none' | 'sm'
+        shadow?: boolean
+        columns: null
+      }
+    | {
+        _key: string
+        _type: 'richTextBlock'
+        content?: BlockContent
+        align?: 'center' | 'left' | 'right'
+        size?: 'base' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'inherit' | 'lg' | 'sm' | 'xl'
+        maxWidth?: 'none' | 'prose-lg' | 'prose-xl' | 'prose'
+        color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+        customStyle?: string
+        columns: null
+      }
+    | {
+        _key: string
+        _type: 'row'
+        columns: Array<{
+          _key: string
+          _type: 'column'
+          content: Array<
+            | {
+                _key: string
+                _type: 'accordionBlock'
+                items?: Array<{
+                  title: string
+                  content?: Array<
+                    | ({
+                        _key: string
+                      } & ButtonBlock)
+                    | ({
+                        _key: string
+                      } & DividerBlock)
+                    | ({
+                        _key: string
+                      } & HeadingBlock)
+                    | ({
+                        _key: string
+                      } & IconBlock)
+                    | ({
+                        _key: string
+                      } & ImageBlock)
+                    | ({
+                        _key: string
+                      } & RichTextBlock)
+                    | ({
+                        _key: string
+                      } & SpacerBlock)
+                  >
+                  defaultOpen?: boolean
+                  _type: 'accordionItem'
+                  _key: string
+                }>
+                allowMultiple?: boolean
+                titleStyle?: 'body' | 'h3' | 'h4' | 'h5'
+                dividers?: boolean
+              }
+            | {
+                _key: string
+                _type: 'blogGridBlock'
+                selectionMode?: 'all' | 'category' | 'specific'
+                specificPosts?: Array<
+                  {
+                    _key: string
+                  } & PostReference
+                >
+                category?: CategoryReference
+                limit?: number
+                sortBy?: 'date' | 'title'
+                sortOrder?: 'asc' | 'desc'
+                columnsDesktop?: '1' | '2' | '3' | '4'
+                columnsTablet?: '1' | '2' | '3' | '4' | 'inherit'
+                columnsMobile?: '1' | '2' | 'inherit'
+                gap?: '0' | '12' | '2' | '4' | '6' | '8'
+                customStyle?: string
+              }
+            | {
+                _key: string
+                _type: 'breadcrumbBlock'
+                items?: Array<{
+                  label: string
+                  link?: Link
+                  _type: 'breadcrumbItem'
+                  _key: string
+                }>
+                separator?: 'chevron' | 'slash'
+                align?: 'center' | 'left' | 'right'
+              }
+            | {
+                _key: string
+                _type: 'buttonBlock'
+                text: {
+                  _type: 'smartString'
+                  mode?: 'static' | 'variable'
+                  staticValue?: string
+                  variableRef: {
+                    _id: string
+                    name: string
+                    key: Slug
+                    variableType: 'image' | 'link' | 'text'
+                    textValue: string | null
+                  } | null
+                }
+                link: {
+                  _type: 'link'
+                  linkType?: 'href' | 'page' | 'post' | 'variable'
+                  href?: string
+                  page: string | null
+                  post: string | null
+                  variable: {
+                    _id: string
+                    variableType: 'image' | 'link' | 'text'
+                    linkValue: {
+                      _type: 'link'
+                      linkType?: 'href' | 'page' | 'post' | 'variable'
+                      href?: string
+                      page: string | null
+                      post: string | null
+                      variable?: ContentVariableReference
+                      openInNewTab?: boolean
+                    } | null
+                  } | null
+                  openInNewTab?: boolean
+                }
+                variant?: 'ghost' | 'primary' | 'secondary'
+                color?: 'black' | 'brand' | 'white'
+                icon?: 'arrow-right' | 'download' | 'external' | 'none'
+              }
+            | {
+                _key: string
+                _type: 'cardBlock'
+                content?: Array<
+                  | ({
+                      _key: string
+                    } & ButtonBlock)
+                  | ({
+                      _key: string
+                    } & DividerBlock)
+                  | ({
+                      _key: string
+                    } & HeadingBlock)
+                  | ({
+                      _key: string
+                    } & ImageBlock)
+                  | ({
+                      _key: string
+                    } & RichTextBlock)
+                  | ({
+                      _key: string
+                    } & SpacerBlock)
+                >
+                variant?: 'default' | 'filled' | 'ghost' | 'outline'
+                padding?: 'lg' | 'md' | 'none' | 'sm'
+                backgroundImage?: {
+                  asset?: SanityImageAssetReference
+                  media?: unknown
+                  hotspot?: SanityImageHotspot
+                  crop?: SanityImageCrop
+                  _type: 'image'
+                }
+                backgroundOverlay?: 0 | 20 | 40 | 60 | 80
+                href?: string
+                openInNewTab?: boolean
+                hoverEffect?: boolean
+              }
+            | {
+                _key: string
+                _type: 'contentWrap'
+                content?: Array<
+                  | ({
+                      _key: string
+                    } & AccordionBlock)
+                  | ({
+                      _key: string
+                    } & BreadcrumbBlock)
+                  | ({
+                      _key: string
+                    } & ButtonBlock)
+                  | ({
+                      _key: string
+                    } & CardBlock)
+                  | ({
+                      _key: string
+                    } & DividerBlock)
+                  | ({
+                      _key: string
+                    } & EyebrowBlock)
+                  | ({
+                      _key: string
+                    } & HeadingBlock)
+                  | ({
+                      _key: string
+                    } & IconBlock)
+                  | ({
+                      _key: string
+                    } & ImageBlock)
+                  | ({
+                      _key: string
+                    } & InlineVideoBlock)
+                  | ({
+                      _key: string
+                    } & MarqueeBlock)
+                  | ({
+                      _key: string
+                    } & ModalBlock)
+                  | ({
+                      _key: string
+                    } & RichTextBlock)
+                  | ({
+                      _key: string
+                    } & SliderBlock)
+                  | ({
+                      _key: string
+                    } & SpacerBlock)
+                  | ({
+                      _key: string
+                    } & TableBlock)
+                  | ({
+                      _key: string
+                    } & TabsBlock)
+                >
+                gap?: '0' | '2' | '4' | '6' | '8'
+                align?: 'center' | 'end' | 'start' | 'stretch'
+                customStyle?: string
+              }
+            | {
+                _key: string
+                _type: 'dividerBlock'
+                marginTop?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                marginBottom?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                color?: 'blue' | 'brand' | 'dark' | 'default' | 'light'
+              }
+            | {
+                _key: string
+                _type: 'eyebrowBlock'
+                text: {
+                  _type: 'smartString'
+                  mode?: 'static' | 'variable'
+                  staticValue?: string
+                  variableRef: {
+                    _id: string
+                    name: string
+                    key: Slug
+                    variableType: 'image' | 'link' | 'text'
+                    textValue: string | null
+                  } | null
+                }
+                variant?: 'overline' | 'pill' | 'text'
+                color?: 'blue' | 'brand' | 'default' | 'muted'
+                align?: 'center' | 'left' | 'right'
+                customStyle?: string
+              }
+            | {
+                _key: string
+                _type: 'headingBlock'
+                text: {
+                  _type: 'smartString'
+                  mode?: 'static' | 'variable'
+                  staticValue?: string
+                  variableRef: {
+                    _id: string
+                    name: string
+                    key: Slug
+                    variableType: 'image' | 'link' | 'text'
+                    textValue: string | null
+                  } | null
+                }
+                level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+                size?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'inherit'
+                align?: 'center' | 'left' | 'right'
+                color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+                customStyle?: string
+              }
+            | {
+                _key: string
+                _type: 'iconBlock'
+                icon:
+                  | 'anchor'
+                  | 'arrow-down'
+                  | 'arrow-left'
+                  | 'arrow-right'
+                  | 'arrow-up-right'
+                  | 'barbell'
+                  | 'boat'
+                  | 'calendar'
+                  | 'chart-line-up'
+                  | 'check-circle'
+                  | 'clock'
+                  | 'cloud'
+                  | 'code'
+                  | 'compass'
+                  | 'download'
+                  | 'envelope'
+                  | 'eye'
+                  | 'feather'
+                  | 'fire'
+                  | 'gear'
+                  | 'globe'
+                  | 'heart'
+                  | 'key'
+                  | 'leaf'
+                  | 'lightbulb-filament'
+                  | 'lightning'
+                  | 'link'
+                  | 'lock'
+                  | 'map-pin'
+                  | 'moon-stars'
+                  | 'moon'
+                  | 'palette'
+                  | 'pencil'
+                  | 'phone'
+                  | 'rocket'
+                  | 'shield-check'
+                  | 'shuffle-simple'
+                  | 'sparkle'
+                  | 'star'
+                  | 'sun'
+                  | 'target'
+                  | 'trash'
+                  | 'tree'
+                  | 'trophy'
+                  | 'upload'
+                  | 'users'
+                size?: 'lg' | 'md' | 'sm' | 'xl'
+                color?: 'black' | 'blue' | 'brand' | 'gray' | 'inherit'
+                align?: 'center' | 'left' | 'right'
+                marginBottom?: '0' | 'lg' | 'md' | 'sm'
+              }
+            | {
+                _key: string
+                _type: 'imageBlock'
+                image: {
+                  asset?: SanityImageAssetReference
+                  media?: unknown
+                  hotspot?: SanityImageHotspot
+                  crop?: SanityImageCrop
+                  _type: 'image'
+                }
+                alt: string
+                caption?: string
+                size?: 'full' | 'lg' | 'md' | 'sm' | 'thumb'
+                aspectRatio?:
+                  | '1/1'
+                  | '1\xD71'
+                  | '16/9'
+                  | '16\xD79'
+                  | '16x9'
+                  | '1x1'
+                  | '3/4'
+                  | '3\xD74'
+                  | '3x4'
+                  | '4/3'
+                  | '4\xD73'
+                  | '4x3'
+                  | '9/16'
+                  | '9\xD716'
+                  | '9x16'
+                  | 'original'
+                rounded?: 'full' | 'lg' | 'md' | 'none' | 'sm'
+                shadow?: boolean
+              }
+            | {
+                _key: string
+                _type: 'inlineVideoBlock'
+                videoFile: {
+                  asset: {
+                    url: string
+                  } | null
+                } | null
+                videoUrl?: string
+                poster: {
+                  asset: {
+                    _id: string
+                    _type: 'sanity.imageAsset'
+                    _createdAt: string
+                    _updatedAt: string
+                    _rev: string
+                    originalFilename?: string
+                    label?: string
+                    title?: string
+                    description?: string
+                    altText?: string
+                    sha1hash: string
+                    extension: string
+                    mimeType: string
+                    size: number
+                    assetId: string
+                    uploadId?: string
+                    path: string
+                    url: string
+                    metadata?: SanityImageMetadata
+                    source?: SanityAssetSourceData
+                  } | null
+                  media?: unknown
+                  hotspot?: SanityImageHotspot
+                  crop?: SanityImageCrop
+                  alt?: string
+                  _type: 'image'
+                } | null
+                aspectRatio?:
+                  | '1/1'
+                  | '1\xD71'
+                  | '16/9'
+                  | '16\xD79'
+                  | '16x9'
+                  | '1x1'
+                  | '21/9'
+                  | '21\xD79'
+                  | '21x9'
+                  | '4/3'
+                  | '4\xD73'
+                  | '4x3'
+                  | '9/16'
+                  | '9\xD716'
+                  | '9x16'
+                controlPosition?:
+                  'bottom-left' | 'bottom-right' | 'center' | 'top-left' | 'top-right'
+                showControls?: boolean
+                autoplayOnScroll?: boolean
+                loop?: boolean
+                muted?: boolean
+              }
+            | {
+                _key: string
+                _type: 'marqueeBlock'
+                items?: Array<
+                  | ({
+                      _key: string
+                    } & CardBlock)
+                  | ({
+                      _key: string
+                    } & HeadingBlock)
+                  | ({
+                      _key: string
+                    } & IconBlock)
+                  | ({
+                      _key: string
+                    } & ImageBlock)
+                  | ({
+                      _key: string
+                    } & RichTextBlock)
+                >
+                orientation?: 'horizontal' | 'vertical'
+                reverse?: boolean
+                pauseOnHover?: boolean
+                fadeEdges?: boolean
+                duration?: number
+                gap?: '16' | '24' | '32' | '48'
+                height?: '200' | '300' | '400' | 'auto'
+              }
+            | {
+                _key: string
+                _type: 'modalBlock'
+                triggerLabel: string
+                triggerVariant?: 'ghost' | 'primary' | 'secondary'
+                triggerColor?: 'black' | 'blue' | 'brand' | 'white'
+                contentType?: 'content' | 'video'
+                modalTitle?: string
+                content?: Array<
+                  | ({
+                      _key: string
+                    } & ButtonBlock)
+                  | ({
+                      _key: string
+                    } & DividerBlock)
+                  | ({
+                      _key: string
+                    } & HeadingBlock)
+                  | ({
+                      _key: string
+                    } & ImageBlock)
+                  | ({
+                      _key: string
+                    } & RichTextBlock)
+                  | ({
+                      _key: string
+                    } & SpacerBlock)
+                >
+                youtubeUrl?: string
+                modalSize?: 'full' | 'lg' | 'md' | 'sm' | 'xl'
+                modalId?: string
+              }
+            | {
+                _key: string
+                _type: 'richTextBlock'
+                content: Array<{
+                  children: Array<
+                    | {
+                        _key: string
+                        _type: 'contentVariableInline'
+                        reference: {
+                          _id: string
+                          name: string
+                          key: Slug
+                          variableType: 'image' | 'link' | 'text'
+                          textValue: string | null
+                        }
+                      }
+                    | {
+                        marks?: Array<string>
+                        text?: string
+                        _type: 'span'
+                        _key: string
+                      }
+                  > | null
+                  style?: 'blockquote' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'normal'
+                  listItem?: 'bullet' | 'number'
+                  markDefs: Array<{
+                    linkType?: 'href' | 'page' | 'post' | 'variable'
+                    href?: string
+                    page: string | null
+                    post: string | null
+                    variable: {
+                      _id: string
+                      variableType: 'image' | 'link' | 'text'
+                      linkValue: {
+                        _type: 'link'
+                        linkType?: 'href' | 'page' | 'post' | 'variable'
+                        href?: string
+                        page: string | null
+                        post: string | null
+                        variable?: ContentVariableReference
+                        openInNewTab?: boolean
+                      } | null
+                    } | null
+                    openInNewTab?: boolean
+                    _type: 'link'
+                    _key: string
+                  }> | null
+                  level?: number
+                  _type: 'block'
+                  _key: string
+                }> | null
+                align?: 'center' | 'left' | 'right'
+                size?:
+                  'base' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'inherit' | 'lg' | 'sm' | 'xl'
+                maxWidth?: 'none' | 'prose-lg' | 'prose-xl' | 'prose'
+                color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+                customStyle?: string
+              }
+            | {
+                _key: string
+                _type: 'row'
+                columns: Array<{
+                  _key: string
+                  _type: 'column'
+                  content: Array<
+                    | {
+                        _key: string
+                        _type: 'accordionBlock'
+                        items?: Array<{
+                          title: string
+                          content?: Array<
+                            | ({
+                                _key: string
+                              } & ButtonBlock)
+                            | ({
+                                _key: string
+                              } & DividerBlock)
+                            | ({
+                                _key: string
+                              } & HeadingBlock)
+                            | ({
+                                _key: string
+                              } & IconBlock)
+                            | ({
+                                _key: string
+                              } & ImageBlock)
+                            | ({
+                                _key: string
+                              } & RichTextBlock)
+                            | ({
+                                _key: string
+                              } & SpacerBlock)
+                          >
+                          defaultOpen?: boolean
+                          _type: 'accordionItem'
+                          _key: string
+                        }>
+                        allowMultiple?: boolean
+                        titleStyle?: 'body' | 'h3' | 'h4' | 'h5'
+                        dividers?: boolean
+                      }
+                    | {
+                        _key: string
+                        _type: 'blogGridBlock'
+                        selectionMode?: 'all' | 'category' | 'specific'
+                        specificPosts?: Array<
+                          {
+                            _key: string
+                          } & PostReference
+                        >
+                        category?: CategoryReference
+                        limit?: number
+                        sortBy?: 'date' | 'title'
+                        sortOrder?: 'asc' | 'desc'
+                        columnsDesktop?: '1' | '2' | '3' | '4'
+                        columnsTablet?: '1' | '2' | '3' | '4' | 'inherit'
+                        columnsMobile?: '1' | '2' | 'inherit'
+                        gap?: '0' | '12' | '2' | '4' | '6' | '8'
+                        customStyle?: string
+                      }
+                    | {
+                        _key: string
+                        _type: 'breadcrumbBlock'
+                        items?: Array<{
+                          label: string
+                          link?: Link
+                          _type: 'breadcrumbItem'
+                          _key: string
+                        }>
+                        separator?: 'chevron' | 'slash'
+                        align?: 'center' | 'left' | 'right'
+                      }
+                    | {
+                        _key: string
+                        _type: 'buttonBlock'
+                        text: {
+                          _type: 'smartString'
+                          mode?: 'static' | 'variable'
+                          staticValue?: string
+                          variableRef: {
+                            _id: string
+                            name: string
+                            key: Slug
+                            variableType: 'image' | 'link' | 'text'
+                            textValue: string | null
+                          } | null
+                        }
+                        link: {
+                          _type: 'link'
+                          linkType?: 'href' | 'page' | 'post' | 'variable'
+                          href?: string
+                          page: string | null
+                          post: string | null
+                          variable: {
+                            _id: string
+                            variableType: 'image' | 'link' | 'text'
+                            linkValue: {
+                              _type: 'link'
+                              linkType?: 'href' | 'page' | 'post' | 'variable'
+                              href?: string
+                              page: string | null
+                              post: string | null
+                              variable?: ContentVariableReference
+                              openInNewTab?: boolean
+                            } | null
+                          } | null
+                          openInNewTab?: boolean
+                        }
+                        variant?: 'ghost' | 'primary' | 'secondary'
+                        color?: 'black' | 'brand' | 'white'
+                        icon?: 'arrow-right' | 'download' | 'external' | 'none'
+                      }
+                    | {
+                        _key: string
+                        _type: 'cardBlock'
+                        content?: Array<
+                          | ({
+                              _key: string
+                            } & ButtonBlock)
+                          | ({
+                              _key: string
+                            } & DividerBlock)
+                          | ({
+                              _key: string
+                            } & HeadingBlock)
+                          | ({
+                              _key: string
+                            } & ImageBlock)
+                          | ({
+                              _key: string
+                            } & RichTextBlock)
+                          | ({
+                              _key: string
+                            } & SpacerBlock)
+                        >
+                        variant?: 'default' | 'filled' | 'ghost' | 'outline'
+                        padding?: 'lg' | 'md' | 'none' | 'sm'
+                        backgroundImage?: {
+                          asset?: SanityImageAssetReference
+                          media?: unknown
+                          hotspot?: SanityImageHotspot
+                          crop?: SanityImageCrop
+                          _type: 'image'
+                        }
+                        backgroundOverlay?: 0 | 20 | 40 | 60 | 80
+                        href?: string
+                        openInNewTab?: boolean
+                        hoverEffect?: boolean
+                      }
+                    | {
+                        _key: string
+                        _type: 'contentWrap'
+                        content?: Array<
+                          | ({
+                              _key: string
+                            } & AccordionBlock)
+                          | ({
+                              _key: string
+                            } & BreadcrumbBlock)
+                          | ({
+                              _key: string
+                            } & ButtonBlock)
+                          | ({
+                              _key: string
+                            } & CardBlock)
+                          | ({
+                              _key: string
+                            } & DividerBlock)
+                          | ({
+                              _key: string
+                            } & EyebrowBlock)
+                          | ({
+                              _key: string
+                            } & HeadingBlock)
+                          | ({
+                              _key: string
+                            } & IconBlock)
+                          | ({
+                              _key: string
+                            } & ImageBlock)
+                          | ({
+                              _key: string
+                            } & InlineVideoBlock)
+                          | ({
+                              _key: string
+                            } & MarqueeBlock)
+                          | ({
+                              _key: string
+                            } & ModalBlock)
+                          | ({
+                              _key: string
+                            } & RichTextBlock)
+                          | ({
+                              _key: string
+                            } & SliderBlock)
+                          | ({
+                              _key: string
+                            } & SpacerBlock)
+                          | ({
+                              _key: string
+                            } & TableBlock)
+                          | ({
+                              _key: string
+                            } & TabsBlock)
+                        >
+                        gap?: '0' | '2' | '4' | '6' | '8'
+                        align?: 'center' | 'end' | 'start' | 'stretch'
+                        customStyle?: string
+                      }
+                    | {
+                        _key: string
+                        _type: 'dividerBlock'
+                        marginTop?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                        marginBottom?: '0' | '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                        color?: 'blue' | 'brand' | 'dark' | 'default' | 'light'
+                      }
+                    | {
+                        _key: string
+                        _type: 'eyebrowBlock'
+                        text: {
+                          _type: 'smartString'
+                          mode?: 'static' | 'variable'
+                          staticValue?: string
+                          variableRef: {
+                            _id: string
+                            name: string
+                            key: Slug
+                            variableType: 'image' | 'link' | 'text'
+                            textValue: string | null
+                          } | null
+                        }
+                        variant?: 'overline' | 'pill' | 'text'
+                        color?: 'blue' | 'brand' | 'default' | 'muted'
+                        align?: 'center' | 'left' | 'right'
+                        customStyle?: string
+                      }
+                    | {
+                        _key: string
+                        _type: 'headingBlock'
+                        text: {
+                          _type: 'smartString'
+                          mode?: 'static' | 'variable'
+                          staticValue?: string
+                          variableRef: {
+                            _id: string
+                            name: string
+                            key: Slug
+                            variableType: 'image' | 'link' | 'text'
+                            textValue: string | null
+                          } | null
+                        }
+                        level?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'
+                        size?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'inherit'
+                        align?: 'center' | 'left' | 'right'
+                        color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+                        customStyle?: string
+                      }
+                    | {
+                        _key: string
+                        _type: 'iconBlock'
+                        icon:
+                          | 'anchor'
+                          | 'arrow-down'
+                          | 'arrow-left'
+                          | 'arrow-right'
+                          | 'arrow-up-right'
+                          | 'barbell'
+                          | 'boat'
+                          | 'calendar'
+                          | 'chart-line-up'
+                          | 'check-circle'
+                          | 'clock'
+                          | 'cloud'
+                          | 'code'
+                          | 'compass'
+                          | 'download'
+                          | 'envelope'
+                          | 'eye'
+                          | 'feather'
+                          | 'fire'
+                          | 'gear'
+                          | 'globe'
+                          | 'heart'
+                          | 'key'
+                          | 'leaf'
+                          | 'lightbulb-filament'
+                          | 'lightning'
+                          | 'link'
+                          | 'lock'
+                          | 'map-pin'
+                          | 'moon-stars'
+                          | 'moon'
+                          | 'palette'
+                          | 'pencil'
+                          | 'phone'
+                          | 'rocket'
+                          | 'shield-check'
+                          | 'shuffle-simple'
+                          | 'sparkle'
+                          | 'star'
+                          | 'sun'
+                          | 'target'
+                          | 'trash'
+                          | 'tree'
+                          | 'trophy'
+                          | 'upload'
+                          | 'users'
+                        size?: 'lg' | 'md' | 'sm' | 'xl'
+                        color?: 'black' | 'blue' | 'brand' | 'gray' | 'inherit'
+                        align?: 'center' | 'left' | 'right'
+                        marginBottom?: '0' | 'lg' | 'md' | 'sm'
+                      }
+                    | {
+                        _key: string
+                        _type: 'imageBlock'
+                        image: {
+                          asset?: SanityImageAssetReference
+                          media?: unknown
+                          hotspot?: SanityImageHotspot
+                          crop?: SanityImageCrop
+                          _type: 'image'
+                        }
+                        alt: string
+                        caption?: string
+                        size?: 'full' | 'lg' | 'md' | 'sm' | 'thumb'
+                        aspectRatio?:
+                          | '1/1'
+                          | '1\xD71'
+                          | '16/9'
+                          | '16\xD79'
+                          | '16x9'
+                          | '1x1'
+                          | '3/4'
+                          | '3\xD74'
+                          | '3x4'
+                          | '4/3'
+                          | '4\xD73'
+                          | '4x3'
+                          | '9/16'
+                          | '9\xD716'
+                          | '9x16'
+                          | 'original'
+                        rounded?: 'full' | 'lg' | 'md' | 'none' | 'sm'
+                        shadow?: boolean
+                      }
+                    | {
+                        _key: string
+                        _type: 'inlineVideoBlock'
+                        videoFile: {
+                          asset: {
+                            url: string
+                          } | null
+                        } | null
+                        videoUrl?: string
+                        poster: {
+                          asset: {
+                            _id: string
+                            _type: 'sanity.imageAsset'
+                            _createdAt: string
+                            _updatedAt: string
+                            _rev: string
+                            originalFilename?: string
+                            label?: string
+                            title?: string
+                            description?: string
+                            altText?: string
+                            sha1hash: string
+                            extension: string
+                            mimeType: string
+                            size: number
+                            assetId: string
+                            uploadId?: string
+                            path: string
+                            url: string
+                            metadata?: SanityImageMetadata
+                            source?: SanityAssetSourceData
+                          } | null
+                          media?: unknown
+                          hotspot?: SanityImageHotspot
+                          crop?: SanityImageCrop
+                          alt?: string
+                          _type: 'image'
+                        } | null
+                        aspectRatio?:
+                          | '1/1'
+                          | '1\xD71'
+                          | '16/9'
+                          | '16\xD79'
+                          | '16x9'
+                          | '1x1'
+                          | '21/9'
+                          | '21\xD79'
+                          | '21x9'
+                          | '4/3'
+                          | '4\xD73'
+                          | '4x3'
+                          | '9/16'
+                          | '9\xD716'
+                          | '9x16'
+                        controlPosition?:
+                          'bottom-left' | 'bottom-right' | 'center' | 'top-left' | 'top-right'
+                        showControls?: boolean
+                        autoplayOnScroll?: boolean
+                        loop?: boolean
+                        muted?: boolean
+                      }
+                    | {
+                        _key: string
+                        _type: 'marqueeBlock'
+                        items?: Array<
+                          | ({
+                              _key: string
+                            } & CardBlock)
+                          | ({
+                              _key: string
+                            } & HeadingBlock)
+                          | ({
+                              _key: string
+                            } & IconBlock)
+                          | ({
+                              _key: string
+                            } & ImageBlock)
+                          | ({
+                              _key: string
+                            } & RichTextBlock)
+                        >
+                        orientation?: 'horizontal' | 'vertical'
+                        reverse?: boolean
+                        pauseOnHover?: boolean
+                        fadeEdges?: boolean
+                        duration?: number
+                        gap?: '16' | '24' | '32' | '48'
+                        height?: '200' | '300' | '400' | 'auto'
+                      }
+                    | {
+                        _key: string
+                        _type: 'modalBlock'
+                        triggerLabel: string
+                        triggerVariant?: 'ghost' | 'primary' | 'secondary'
+                        triggerColor?: 'black' | 'blue' | 'brand' | 'white'
+                        contentType?: 'content' | 'video'
+                        modalTitle?: string
+                        content?: Array<
+                          | ({
+                              _key: string
+                            } & ButtonBlock)
+                          | ({
+                              _key: string
+                            } & DividerBlock)
+                          | ({
+                              _key: string
+                            } & HeadingBlock)
+                          | ({
+                              _key: string
+                            } & ImageBlock)
+                          | ({
+                              _key: string
+                            } & RichTextBlock)
+                          | ({
+                              _key: string
+                            } & SpacerBlock)
+                        >
+                        youtubeUrl?: string
+                        modalSize?: 'full' | 'lg' | 'md' | 'sm' | 'xl'
+                        modalId?: string
+                      }
+                    | {
+                        _key: string
+                        _type: 'richTextBlock'
+                        content: Array<{
+                          children: Array<
+                            | {
+                                _key: string
+                                _type: 'contentVariableInline'
+                                reference: {
+                                  _id: string
+                                  name: string
+                                  key: Slug
+                                  variableType: 'image' | 'link' | 'text'
+                                  textValue: string | null
+                                }
+                              }
+                            | {
+                                marks?: Array<string>
+                                text?: string
+                                _type: 'span'
+                                _key: string
+                              }
+                          > | null
+                          style?: 'blockquote' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'normal'
+                          listItem?: 'bullet' | 'number'
+                          markDefs: Array<{
+                            linkType?: 'href' | 'page' | 'post' | 'variable'
+                            href?: string
+                            page: string | null
+                            post: string | null
+                            variable: {
+                              _id: string
+                              variableType: 'image' | 'link' | 'text'
+                              linkValue: {
+                                _type: 'link'
+                                linkType?: 'href' | 'page' | 'post' | 'variable'
+                                href?: string
+                                page: string | null
+                                post: string | null
+                                variable?: ContentVariableReference
+                                openInNewTab?: boolean
+                              } | null
+                            } | null
+                            openInNewTab?: boolean
+                            _type: 'link'
+                            _key: string
+                          }> | null
+                          level?: number
+                          _type: 'block'
+                          _key: string
+                        }> | null
+                        align?: 'center' | 'left' | 'right'
+                        size?:
+                          | 'base'
+                          | 'h1'
+                          | 'h2'
+                          | 'h3'
+                          | 'h4'
+                          | 'h5'
+                          | 'h6'
+                          | 'inherit'
+                          | 'lg'
+                          | 'sm'
+                          | 'xl'
+                        maxWidth?: 'none' | 'prose-lg' | 'prose-xl' | 'prose'
+                        color?: 'blue' | 'brand' | 'default' | 'gray' | 'white'
+                        customStyle?: string
+                      }
+                    | {
+                        _key: string
+                        _type: 'row'
+                        columns?: Array<
+                          {
+                            _key: string
+                          } & Column
+                        >
+                        horizontalAlign?:
+                          'around' | 'between' | 'center' | 'end' | 'evenly' | 'start'
+                        verticalAlign?:
+                          'baseline' | 'between' | 'center' | 'end' | 'start' | 'stretch'
+                        gap?: '0' | '12' | '2' | '4' | '6' | '8'
+                        wrap?: boolean
+                        reverseOnMobile?: boolean
+                        customStyle?: string
+                      }
+                    | {
+                        _key: string
+                        _type: 'sliderBlock'
+                        slides?: Array<{
+                          image: ImageSlideImage
+                          alt?: string
+                          caption?: string
+                          _type: 'imageSlide'
+                          _key: string
+                        }>
+                        slidesPerViewDesktop?: 1 | 2 | 3 | 4 | 5 | 6
+                        slidesPerViewTablet?: 1 | 2 | 3 | 4
+                        slidesPerViewMobile?: 1 | 2
+                        gap?: '0' | '2' | '4' | '6' | '8'
+                        aspectRatio?:
+                          | '1/1'
+                          | '1\xD71'
+                          | '16/9'
+                          | '16\xD79'
+                          | '16x9'
+                          | '1x1'
+                          | '3/4'
+                          | '3\xD74'
+                          | '3x4'
+                          | '4/3'
+                          | '4\xD73'
+                          | '4x3'
+                          | '9/16'
+                          | '9\xD716'
+                          | '9x16'
+                          | 'original'
+                        autoplay?: boolean
+                        autoplayDelay?: number
+                        loop?: boolean
+                        showNavigation?: boolean
+                        navigationPosition?: 'below' | 'overlay-center' | 'overlay-edges' | 'sides'
+                        showPagination?: boolean
+                        effect?: 'fade' | 'slide'
+                        speed?: number
+                        centeredSlides?: boolean
+                        overflowVisible?: boolean
+                      }
+                    | {
+                        _key: string
+                        _type: 'spacerBlock'
+                        sizeDesktop?: '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                        sizeMobile?: '12' | '16' | '2' | '24' | '4' | '6' | '8' | 'inherit'
+                      }
+                    | {
+                        _key: string
+                        _type: 'tableBlock'
+                        columns?: Array<{
+                          header: string
+                          align?: 'center' | 'left' | 'right'
+                          _type: 'tableColumn'
+                          _key: string
+                        }>
+                        rows?: Array<{
+                          cells?: Array<{
+                            content?: string
+                            _type: 'tableCell'
+                            _key: string
+                          }>
+                          _type: 'tableRow'
+                          _key: string
+                        }>
+                        variant?: 'bordered' | 'default' | 'striped'
+                        showHeader?: boolean
+                        caption?: string
+                      }
+                    | {
+                        _key: string
+                        _type: 'tabsBlock'
+                        tabs?: Array<{
+                          label: string
+                          content?: Array<
+                            | ({
+                                _key: string
+                              } & ButtonBlock)
+                            | ({
+                                _key: string
+                              } & CardBlock)
+                            | ({
+                                _key: string
+                              } & DividerBlock)
+                            | ({
+                                _key: string
+                              } & EyebrowBlock)
+                            | ({
+                                _key: string
+                              } & HeadingBlock)
+                            | ({
+                                _key: string
+                              } & IconBlock)
+                            | ({
+                                _key: string
+                              } & ImageBlock)
+                            | ({
+                                _key: string
+                              } & RichTextBlock)
+                            | ({
+                                _key: string
+                              } & Row)
+                            | ({
+                                _key: string
+                              } & SpacerBlock)
+                            | ({
+                                _key: string
+                              } & TableBlock)
+                          >
+                          _type: 'tabItem'
+                          _key: string
+                        }>
+                        orientation?: 'horizontal' | 'vertical'
+                        menuPosition?: 'above' | 'below' | 'left' | 'right'
+                        mobileDropdown?: boolean
+                        contentGap?: '0' | '12' | '2' | '4' | '6' | '8'
+                        defaultTab?: string
+                        autoplay?: boolean
+                        autoplayDuration?: number
+                        pauseOnHover?: boolean
+                        showProgress?: boolean
+                      }
+                  > | null
+                  widthDesktop?:
+                    | '1'
+                    | '10'
+                    | '11'
+                    | '12'
+                    | '2'
+                    | '3'
+                    | '4'
+                    | '5'
+                    | '6'
+                    | '7'
+                    | '8'
+                    | '9'
+                    | 'auto'
+                    | 'fill'
+                  widthTablet?:
+                    | '1'
+                    | '10'
+                    | '11'
+                    | '12'
+                    | '2'
+                    | '3'
+                    | '4'
+                    | '5'
+                    | '6'
+                    | '7'
+                    | '8'
+                    | '9'
+                    | 'auto'
+                    | 'fill'
+                    | 'inherit'
+                  widthMobile?:
+                    | '1'
+                    | '10'
+                    | '11'
+                    | '12'
+                    | '2'
+                    | '3'
+                    | '4'
+                    | '5'
+                    | '6'
+                    | '7'
+                    | '8'
+                    | '9'
+                    | 'auto'
+                    | 'fill'
+                    | 'inherit'
+                  verticalAlign?: 'between' | 'center' | 'end' | 'start'
+                  padding?: '0' | '2' | '4' | '6' | '8'
+                  customStyle?: string
+                }> | null
+                horizontalAlign?: 'around' | 'between' | 'center' | 'end' | 'evenly' | 'start'
+                verticalAlign?: 'baseline' | 'between' | 'center' | 'end' | 'start' | 'stretch'
+                gap?: '0' | '12' | '2' | '4' | '6' | '8'
+                wrap?: boolean
+                reverseOnMobile?: boolean
+                customStyle?: string
+              }
+            | {
+                _key: string
+                _type: 'sliderBlock'
+                slides?: Array<{
+                  image: ImageSlideImage
+                  alt?: string
+                  caption?: string
+                  _type: 'imageSlide'
+                  _key: string
+                }>
+                slidesPerViewDesktop?: 1 | 2 | 3 | 4 | 5 | 6
+                slidesPerViewTablet?: 1 | 2 | 3 | 4
+                slidesPerViewMobile?: 1 | 2
+                gap?: '0' | '2' | '4' | '6' | '8'
+                aspectRatio?:
+                  | '1/1'
+                  | '1\xD71'
+                  | '16/9'
+                  | '16\xD79'
+                  | '16x9'
+                  | '1x1'
+                  | '3/4'
+                  | '3\xD74'
+                  | '3x4'
+                  | '4/3'
+                  | '4\xD73'
+                  | '4x3'
+                  | '9/16'
+                  | '9\xD716'
+                  | '9x16'
+                  | 'original'
+                autoplay?: boolean
+                autoplayDelay?: number
+                loop?: boolean
+                showNavigation?: boolean
+                navigationPosition?: 'below' | 'overlay-center' | 'overlay-edges' | 'sides'
+                showPagination?: boolean
+                effect?: 'fade' | 'slide'
+                speed?: number
+                centeredSlides?: boolean
+                overflowVisible?: boolean
+              }
+            | {
+                _key: string
+                _type: 'spacerBlock'
+                sizeDesktop?: '12' | '16' | '2' | '24' | '4' | '6' | '8'
+                sizeMobile?: '12' | '16' | '2' | '24' | '4' | '6' | '8' | 'inherit'
+              }
+            | {
+                _key: string
+                _type: 'tableBlock'
+                columns?: Array<{
+                  header: string
+                  align?: 'center' | 'left' | 'right'
+                  _type: 'tableColumn'
+                  _key: string
+                }>
+                rows?: Array<{
+                  cells?: Array<{
+                    content?: string
+                    _type: 'tableCell'
+                    _key: string
+                  }>
+                  _type: 'tableRow'
+                  _key: string
+                }>
+                variant?: 'bordered' | 'default' | 'striped'
+                showHeader?: boolean
+                caption?: string
+              }
+            | {
+                _key: string
+                _type: 'tabsBlock'
+                tabs?: Array<{
+                  label: string
+                  content?: Array<
+                    | ({
+                        _key: string
+                      } & ButtonBlock)
+                    | ({
+                        _key: string
+                      } & CardBlock)
+                    | ({
+                        _key: string
+                      } & DividerBlock)
+                    | ({
+                        _key: string
+                      } & EyebrowBlock)
+                    | ({
+                        _key: string
+                      } & HeadingBlock)
+                    | ({
+                        _key: string
+                      } & IconBlock)
+                    | ({
+                        _key: string
+                      } & ImageBlock)
+                    | ({
+                        _key: string
+                      } & RichTextBlock)
+                    | ({
+                        _key: string
+                      } & Row)
+                    | ({
+                        _key: string
+                      } & SpacerBlock)
+                    | ({
+                        _key: string
+                      } & TableBlock)
+                  >
+                  _type: 'tabItem'
+                  _key: string
+                }>
+                orientation?: 'horizontal' | 'vertical'
+                menuPosition?: 'above' | 'below' | 'left' | 'right'
+                mobileDropdown?: boolean
+                contentGap?: '0' | '12' | '2' | '4' | '6' | '8'
+                defaultTab?: string
+                autoplay?: boolean
+                autoplayDuration?: number
+                pauseOnHover?: boolean
+                showProgress?: boolean
+              }
+          > | null
+          widthDesktop?:
+            | '1'
+            | '10'
+            | '11'
+            | '12'
+            | '2'
+            | '3'
+            | '4'
+            | '5'
+            | '6'
+            | '7'
+            | '8'
+            | '9'
+            | 'auto'
+            | 'fill'
+          widthTablet?:
+            | '1'
+            | '10'
+            | '11'
+            | '12'
+            | '2'
+            | '3'
+            | '4'
+            | '5'
+            | '6'
+            | '7'
+            | '8'
+            | '9'
+            | 'auto'
+            | 'fill'
+            | 'inherit'
+          widthMobile?:
+            | '1'
+            | '10'
+            | '11'
+            | '12'
+            | '2'
+            | '3'
+            | '4'
+            | '5'
+            | '6'
+            | '7'
+            | '8'
+            | '9'
+            | 'auto'
+            | 'fill'
+            | 'inherit'
+          verticalAlign?: 'between' | 'center' | 'end' | 'start'
+          padding?: '0' | '2' | '4' | '6' | '8'
+          customStyle?: string
+        }> | null
+        horizontalAlign?: 'around' | 'between' | 'center' | 'end' | 'evenly' | 'start'
+        verticalAlign?: 'baseline' | 'between' | 'center' | 'end' | 'start' | 'stretch'
+        gap?: '0' | '12' | '2' | '4' | '6' | '8'
+        wrap?: boolean
+        reverseOnMobile?: boolean
+        customStyle?: string
+      }
+    | {
+        _key: string
+        _type: 'sliderBlock'
+        slides?: Array<{
+          image: ImageSlideImage
+          alt?: string
+          caption?: string
+          _type: 'imageSlide'
+          _key: string
+        }>
+        slidesPerViewDesktop?: 1 | 2 | 3 | 4 | 5 | 6
+        slidesPerViewTablet?: 1 | 2 | 3 | 4
+        slidesPerViewMobile?: 1 | 2
+        gap?: '0' | '2' | '4' | '6' | '8'
+        aspectRatio?:
+          | '1/1'
+          | '1\xD71'
+          | '16/9'
+          | '16\xD79'
+          | '16x9'
+          | '1x1'
+          | '3/4'
+          | '3\xD74'
+          | '3x4'
+          | '4/3'
+          | '4\xD73'
+          | '4x3'
+          | '9/16'
+          | '9\xD716'
+          | '9x16'
+          | 'original'
+        autoplay?: boolean
+        autoplayDelay?: number
+        loop?: boolean
+        showNavigation?: boolean
+        navigationPosition?: 'below' | 'overlay-center' | 'overlay-edges' | 'sides'
+        showPagination?: boolean
+        effect?: 'fade' | 'slide'
+        speed?: number
+        centeredSlides?: boolean
+        overflowVisible?: boolean
+        columns: null
+      }
+    | {
+        _key: string
+        _type: 'spacerBlock'
+        sizeDesktop?: '12' | '16' | '2' | '24' | '4' | '6' | '8'
+        sizeMobile?: '12' | '16' | '2' | '24' | '4' | '6' | '8' | 'inherit'
+        columns: null
+      }
+    | {
+        _key: string
+        _type: 'tabsBlock'
+        tabs?: Array<{
+          label: string
+          content?: Array<
+            | ({
+                _key: string
+              } & ButtonBlock)
+            | ({
+                _key: string
+              } & CardBlock)
+            | ({
+                _key: string
+              } & DividerBlock)
+            | ({
+                _key: string
+              } & EyebrowBlock)
+            | ({
+                _key: string
+              } & HeadingBlock)
+            | ({
+                _key: string
+              } & IconBlock)
+            | ({
+                _key: string
+              } & ImageBlock)
+            | ({
+                _key: string
+              } & RichTextBlock)
+            | ({
+                _key: string
+              } & Row)
+            | ({
+                _key: string
+              } & SpacerBlock)
+            | ({
+                _key: string
+              } & TableBlock)
+          >
+          _type: 'tabItem'
+          _key: string
+        }>
+        orientation?: 'horizontal' | 'vertical'
+        menuPosition?: 'above' | 'below' | 'left' | 'right'
+        mobileDropdown?: boolean
+        contentGap?: '0' | '12' | '2' | '4' | '6' | '8'
+        defaultTab?: string
+        autoplay?: boolean
+        autoplayDuration?: number
+        pauseOnHover?: boolean
+        showProgress?: boolean
+        columns: null
+      }
+  > | null
+  backgroundColor: 'primary' | 'secondary' | null
+  minHeight: 'auto' | 'large' | 'medium' | 'screen' | 'small' | null
+  verticalAlign: 'center' | 'end' | 'start' | null
+  maxWidth: '2xl' | 'container' | 'full' | 'lg' | 'md' | 'sm' | 'xl' | null
+  paddingTop: 'compact' | 'default' | 'none' | 'spacious' | null
+} | null
 
 // Query TypeMap
 import '@sanity/client'

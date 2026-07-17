@@ -54,25 +54,23 @@ Mast CSS assumes specific parent-child relationships. We use the **static/clean 
 The Webflow export uses verbose hierarchical naming for UI organization. In code, we can simplify while maintaining clarity.
 
 **Typography Variables:**
+
 ```css
 /* Before (Webflow) */
---_typography---h1--font-size: ...
---_typography---h1--line-height: 1;
+--_typography---h1--font-size: ... --_typography---h1--line-height: 1;
 --_typography---h1--font-weight: 500;
---_typography---h1--letter-spacing: -.02em;
---_typography---h1--bottom-margin: .2em;
---_typography---paragraph-body--font-size: ...
-
-/* After (Simplified) */
---type-h1-size: ...
---type-h1-leading: 1;
+--_typography---h1--letter-spacing: -0.02em;
+--_typography---h1--bottom-margin: 0.2em;
+--_typography---paragraph-body--font-size: ... /* After (Simplified) */ --type-h1-size: ...
+  --type-h1-leading: 1;
 --type-h1-weight: 500;
 --type-h1-tracking: -0.02em;
 --type-h1-margin: 0.2em;
---type-body-size: ...
+--type-body-size: ...;
 ```
 
 **Color Variables:**
+
 ```css
 /* Before (Webflow) */
 --_color---neutral--white: white;
@@ -88,21 +86,21 @@ The Webflow export uses verbose hierarchical naming for UI organization. In code
 ```
 
 **Component Variables:**
+
 ```css
 /* Before (Webflow) */
---_components---section--padding: ...
---_components---container--gutter: 6vw;
+--_components---section--padding: ... --_components---container--gutter: 6vw;
 --_components---button--vertical-padding: 0.7em;
 --_components---card--border-radius: 0.5rem;
 
 /* After (Simplified) */
---section-padding: ...
---container-gutter: 6vw;
+--section-padding: ... --container-gutter: 6vw;
 --button-padding-y: 0.7em;
 --card-radius: 0.5rem;
 ```
 
 **Layout Variables:**
+
 ```css
 /* Before (Webflow) */
 --_layout---grid--gap-main: 40px;
@@ -151,11 +149,11 @@ Structure the `:root` block with clear section comments:
   /* ==============================================
      TYPOGRAPHY - Font sizing and spacing
      ============================================== */
-  --font-family: "General Sans", Arial, sans-serif;
+  --font-family: 'General Sans', Arial, sans-serif;
 
   /* Fluid scale bounds */
-  --fluid-min: 20;  /* rem */
-  --fluid-max: 90;  /* rem */
+  --fluid-min: 20; /* rem */
+  --fluid-max: 90; /* rem */
 
   /* H1 */
   --type-h1-size: clamp(2.8rem, calc(2.03rem + 3.86vw), 5.5rem);
@@ -216,12 +214,14 @@ Structure the `:root` block with clear section comments:
 **Delete these patterns entirely:**
 
 1. **Deleted variable references:**
+
    ```css
    /* Remove */
    --_size---0rem\<deleted\|variable-76ad6b20-ba74-e8a2-27f3-884949ddcd06\>: 0rem;
    ```
 
 2. **Webflow-specific classes:**
+
    ```css
    /* Remove */
    .w-form-formradioinput--inputType-custom { ... }
@@ -245,6 +245,7 @@ Structure the `:root` block with clear section comments:
 The `:where(.w-variant-xxx)` selectors are Webflow's component variant system. These need semantic names.
 
 **Section Variants:**
+
 ```css
 /* Before */
 .section:where(.w-variant-ffdae436-6d76-12b6-39d6-0e4201c47aad) {
@@ -258,6 +259,7 @@ The `:where(.w-variant-xxx)` selectors are Webflow's component variant system. T
 ```
 
 **Row Alignment Variants:**
+
 ```css
 /* Before */
 .row:where(.w-variant-478364d0-b9a1-9a8d-3561-fc2372ac7598) {
@@ -268,14 +270,25 @@ The `:where(.w-variant-xxx)` selectors are Webflow's component variant system. T
 }
 
 /* After - Use modifier classes */
-.row.row-justify-center { justify-content: center; }
-.row.row-justify-between { justify-content: space-between; }
-.row.row-justify-end { justify-content: flex-end; }
-.row.row-align-center { align-items: center; }
-.row.row-align-end { align-items: flex-end; }
+.row.row-justify-center {
+  justify-content: center;
+}
+.row.row-justify-between {
+  justify-content: space-between;
+}
+.row.row-justify-end {
+  justify-content: flex-end;
+}
+.row.row-align-center {
+  align-items: center;
+}
+.row.row-align-end {
+  align-items: flex-end;
+}
 ```
 
 **Column Width Variants:**
+
 ```css
 /* Before */
 .col:where(.w-variant-28e74f51-d7e2-a771-32c6-dda728ccfa16) {
@@ -290,6 +303,7 @@ The `:where(.w-variant-xxx)` selectors are Webflow's component variant system. T
 ```
 
 **Button Variants:**
+
 ```css
 /* Before */
 .button:where(.w-variant-052759b4-b398-e98d-c28c-099b380d4426) {
@@ -309,6 +323,7 @@ The `:where(.w-variant-xxx)` selectors are Webflow's component variant system. T
 ```
 
 **Image Position Variants:**
+
 ```css
 /* Before */
 .u-img-cover:where(.w-variant-109354ec-e18b-6d34-fc97-2bd60ed75688) {
@@ -316,36 +331,52 @@ The `:where(.w-variant-xxx)` selectors are Webflow's component variant system. T
 }
 
 /* After */
-.u-img-cover.cc-top-left { object-position: 0% 0%; }
-.u-img-cover.cc-top-center { object-position: 50% 0%; }
-.u-img-cover.cc-top-right { object-position: 100% 0%; }
-.u-img-cover.cc-center-left { object-position: 0% 50%; }
-.u-img-cover.cc-center-right { object-position: 100% 50%; }
-.u-img-cover.cc-bottom-left { object-position: 0% 100%; }
-.u-img-cover.cc-bottom-center { object-position: 50% 100%; }
-.u-img-cover.cc-bottom-right { object-position: 100% 100%; }
+.u-img-cover.cc-top-left {
+  object-position: 0% 0%;
+}
+.u-img-cover.cc-top-center {
+  object-position: 50% 0%;
+}
+.u-img-cover.cc-top-right {
+  object-position: 100% 0%;
+}
+.u-img-cover.cc-center-left {
+  object-position: 0% 50%;
+}
+.u-img-cover.cc-center-right {
+  object-position: 100% 50%;
+}
+.u-img-cover.cc-bottom-left {
+  object-position: 0% 100%;
+}
+.u-img-cover.cc-bottom-center {
+  object-position: 50% 100%;
+}
+.u-img-cover.cc-bottom-right {
+  object-position: 100% 100%;
+}
 ```
 
 ### 2.2 Complete Variant Mapping Reference
 
-| Webflow Variant ID | Semantic Class | Purpose |
-|--------------------|----------------|---------|
-| Section variants | `.section.cc-muted` | Light gray / dark gray background |
-| Section variants | `.section.cc-invert` | Inverted dark / light background |
-| Container variants | `.container.cc-full` | Full-width (no max-width) |
-| Row variants | `.row.row-justify-*` | Horizontal alignment |
-| Row variants | `.row.row-align-*` | Vertical alignment |
-| Row variants | `.row.row-gap-*` | Gap size overrides |
-| Column variants | `.col.col-lg-{1-12}` | Desktop column widths |
-| Column variants | `.col.col-md-{1-12}` | Tablet column widths |
-| Column variants | `.col.col-shrink` | Width of content only |
-| Button variants | `.button.cc-secondary` | Outline style |
-| Button variants | `.button.cc-ghost` | Text-only style |
-| Card variants | `.card.cc-hover` | Hover background change |
-| Icon variants | `.icon.cc-sm/md/lg` | Size variants |
-| Icon color variants | `.icon-color.cc-brand/yellow/blue` | Color variants |
-| Image variants | `.img-component.cc-{ratio}` | Aspect ratios |
-| Rich text variants | `.rich-text.cc-sm/lg/xl` | Font size variants |
+| Webflow Variant ID  | Semantic Class                     | Purpose                           |
+| ------------------- | ---------------------------------- | --------------------------------- |
+| Section variants    | `.section.cc-muted`                | Light gray / dark gray background |
+| Section variants    | `.section.cc-invert`               | Inverted dark / light background  |
+| Container variants  | `.container.cc-full`               | Full-width (no max-width)         |
+| Row variants        | `.row.row-justify-*`               | Horizontal alignment              |
+| Row variants        | `.row.row-align-*`                 | Vertical alignment                |
+| Row variants        | `.row.row-gap-*`                   | Gap size overrides                |
+| Column variants     | `.col.col-lg-{1-12}`               | Desktop column widths             |
+| Column variants     | `.col.col-md-{1-12}`               | Tablet column widths              |
+| Column variants     | `.col.col-shrink`                  | Width of content only             |
+| Button variants     | `.button.cc-secondary`             | Outline style                     |
+| Button variants     | `.button.cc-ghost`                 | Text-only style                   |
+| Card variants       | `.card.cc-hover`                   | Hover background change           |
+| Icon variants       | `.icon.cc-sm/md/lg`                | Size variants                     |
+| Icon color variants | `.icon-color.cc-brand/yellow/blue` | Color variants                    |
+| Image variants      | `.img-component.cc-{ratio}`        | Aspect ratios                     |
+| Rich text variants  | `.rich-text.cc-sm/lg/xl`           | Font size variants                |
 
 ---
 
@@ -357,14 +388,20 @@ Convert pixel-based breakpoints to rem (assuming 16px base):
 
 ```css
 /* Before (px) */
-@media screen and (max-width: 991px) { }
-@media screen and (max-width: 767px) { }
-@media screen and (max-width: 479px) { }
+@media screen and (max-width: 991px) {
+}
+@media screen and (max-width: 767px) {
+}
+@media screen and (max-width: 479px) {
+}
 
 /* After (rem) - More accessible */
-@media screen and (max-width: 61.9375rem) { }  /* 991px / 16 */
-@media screen and (max-width: 47.9375rem) { }  /* 767px / 16 */
-@media screen and (max-width: 29.9375rem) { }  /* 479px / 16 */
+@media screen and (max-width: 61.9375rem) {
+} /* 991px / 16 */
+@media screen and (max-width: 47.9375rem) {
+} /* 767px / 16 */
+@media screen and (max-width: 29.9375rem) {
+} /* 479px / 16 */
 ```
 
 ### 3.2 Breakpoint Variables (Optional Enhancement)
@@ -448,19 +485,19 @@ app/
 
 ### 4.3 What Goes Where
 
-| CSS Type | Location | Loaded |
-|----------|----------|--------|
-| Variables (colors, typography, spacing) | `globals.css` | Always |
-| Base/reset styles | `globals.css` | Always |
-| Layout classes (`.section`, `.row`, `.col`) | `globals.css` | Always |
-| Typography classes (`.h1`-`.h6`, `.p-*`) | `globals.css` | Always |
-| Simple components (`.button`, `.card`, `.input`) | `globals.css` | Always |
-| Utility classes (`.u-*`) | `globals.css` | Always |
-| Accordion animations & triggers | `accordion.css` | When used |
-| Tabs autoplay, mobile dropdown | `tabs.css` | When used |
-| Marquee keyframes | `marquee.css` | When used |
-| Modal dialog styles | `modal.css` | When used |
-| Slider/Swiper overrides | `slider.css` | When used |
+| CSS Type                                         | Location        | Loaded    |
+| ------------------------------------------------ | --------------- | --------- |
+| Variables (colors, typography, spacing)          | `globals.css`   | Always    |
+| Base/reset styles                                | `globals.css`   | Always    |
+| Layout classes (`.section`, `.row`, `.col`)      | `globals.css`   | Always    |
+| Typography classes (`.h1`-`.h6`, `.p-*`)         | `globals.css`   | Always    |
+| Simple components (`.button`, `.card`, `.input`) | `globals.css`   | Always    |
+| Utility classes (`.u-*`)                         | `globals.css`   | Always    |
+| Accordion animations & triggers                  | `accordion.css` | When used |
+| Tabs autoplay, mobile dropdown                   | `tabs.css`      | When used |
+| Marquee keyframes                                | `marquee.css`   | When used |
+| Modal dialog styles                              | `modal.css`     | When used |
+| Slider/Swiper overrides                          | `slider.css`    | When used |
 
 ### 4.4 Import Pattern
 
@@ -479,12 +516,14 @@ export function Accordion({ ... }) { ... }
 ### 4.5 Component-Specific CSS Approach (Option B - Recommended)
 
 Split component-specific CSS into co-located files. This approach:
+
 - Loads CSS only when the component is used on a page
 - Aligns with the Webflow pattern of conditional component code
 - Makes it easier to review and collaborate on individual components
 - Requires no additional build tooling (Next.js handles it natively)
 
 **Components requiring separate CSS files:**
+
 - `accordion.css` - Details/summary animation, icon rotation
 - `tabs.css` - Autoplay progress bar, mobile dropdown toggle
 - `marquee.css` - Keyframe animations, pause-on-hover
@@ -515,6 +554,7 @@ Migrate components in this order (dependencies first):
 **Before writing any CSS, complete this checklist for each component:**
 
 #### Step 1: Extract Webflow Reference
+
 ```bash
 # Location of Webflow HTML exports
 reference/mast-framework.webflow/components.html
@@ -524,6 +564,7 @@ reference/mast-framework.webflow/inspired-layouts.html
 Use browser DevTools to copy the rendered HTML for the specific component.
 
 #### Step 2: Document Current Sanity Structure
+
 ```bash
 # Find the component file
 app/components/[ComponentName].tsx
@@ -534,12 +575,14 @@ app/components/blocks/[ComponentName].tsx
 Render the component and copy its HTML output.
 
 #### Step 3: Create Comparison Document
+
 For each component, create a comparison showing both structures:
 
-```markdown
+````markdown
 ## Button Component
 
 ### Webflow Structure
+
 ​```html
 <a href="#" class="button">
   <div class="btn-text">Click me</div>
@@ -550,21 +593,24 @@ For each component, create a comparison showing both structures:
 ​```
 
 ### Current Sanity Structure
-​```html
+
+​`html
 <button className="inline-flex items-center gap-2 ...">
   <span>Click me</span>
   <ArrowRight className="w-4 h-4" />
 </button>
-​```
+​`
 
 ### Differences
+
 - [ ] Webflow uses `<a>`, Sanity uses `<button>` - ALIGN based on use case
 - [ ] Missing `.btn-text` wrapper - ADD
 - [ ] Missing `.btn-icon` wrapper - ADD
 - [ ] Icon structure differs - ALIGN to `.icon` class pattern
-```
+````
 
 #### Step 4: Align Before Styling
+
 Modify the Sanity component JSX to match Webflow's DOM structure:
 
 ```tsx
@@ -586,6 +632,7 @@ Modify the Sanity component JSX to match Webflow's DOM structure:
 ```
 
 #### Step 5: Visual Regression Test
+
 After applying Mast CSS classes:
 
 1. **Screenshot Webflow** at 1440px, 768px, 375px widths
@@ -597,20 +644,20 @@ After applying Mast CSS classes:
 
 Key structural patterns for Sanity (using clean static approach without Webflow component wrappers):
 
-| Component | Structure | Critical Classes |
-|-----------|-----------|------------------|
-| Section | `section > container` | `.section`, `.container` |
-| Row | `div.row` | `.row`, `.row-justify-*`, `.row-align-*` |
-| Column | `div.col` | `.col`, `.col-lg-*`, `.col-md-*` |
-| Heading | `h1-h6` | `.h1`-`.h6` (or native elements) |
-| Rich Text | `div.rich-text` | `.rich-text` |
-| Button | `a.button` or `button.button` | `.button`, `.cc-secondary`, `.cc-ghost` |
-| Card | `div.card > div.card-body` | `.card`, `.card-body` |
-| Accordion | `details.accordion-component` (native) | `.accordion-component`, `.accordion-trigger`, `.accordion-content` |
-| Modal | `dialog.modal` (native) | `.modal`, `.modal_close-button` |
-| Tabs | `div.tabs-component > .tabs-menu + .tabs-pane` | `.tabs-component`, `.tabs-menu`, `.tabs-link`, `.tabs-pane` |
-| Slider | `div.slider-component > .swiper + .slider-nav` | `.slider-component`, `.slider-nav`, `.slider-pagination` |
-| Form | `form > input-group` | `.form`, `.input-group`, `.input-label`, `.input` |
+| Component | Structure                                      | Critical Classes                                                   |
+| --------- | ---------------------------------------------- | ------------------------------------------------------------------ |
+| Section   | `section > container`                          | `.section`, `.container`                                           |
+| Row       | `div.row`                                      | `.row`, `.row-justify-*`, `.row-align-*`                           |
+| Column    | `div.col`                                      | `.col`, `.col-lg-*`, `.col-md-*`                                   |
+| Heading   | `h1-h6`                                        | `.h1`-`.h6` (or native elements)                                   |
+| Rich Text | `div.rich-text`                                | `.rich-text`                                                       |
+| Button    | `a.button` or `button.button`                  | `.button`, `.cc-secondary`, `.cc-ghost`                            |
+| Card      | `div.card > div.card-body`                     | `.card`, `.card-body`                                              |
+| Accordion | `details.accordion-component` (native)         | `.accordion-component`, `.accordion-trigger`, `.accordion-content` |
+| Modal     | `dialog.modal` (native)                        | `.modal`, `.modal_close-button`                                    |
+| Tabs      | `div.tabs-component > .tabs-menu + .tabs-pane` | `.tabs-component`, `.tabs-menu`, `.tabs-link`, `.tabs-pane`        |
+| Slider    | `div.slider-component > .swiper + .slider-nav` | `.slider-component`, `.slider-nav`, `.slider-pagination`           |
+| Form      | `form > input-group`                           | `.form`, `.input-group`, `.input-label`, `.input`                  |
 
 ### 5.4 Layout Component Diffs
 
@@ -619,6 +666,7 @@ Detailed structure changes for the core layout components:
 #### Section Component
 
 **Current Sanity → Proposed:**
+
 ```tsx
 // CURRENT
 <section className={`relative ${bgClass} ${isDarkBg ? 'text-white' : 'text-foreground'} ${minHeightClass} ${hasMinHeight ? 'flex flex-col' : ''} ${alignClass}`}>
@@ -652,11 +700,12 @@ Detailed structure changes for the core layout components:
 ```
 
 **Section Class Mappings:**
+
 ```tsx
 const themeClasses = {
-  primary: '',                    // Default
-  secondary: 'cc-muted',          // Light gray / dark gray
-  invert: 'cc-invert',            // Inverted colors
+  primary: '', // Default
+  secondary: 'cc-muted', // Light gray / dark gray
+  invert: 'cc-invert', // Inverted colors
 }
 
 const minHeightClasses = {
@@ -677,6 +726,7 @@ const verticalAlignClasses = {
 #### Row Component
 
 **Current Sanity → Proposed:**
+
 ```tsx
 // CURRENT
 <div className={`flex ${mobileClass} md:flex-row ${wrapClass} ${justifyClass} ${alignClass} ${negativeMarginClass} ${verticalGapClass}`}>
@@ -690,16 +740,17 @@ const verticalAlignClasses = {
 ```
 
 **Row Class Mappings:**
+
 ```tsx
 const justifyClasses = {
-  start: '',                      // Default
+  start: '', // Default
   center: 'row-justify-center',
   end: 'row-justify-end',
   between: 'row-justify-between',
 }
 
 const alignClasses = {
-  stretch: '',                    // Default
+  stretch: '', // Default
   start: 'row-align-start',
   center: 'row-align-center',
   end: 'row-align-end',
@@ -708,7 +759,7 @@ const alignClasses = {
 const gapClasses = {
   '0': 'row-gap-0',
   'sm': 'row-gap-sm',
-  'md': '',                       // Default
+  'md': '', // Default
   'lg': 'row-gap-lg',
 }
 ```
@@ -716,6 +767,7 @@ const gapClasses = {
 #### Column Component
 
 **Current Sanity → Proposed:**
+
 ```tsx
 // CURRENT
 <div className={`flex flex-col ${alignClass} w-full md:w-auto ${tabletClass} ${desktopClass} ${gutterClass} ${innerPaddingClass}`}
@@ -731,6 +783,7 @@ const gapClasses = {
 ```
 
 **Column Class Mappings:**
+
 ```tsx
 const widthClasses = {
   '1': 'col-lg-1',
@@ -745,7 +798,7 @@ const widthClasses = {
   '10': 'col-lg-10',
   '11': 'col-lg-11',
   '12': 'col-lg-12',
-  'fill': '',                     // Default flex behavior
+  'fill': '', // Default flex behavior
   'shrink': 'col-shrink',
 }
 
@@ -754,21 +807,21 @@ const widthClasses = {
 
 #### Summary of Layout Changes
 
-| Element | Current (Tailwind) | Proposed (Mast) |
-|---------|-------------------|-----------------|
-| Section | `relative bg-[var(...)] pt-12 pb-12` | `.section` |
-| Section theme | `bg-[var(--secondary-background)]` | `.section.cc-muted` |
-| Section min-height | `min-h-[500px] flex flex-col justify-center` | `.section.cc-min-md.cc-valign-center` |
-| Background image | `object-cover` | `.section-bg-image` |
-| Background overlay | `absolute inset-0 bg-black` | `.section-bg-overlay` |
-| Container | `container pt-12 pb-12 px-6` | `.container` |
-| Row | `flex flex-col md:flex-row flex-wrap -mx-3 gap-y-6` | `.row` |
-| Row justify | `justify-center` | `.row-justify-center` |
-| Row align | `items-center` | `.row-align-center` |
-| Row gap | `gap-y-6 -mx-3` | `.row-gap-md` (default) |
-| Column | `flex flex-col lg:w-6/12 px-3` | `.col.col-lg-6` |
-| Column tablet | `md:w-full` | `.col-md-12` |
-| Column align | `justify-center` | `.col-valign-center` |
+| Element            | Current (Tailwind)                                  | Proposed (Mast)                       |
+| ------------------ | --------------------------------------------------- | ------------------------------------- |
+| Section            | `relative bg-[var(...)] pt-12 pb-12`                | `.section`                            |
+| Section theme      | `bg-[var(--secondary-background)]`                  | `.section.cc-muted`                   |
+| Section min-height | `min-h-[500px] flex flex-col justify-center`        | `.section.cc-min-md.cc-valign-center` |
+| Background image   | `object-cover`                                      | `.section-bg-image`                   |
+| Background overlay | `absolute inset-0 bg-black`                         | `.section-bg-overlay`                 |
+| Container          | `container pt-12 pb-12 px-6`                        | `.container`                          |
+| Row                | `flex flex-col md:flex-row flex-wrap -mx-3 gap-y-6` | `.row`                                |
+| Row justify        | `justify-center`                                    | `.row-justify-center`                 |
+| Row align          | `items-center`                                      | `.row-align-center`                   |
+| Row gap            | `gap-y-6 -mx-3`                                     | `.row-gap-md` (default)               |
+| Column             | `flex flex-col lg:w-6/12 px-3`                      | `.col.col-lg-6`                       |
+| Column tablet      | `md:w-full`                                         | `.col-md-12`                          |
+| Column align       | `justify-center`                                    | `.col-valign-center`                  |
 
 ### 5.5 Content Component Diffs
 
@@ -777,22 +830,32 @@ Detailed structure changes for content components:
 #### Heading Component
 
 **Current Sanity → Proposed:**
+
 ```tsx
 // CURRENT
-createElement(cleanLevel, {
-  className: `${sizeClass} ${alignClass} ${colorClass} mb-4`
-}, text)
+createElement(
+  cleanLevel,
+  {
+    className: `${sizeClass} ${alignClass} ${colorClass} mb-4`,
+  },
+  text,
+)
 // Outputs: <h2 class="text-h2 text-left text-foreground mb-4">Title</h2>
 
 // PROPOSED
-createElement(cleanLevel, {
-  className: cn(sizeClass, alignClass, colorClass)
-}, text)
+createElement(
+  cleanLevel,
+  {
+    className: cn(sizeClass, alignClass, colorClass),
+  },
+  text,
+)
 // Outputs: <h2 class="h2">Title</h2>
 // Or with modifiers: <h2 class="h2 u-text-center u-text-brand">Title</h2>
 ```
 
 **Heading Class Mappings:**
+
 ```tsx
 const sizeClasses = {
   h1: 'h1',
@@ -804,13 +867,13 @@ const sizeClasses = {
 }
 
 const alignClasses = {
-  left: '',                   // Default
+  left: '', // Default
   center: 'u-text-center',
   right: 'u-text-right',
 }
 
 const colorClasses = {
-  default: '',                // Inherits from parent
+  default: '', // Inherits from parent
   gray: 'u-text-muted',
   brand: 'u-text-brand',
   blue: 'u-text-blue',
@@ -821,6 +884,7 @@ const colorClasses = {
 #### Rich Text Component
 
 **Current Sanity → Proposed:**
+
 ```tsx
 // CURRENT
 <div className={`${alignClass} ${maxWidthClass} ${colorClass} mb-4`}>
@@ -837,16 +901,17 @@ const colorClasses = {
 ```
 
 **Rich Text Class Mappings:**
+
 ```tsx
 const sizeClasses = {
-  base: '',                   // Default
+  base: '', // Default
   sm: 'cc-sm',
   lg: 'cc-lg',
   xl: 'cc-xl',
 }
 
 const alignClasses = {
-  left: '',                   // Default
+  left: '', // Default
   center: 'u-text-center',
   right: 'u-text-right',
 }
@@ -855,6 +920,7 @@ const alignClasses = {
 #### Button Component
 
 **Current Sanity → Proposed:**
+
 ```tsx
 // CURRENT
 <div className={cn(alignClass, 'mb-4')}>
@@ -883,15 +949,16 @@ const alignClasses = {
 ```
 
 **Button Class Mappings:**
+
 ```tsx
 const variantClasses = {
-  primary: '',                // Default
+  primary: '', // Default
   secondary: 'cc-secondary',
   ghost: 'cc-ghost',
 }
 
 const colorClasses = {
-  brand: '',                  // Default
+  brand: '', // Default
   black: 'cc-black',
   blue: 'cc-blue',
   white: 'cc-white',
@@ -899,7 +966,7 @@ const colorClasses = {
 
 const sizeClasses = {
   sm: 'cc-sm',
-  md: '',                     // Default
+  md: '', // Default
   lg: 'cc-lg',
 }
 ```
@@ -907,6 +974,7 @@ const sizeClasses = {
 #### Card Component
 
 **Current Sanity → Proposed:**
+
 ```tsx
 // CURRENT
 <Card paddingDesktop={...} variant={...} href={...}>
@@ -929,48 +997,50 @@ const sizeClasses = {
 ```
 
 **Card Class Mappings:**
+
 ```tsx
 // On .card element
 const variantClasses = {
-  default: '',                // Border + background
-  outline: 'cc-outline',      // Border only, transparent bg
-  filled: 'cc-filled',        // Filled bg, no border
-  ghost: 'cc-ghost',          // No border, no bg
+  default: '', // Border + background
+  outline: 'cc-outline', // Border only, transparent bg
+  filled: 'cc-filled', // Filled bg, no border
+  ghost: 'cc-ghost', // No border, no bg
 }
 
 const hoverClasses = {
   none: '',
-  hover: 'cc-hover',          // Background change on hover
+  hover: 'cc-hover', // Background change on hover
 }
 
 // On .card-body element
 const paddingClasses = {
   '0': 'cc-p-0',
   'sm': 'cc-p-sm',
-  'md': '',                   // Default
+  'md': '', // Default
   'lg': 'cc-p-lg',
 }
 ```
 
 #### Summary of Content Component Changes
 
-| Component | Current | Proposed |
-|-----------|---------|----------|
-| Heading | `text-h2 text-left text-foreground mb-4` | `.h2` (margin built-in) |
-| Heading align | `text-center` | `.u-text-center` |
-| Heading color | `text-brand` | `.u-text-brand` |
-| Rich Text wrapper | Tailwind utilities + PortableText wrapper | `.rich-text` only |
-| Rich Text size | `prose-lg` | `.rich-text.cc-lg` |
-| Button | CVA utilities on `<Button>` component | `.button` + modifiers on `<a>` |
-| Button icon | Lucide inline | `.btn-icon > .icon` wrapper |
-| Button variant | `variant="secondary"` prop | `.button.cc-secondary` class |
-| Card | Tailwind utilities | `.card` + `.card-body` |
-| Card padding | `p-4 lg:p-6` | `.card-body.cc-p-lg` |
-| Card variant | `variant="outline"` prop | `.card.cc-outline` class |
+| Component         | Current                                   | Proposed                       |
+| ----------------- | ----------------------------------------- | ------------------------------ |
+| Heading           | `text-h2 text-left text-foreground mb-4`  | `.h2` (margin built-in)        |
+| Heading align     | `text-center`                             | `.u-text-center`               |
+| Heading color     | `text-brand`                              | `.u-text-brand`                |
+| Rich Text wrapper | Tailwind utilities + PortableText wrapper | `.rich-text` only              |
+| Rich Text size    | `prose-lg`                                | `.rich-text.cc-lg`             |
+| Button            | CVA utilities on `<Button>` component     | `.button` + modifiers on `<a>` |
+| Button icon       | Lucide inline                             | `.btn-icon > .icon` wrapper    |
+| Button variant    | `variant="secondary"` prop                | `.button.cc-secondary` class   |
+| Card              | Tailwind utilities                        | `.card` + `.card-body`         |
+| Card padding      | `p-4 lg:p-6`                              | `.card-body.cc-p-lg`           |
+| Card variant      | `variant="outline"` prop                  | `.card.cc-outline` class       |
 
 ### 5.6 Interactive Component Diffs
 
 These components use native HTML elements enhanced by external Mast JS libraries (hosted on jsdelivr). This approach:
+
 - Replaces Radix primitives with simpler, lighter alternatives
 - Uses native `<details>/<summary>` for accordion (built-in accessibility)
 - Uses native `<dialog>` for modal (built-in focus trap and backdrop)
@@ -982,7 +1052,10 @@ Add these to the app layout or load conditionally when components are used:
 
 ```html
 <!-- In layout.tsx or component-level Script imports -->
-<script defer src="https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/accordion.min.js"></script>
+<script
+  defer
+  src="https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/accordion.min.js"
+></script>
 <script defer src="https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/modal.min.js"></script>
 ```
 
@@ -1060,16 +1133,17 @@ const titleClasses = {
   h3: 'h3',
   h4: 'h4',
   h5: 'h5',
-  body: '',        // Inherits body size
+  body: '', // Inherits body size
 }
 
 const spacingClasses = {
   none: '',
-  sm: 'u-mb-sm',   // Small bottom margin between accordions
+  sm: 'u-mb-sm', // Small bottom margin between accordions
 }
 ```
 
 **Note:** The external `accordion.min.js` handles:
+
 - Smooth height animation fallback for browsers without `interpolate-size`
 - Optional exclusive accordion behavior (only one open at a time via `name` attribute)
 - Respects `data-accordion-start-open` attribute for initial state
@@ -1136,8 +1210,12 @@ dialog.modal::backdrop {
 }
 
 @keyframes modal-fadein {
-  0% { opacity: 0; }
-  100% { opacity: 1; }
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 /* Custom scrollbar for modal content */
@@ -1155,11 +1233,21 @@ dialog::-webkit-scrollbar-thumb {
 }
 
 /* Size variants */
-dialog.modal.cc-sm { max-width: 24rem; }
-dialog.modal.cc-md { max-width: 32rem; }
-dialog.modal.cc-lg { max-width: 42rem; }
-dialog.modal.cc-xl { max-width: 56rem; }
-dialog.modal.cc-full { max-width: 90vw; }
+dialog.modal.cc-sm {
+  max-width: 24rem;
+}
+dialog.modal.cc-md {
+  max-width: 32rem;
+}
+dialog.modal.cc-lg {
+  max-width: 42rem;
+}
+dialog.modal.cc-xl {
+  max-width: 56rem;
+}
+dialog.modal.cc-full {
+  max-width: 90vw;
+}
 
 /* Base styles from mast-framework.css are in globals.css:
    .modal, .modal_close-button, .modal_close-button_icon */
@@ -1170,7 +1258,7 @@ dialog.modal.cc-full { max-width: 90vw; }
 ```tsx
 const sizeClasses = {
   sm: 'cc-sm',
-  md: '',           // Default
+  md: '', // Default
   lg: 'cc-lg',
   xl: 'cc-xl',
   full: 'cc-full',
@@ -1178,6 +1266,7 @@ const sizeClasses = {
 ```
 
 **Note:** The external `modal.min.js` handles:
+
 - Binding trigger buttons to their modal via `data-modal-trigger` attribute
 - `showModal()` / `close()` calls on the native `<dialog>` element
 - Optional cookie-based "show once" behavior via `data-modal-cooldown-days`
@@ -1241,34 +1330,36 @@ dialog.modal.cc-video {
   background: white;
   border-radius: 50%;
   padding: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 ```
 
 #### Summary of Interactive Component Changes
 
-| Component | Current | Proposed |
-|-----------|---------|----------|
-| Accordion wrapper | Native `<details>` with Tailwind | Native `<details>` with Mast CSS |
-| Accordion animation | CSS Grid trick (`grid-rows-[0fr]`) | `interpolate-size` + external JS fallback |
-| Accordion icon rotation | `group-open:rotate-45` | `details[open] .accordion-icon { transform: rotate(45deg) }` |
-| Modal | Radix Dialog + Portal | Native `<dialog>` |
-| Modal trigger | `<ModalTrigger>` component | `data-modal-trigger` attribute |
-| Modal focus trap | Radix built-in | Native `<dialog>` built-in |
-| Modal backdrop | Radix `<DialogOverlay>` | Native `::backdrop` pseudo-element |
-| Modal close | Radix `<DialogClose>` | `.modal_close-button` + external JS |
-| Modal animation | Tailwind `animate-in/out` | CSS `@keyframes modal-fadein` |
-| Video modal | `<VideoModalContent>` component | `.modal.cc-video` variant class |
+| Component               | Current                            | Proposed                                                     |
+| ----------------------- | ---------------------------------- | ------------------------------------------------------------ |
+| Accordion wrapper       | Native `<details>` with Tailwind   | Native `<details>` with Mast CSS                             |
+| Accordion animation     | CSS Grid trick (`grid-rows-[0fr]`) | `interpolate-size` + external JS fallback                    |
+| Accordion icon rotation | `group-open:rotate-45`             | `details[open] .accordion-icon { transform: rotate(45deg) }` |
+| Modal                   | Radix Dialog + Portal              | Native `<dialog>`                                            |
+| Modal trigger           | `<ModalTrigger>` component         | `data-modal-trigger` attribute                               |
+| Modal focus trap        | Radix built-in                     | Native `<dialog>` built-in                                   |
+| Modal backdrop          | Radix `<DialogOverlay>`            | Native `::backdrop` pseudo-element                           |
+| Modal close             | Radix `<DialogClose>`              | `.modal_close-button` + external JS                          |
+| Modal animation         | Tailwind `animate-in/out`          | CSS `@keyframes modal-fadein`                                |
+| Video modal             | `<VideoModalContent>` component    | `.modal.cc-video` variant class                              |
 
 #### Tabs Component
 
 The Tabs component is the most complex interactive component, featuring:
+
 - Horizontal and vertical orientations
 - Autoplay with progress indicators
 - Mobile dropdown menu on smaller screens
 - Pause on hover
 
 **External Resource:**
+
 ```html
 <script defer src="https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/tabs.min.js"></script>
 ```
@@ -1392,11 +1483,15 @@ import * as TabsPrimitive from '@radix-ui/react-tabs'
 }
 
 @keyframes tabsFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
-.tabs-pane[aria-hidden="true"] {
+.tabs-pane[aria-hidden='true'] {
   display: none;
 }
 
@@ -1420,7 +1515,7 @@ import * as TabsPrimitive from '@radix-ui/react-tabs'
 }
 
 /* Autoplay progress animation (horizontal) */
-.tabs-menu[data-tabs-autoplay="true"] .tabs-link[aria-selected="true"] .tabs-autoplay-progress {
+.tabs-menu[data-tabs-autoplay='true'] .tabs-link[aria-selected='true'] .tabs-autoplay-progress {
   animation: autoplayProgress var(--autoplay-duration, 5s) linear forwards;
 }
 
@@ -1429,18 +1524,28 @@ import * as TabsPrimitive from '@radix-ui/react-tabs'
 }
 
 @keyframes autoplayProgress {
-  from { width: 0%; }
-  to { width: 100%; }
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
 }
 
 /* Autoplay progress animation (vertical) */
-.tabs-menu.cc-vertical[data-tabs-autoplay="true"] .tabs-link[aria-selected="true"] .tabs-autoplay-progress {
+.tabs-menu.cc-vertical[data-tabs-autoplay='true']
+  .tabs-link[aria-selected='true']
+  .tabs-autoplay-progress {
   animation: autoplayProgressVertical var(--autoplay-duration, 5s) linear forwards;
 }
 
 @keyframes autoplayProgressVertical {
-  from { height: 0%; }
-  to { height: 100%; }
+  from {
+    height: 0%;
+  }
+  to {
+    height: 100%;
+  }
 }
 
 /* Play/pause toggle states */
@@ -1454,19 +1559,21 @@ import * as TabsPrimitive from '@radix-ui/react-tabs'
 
 /* Mobile dropdown */
 @media (max-width: 47.9375rem) {
-  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-menu_dropdown-toggle {
+  .tabs-menu[data-tab-mobile-dropdown='true'] .tabs-menu_dropdown-toggle {
     display: flex;
   }
 
-  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-menu_dropdown-toggle.cc-open {
+  .tabs-menu[data-tab-mobile-dropdown='true'] .tabs-menu_dropdown-toggle.cc-open {
     border-radius: var(--button-radius) var(--button-radius) 0 0;
   }
 
-  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-menu_dropdown-toggle.cc-open .tabs-menu_dropdown-arrow {
+  .tabs-menu[data-tab-mobile-dropdown='true']
+    .tabs-menu_dropdown-toggle.cc-open
+    .tabs-menu_dropdown-arrow {
     transform: rotate(180deg);
   }
 
-  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-menu_dropdown-menu {
+  .tabs-menu[data-tab-mobile-dropdown='true'] .tabs-menu_dropdown-menu {
     display: none;
     position: absolute;
     top: calc(100% - 1px);
@@ -1481,15 +1588,15 @@ import * as TabsPrimitive from '@radix-ui/react-tabs'
     overflow-y: auto;
   }
 
-  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-menu_dropdown-menu.cc-open {
+  .tabs-menu[data-tab-mobile-dropdown='true'] .tabs-menu_dropdown-menu.cc-open {
     display: block;
   }
 
-  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-link {
+  .tabs-menu[data-tab-mobile-dropdown='true'] .tabs-link {
     border: none;
   }
 
-  .tabs-menu[data-tab-mobile-dropdown="true"] .tabs-link.cc-active {
+  .tabs-menu[data-tab-mobile-dropdown='true'] .tabs-link.cc-active {
     background-color: var(--border-primary);
   }
 }
@@ -1501,26 +1608,26 @@ import * as TabsPrimitive from '@radix-ui/react-tabs'
 
 **Tabs Data Attributes (handled by external JS):**
 
-| Attribute | Element | Purpose |
-|-----------|---------|---------|
-| `data-tabs-component` | `.tabs-component` | Identifies component root |
-| `data-tabs-menu` | `.tabs-menu` | Tab menu container |
-| `data-tabs-link` | `.tabs-link` | Individual tab trigger |
-| `data-tab-link-name` | `.tabs-link` | Tab identifier for linking |
-| `data-tabs-pane` | `.tabs-pane` | Tab content panel |
-| `data-tabs-autoplay` | `.tabs-menu` | Enable autoplay (`"true"`) |
-| `data-tabs-autoplay-duration` | `.tabs-menu` | Duration in seconds |
-| `data-tabs-autoplay-hover-pause` | `.tabs-menu` | Pause on hover (`"true"`) |
-| `data-tab-mobile-dropdown` | `.tabs-menu` | Show as dropdown on mobile |
-| `data-tabs-autoplay-toggle` | button | Play/pause autoplay |
-| `data-tabs-link-button` | button | Hidden accessible button in tab |
-| `data-tabs-autoplay-progress` | div | Progress bar element |
+| Attribute                        | Element           | Purpose                         |
+| -------------------------------- | ----------------- | ------------------------------- |
+| `data-tabs-component`            | `.tabs-component` | Identifies component root       |
+| `data-tabs-menu`                 | `.tabs-menu`      | Tab menu container              |
+| `data-tabs-link`                 | `.tabs-link`      | Individual tab trigger          |
+| `data-tab-link-name`             | `.tabs-link`      | Tab identifier for linking      |
+| `data-tabs-pane`                 | `.tabs-pane`      | Tab content panel               |
+| `data-tabs-autoplay`             | `.tabs-menu`      | Enable autoplay (`"true"`)      |
+| `data-tabs-autoplay-duration`    | `.tabs-menu`      | Duration in seconds             |
+| `data-tabs-autoplay-hover-pause` | `.tabs-menu`      | Pause on hover (`"true"`)       |
+| `data-tab-mobile-dropdown`       | `.tabs-menu`      | Show as dropdown on mobile      |
+| `data-tabs-autoplay-toggle`      | button            | Play/pause autoplay             |
+| `data-tabs-link-button`          | button            | Hidden accessible button in tab |
+| `data-tabs-autoplay-progress`    | div               | Progress bar element            |
 
 **Tabs Class Mappings:**
 
 ```tsx
 const orientationClasses = {
-  horizontal: '',                // Default
+  horizontal: '', // Default
   vertical: 'cc-vertical',
 }
 
@@ -1529,6 +1636,7 @@ const orientationClasses = {
 ```
 
 **Note:** The external `tabs.min.js` handles:
+
 - Tab switching via click and keyboard navigation
 - ARIA attribute management (`aria-selected`, `aria-hidden`)
 - Autoplay timer with progress animation
@@ -1575,6 +1683,7 @@ For simple tabs without autoplay or mobile dropdown, the structure is simpler:
 #### Slider Component
 
 The Slider component is unique among interactive components - it genuinely requires a slider library (Swiper.js) for:
+
 - Touch/swipe gesture support
 - Smooth transitions and effects (slide, fade)
 - Infinite loop functionality
@@ -1583,8 +1692,9 @@ The Slider component is unique among interactive components - it genuinely requi
 Unlike Accordion, Modal, and Tabs which can use native HTML elements, Slider has no native equivalent. The current Sanity implementation using `swiper/react` is appropriate - we just need to align the CSS classes with the Mast framework.
 
 **External Resources (Webflow uses CDN-loaded Swiper):**
+
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <script defer src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/gh/nocodesupplyco/mast@latest/slider.min.js"></script>
 ```
@@ -1705,36 +1815,48 @@ Unlike Accordion, Modal, and Tabs which can use native HTML elements, Slider has
 /* slider.css - Component-specific styles */
 
 /* Responsive slides per view via CSS variables */
-[data-slider="component"] {
-  --lg: 3;  /* Desktop (992px+) */
-  --md: 2;  /* Tablet (768-991px) */
-  --sm: 1;  /* Mobile Landscape (480-767px) */
-  --xs: 1;  /* Mobile Portrait (0-479px) */
+[data-slider='component'] {
+  --lg: 3; /* Desktop (992px+) */
+  --md: 2; /* Tablet (768-991px) */
+  --sm: 1; /* Mobile Landscape (480-767px) */
+  --xs: 1; /* Mobile Portrait (0-479px) */
   --gap: 24px;
   --current-slides-per-view: var(--xs);
 }
 
 @media (min-width: 30rem) and (max-width: 47.9375rem) {
-  [data-slider="component"] { --current-slides-per-view: var(--sm); }
+  [data-slider='component'] {
+    --current-slides-per-view: var(--sm);
+  }
 }
 
 @media (min-width: 48rem) and (max-width: 61.9375rem) {
-  [data-slider="component"] { --current-slides-per-view: var(--md); }
+  [data-slider='component'] {
+    --current-slides-per-view: var(--md);
+  }
 }
 
 @media (min-width: 62rem) {
-  [data-slider="component"] { --current-slides-per-view: var(--lg); }
+  [data-slider='component'] {
+    --current-slides-per-view: var(--lg);
+  }
 }
 
 /* Slide width calculation (for CSS-only responsive control) */
-[data-slider="component"] .swiper-slide {
-  width: calc((100% - (var(--current-slides-per-view) - 1) * var(--gap)) / var(--current-slides-per-view)) !important;
+[data-slider='component'] .swiper-slide {
+  width: calc(
+    (100% - (var(--current-slides-per-view) - 1) * var(--gap)) / var(--current-slides-per-view)
+  ) !important;
   margin-right: var(--gap);
 }
 
 /* Overflow control */
-[data-slider-overflow="false"] { overflow: hidden; }
-[data-slider-overflow="true"] { overflow: visible !important; }
+[data-slider-overflow='false'] {
+  overflow: hidden;
+}
+[data-slider-overflow='true'] {
+  overflow: visible !important;
+}
 
 /* Disabled state for navigation */
 .swiper-button-disabled {
@@ -1748,31 +1870,32 @@ Unlike Accordion, Modal, and Tabs which can use native HTML elements, Slider has
 
 **Slider Data Attributes:**
 
-| Attribute | Element | Purpose |
-|-----------|---------|---------|
-| `data-slider="component"` | `.slider-component` | Root wrapper, holds CSS variables |
-| `data-slider="slider"` | `.swiper` | Swiper container |
-| `data-slider="previous"` | button | Previous slide button |
-| `data-slider="next"` | button | Next slide button |
-| `data-slider="pagination"` | `.slider-pagination` | Pagination container |
-| `data-slider-overflow` | `.swiper` | Control overflow visibility |
-| `data-loop` | `.swiper` | Enable infinite loop |
-| `data-autoplay` | `.swiper` | Autoplay delay in ms (or "false") |
-| `data-effect` | `.swiper` | Transition effect (slide, fade) |
-| `data-speed` | `.swiper` | Transition speed in ms |
+| Attribute                  | Element              | Purpose                           |
+| -------------------------- | -------------------- | --------------------------------- |
+| `data-slider="component"`  | `.slider-component`  | Root wrapper, holds CSS variables |
+| `data-slider="slider"`     | `.swiper`            | Swiper container                  |
+| `data-slider="previous"`   | button               | Previous slide button             |
+| `data-slider="next"`       | button               | Next slide button                 |
+| `data-slider="pagination"` | `.slider-pagination` | Pagination container              |
+| `data-slider-overflow`     | `.swiper`            | Control overflow visibility       |
+| `data-loop`                | `.swiper`            | Enable infinite loop              |
+| `data-autoplay`            | `.swiper`            | Autoplay delay in ms (or "false") |
+| `data-effect`              | `.swiper`            | Transition effect (slide, fade)   |
+| `data-speed`               | `.swiper`            | Transition speed in ms            |
 
 **Key Differences from External JS Approach:**
 
-| Aspect | Webflow (External slider.js) | Sanity (swiper/react) |
-|--------|------------------------------|----------------------|
-| Swiper init | External JS reads data attrs | React props directly |
-| State | DOM-based | React state |
-| Navigation | External JS binds events | React onClick handlers |
-| Pagination | External JS configures Swiper | Custom React component |
-| Breakpoints | CSS variables + JS read | React breakpoints prop |
-| Bundle | CDN + external script | npm package, tree-shaken |
+| Aspect      | Webflow (External slider.js)  | Sanity (swiper/react)    |
+| ----------- | ----------------------------- | ------------------------ |
+| Swiper init | External JS reads data attrs  | React props directly     |
+| State       | DOM-based                     | React state              |
+| Navigation  | External JS binds events      | React onClick handlers   |
+| Pagination  | External JS configures Swiper | Custom React component   |
+| Breakpoints | CSS variables + JS read       | React breakpoints prop   |
+| Bundle      | CDN + external script         | npm package, tree-shaken |
 
 **Note:** The external `slider.min.js` from Mast is NOT needed in React because:
+
 1. `swiper/react` handles all Swiper initialization
 2. React state manages navigation/pagination
 3. Breakpoints are passed directly as props
@@ -1782,31 +1905,32 @@ The Mast CSS classes (`.slider-component`, `.slider-nav`, `.slider-pagination`, 
 
 #### Summary of Interactive Component Changes (Updated)
 
-| Component | Current | Proposed |
-|-----------|---------|----------|
-| Accordion wrapper | Native `<details>` with Tailwind | Native `<details>` with Mast CSS |
-| Accordion animation | CSS Grid trick (`grid-rows-[0fr]`) | `interpolate-size` + React hook |
-| Accordion icon rotation | `group-open:rotate-45` | `details[open] .accordion-icon { transform: rotate(45deg) }` |
-| Modal | Radix Dialog + Portal | Native `<dialog>` + React hook |
-| Modal trigger | `<ModalTrigger>` component | React `open()` callback |
-| Modal focus trap | Radix built-in | Native `<dialog>` built-in |
-| Modal backdrop | Radix `<DialogOverlay>` | Native `::backdrop` pseudo-element |
-| Modal close | Radix `<DialogClose>` | `.modal_close-button` + React `close()` |
-| Modal animation | Tailwind `animate-in/out` | CSS `@keyframes modal-fadein` |
-| Video modal | `<VideoModalContent>` component | `.modal.cc-video` variant class |
-| Tabs | Radix Tabs + React state | Mast CSS + React hook |
-| Tabs autoplay | React useEffect timer | React `useTabs` hook |
-| Tabs progress | React state + inline style | CSS animation + React key reset |
-| Tabs mobile dropdown | React state + conditional render | React state + Mast CSS |
-| Tabs orientation | React context | `.tabs-menu.cc-vertical` class |
-| Slider wrapper | `swiper/react` + Tailwind | `swiper/react` + Mast CSS |
-| Slider navigation | Tailwind button styles | `.slider-nav` + `.button` classes |
-| Slider pagination | Tailwind dot styles | `.slider-pagination` + `.slider-pagination_button` |
-| Slider breakpoints | React breakpoints prop | CSS variables + React breakpoints |
+| Component               | Current                            | Proposed                                                     |
+| ----------------------- | ---------------------------------- | ------------------------------------------------------------ |
+| Accordion wrapper       | Native `<details>` with Tailwind   | Native `<details>` with Mast CSS                             |
+| Accordion animation     | CSS Grid trick (`grid-rows-[0fr]`) | `interpolate-size` + React hook                              |
+| Accordion icon rotation | `group-open:rotate-45`             | `details[open] .accordion-icon { transform: rotate(45deg) }` |
+| Modal                   | Radix Dialog + Portal              | Native `<dialog>` + React hook                               |
+| Modal trigger           | `<ModalTrigger>` component         | React `open()` callback                                      |
+| Modal focus trap        | Radix built-in                     | Native `<dialog>` built-in                                   |
+| Modal backdrop          | Radix `<DialogOverlay>`            | Native `::backdrop` pseudo-element                           |
+| Modal close             | Radix `<DialogClose>`              | `.modal_close-button` + React `close()`                      |
+| Modal animation         | Tailwind `animate-in/out`          | CSS `@keyframes modal-fadein`                                |
+| Video modal             | `<VideoModalContent>` component    | `.modal.cc-video` variant class                              |
+| Tabs                    | Radix Tabs + React state           | Mast CSS + React hook                                        |
+| Tabs autoplay           | React useEffect timer              | React `useTabs` hook                                         |
+| Tabs progress           | React state + inline style         | CSS animation + React key reset                              |
+| Tabs mobile dropdown    | React state + conditional render   | React state + Mast CSS                                       |
+| Tabs orientation        | React context                      | `.tabs-menu.cc-vertical` class                               |
+| Slider wrapper          | `swiper/react` + Tailwind          | `swiper/react` + Mast CSS                                    |
+| Slider navigation       | Tailwind button styles             | `.slider-nav` + `.button` classes                            |
+| Slider pagination       | Tailwind dot styles                | `.slider-pagination` + `.slider-pagination_button`           |
+| Slider breakpoints      | React breakpoints prop             | CSS variables + React breakpoints                            |
 
 #### Dependencies Removed (Updated)
 
 With this approach, you can remove:
+
 - `@radix-ui/react-dialog` - Replaced by native `<dialog>` + React hook
 - `@radix-ui/react-tabs` - Replaced by semantic HTML + React hook
 - Complex Tailwind animation utilities - Replaced by simple CSS keyframes
@@ -1819,19 +1943,23 @@ With this approach, you can remove:
 ### 5.7 Component Class Migration Example
 
 **Before (Tailwind in TSX):**
+
 ```tsx
-<button className={cn(
-  "inline-flex items-center justify-center gap-[0.4em]",
-  "py-[0.7em] px-[1em] text-base",
-  "bg-brand text-white rounded-lg",
-  "transition-colors duration-300",
-  "hover:bg-brand-dark focus:outline-none focus:ring-2"
-)}>
+<button
+  className={cn(
+    'inline-flex items-center justify-center gap-[0.4em]',
+    'py-[0.7em] px-[1em] text-base',
+    'bg-brand text-white rounded-lg',
+    'transition-colors duration-300',
+    'hover:bg-brand-dark focus:outline-none focus:ring-2',
+  )}
+>
   Click me
 </button>
 ```
 
 **After (Mast classes):**
+
 ```tsx
 <button className="button">
   Click me
@@ -1884,7 +2012,7 @@ const sectionThemeClasses = {
    export default {
      plugins: {
        'postcss-import': {},
-       'postcss-nesting': {},  // If using CSS nesting
+       'postcss-nesting': {}, // If using CSS nesting
      },
    }
    ```
@@ -1906,6 +2034,7 @@ Document all available classes for designers and AI assistants:
 
 ```markdown
 ## Layout Classes
+
 - `.section` - Page section with vertical padding
 - `.section.cc-muted` - Muted background variant
 - `.container` - Centered max-width container
@@ -1914,6 +2043,7 @@ Document all available classes for designers and AI assistants:
 - `.col.col-lg-{1-12}` - Desktop column widths
 
 ## Utility Classes
+
 - `.u-mt-{xs|sm|md|lg}` - Margin top
 - `.u-text-{left|center|right}` - Text alignment
 - `.u-d-{flex|block|none}` - Display
@@ -1925,13 +2055,14 @@ Document all CSS variables for quick customization:
 
 ```markdown
 ## Brand Customization
+
 Change these variables to match your brand:
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `--color-brand` | #d14424 | Primary brand color |
-| `--color-brand-dark` | #9c331b | Hover/active state |
-| `--font-family` | "General Sans" | Primary typeface |
+| Variable             | Default        | Description         |
+| -------------------- | -------------- | ------------------- |
+| `--color-brand`      | #d14424        | Primary brand color |
+| `--color-brand-dark` | #9c331b        | Hover/active state  |
+| `--font-family`      | "General Sans" | Primary typeface    |
 ```
 
 ---
@@ -1939,6 +2070,7 @@ Change these variables to match your brand:
 ## Phase 8: Interactive Component JS (External → React)
 
 Instead of loading external JS from jsdelivr, rewrite the interactive component behavior in React. This provides:
+
 - **No external dependencies** - Eliminates CDN requests and version management
 - **Better React integration** - Uses hooks, refs, and React's lifecycle
 - **TypeScript support** - Full type safety
@@ -1949,15 +2081,16 @@ Instead of loading external JS from jsdelivr, rewrite the interactive component 
 
 The external Mast JS files were analyzed from `github.com/nocodesupplyco/mast`:
 
-| File | Lines | Key Functionality |
-|------|-------|-------------------|
-| `accordion.js` | ~100 | Height animation, reduced motion, GSAP fallback |
-| `modal.js` | ~130 | Open/close, click-outside, auto-open cooldown |
-| `tabs.js` | ~400 | Tab switching, autoplay, keyboard nav, mobile dropdown, deep linking |
+| File           | Lines | Key Functionality                                                    |
+| -------------- | ----- | -------------------------------------------------------------------- |
+| `accordion.js` | ~100  | Height animation, reduced motion, GSAP fallback                      |
+| `modal.js`     | ~130  | Open/close, click-outside, auto-open cooldown                        |
+| `tabs.js`      | ~400  | Tab switching, autoplay, keyboard nav, mobile dropdown, deep linking |
 
 ### 8.2 Accordion React Implementation
 
 **What the external JS does:**
+
 1. Handles `data-accordion-start-open` attribute for initial state
 2. Animates height transitions (with GSAP fallback to CSS transitions)
 3. Respects `prefers-reduced-motion` accessibility setting
@@ -1967,14 +2100,14 @@ The external Mast JS files were analyzed from `github.com/nocodesupplyco/mast`:
 
 ```tsx
 // hooks/useAccordion.ts
-import { useRef, useEffect, useCallback } from 'react'
+import {useRef, useEffect, useCallback} from 'react'
 
 interface UseAccordionOptions {
   defaultOpen?: boolean
   onOpenChange?: (open: boolean) => void
 }
 
-export function useAccordion({ defaultOpen = false, onOpenChange }: UseAccordionOptions = {}) {
+export function useAccordion({defaultOpen = false, onOpenChange}: UseAccordionOptions = {}) {
   const detailsRef = useRef<HTMLDetailsElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const prefersReducedMotion = useRef(false)
@@ -1992,32 +2125,35 @@ export function useAccordion({ defaultOpen = false, onOpenChange }: UseAccordion
   }, [])
 
   // Handle animated close
-  const handleClick = useCallback((e: React.MouseEvent) => {
-    const details = detailsRef.current
-    const content = contentRef.current
-    if (!details || !content) return
+  const handleClick = useCallback(
+    (e: React.MouseEvent) => {
+      const details = detailsRef.current
+      const content = contentRef.current
+      if (!details || !content) return
 
-    if (details.open) {
-      e.preventDefault() // Prevent native close
+      if (details.open) {
+        e.preventDefault() // Prevent native close
 
-      if (prefersReducedMotion.current) {
-        details.open = false
-        onOpenChange?.(false)
-      } else {
-        // Animate close
-        content.style.height = `${content.scrollHeight}px`
-        content.offsetHeight // Force reflow
-        content.style.transition = 'height 0.4s ease-in-out'
-        content.style.height = '0px'
-
-        setTimeout(() => {
+        if (prefersReducedMotion.current) {
           details.open = false
-          content.style.transition = ''
           onOpenChange?.(false)
-        }, 400)
+        } else {
+          // Animate close
+          content.style.height = `${content.scrollHeight}px`
+          content.offsetHeight // Force reflow
+          content.style.transition = 'height 0.4s ease-in-out'
+          content.style.height = '0px'
+
+          setTimeout(() => {
+            details.open = false
+            content.style.transition = ''
+            onOpenChange?.(false)
+          }, 400)
+        }
       }
-    }
-  }, [onOpenChange])
+    },
+    [onOpenChange],
+  )
 
   // Handle animated open (via toggle event)
   useEffect(() => {
@@ -2057,7 +2193,7 @@ export function useAccordion({ defaultOpen = false, onOpenChange }: UseAccordion
     }
   }, [defaultOpen])
 
-  return { detailsRef, contentRef, handleClick }
+  return {detailsRef, contentRef, handleClick}
 }
 ```
 
@@ -2067,8 +2203,8 @@ export function useAccordion({ defaultOpen = false, onOpenChange }: UseAccordion
 // components/Accordion.tsx
 'use client'
 
-import { useAccordion } from '@/hooks/useAccordion'
-import { cn } from '@/lib/utils'
+import {useAccordion} from '@/hooks/useAccordion'
+import {cn} from '@/lib/utils'
 
 interface AccordionProps {
   title: string
@@ -2083,16 +2219,12 @@ export function Accordion({
   titleClass = 'h4',
   defaultOpen = false,
   className,
-  children
+  children,
 }: AccordionProps) {
-  const { detailsRef, contentRef, handleClick } = useAccordion({ defaultOpen })
+  const {detailsRef, contentRef, handleClick} = useAccordion({defaultOpen})
 
   return (
-    <details
-      ref={detailsRef}
-      className={cn('accordion-component', className)}
-      open={defaultOpen}
-    >
+    <details ref={detailsRef} className={cn('accordion-component', className)} open={defaultOpen}>
       <summary className="accordion-trigger" onClick={handleClick}>
         <span className={cn('accordion-title', titleClass)}>{title}</span>
         <svg className="accordion-icon" viewBox="0 0 32 32" fill="none">
@@ -2105,9 +2237,7 @@ export function Accordion({
         </svg>
       </summary>
       <div ref={contentRef} className="accordion-content">
-        <div className="accordion-content_spacer">
-          {children}
-        </div>
+        <div className="accordion-content_spacer">{children}</div>
       </div>
     </details>
   )
@@ -2117,6 +2247,7 @@ export function Accordion({
 ### 8.3 Modal React Implementation
 
 **What the external JS does:**
+
 1. Binds trigger buttons to show modal
 2. Close button and click-outside-to-close
 3. Auto-open on page load with optional cooldown (localStorage)
@@ -2126,7 +2257,7 @@ export function Accordion({
 
 ```tsx
 // hooks/useModal.ts
-import { useRef, useEffect, useCallback, useState } from 'react'
+import {useRef, useEffect, useCallback, useState} from 'react'
 
 interface UseModalOptions {
   id?: string
@@ -2139,7 +2270,7 @@ export function useModal({
   id,
   autoOpen = false,
   cooldownDays = 0,
-  onOpenChange
+  onOpenChange,
 }: UseModalOptions = {}) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [isOpen, setIsOpen] = useState(false)
@@ -2198,11 +2329,14 @@ export function useModal({
   }, [onOpenChange, storeCooldown])
 
   // Handle click outside
-  const handleBackdropClick = useCallback((e: React.MouseEvent) => {
-    if (e.target === dialogRef.current) {
-      close()
-    }
-  }, [close])
+  const handleBackdropClick = useCallback(
+    (e: React.MouseEvent) => {
+      if (e.target === dialogRef.current) {
+        close()
+      }
+    },
+    [close],
+  )
 
   // Auto-open on mount (if enabled and not in cooldown)
   useEffect(() => {
@@ -2229,7 +2363,7 @@ export function useModal({
     return () => dialog.removeEventListener('close', handleClose)
   }, [onOpenChange, storeCooldown])
 
-  return { dialogRef, isOpen, open, close, handleBackdropClick }
+  return {dialogRef, isOpen, open, close, handleBackdropClick}
 }
 ```
 
@@ -2239,8 +2373,8 @@ export function useModal({
 // components/Modal.tsx
 'use client'
 
-import { useModal } from '@/hooks/useModal'
-import { cn } from '@/lib/utils'
+import {useModal} from '@/hooks/useModal'
+import {cn} from '@/lib/utils'
 
 interface ModalProps {
   id?: string
@@ -2267,12 +2401,12 @@ export function Modal({
   autoOpen = false,
   cooldownDays = 0,
   className,
-  children
+  children,
 }: ModalProps) {
-  const { dialogRef, open, close, handleBackdropClick } = useModal({
+  const {dialogRef, open, close, handleBackdropClick} = useModal({
     id,
     autoOpen,
-    cooldownDays
+    cooldownDays,
   })
 
   return (
@@ -2283,14 +2417,10 @@ export function Modal({
         onClick={handleBackdropClick}
       >
         {children}
-        <button
-          className="modal_close-button"
-          onClick={close}
-          aria-label="Close"
-        >
+        <button className="modal_close-button" onClick={close} aria-label="Close">
           <svg className="modal_close-button_icon" viewBox="0 0 14 14" fill="none">
-            <path d="M12.673 0.67334L0.67319 12.6731" stroke="currentColor" strokeWidth="1.5"/>
-            <path d="M0.673462 0.67334L12.6732 12.6731" stroke="currentColor" strokeWidth="1.5"/>
+            <path d="M12.673 0.67334L0.67319 12.6731" stroke="currentColor" strokeWidth="1.5" />
+            <path d="M0.673462 0.67334L12.6732 12.6731" stroke="currentColor" strokeWidth="1.5" />
           </svg>
         </button>
       </dialog>
@@ -2308,6 +2438,7 @@ export function Modal({
 ### 8.4 Tabs React Implementation
 
 **What the external JS does:**
+
 1. Tab switching with ARIA attribute management
 2. Autoplay with `IntersectionObserver` (pause when off-screen)
 3. Autoplay with hover pause option
@@ -2321,7 +2452,7 @@ export function Modal({
 
 ```tsx
 // hooks/useTabs.ts
-import { useState, useRef, useEffect, useCallback } from 'react'
+import {useState, useRef, useEffect, useCallback} from 'react'
 
 interface UseTabsOptions {
   defaultIndex?: number
@@ -2347,12 +2478,15 @@ export function useTabs({
   const progressKey = useRef(0) // For resetting CSS animation
 
   // Set active tab
-  const setActiveTab = useCallback((index: number) => {
-    if (index < 0 || index >= tabCount.current) return
-    setActiveIndex(index)
-    progressKey.current++ // Reset progress animation
-    onTabChange?.(index)
-  }, [onTabChange])
+  const setActiveTab = useCallback(
+    (index: number) => {
+      if (index < 0 || index >= tabCount.current) return
+      setActiveIndex(index)
+      progressKey.current++ // Reset progress animation
+      onTabChange?.(index)
+    },
+    [onTabChange],
+  )
 
   // Navigate to next/prev tab
   const goToNext = useCallback(() => {
@@ -2395,7 +2529,7 @@ export function useTabs({
       ([entry]) => {
         setIsVisible(entry.isIntersecting)
       },
-      { threshold: 0.5 }
+      {threshold: 0.5},
     )
 
     observer.observe(container)
@@ -2413,30 +2547,33 @@ export function useTabs({
 
   // Toggle play/pause
   const togglePause = useCallback(() => {
-    setIsPaused(prev => !prev)
+    setIsPaused((prev) => !prev)
   }, [])
 
   // Keyboard navigation handler
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    switch (e.key) {
-      case 'ArrowLeft':
-        e.preventDefault()
-        goToPrev()
-        break
-      case 'ArrowRight':
-        e.preventDefault()
-        goToNext()
-        break
-      case 'Home':
-        e.preventDefault()
-        setActiveTab(0)
-        break
-      case 'End':
-        e.preventDefault()
-        setActiveTab(tabCount.current - 1)
-        break
-    }
-  }, [goToNext, goToPrev, setActiveTab])
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      switch (e.key) {
+        case 'ArrowLeft':
+          e.preventDefault()
+          goToPrev()
+          break
+        case 'ArrowRight':
+          e.preventDefault()
+          goToNext()
+          break
+        case 'Home':
+          e.preventDefault()
+          setActiveTab(0)
+          break
+        case 'End':
+          e.preventDefault()
+          setActiveTab(tabCount.current - 1)
+          break
+      }
+    },
+    [goToNext, goToPrev, setActiveTab],
+  )
 
   // Register tab count
   const registerTabs = useCallback((count: number) => {
@@ -2481,10 +2618,10 @@ export function useTabs({
 // components/Tabs.tsx
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useTabs } from '@/hooks/useTabs'
-import { cn } from '@/lib/utils'
-import { CaretDown, Pause, Play } from '@phosphor-icons/react'
+import {useEffect, useState} from 'react'
+import {useTabs} from '@/hooks/useTabs'
+import {cn} from '@/lib/utils'
+import {CaretDown, Pause, Play} from '@phosphor-icons/react'
 
 interface Tab {
   id: string
@@ -2543,12 +2680,9 @@ export function Tabs({
       className={cn('tabs-component', isPaused && 'autoplay-paused', className)}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      style={{ '--autoplay-duration': `${autoplayDuration}s` } as React.CSSProperties}
+      style={{'--autoplay-duration': `${autoplayDuration}s`} as React.CSSProperties}
     >
-      <div
-        className={cn('tabs-menu', orientation === 'vertical' && 'cc-vertical')}
-        role="tablist"
-      >
+      <div className={cn('tabs-menu', orientation === 'vertical' && 'cc-vertical')} role="tablist">
         {/* Mobile dropdown toggle */}
         {mobileDropdown && (
           <button
@@ -2565,10 +2699,7 @@ export function Tabs({
         )}
 
         {/* Tab links */}
-        <div className={cn(
-          'tabs-menu_dropdown-menu',
-          mobileDropdown && dropdownOpen && 'cc-open'
-        )}>
+        <div className={cn('tabs-menu_dropdown-menu', mobileDropdown && dropdownOpen && 'cc-open')}>
           {tabs.map((tab, index) => (
             <div
               key={tab.id}
@@ -2588,10 +2719,7 @@ export function Tabs({
                 onKeyDown={handleKeyDown}
               />
               {autoplay && (
-                <div
-                  key={`progress-${progressKey}`}
-                  className="tabs-autoplay-progress"
-                />
+                <div key={`progress-${progressKey}`} className="tabs-autoplay-progress" />
               )}
             </div>
           ))}
@@ -2616,12 +2744,7 @@ export function Tabs({
 
       {/* Tab panes */}
       {tabs.map((tab, index) => (
-        <div
-          key={tab.id}
-          role="tabpanel"
-          aria-hidden={index !== activeIndex}
-          className="tabs-pane"
-        >
+        <div key={tab.id} role="tabpanel" aria-hidden={index !== activeIndex} className="tabs-pane">
           {tab.content}
         </div>
       ))}
@@ -2632,14 +2755,15 @@ export function Tabs({
 
 ### 8.5 Implementation Requirements Summary
 
-| Component | Hook | Lines (Est.) | Key Features |
-|-----------|------|--------------|--------------|
-| Accordion | `useAccordion` | ~80 | Height animation, reduced motion |
-| Modal | `useModal` | ~100 | Open/close, cooldown, click-outside |
-| Tabs | `useTabs` | ~150 | Autoplay, keyboard nav, deep linking |
-| Slider | N/A (use `swiper/react`) | ~0 | Keep existing swiper/react, update CSS only |
+| Component | Hook                     | Lines (Est.) | Key Features                                |
+| --------- | ------------------------ | ------------ | ------------------------------------------- |
+| Accordion | `useAccordion`           | ~80          | Height animation, reduced motion            |
+| Modal     | `useModal`               | ~100         | Open/close, cooldown, click-outside         |
+| Tabs      | `useTabs`                | ~150         | Autoplay, keyboard nav, deep linking        |
+| Slider    | N/A (use `swiper/react`) | ~0           | Keep existing swiper/react, update CSS only |
 
 **Shared utilities needed:**
+
 - `useReducedMotion()` - Hook for checking `prefers-reduced-motion`
 - `useLocalStorage()` - Hook for modal cooldown persistence
 
@@ -2666,15 +2790,15 @@ export function Tabs({
 
 ### 8.7 Benefits Over External JS
 
-| Aspect | External JS | React Hooks |
-|--------|-------------|-------------|
-| Bundle | Separate CDN requests | Tree-shaken with app |
-| Loading | After page load | With component |
-| TypeScript | None | Full type safety |
-| SSR | May flash/rehydrate | Consistent rendering |
-| Customization | Fork repo needed | Props and composition |
-| Debugging | Minified, external | Source maps, React DevTools |
-| Dependencies | jsdelivr CDN | Zero external |
+| Aspect        | External JS           | React Hooks                 |
+| ------------- | --------------------- | --------------------------- |
+| Bundle        | Separate CDN requests | Tree-shaken with app        |
+| Loading       | After page load       | With component              |
+| TypeScript    | None                  | Full type safety            |
+| SSR           | May flash/rehydrate   | Consistent rendering        |
+| Customization | Fork repo needed      | Props and composition       |
+| Debugging     | Minified, external    | Source maps, React DevTools |
+| Dependencies  | jsdelivr CDN          | Zero external               |
 
 ---
 

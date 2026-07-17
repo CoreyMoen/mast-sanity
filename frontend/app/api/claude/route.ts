@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { NextRequest, NextResponse } from 'next/server'
+import {NextRequest, NextResponse} from 'next/server'
 
 // Initialize Anthropic client
 const anthropic = new Anthropic({
@@ -10,7 +10,7 @@ const anthropic = new Anthropic({
  * Get allowed CORS origins from environment variable
  * In development, defaults to '*' for convenience
  * In production, set ALLOWED_CORS_ORIGINS to comma-separated list of allowed origins
- * Example: ALLOWED_CORS_ORIGINS=https://your-studio.sanity.studio,http://localhost:3333
+ * Example: ALLOWED_CORS_ORIGINS=https://your-studio.sanity.studio,http://localhost:3334
  */
 function getAllowedOrigins(): string[] {
   const originsEnv = process.env.ALLOWED_CORS_ORIGINS
@@ -18,7 +18,7 @@ function getAllowedOrigins(): string[] {
     // Default to allowing all origins in development
     return ['*']
   }
-  return originsEnv.split(',').map(origin => origin.trim())
+  return originsEnv.split(',').map((origin) => origin.trim())
 }
 
 /**
@@ -69,13 +69,19 @@ function jsonResponse(data: object, status: number = 200, requestOrigin?: string
 }
 
 // Default model to use
-const DEFAULT_MODEL = 'claude-sonnet-4-20250514'
+const DEFAULT_MODEL = 'claude-sonnet-5'
 
 // Default maximum tokens for response
 const DEFAULT_MAX_TOKENS = 4096
 
-// Default temperature
+// Default temperature (only sent to models that still accept sampling params)
 const DEFAULT_TEMPERATURE = 0.7
+
+// Claude Fable 5 / Mythos, Sonnet 5, and Opus 4.7+ reject non-default sampling
+// parameters (temperature/top_p/top_k) with a 400 — omit temperature for them.
+function supportsTemperature(model: string): boolean {
+  return !/^claude-(fable|mythos|sonnet-5|opus-4-[789])/.test(model)
+}
 
 /**
  * Image content block for multimodal messages
@@ -285,9 +291,9 @@ export async function POST(request: NextRequest) {
   // Check for API key
   if (!process.env.ANTHROPIC_API_KEY) {
     return jsonResponse(
-      { error: 'ANTHROPIC_API_KEY environment variable is not configured' },
+      {error: 'ANTHROPIC_API_KEY environment variable is not configured'},
       500,
-      origin
+      origin,
     )
   }
 
@@ -296,31 +302,27 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json()
   } catch {
-    return jsonResponse(
-      { error: 'Invalid JSON in request body' },
-      400,
-      origin
-    )
+    return jsonResponse({error: 'Invalid JSON in request body'}, 400, origin)
   }
 
   // Validate request
   if (!validateRequest(body)) {
     return jsonResponse(
-      { error: 'Invalid request body. Expected { messages: Array<{ role: "user" | "assistant", content: string }>, schema?: object, instructions?: string }' },
+      {
+        error:
+          'Invalid request body. Expected { messages: Array<{ role: "user" | "assistant", content: string }>, schema?: object, instructions?: string }',
+      },
       400,
-      origin
+      origin,
     )
   }
 
-  const { messages, schema, instructions, system, model, maxTokens, temperature } = body as ClaudeChatRequest
+  const {messages, schema, instructions, system, model, maxTokens, temperature} =
+    body as ClaudeChatRequest
 
   // Ensure there's at least one message
   if (messages.length === 0) {
-    return jsonResponse(
-      { error: 'At least one message is required' },
-      400,
-      origin
-    )
+    return jsonResponse({error: 'At least one message is required'}, 400, origin)
   }
 
   // Use pre-built system prompt from studio if provided, otherwise build fallback
@@ -337,7 +339,7 @@ export async function POST(request: NextRequest) {
     const stream = await anthropic.messages.stream({
       model: selectedModel,
       max_tokens: selectedMaxTokens,
-      temperature: selectedTemperature,
+      ...(supportsTemperature(selectedModel) ? {temperature: selectedTemperature} : {}),
       system: systemPrompt,
       messages: messages.map((m) => ({
         role: m.role,
@@ -354,11 +356,8 @@ export async function POST(request: NextRequest) {
         try {
           for await (const event of stream) {
             // Handle text delta events
-            if (
-              event.type === 'content_block_delta' &&
-              event.delta.type === 'text_delta'
-            ) {
-              const data = JSON.stringify({ text: event.delta.text })
+            if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+              const data = JSON.stringify({text: event.delta.text})
               controller.enqueue(encoder.encode(`data: ${data}\n\n`))
             }
 
@@ -401,29 +400,29 @@ export async function POST(request: NextRequest) {
       // Handle rate limiting
       if (statusCode === 429) {
         return jsonResponse(
-          { error: 'Rate limit exceeded. Please wait a moment and try again.' },
+          {error: 'Rate limit exceeded. Please wait a moment and try again.'},
           429,
-          origin
+          origin,
         )
       }
 
       // Handle authentication errors
       if (statusCode === 401) {
         return jsonResponse(
-          { error: 'Invalid API key. Please check your ANTHROPIC_API_KEY configuration.' },
+          {error: 'Invalid API key. Please check your ANTHROPIC_API_KEY configuration.'},
           401,
-          origin
+          origin,
         )
       }
 
-      return jsonResponse({ error: message }, statusCode, origin)
+      return jsonResponse({error: message}, statusCode, origin)
     }
 
     // Generic error response
     return jsonResponse(
-      { error: 'An unexpected error occurred while processing your request' },
+      {error: 'An unexpected error occurred while processing your request'},
       500,
-      origin
+      origin,
     )
   }
 }

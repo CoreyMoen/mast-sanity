@@ -83,8 +83,8 @@ type LinkLike = {
   linkType?: string
   href?: string
   openInNewTab?: boolean
-  page?: string | { _ref: string; _type: 'reference' }
-  post?: string | { _ref: string; _type: 'reference' }
+  page?: string | {_ref: string; _type: 'reference'}
+  post?: string | {_ref: string; _type: 'reference'}
   variable?: {
     _id?: string
     variableType?: 'link'

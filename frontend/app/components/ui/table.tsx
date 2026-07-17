@@ -9,7 +9,8 @@ interface TableProps extends React.HTMLAttributes<HTMLTableElement> {
 const variantClasses = {
   default: '',
   striped: '[&_tbody_tr:nth-child(even)]:bg-muted-background',
-  bordered: 'border border-border [&_th]:border [&_th]:border-border [&_td]:border [&_td]:border-border',
+  bordered:
+    'border border-border [&_th]:border [&_th]:border-border [&_td]:border [&_td]:border-border',
 }
 
 const Table = React.forwardRef<HTMLTableElement, TableProps>(
@@ -17,15 +18,11 @@ const Table = React.forwardRef<HTMLTableElement, TableProps>(
     <div className="relative w-full overflow-auto">
       <table
         ref={ref}
-        className={cn(
-          'w-full caption-bottom text-body',
-          variantClasses[variant],
-          className
-        )}
+        className={cn('w-full caption-bottom text-body', variantClasses[variant], className)}
         {...props}
       />
     </div>
-  )
+  ),
 )
 Table.displayName = 'Table'
 
@@ -76,11 +73,11 @@ const TableRow = React.forwardRef<HTMLTableRowElement, TableRowProps>(
       className={cn(
         'border-b border-border transition-colors',
         !isHeader && 'hover:bg-muted-background/50',
-        className
+        className,
       )}
       {...props}
     />
-  )
+  ),
 )
 TableRow.displayName = 'TableRow'
 
@@ -99,11 +96,11 @@ const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
         align === 'left' && 'text-left',
         align === 'center' && 'text-center',
         align === 'right' && 'text-right',
-        className
+        className,
       )}
       {...props}
     />
-  )
+  ),
 )
 TableHead.displayName = 'TableHead'
 
@@ -121,11 +118,11 @@ const TableCell = React.forwardRef<HTMLTableCellElement, TableCellProps>(
         align === 'left' && 'text-left',
         align === 'center' && 'text-center',
         align === 'right' && 'text-right',
-        className
+        className,
       )}
       {...props}
     />
-  )
+  ),
 )
 TableCell.displayName = 'TableCell'
 
@@ -134,21 +131,8 @@ const TableCaption = React.forwardRef<
   HTMLTableCaptionElement,
   React.HTMLAttributes<HTMLTableCaptionElement>
 >(({className, ...props}, ref) => (
-  <caption
-    ref={ref}
-    className={cn('mt-4 text-p-sm text-muted-foreground', className)}
-    {...props}
-  />
+  <caption ref={ref} className={cn('mt-4 text-p-sm text-muted-foreground', className)} {...props} />
 ))
 TableCaption.displayName = 'TableCaption'
 
-export {
-  Table,
-  TableHeader,
-  TableBody,
-  TableFooter,
-  TableRow,
-  TableHead,
-  TableCell,
-  TableCaption,
-}
+export {Table, TableHeader, TableBody, TableFooter, TableRow, TableHead, TableCell, TableCaption}

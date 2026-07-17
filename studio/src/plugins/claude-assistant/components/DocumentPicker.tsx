@@ -27,7 +27,10 @@ import {
   useClickOutside,
   Layer,
 } from '@sanity/ui'
-import {DocumentIcon, SearchIcon, CloseIcon, DocumentsIcon} from '@sanity/icons'
+import {DocumentIcon} from '@sanity/icons/Document'
+import {SearchIcon} from '@sanity/icons/Search'
+import {CloseIcon} from '@sanity/icons/Close'
+import {DocumentsIcon} from '@sanity/icons/Documents'
 import type {SanityClient} from 'sanity'
 import type {DocumentContext} from '../types'
 
@@ -73,7 +76,7 @@ export function DocumentPicker({
   // Memoize document types to prevent infinite re-renders
   const documentTypes = useMemo(
     () => documentTypesProp ?? PICKER_DEFAULT_DOCUMENT_TYPES,
-    [documentTypesProp]
+    [documentTypesProp],
   )
 
   // Use controlled or uncontrolled state
@@ -117,16 +120,17 @@ export function DocumentPicker({
   }, [])
 
   // Fetch documents based on search query
-  const fetchDocuments = useCallback(async (query: string) => {
-    setIsLoading(true)
-    try {
-      // Wrap type filter in parentheses to ensure correct operator precedence with search filter
-      const typeFilter = `(${documentTypes.map(t => `_type == "${t}"`).join(' || ')})`
-      const searchFilter = query
-        ? `&& (name match "*${query}*" || title match "*${query}*" || slug.current match "*${query}*")`
-        : ''
+  const fetchDocuments = useCallback(
+    async (query: string) => {
+      setIsLoading(true)
+      try {
+        // Wrap type filter in parentheses to ensure correct operator precedence with search filter
+        const typeFilter = `(${documentTypes.map((t) => `_type == "${t}"`).join(' || ')})`
+        const searchFilter = query
+          ? `&& (name match "*${query}*" || title match "*${query}*" || slug.current match "*${query}*")`
+          : ''
 
-      const groqQuery = `*[${typeFilter} ${searchFilter}] | order(_updatedAt desc) [0...50] {
+        const groqQuery = `*[${typeFilter} ${searchFilter}] | order(_updatedAt desc) [0...50] {
         _id,
         _type,
         name,
@@ -134,16 +138,18 @@ export function DocumentPicker({
         slug
       }`
 
-      const results = await client.fetch<DocumentResult[]>(groqQuery)
-      // Deduplicate to show only one entry per document (prefer draft over published)
-      setDocuments(deduplicateDocuments(results))
-    } catch (err) {
-      console.error('Failed to fetch documents:', err)
-      setDocuments([])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [client, documentTypes, deduplicateDocuments])
+        const results = await client.fetch<DocumentResult[]>(groqQuery)
+        // Deduplicate to show only one entry per document (prefer draft over published)
+        setDocuments(deduplicateDocuments(results))
+      } catch (err) {
+        console.error('Failed to fetch documents:', err)
+        setDocuments([])
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [client, documentTypes, deduplicateDocuments],
+  )
 
   // Track if we just opened the popover (for immediate vs debounced fetch)
   const justOpenedRef = useRef(false)
@@ -183,23 +189,26 @@ export function DocumentPicker({
     }
   }, [isOpen, searchQuery, fetchDocuments])
 
-  const handleToggleDocument = useCallback((doc: DocumentResult) => {
-    const displayName = doc.name || doc.title || 'Untitled'
-    const docContext: DocumentContext = {
-      _id: doc._id,
-      _type: doc._type,
-      name: displayName,
-      slug: doc.slug?.current,
-    }
+  const handleToggleDocument = useCallback(
+    (doc: DocumentResult) => {
+      const displayName = doc.name || doc.title || 'Untitled'
+      const docContext: DocumentContext = {
+        _id: doc._id,
+        _type: doc._type,
+        name: displayName,
+        slug: doc.slug?.current,
+      }
 
-    const isSelected = selectedDocuments.some(d => d._id === doc._id)
+      const isSelected = selectedDocuments.some((d) => d._id === doc._id)
 
-    if (isSelected) {
-      onDocumentsChange(selectedDocuments.filter(d => d._id !== doc._id))
-    } else {
-      onDocumentsChange([...selectedDocuments, docContext])
-    }
-  }, [selectedDocuments, onDocumentsChange])
+      if (isSelected) {
+        onDocumentsChange(selectedDocuments.filter((d) => d._id !== doc._id))
+      } else {
+        onDocumentsChange([...selectedDocuments, docContext])
+      }
+    },
+    [selectedDocuments, onDocumentsChange],
+  )
 
   const getDocTypeIcon = (type: string) => {
     switch (type) {
@@ -267,7 +276,7 @@ export function DocumentPicker({
           ) : (
             <Stack padding={1} space={1}>
               {documents.map((doc) => {
-                const isSelected = selectedDocuments.some(d => d._id === doc._id)
+                const isSelected = selectedDocuments.some((d) => d._id === doc._id)
                 const displayName = doc.name || doc.title || 'Untitled'
 
                 return (
@@ -303,7 +312,11 @@ export function DocumentPicker({
                         </Text>
                       </Stack>
                       {isSelected && (
-                        <Text size={0} weight="semibold" style={{color: 'var(--card-focus-ring-color)'}}>
+                        <Text
+                          size={0}
+                          weight="semibold"
+                          style={{color: 'var(--card-focus-ring-color)'}}
+                        >
                           ✓
                         </Text>
                       )}
@@ -326,7 +339,8 @@ export function DocumentPicker({
           >
             <Flex align="center" justify="space-between">
               <Text size={0} muted>
-                {selectedDocuments.length} document{selectedDocuments.length !== 1 ? 's' : ''} selected
+                {selectedDocuments.length} document{selectedDocuments.length !== 1 ? 's' : ''}{' '}
+                selected
               </Text>
               <Button
                 text="Clear all"
@@ -344,12 +358,7 @@ export function DocumentPicker({
   )
 
   return (
-    <Popover
-      content={content}
-      open={isOpen}
-      placement="top-start"
-      portal
-    >
+    <Popover content={content} open={isOpen} placement="top-start" portal>
       <Tooltip
         content={
           <Box padding={2}>
@@ -484,7 +493,7 @@ export function DocumentPickerDialog({
   // Memoize document types to prevent infinite re-renders
   const documentTypes = useMemo(
     () => documentTypesProp ?? DEFAULT_DOCUMENT_TYPES,
-    [documentTypesProp]
+    [documentTypesProp],
   )
 
   const [searchQuery, setSearchQuery] = useState('')
@@ -516,17 +525,18 @@ export function DocumentPickerDialog({
   }, [])
 
   // Fetch documents based on search query
-  const fetchDocuments = useCallback(async (query: string) => {
-    if (!client) return
-    setIsLoading(true)
-    try {
-      // Wrap type filter in parentheses to ensure correct operator precedence with search filter
-      const typeFilter = `(${documentTypes.map(t => `_type == "${t}"`).join(' || ')})`
-      const searchFilter = query
-        ? `&& (name match "*${query}*" || title match "*${query}*" || slug.current match "*${query}*")`
-        : ''
+  const fetchDocuments = useCallback(
+    async (query: string) => {
+      if (!client) return
+      setIsLoading(true)
+      try {
+        // Wrap type filter in parentheses to ensure correct operator precedence with search filter
+        const typeFilter = `(${documentTypes.map((t) => `_type == "${t}"`).join(' || ')})`
+        const searchFilter = query
+          ? `&& (name match "*${query}*" || title match "*${query}*" || slug.current match "*${query}*")`
+          : ''
 
-      const groqQuery = `*[${typeFilter} ${searchFilter}] | order(_updatedAt desc) [0...50] {
+        const groqQuery = `*[${typeFilter} ${searchFilter}] | order(_updatedAt desc) [0...50] {
         _id,
         _type,
         name,
@@ -534,16 +544,18 @@ export function DocumentPickerDialog({
         slug
       }`
 
-      const results = await client.fetch<DocumentResult[]>(groqQuery)
-      // Deduplicate to show only one entry per document (prefer draft over published)
-      setDocuments(deduplicateDocuments(results))
-    } catch (err) {
-      console.error('Failed to fetch documents:', err)
-      setDocuments([])
-    } finally {
-      setIsLoading(false)
-    }
-  }, [client, documentTypes, deduplicateDocuments])
+        const results = await client.fetch<DocumentResult[]>(groqQuery)
+        // Deduplicate to show only one entry per document (prefer draft over published)
+        setDocuments(deduplicateDocuments(results))
+      } catch (err) {
+        console.error('Failed to fetch documents:', err)
+        setDocuments([])
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [client, documentTypes, deduplicateDocuments],
+  )
 
   // Track if we just opened the dialog (for immediate vs debounced fetch)
   const justOpenedRef = useRef(false)
@@ -583,23 +595,26 @@ export function DocumentPickerDialog({
     }
   }, [isOpen, searchQuery, fetchDocuments])
 
-  const handleToggleDocument = useCallback((doc: DocumentResult) => {
-    const displayName = doc.name || doc.title || 'Untitled'
-    const docContext: DocumentContext = {
-      _id: doc._id,
-      _type: doc._type,
-      name: displayName,
-      slug: doc.slug?.current,
-    }
+  const handleToggleDocument = useCallback(
+    (doc: DocumentResult) => {
+      const displayName = doc.name || doc.title || 'Untitled'
+      const docContext: DocumentContext = {
+        _id: doc._id,
+        _type: doc._type,
+        name: displayName,
+        slug: doc.slug?.current,
+      }
 
-    const isSelected = selectedDocuments.some(d => d._id === doc._id)
+      const isSelected = selectedDocuments.some((d) => d._id === doc._id)
 
-    if (isSelected) {
-      onDocumentsChange(selectedDocuments.filter(d => d._id !== doc._id))
-    } else {
-      onDocumentsChange([...selectedDocuments, docContext])
-    }
-  }, [selectedDocuments, onDocumentsChange])
+      if (isSelected) {
+        onDocumentsChange(selectedDocuments.filter((d) => d._id !== doc._id))
+      } else {
+        onDocumentsChange([...selectedDocuments, docContext])
+      }
+    },
+    [selectedDocuments, onDocumentsChange],
+  )
 
   const getDocTypeLabel = (type: string) => {
     switch (type) {
@@ -650,12 +665,7 @@ export function DocumentPickerDialog({
             style={{borderBottom: '1px solid var(--card-border-color)'}}
           >
             <Text weight="semibold">Select Documents</Text>
-            <Button
-              icon={CloseIcon}
-              mode="bleed"
-              onClick={onClose}
-              aria-label="Close"
-            />
+            <Button icon={CloseIcon} mode="bleed" onClick={onClose} aria-label="Close" />
           </Flex>
 
           {/* Search input */}
@@ -690,7 +700,7 @@ export function DocumentPickerDialog({
             ) : (
               <Stack padding={2} space={1}>
                 {documents.map((doc) => {
-                  const isSelected = selectedDocuments.some(d => d._id === doc._id)
+                  const isSelected = selectedDocuments.some((d) => d._id === doc._id)
                   const displayName = doc.name || doc.title || 'Untitled'
 
                   return (
@@ -712,11 +722,7 @@ export function DocumentPickerDialog({
                           style={{marginTop: 2}}
                         />
                         <Stack space={2} style={{flex: 1, minWidth: 0}}>
-                          <Text
-                            size={1}
-                            weight="medium"
-                            textOverflow="ellipsis"
-                          >
+                          <Text size={1} weight="medium" textOverflow="ellipsis">
                             {displayName}
                           </Text>
                           <Text muted style={{fontSize: '0.75rem'}}>
@@ -754,11 +760,7 @@ export function DocumentPickerDialog({
                   onClick={() => onDocumentsChange([])}
                 />
               )}
-              <Button
-                text="Done"
-                tone="primary"
-                onClick={onClose}
-              />
+              <Button text="Done" tone="primary" onClick={onClose} />
             </Flex>
           </Flex>
         </Card>

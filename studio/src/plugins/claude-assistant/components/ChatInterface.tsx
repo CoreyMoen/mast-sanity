@@ -12,18 +12,30 @@
  */
 
 import React, {useCallback, useState, useRef, useEffect, useMemo} from 'react'
-import {Box, Card, Flex, Stack, Text, Button, Tooltip, Spinner, Menu, MenuButton, MenuItem, Dialog, Label} from '@sanity/ui'
 import {
-  CogIcon,
-  TrashIcon,
-  ResetIcon,
-  MenuIcon,
-  AddIcon,
-  ChevronLeftIcon,
-  EllipsisVerticalIcon,
-  DesktopIcon,
-  DocumentsIcon,
-} from '@sanity/icons'
+  Box,
+  Card,
+  Flex,
+  Stack,
+  Text,
+  Button,
+  Tooltip,
+  Spinner,
+  Menu,
+  MenuButton,
+  MenuItem,
+  Dialog,
+  Label,
+} from '@sanity/ui'
+import {CogIcon} from '@sanity/icons/Cog'
+import {TrashIcon} from '@sanity/icons/Trash'
+import {ResetIcon} from '@sanity/icons/Reset'
+import {MenuIcon} from '@sanity/icons/Menu'
+import {AddIcon} from '@sanity/icons/Add'
+import {ChevronLeftIcon} from '@sanity/icons/ChevronLeft'
+import {EllipsisVerticalIcon} from '@sanity/icons/EllipsisVertical'
+import {DesktopIcon} from '@sanity/icons/Desktop'
+import {DocumentsIcon} from '@sanity/icons/Documents'
 import type {SanityClient, Schema, CurrentUser} from 'sanity'
 import type {
   Conversation,
@@ -59,7 +71,6 @@ function toWorkflowOption(workflow: Workflow): WorkflowOption {
     enableFigmaFetch: workflow.enableFigmaFetch,
   }
 }
-
 
 /**
  * Props for ChatInterface component
@@ -360,7 +371,9 @@ export function ChatInterface({
   const [workflowPickerOpen, setWorkflowPickerOpen] = useState(false)
   // State for document selection modal when continuing to Presentation/Structure
   const [documentSelectModalOpen, setDocumentSelectModalOpen] = useState(false)
-  const [pendingNavigationMode, setPendingNavigationMode] = useState<'presentation' | 'structure' | null>(null)
+  const [pendingNavigationMode, setPendingNavigationMode] = useState<
+    'presentation' | 'structure' | null
+  >(null)
 
   // Use controlled or uncontrolled mode for document context
   const pendingDocuments = pendingDocumentsProp ?? localPendingDocuments
@@ -384,7 +397,9 @@ export function ChatInterface({
       if (newMessage) {
         const sender = newMessage.role === 'user' ? 'You' : 'Claude'
         const preview = newMessage.content?.substring(0, 100) || 'New message'
-        announceToScreenReader(`${sender}: ${preview}${newMessage.content && newMessage.content.length > 100 ? '...' : ''}`)
+        announceToScreenReader(
+          `${sender}: ${preview}${newMessage.content && newMessage.content.length > 100 ? '...' : ''}`,
+        )
       }
     }
     prevMessageCountRef.current = messages.length
@@ -407,7 +422,8 @@ export function ChatInterface({
   const extractedDocumentContext = useMemo(() => extractDocumentContext(messages), [messages])
 
   // Enhanced document context state (with fetched slug if needed)
-  const [enhancedDocumentContext, setEnhancedDocumentContext] = useState<EnhancedDocumentContext | null>(null)
+  const [enhancedDocumentContext, setEnhancedDocumentContext] =
+    useState<EnhancedDocumentContext | null>(null)
 
   // Fetch slug when we have a page documentId but no slug
   useEffect(() => {
@@ -434,15 +450,18 @@ export function ChatInterface({
     }
 
     // If it's a page and we have client, fetch the slug
-    if (extractedDocumentContext.documentType === 'page' && extractedDocumentContext.documentId && client) {
+    if (
+      extractedDocumentContext.documentType === 'page' &&
+      extractedDocumentContext.documentId &&
+      client
+    ) {
       setEnhancedDocumentContext({...extractedDocumentContext, isLoading: true})
 
       // Fetch the document to get its slug
       client
-        .fetch<{slug?: {current?: string}}>(
-          `*[_id == $id || _id == "drafts." + $id][0]{slug}`,
-          {id: extractedDocumentContext.documentId}
-        )
+        .fetch<{slug?: {current?: string}}>(`*[_id == $id || _id == "drafts." + $id][0]{slug}`, {
+          id: extractedDocumentContext.documentId,
+        })
         .then((result) => {
           setEnhancedDocumentContext({
             ...extractedDocumentContext,
@@ -494,7 +513,8 @@ export function ChatInterface({
     // 1. We have extracted documents from messages
     // 2. User hasn't manually modified the selection
     // 3. pendingDocuments is empty OR conversation just changed
-    const shouldAutoPopulate = allExtractedDocuments.length > 0 &&
+    const shouldAutoPopulate =
+      allExtractedDocuments.length > 0 &&
       !hasManualDocumentSelection &&
       (pendingDocuments.length === 0 || conversationChanged) &&
       client
@@ -507,10 +527,15 @@ export function ChatInterface({
 
         for (const extractedDoc of docsToFetch) {
           try {
-            const doc = await client.fetch<{_id: string; _type: string; name?: string; title?: string; slug?: {current?: string}}>(
-              `*[_id == $id || _id == "drafts." + $id][0]{_id, _type, name, title, slug}`,
-              {id: extractedDoc.documentId}
-            )
+            const doc = await client.fetch<{
+              _id: string
+              _type: string
+              name?: string
+              title?: string
+              slug?: {current?: string}
+            }>(`*[_id == $id || _id == "drafts." + $id][0]{_id, _type, name, title, slug}`, {
+              id: extractedDoc.documentId,
+            })
             if (doc) {
               fetchedDocs.push({
                 _id: doc._id.replace(/^drafts\./, ''),
@@ -539,19 +564,23 @@ export function ChatInterface({
 
       fetchDocumentContexts()
     }
-  }, [allExtractedDocuments, activeConversation?.id, hasManualDocumentSelection, pendingDocuments.length, client, setPendingDocuments])
+  }, [
+    allExtractedDocuments,
+    activeConversation?.id,
+    hasManualDocumentSelection,
+    pendingDocuments.length,
+    client,
+    setPendingDocuments,
+  ])
 
   // Handle quick action selection - pre-populates the input instead of sending immediately
-  const handleQuickAction = useCallback(
-    (action: QuickAction) => {
-      setPendingInput(action.prompt)
-      // Focus the input after pre-populating
-      setTimeout(() => {
-        messageInputRef.current?.focus()
-      }, 50)
-    },
-    []
-  )
+  const handleQuickAction = useCallback((action: QuickAction) => {
+    setPendingInput(action.prompt)
+    // Focus the input after pre-populating
+    setTimeout(() => {
+      messageInputRef.current?.focus()
+    }, 50)
+  }, [])
 
   // Handle send message
   const handleSend = useCallback(
@@ -561,7 +590,7 @@ export function ChatInterface({
       setPendingInput('')
       setPendingImages([])
     },
-    [onSendMessage]
+    [onSendMessage],
   )
 
   // Handle image selection from picker
@@ -575,50 +604,61 @@ export function ChatInterface({
   }, [])
 
   // Handle document selection change
-  const handleDocumentsChange = useCallback((documents: DocumentContextType[]) => {
-    setPendingDocuments(documents)
-    // Mark as manual selection to prevent auto-population from overwriting
-    setHasManualDocumentSelection(true)
-  }, [setPendingDocuments])
+  const handleDocumentsChange = useCallback(
+    (documents: DocumentContextType[]) => {
+      setPendingDocuments(documents)
+      // Mark as manual selection to prevent auto-population from overwriting
+      setHasManualDocumentSelection(true)
+    },
+    [setPendingDocuments],
+  )
 
   // Handle removing a document from context
-  const handleRemoveDocument = useCallback((documentId: string) => {
-    if (onRemoveDocumentProp) {
-      onRemoveDocumentProp(documentId)
-    } else {
-      setLocalPendingDocuments((prev) => prev.filter((doc) => doc._id !== documentId))
-    }
-  }, [onRemoveDocumentProp])
-
+  const handleRemoveDocument = useCallback(
+    (documentId: string) => {
+      if (onRemoveDocumentProp) {
+        onRemoveDocumentProp(documentId)
+      } else {
+        setLocalPendingDocuments((prev) => prev.filter((doc) => doc._id !== documentId))
+      }
+    },
+    [onRemoveDocumentProp],
+  )
 
   // Handle workflow selection change from picker
-  const handleWorkflowsChange = useCallback((newWorkflows: WorkflowOption[]) => {
-    setPendingWorkflows(newWorkflows)
-    // If a new workflow was added and it has a starter prompt, pre-populate input
-    if (newWorkflows.length > pendingWorkflows.length) {
-      const addedWorkflow = newWorkflows[newWorkflows.length - 1]
-      if (addedWorkflow?.starterPrompt && !pendingInput) {
-        setPendingInput(addedWorkflow.starterPrompt)
-        setTimeout(() => {
-          messageInputRef.current?.focus()
-        }, 50)
+  const handleWorkflowsChange = useCallback(
+    (newWorkflows: WorkflowOption[]) => {
+      setPendingWorkflows(newWorkflows)
+      // If a new workflow was added and it has a starter prompt, pre-populate input
+      if (newWorkflows.length > pendingWorkflows.length) {
+        const addedWorkflow = newWorkflows[newWorkflows.length - 1]
+        if (addedWorkflow?.starterPrompt && !pendingInput) {
+          setPendingInput(addedWorkflow.starterPrompt)
+          setTimeout(() => {
+            messageInputRef.current?.focus()
+          }, 50)
+        }
       }
-    }
-  }, [setPendingWorkflows, pendingWorkflows.length, pendingInput])
+    },
+    [setPendingWorkflows, pendingWorkflows.length, pendingInput],
+  )
 
   // Handle removing a workflow from context
-  const handleRemoveWorkflow = useCallback((workflowId: string) => {
-    if (onRemoveWorkflowProp) {
-      onRemoveWorkflowProp(workflowId)
-    } else {
-      setLocalPendingWorkflows((prev) => prev.filter((w) => w._id !== workflowId))
-    }
-  }, [onRemoveWorkflowProp])
+  const handleRemoveWorkflow = useCallback(
+    (workflowId: string) => {
+      if (onRemoveWorkflowProp) {
+        onRemoveWorkflowProp(workflowId)
+      } else {
+        setLocalPendingWorkflows((prev) => prev.filter((w) => w._id !== workflowId))
+      }
+    },
+    [onRemoveWorkflowProp],
+  )
 
   // Transform workflows for WorkflowPicker
   const workflowOptions: WorkflowOption[] = useMemo(
     () => workflows?.map(toWorkflowOption) || [],
-    [workflows]
+    [workflows],
   )
 
   // Toggle sidebar
@@ -660,107 +700,116 @@ export function ChatInterface({
   const isConfigured = true
 
   // Navigate to a specific document in a given mode
-  const navigateToDocument = useCallback(async (mode: 'presentation' | 'structure', doc: DocumentContextType) => {
-    // Store the current conversation ID for the floating chat to pick up
-    const conversationId = activeConversation?.id
-    if (conversationId) {
-      try {
-        localStorage.setItem('claude-floating-pending-conversation', conversationId)
-        localStorage.setItem('claude-floating-chat-open', 'true')
-      } catch {
-        // Ignore storage errors
-      }
-    }
-
-    let url = `/${mode}`
-
-    if (doc._type) {
-      if (mode === 'structure') {
-        // Structure URL: /structure/{type};{id}
-        url = `/structure/${doc._type};${doc._id}`
-      } else if (mode === 'presentation') {
-        // Presentation URL: /presentation?preview={slug} for pages
-        if (doc._type === 'page') {
-          let slug = doc.slug
-
-          // If we don't have a slug yet, try to fetch it
-          if (!slug && client && doc._id) {
-            try {
-              const result = await client.fetch<{slug?: {current?: string}}>(
-                `*[_id == $id || _id == "drafts." + $id][0]{slug}`,
-                {id: doc._id}
-              )
-              slug = result?.slug?.current
-            } catch {
-              // Ignore fetch errors
-            }
-          }
-
-          if (slug) {
-            const slugPath = slug === 'index' ? '/' : `/${slug}`
-            url = `/presentation?preview=${encodeURIComponent(slugPath)}`
-          } else {
-            // Fall back to structure mode if we still don't have a slug
-            url = `/structure/${doc._type};${doc._id}`
-          }
-        } else {
-          // For non-pages, use structure mode
-          url = `/structure/${doc._type};${doc._id}`
+  const navigateToDocument = useCallback(
+    async (mode: 'presentation' | 'structure', doc: DocumentContextType) => {
+      // Store the current conversation ID for the floating chat to pick up
+      const conversationId = activeConversation?.id
+      if (conversationId) {
+        try {
+          localStorage.setItem('claude-floating-pending-conversation', conversationId)
+          localStorage.setItem('claude-floating-chat-open', 'true')
+        } catch {
+          // Ignore storage errors
         }
       }
-    }
 
-    window.location.href = url
-  }, [activeConversation?.id, client])
+      let url = `/${mode}`
+
+      if (doc._type) {
+        if (mode === 'structure') {
+          // Structure URL: /structure/{type};{id}
+          url = `/structure/${doc._type};${doc._id}`
+        } else if (mode === 'presentation') {
+          // Presentation URL: /presentation?preview={slug} for pages
+          if (doc._type === 'page') {
+            let slug = doc.slug
+
+            // If we don't have a slug yet, try to fetch it
+            if (!slug && client && doc._id) {
+              try {
+                const result = await client.fetch<{slug?: {current?: string}}>(
+                  `*[_id == $id || _id == "drafts." + $id][0]{slug}`,
+                  {id: doc._id},
+                )
+                slug = result?.slug?.current
+              } catch {
+                // Ignore fetch errors
+              }
+            }
+
+            if (slug) {
+              const slugPath = slug === 'index' ? '/' : `/${slug}`
+              url = `/presentation?preview=${encodeURIComponent(slugPath)}`
+            } else {
+              // Fall back to structure mode if we still don't have a slug
+              url = `/structure/${doc._type};${doc._id}`
+            }
+          } else {
+            // For non-pages, use structure mode
+            url = `/structure/${doc._type};${doc._id}`
+          }
+        }
+      }
+
+      window.location.href = url
+    },
+    [activeConversation?.id, client],
+  )
 
   // Handle document selection from modal
-  const handleDocumentSelectForNavigation = useCallback((doc: DocumentContextType) => {
-    setDocumentSelectModalOpen(false)
-    if (pendingNavigationMode) {
-      navigateToDocument(pendingNavigationMode, doc)
-    }
-    setPendingNavigationMode(null)
-  }, [navigateToDocument, pendingNavigationMode])
+  const handleDocumentSelectForNavigation = useCallback(
+    (doc: DocumentContextType) => {
+      setDocumentSelectModalOpen(false)
+      if (pendingNavigationMode) {
+        navigateToDocument(pendingNavigationMode, doc)
+      }
+      setPendingNavigationMode(null)
+    },
+    [navigateToDocument, pendingNavigationMode],
+  )
 
   // Navigate to a different mode with floating chat, opening the relevant document
-  const handleContinueInMode = useCallback(async (mode: 'presentation' | 'structure') => {
-    // If we have multiple documents, show modal to let user choose
-    if (pendingDocuments.length > 1) {
-      setPendingNavigationMode(mode)
-      setDocumentSelectModalOpen(true)
-      return
-    }
-
-    // If we have exactly one document, navigate directly
-    if (pendingDocuments.length === 1) {
-      await navigateToDocument(mode, pendingDocuments[0])
-      return
-    }
-
-    // If we have enhanced document context (from messages), use it
-    if (documentContext && documentContext.documentType) {
-      const doc: DocumentContextType = {
-        _id: documentContext.documentId,
-        _type: documentContext.documentType,
-        name: documentContext.name || documentContext.documentType,
-        slug: documentContext.slug,
+  const handleContinueInMode = useCallback(
+    async (mode: 'presentation' | 'structure') => {
+      // If we have multiple documents, show modal to let user choose
+      if (pendingDocuments.length > 1) {
+        setPendingNavigationMode(mode)
+        setDocumentSelectModalOpen(true)
+        return
       }
-      await navigateToDocument(mode, doc)
-      return
-    }
 
-    // Fallback: just navigate to the mode without a specific document
-    const conversationId = activeConversation?.id
-    if (conversationId) {
-      try {
-        localStorage.setItem('claude-floating-pending-conversation', conversationId)
-        localStorage.setItem('claude-floating-chat-open', 'true')
-      } catch {
-        // Ignore storage errors
+      // If we have exactly one document, navigate directly
+      if (pendingDocuments.length === 1) {
+        await navigateToDocument(mode, pendingDocuments[0])
+        return
       }
-    }
-    window.location.href = `/${mode}`
-  }, [pendingDocuments, documentContext, navigateToDocument, activeConversation?.id])
+
+      // If we have enhanced document context (from messages), use it
+      if (documentContext && documentContext.documentType) {
+        const doc: DocumentContextType = {
+          _id: documentContext.documentId,
+          _type: documentContext.documentType,
+          name: documentContext.name || documentContext.documentType,
+          slug: documentContext.slug,
+        }
+        await navigateToDocument(mode, doc)
+        return
+      }
+
+      // Fallback: just navigate to the mode without a specific document
+      const conversationId = activeConversation?.id
+      if (conversationId) {
+        try {
+          localStorage.setItem('claude-floating-pending-conversation', conversationId)
+          localStorage.setItem('claude-floating-chat-open', 'true')
+        } catch {
+          // Ignore storage errors
+        }
+      }
+      window.location.href = `/${mode}`
+    },
+    [pendingDocuments, documentContext, navigateToDocument, activeConversation?.id],
+  )
 
   // Register keyboard shortcuts
   useKeyboardShortcuts({
@@ -938,11 +987,7 @@ export function ChatInterface({
               <MenuButton
                 id="chat-more-options"
                 button={
-                  <Button
-                    icon={EllipsisVerticalIcon}
-                    mode="bleed"
-                    aria-label="More options"
-                  />
+                  <Button icon={EllipsisVerticalIcon} mode="bleed" aria-label="More options" />
                 }
                 menu={
                   <Menu>
@@ -978,13 +1023,10 @@ export function ChatInterface({
         {error && (
           <Card padding={3} tone="critical" style={{flexShrink: 0}}>
             <Flex align="center" gap={2}>
-              <Text size={1} style={{flex: 1}}>{error}</Text>
-              <Button
-                text="Retry"
-                mode="ghost"
-                tone="critical"
-                onClick={onRetryLastMessage}
-              />
+              <Text size={1} style={{flex: 1}}>
+                {error}
+              </Text>
+              <Button text="Retry" mode="ghost" tone="critical" onClick={onRetryLastMessage} />
             </Flex>
           </Card>
         )}
@@ -1003,7 +1045,7 @@ export function ChatInterface({
               overflow: 'auto',
             }}
           >
-              <Stack space={4} style={{maxWidth: 680, width: '100%'}}>
+            <Stack space={4} style={{maxWidth: 680, width: '100%'}}>
               {/* Welcome greeting */}
               <Flex direction="column" align="center" style={{marginBottom: 12}}>
                 <img

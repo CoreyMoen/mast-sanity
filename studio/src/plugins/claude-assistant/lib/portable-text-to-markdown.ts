@@ -98,7 +98,11 @@ function getHeadingPrefix(style: string | undefined): string {
 /**
  * Get the list prefix for a list item
  */
-function getListPrefix(listItem: 'bullet' | 'number' | undefined, index: number, level: number = 1): string {
+function getListPrefix(
+  listItem: 'bullet' | 'number' | undefined,
+  index: number,
+  level: number = 1,
+): string {
   const indent = '  '.repeat(level - 1)
 
   if (listItem === 'bullet') {

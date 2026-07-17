@@ -306,7 +306,7 @@ export interface PluginSettings {
 }
 
 export const DEFAULT_SETTINGS: PluginSettings = {
-  model: 'claude-sonnet-4-20250514',
+  model: 'claude-sonnet-5',
   maxTokens: 4096,
   temperature: 0.7,
   customInstructions: '',
@@ -334,9 +334,17 @@ export interface UseConversationsReturn {
   deleteConversation: (id: string) => Promise<void>
   updateConversationTitle: (id: string, title: string) => Promise<void>
   addMessage?: (conversationId: string, message: Message) => Promise<void>
-  updateMessage?: (conversationId: string, messageId: string, updates: Partial<Message>) => Promise<void>
+  updateMessage?: (
+    conversationId: string,
+    messageId: string,
+    updates: Partial<Message>,
+  ) => Promise<void>
   loadConversation?: (id: string) => Promise<Conversation | null>
-  generateTitle?: (conversationId: string, userMessage: string, assistantResponse: string) => Promise<void>
+  generateTitle?: (
+    conversationId: string,
+    userMessage: string,
+    assistantResponse: string,
+  ) => Promise<void>
   isLoading?: boolean
 }
 

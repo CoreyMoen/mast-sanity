@@ -152,17 +152,20 @@ export function BlockContextBridge() {
       const label = formatLabel(blockType)
       const icon = getBlockIcon(label)
 
-      window.parent.postMessage({
-        type: 'claude-block-context',
-        payload: {
-          blockType,
-          label,
-          icon,
-          path: sanityAttr || '',
-          preview: previewText,
-          timestamp: Date.now(),
+      window.parent.postMessage(
+        {
+          type: 'claude-block-context',
+          payload: {
+            blockType,
+            label,
+            icon,
+            path: sanityAttr || '',
+            preview: previewText,
+            timestamp: Date.now(),
+          },
         },
-      }, '*')
+        '*',
+      )
     }
 
     // Use capture phase to fire before overlay system processes the click

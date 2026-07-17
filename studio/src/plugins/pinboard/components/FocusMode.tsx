@@ -1,13 +1,11 @@
 import {useState, useEffect, useCallback} from 'react'
 import {Layer, Card, Flex, Text, Button, Spinner, Menu, MenuButton, MenuItem} from '@sanity/ui'
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  CloseIcon,
-  LaunchIcon,
-  EditIcon,
-  EllipsisVerticalIcon,
-} from '@sanity/icons'
+import {ChevronLeftIcon} from '@sanity/icons/ChevronLeft'
+import {ChevronRightIcon} from '@sanity/icons/ChevronRight'
+import {CloseIcon} from '@sanity/icons/Close'
+import {LaunchIcon} from '@sanity/icons/Launch'
+import {EditIcon} from '@sanity/icons/Edit'
+import {EllipsisVerticalIcon} from '@sanity/icons/EllipsisVertical'
 import type {PageDocument, PageStatus, PageWithStatus} from '../types'
 import {getPreviewPath} from './PageCard'
 
@@ -240,13 +238,7 @@ export function FocusMode({
 
               {/* Actions */}
               <MenuButton
-                button={
-                  <Button
-                    icon={EllipsisVerticalIcon}
-                    mode="bleed"
-                    title="More actions"
-                  />
-                }
+                button={<Button icon={EllipsisVerticalIcon} mode="bleed" title="More actions" />}
                 id="focus-mode-menu"
                 menu={
                   <Menu>
@@ -257,11 +249,7 @@ export function FocusMode({
                         onClick={() => window.open(`${previewOrigin}${previewPath}`, '_blank')}
                       />
                     )}
-                    <MenuItem
-                      icon={EditIcon}
-                      text="Edit document"
-                      onClick={() => onEdit(page)}
-                    />
+                    <MenuItem icon={EditIcon} text="Edit document" onClick={() => onEdit(page)} />
                   </Menu>
                 }
                 popover={{portal: true}}

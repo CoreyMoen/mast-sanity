@@ -42,26 +42,24 @@ export interface ClaudeAssistantOptions {
  *
  * Creates a Sanity plugin that adds the Claude Assistant tool to Studio
  */
-export const claudeAssistant = definePlugin<ClaudeAssistantOptions | void>(
-  (options) => {
-    const {title = 'Claude', apiEndpoint} = options || {}
+export const claudeAssistant = definePlugin<ClaudeAssistantOptions | void>((options) => {
+  const {title = 'Claude', apiEndpoint} = options || {}
 
-    return {
-      name: 'claude-assistant',
-      tools: [
-        {
-          name: 'claude',
-          title,
-          icon: ClaudeToolIcon,
-          component: ClaudeTool,
-          options: {
-            apiEndpoint,
-          },
-        } satisfies Tool<ClaudeAssistantOptions>,
-      ],
-    }
+  return {
+    name: 'claude-assistant',
+    tools: [
+      {
+        name: 'claude',
+        title,
+        icon: ClaudeToolIcon,
+        component: ClaudeTool,
+        options: {
+          apiEndpoint,
+        },
+      } satisfies Tool<ClaudeAssistantOptions>,
+    ],
   }
-)
+})
 
 // Re-export types for external use
 export type {

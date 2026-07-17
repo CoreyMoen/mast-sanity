@@ -1,126 +1,79 @@
 ---
 name: sanity-best-practices
-description: Sanity CMS best practices for schema design, GROQ queries, Visual Editing, Next.js integration, Portable Text, images, migrations, and more. Use when working with Sanity Studio, content modeling, data fetching, or Visual Editing features.
+description: Sanity development best practices for schema design, GROQ queries, TypeGen, Visual Editing, images, Portable Text, Studio structure, localization, migrations, Sanity Functions, Blueprints, and framework integrations such as Next.js, Nuxt, Astro, Remix, SvelteKit, Angular, Hydrogen, and the App SDK. Use this skill whenever working with Sanity schemas, defineType or defineField, GROQ or defineQuery, content modeling, Presentation or preview setups, Sanity-powered frontend integrations, Sanity Functions, documentEventHandler, defineDocumentFunction, defineMediaLibraryAssetFunction, @sanity/functions, @sanity/blueprints, sanity.blueprint.ts, event-driven content automation, or when reviewing and fixing a Sanity codebase.
 ---
 
 # Sanity Best Practices
 
-Comprehensive guidelines for building applications with Sanity CMS. This skill covers schema design, GROQ queries, Visual Editing, framework integrations, and content modeling patterns.
+Comprehensive best practices and integration guides for Sanity development, maintained by Sanity. Use the quick reference below to load only the one or two topic files that match the task.
 
 ## When to Apply
 
 Reference these guidelines when:
-- Designing Sanity schemas or content models
-- Writing GROQ queries for data fetching
-- Implementing Visual Editing or Presentation Tool
-- Integrating Sanity with Next.js, Astro, Remix, Nuxt, or SvelteKit
-- Working with Portable Text or images
-- Running migrations or managing project structure
+- Setting up a new Sanity project or onboarding
+- Integrating Sanity with a frontend framework (Next.js, Nuxt, Astro, Remix, SvelteKit, Hydrogen)
+- Writing GROQ queries or optimizing performance
+- Designing content schemas
+- Implementing Visual Editing and live preview
+- Working with images, Portable Text, or page builders
+- Configuring Sanity Studio structure
+- Setting up TypeGen for type safety
+- Implementing localization
+- Migrating content from other systems
+- Building custom apps with the Sanity App SDK
+- Managing infrastructure with Blueprints
+- Automating content workflows with Sanity Functions
 
-## Rule Categories
+## Global Rules
 
-| Category | File | Description |
-|----------|------|-------------|
-| **Getting Started** | `sanity-get-started.md` | Project setup and initial configuration |
-| **Project Structure** | `sanity-project-structure.md` | Directory organization and file conventions |
-| **Schema Design** | `sanity-schema.md` | Content modeling, field patterns, validation |
-| **GROQ Queries** | `sanity-groq.md` | Query syntax, performance, fragments |
-| **Visual Editing** | `sanity-visual-editing.md` | Presentation Tool, Stega, overlays |
-| **Page Builder** | `sanity-page-builder.md` | Block-based layouts and patterns |
-| **Portable Text** | `sanity-portable-text.md` | Rich text rendering and customization |
-| **Images** | `sanity-image.md` | Image handling, optimization, hotspots |
-| **Studio Structure** | `sanity-studio-structure.md` | Customizing Studio navigation and views |
-| **Localization** | `sanity-localization.md` | Multi-language content strategies |
-| **TypeGen** | `sanity-typegen.md` | TypeScript type generation |
-| **Migrations** | `sanity-migration.md` | Schema changes and data migrations |
-| **SEO** | `sanity-seo.md` | Metadata and SEO patterns |
-
-### Framework Integrations
-
-| Framework | File | Key Topics |
-|-----------|------|------------|
-| **Next.js** | `sanity-nextjs.md` | App Router, Live Content API, caching |
-| **Astro** | `sanity-astro.md` | Static/SSR integration |
-| **Remix** | `sanity-remix.md` | Loader patterns, live preview |
-| **Nuxt** | `sanity-nuxt.md` | Module configuration |
-| **SvelteKit** | `sanity-svelte.md` | Store-based loading |
-| **Hydrogen** | `sanity-hydrogen.md` | Shopify + Sanity patterns |
+- Let Sanity generate `_id` values for ordinary documents. Do not create deterministic UUIDs, slug-derived IDs, or legacy-system IDs when creating documents.
+- Model relationships with `reference` fields, then resolve related documents with GROQ lookups, source-key fields, or returned `_id` values from created documents.
+- Use explicit document IDs mainly for singleton documents controlled by Studio Structure, including localized singletons such as `homePage-en`.
 
 ## Quick Reference
 
-### The Golden Rule of Stega
+### Integration Guides
 
-When Visual Editing is enabled, string fields contain invisible characters. Clean them before logic:
+- `get-started` - Interactive onboarding for new Sanity projects
+- `nextjs` - Next.js App Router, Live Content API, standalone Studio
+- `nuxt` - Nuxt integration with @nuxtjs/sanity
+- `angular` - Angular integration with @sanity/client, signals, resource API
+- `astro` - Astro integration with @sanity/astro
+- `remix` - React Router / Remix integration
+- `svelte` - SvelteKit integration with @sanity/svelte-loader
+- `hydrogen` - Shopify Hydrogen with Sanity
+- `project-structure` - Standalone Studio and monorepo patterns
+- `app-sdk` - Custom applications with Sanity App SDK
+- `blueprints` - Infrastructure as Code: blueprint files, stacks, plan/deploy workflow, error recovery, CI deploys
+- `functions` - Automating content workflows with Sanity Functions
 
-```typescript
-import { stegaClean } from "@sanity/client/stega";
+### Topic Guides
 
-// Always clean before comparison
-const cleanAlign = stegaClean(align);
-if (cleanAlign === 'center') { /* ... */ }
-```
-
-### Schema Definition Syntax
-
-Always use helper functions for type safety:
-
-```typescript
-import { defineType, defineField, defineArrayMember } from 'sanity'
-
-export const article = defineType({
-  name: 'article',
-  type: 'document',
-  fields: [
-    defineField({ name: 'title', type: 'string' }),
-    defineField({
-      name: 'tags',
-      type: 'array',
-      of: [defineArrayMember({ type: 'reference', to: [{ type: 'tag' }] })]
-    })
-  ]
-})
-```
-
-### GROQ Query Best Practices
-
-```groq
-// Always wrap in defineQuery for TypeGen
-const QUERY = defineQuery(`
-  *[_type == "post" && slug.current == $slug][0]{
-    title,
-    // Expand references explicitly
-    author->{ name, bio },
-    // Use coalesce for defaults
-    "image": coalesce(mainImage, defaultImage)
-  }
-`)
-```
-
-### Array Keys for React
-
-Always use `_key` for array items:
-
-```typescript
-// Correct - uses Sanity's _key
-{items.map((item) => <Component key={item._key} {...item} />)}
-
-// Wrong - breaks Visual Editing
-{items.map((item, i) => <Component key={i} {...item} />)}
-```
+- `groq` - GROQ query patterns, type safety, performance optimization
+- `schema` - Schema design, field definitions, validation, deprecation patterns
+- `visual-editing` - Presentation Tool, Stega, overlays, live preview
+- `page-builder` - Page Builder arrays, block components, live editing
+- `portable-text` - Rich text rendering and custom components
+- `image` - Image schema, URL builder, hotspots, LQIP, Next.js Image
+- `studio-structure` - Desk structure, singletons, navigation
+- `typegen` - TypeGen configuration, workflow, type utilities
+- `seo` - Metadata, sitemaps, Open Graph, JSON-LD
+- `localization` - i18n patterns, document vs field-level, locale management
+- `migration` - Content import overview (see also `migration-html-import`)
+- `migration-html-import` - HTML to Portable Text with @portabletext/block-tools
 
 ## How to Use
 
-Read individual rule files for detailed explanations and code examples:
+Start with the single framework or topic guide that best matches the request, then read additional references only when the task crosses concerns. Use these reference files for detailed explanations and code examples:
 
 ```
-rules/sanity-schema.md      # Content modeling patterns
-rules/sanity-groq.md        # Query optimization
-rules/sanity-nextjs.md      # Next.js integration
-rules/sanity-visual-editing.md  # Presentation Tool setup
+references/groq.md
+references/schema.md
+references/nextjs.md
 ```
 
-Each rule file contains:
-- Best practices with rationale
-- Code examples (correct and incorrect)
-- Common patterns and pitfalls
-- Framework-specific guidance where applicable
+Each reference file contains:
+- Comprehensive topic or integration coverage
+- Incorrect and correct code examples
+- Decision matrices and workflow guidance
+- Framework-specific patterns where applicable

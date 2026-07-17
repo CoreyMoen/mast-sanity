@@ -32,12 +32,7 @@ interface AccordionBlockProps {
 }
 
 export default function AccordionBlock({block}: AccordionBlockProps) {
-  const {
-    items = [],
-    allowMultiple = true,
-    titleStyle = 'h4',
-    dividers = true,
-  } = block
+  const {items = [], allowMultiple = true, titleStyle = 'h4', dividers = true} = block
 
   // Clean stega encoding
   const cleanAllowMultiple = stegaClean(allowMultiple)
@@ -54,10 +49,7 @@ export default function AccordionBlock({block}: AccordionBlockProps) {
   return (
     <Accordion
       allowMultiple={cleanAllowMultiple}
-      className={cn(
-        'my-4',
-        cleanDividers ? 'divide-y divide-border' : 'divide-y-0'
-      )}
+      className={cn('my-4', cleanDividers ? 'divide-y divide-border' : 'divide-y-0')}
     >
       {items.map((item) => (
         <AccordionItem
@@ -65,9 +57,7 @@ export default function AccordionBlock({block}: AccordionBlockProps) {
           defaultOpen={item.defaultOpen}
           className={cn(!cleanDividers && 'mb-2')}
         >
-          <AccordionTrigger as={headingAs}>
-            {item.title || 'Untitled'}
-          </AccordionTrigger>
+          <AccordionTrigger as={headingAs}>{item.title || 'Untitled'}</AccordionTrigger>
           <AccordionContent>
             {item.content?.map((contentBlock, contentIndex) => (
               <ContentBlockRenderer

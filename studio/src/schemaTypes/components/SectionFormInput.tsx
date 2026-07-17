@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useCallback} from 'react'
-import {BlockElementIcon, AddIcon} from '@sanity/icons'
+import {BlockElementIcon} from '@sanity/icons/BlockElement'
+import {AddIcon} from '@sanity/icons/Add'
 import {
   Button,
   Card,
@@ -13,14 +14,7 @@ import {
   Grid,
   useToast,
 } from '@sanity/ui'
-import {
-  type ObjectInputProps,
-  useClient,
-  useFormValue,
-  set,
-  unset,
-  PatchEvent,
-} from 'sanity'
+import {type ObjectInputProps, useClient, useFormValue, set, unset, PatchEvent} from 'sanity'
 import {useRouter} from 'sanity/router'
 
 interface SectionTemplate {
@@ -52,7 +46,16 @@ const CATEGORY_LABELS: Record<string, string> = {
   other: 'Other',
 }
 
-const CATEGORY_ORDER = ['heroes', 'features', 'content', 'testimonials', 'ctas', 'pricing', 'faq', 'other']
+const CATEGORY_ORDER = [
+  'heroes',
+  'features',
+  'content',
+  'testimonials',
+  'ctas',
+  'pricing',
+  'faq',
+  'other',
+]
 
 /** Delay in ms to show success state after applying template */
 const TEMPLATE_APPLICATION_DELAY = 300
@@ -165,9 +168,8 @@ export function SectionFormInput(props: ObjectInputProps) {
   const sortedCategories = CATEGORY_ORDER.filter((cat) => groupedTemplates[cat]?.length > 0)
 
   // Get templates for current tab
-  const displayedTemplates = selectedCategory === 'all'
-    ? templates
-    : groupedTemplates[selectedCategory] || []
+  const displayedTemplates =
+    selectedCategory === 'all' ? templates : groupedTemplates[selectedCategory] || []
 
   const applyTemplate = useCallback(
     async (template: SectionTemplate) => {
@@ -216,7 +218,7 @@ export function SectionFormInput(props: ObjectInputProps) {
         setAppliedTemplate(null)
       }
     },
-    [onChange]
+    [onChange],
   )
 
   const saveAsTemplate = useCallback(async () => {
@@ -288,10 +290,7 @@ export function SectionFormInput(props: ObjectInputProps) {
         {props.renderDefault(props)}
         {hasContent && (
           <Box marginTop={4}>
-            <SaveAsTemplateCard
-              saving={savingTemplate}
-              onSave={saveAsTemplate}
-            />
+            <SaveAsTemplateCard saving={savingTemplate} onSave={saveAsTemplate} />
           </Box>
         )}
       </>
@@ -312,32 +311,30 @@ export function SectionFormInput(props: ObjectInputProps) {
               </Text>
             </Flex>
 
-          {loading ? (
-            <Flex align="center" gap={2}>
-              <Spinner muted />
-              <Text size={1} muted>
-                Loading templates...
-              </Text>
-            </Flex>
-          ) : applying ? (
-            <Flex align="center" gap={2}>
-              <Spinner />
-              <Text size={1}>
-                Applying {appliedTemplate}...
-              </Text>
-            </Flex>
-          ) : (
-            <Button
-              text="Pick Template"
-              tone="primary"
-              icon={BlockElementIcon}
-              mode="ghost"
-              fontSize={1}
-              padding={2}
-              onClick={() => setDialogOpen(true)}
-            />
-          )}
-        </Flex>
+            {loading ? (
+              <Flex align="center" gap={2}>
+                <Spinner muted />
+                <Text size={1} muted>
+                  Loading templates...
+                </Text>
+              </Flex>
+            ) : applying ? (
+              <Flex align="center" gap={2}>
+                <Spinner />
+                <Text size={1}>Applying {appliedTemplate}...</Text>
+              </Flex>
+            ) : (
+              <Button
+                text="Pick Template"
+                tone="primary"
+                icon={BlockElementIcon}
+                mode="ghost"
+                fontSize={1}
+                padding={2}
+                onClick={() => setDialogOpen(true)}
+              />
+            )}
+          </Flex>
 
           {hasContent && !applying && (
             <Box marginTop={2}>
@@ -347,9 +344,7 @@ export function SectionFormInput(props: ObjectInputProps) {
             </Box>
           )}
         </Card>
-        {hasContent && (
-          <SaveAsTemplateCard saving={savingTemplate} onSave={saveAsTemplate} />
-        )}
+        {hasContent && <SaveAsTemplateCard saving={savingTemplate} onSave={saveAsTemplate} />}
       </Box>
 
       {/* Template Selection Dialog */}

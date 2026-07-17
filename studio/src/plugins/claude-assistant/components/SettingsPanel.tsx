@@ -34,7 +34,11 @@ import {
   TextArea,
   TextInput,
 } from '@sanity/ui'
-import {BoltIcon, CogIcon, EditIcon, LockIcon, WarningOutlineIcon} from '@sanity/icons'
+import {BoltIcon} from '@sanity/icons/Bolt'
+import {CogIcon} from '@sanity/icons/Cog'
+import {EditIcon} from '@sanity/icons/Edit'
+import {LockIcon} from '@sanity/icons/Lock'
+import {WarningOutlineIcon} from '@sanity/icons/WarningOutline'
 import type {PluginSettings} from '../types'
 import {useFocusTrap} from '../hooks/useKeyboardShortcuts'
 import {useQuickActions} from '../hooks/useQuickActions'
@@ -91,8 +95,8 @@ interface InstructionFieldProps {
 const ADMIN_ROLES = ['administrator']
 
 const AVAILABLE_MODELS = [
-  {value: 'claude-opus-4-5-20251101', title: 'Claude Opus 4.5 (Most Capable)'},
-  {value: 'claude-sonnet-4-20250514', title: 'Claude Sonnet 4 (Recommended)'},
+  {value: 'claude-opus-4-8', title: 'Claude Opus 4.8 (Most Capable)'},
+  {value: 'claude-sonnet-5', title: 'Claude Sonnet 5 (Recommended)'},
 ]
 
 const DEBOUNCE_DELAY = 1000
@@ -148,7 +152,7 @@ function InstructionField({
       setLocalValue(e.currentTarget.value)
       setIsDirty(true)
     },
-    [readOnly]
+    [readOnly],
   )
 
   const inputStyle = useMemo(
@@ -156,7 +160,7 @@ function InstructionField({
       opacity: readOnly ? 0.7 : 1,
       cursor: readOnly ? 'not-allowed' : 'text',
     }),
-    [readOnly]
+    [readOnly],
   )
 
   return (
@@ -208,7 +212,12 @@ interface ArrayFieldDisplayProps {
   emptyMessage?: string
 }
 
-function ArrayFieldDisplay({label, description, items, emptyMessage = 'None'}: ArrayFieldDisplayProps) {
+function ArrayFieldDisplay({
+  label,
+  description,
+  items,
+  emptyMessage = 'None',
+}: ArrayFieldDisplayProps) {
   return (
     <Stack space={2}>
       <Text size={1} weight="semibold">
@@ -247,7 +256,12 @@ interface RichTextPreviewProps {
   emptyMessage?: string
 }
 
-function RichTextPreview({label, description, content, emptyMessage = 'Not configured'}: RichTextPreviewProps) {
+function RichTextPreview({
+  label,
+  description,
+  content,
+  emptyMessage = 'Not configured',
+}: RichTextPreviewProps) {
   const markdown = contentToMarkdown(content)
 
   return (
@@ -258,7 +272,13 @@ function RichTextPreview({label, description, content, emptyMessage = 'Not confi
       <Text size={0} muted>
         {description}
       </Text>
-      <Card padding={3} radius={2} tone="transparent" border style={{maxHeight: '200px', overflow: 'auto'}}>
+      <Card
+        padding={3}
+        radius={2}
+        tone="transparent"
+        border
+        style={{maxHeight: '200px', overflow: 'auto'}}
+      >
         {markdown ? (
           <Text size={1} style={{whiteSpace: 'pre-wrap'}}>
             {markdown}
@@ -277,7 +297,13 @@ function RichTextPreview({label, description, content, emptyMessage = 'Not confi
 // Main SettingsPanel Component
 // ============================================================================
 
-export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, triggerRef}: SettingsPanelProps) {
+export function SettingsPanel({
+  settings,
+  onSettingsChange,
+  isOpen,
+  onClose,
+  triggerRef,
+}: SettingsPanelProps) {
   const currentUser = useCurrentUser()
   const client = useClient({apiVersion: '2024-01-01'})
   const router = useRouter()
@@ -285,13 +311,16 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
 
   // Navigate to Instructions document in Structure mode
   // Sanity uses semicolon (;) to separate nested pane segments in URLs
-  const navigateToInstructions = useCallback((tab?: 'writing' | 'design' | 'technical') => {
-    // Close the dialog first
-    onClose()
-    // Navigate to the Instructions document (semicolon opens the nested pane)
-    // The tab parameter is informational - Sanity doesn't support URL-based tab selection
-    router.navigateUrl({path: '/structure/claudeSettings;claudeInstructions'})
-  }, [router, onClose])
+  const navigateToInstructions = useCallback(
+    (tab?: 'writing' | 'design' | 'technical') => {
+      // Close the dialog first
+      onClose()
+      // Navigate to the Instructions document (semicolon opens the nested pane)
+      // The tab parameter is informational - Sanity doesn't support URL-based tab selection
+      router.navigateUrl({path: '/structure/claudeSettings;claudeInstructions'})
+    },
+    [router, onClose],
+  )
 
   // Navigate to Quick Actions list in Structure mode
   const navigateToQuickActions = useCallback(() => {
@@ -304,7 +333,9 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'settings' | 'writing' | 'design' | 'technical' | 'quickActions'>('settings')
+  const [activeTab, setActiveTab] = useState<
+    'settings' | 'writing' | 'design' | 'technical' | 'quickActions'
+  >('settings')
 
   // Fetch quick actions from Sanity
   const {quickActions, isLoading: isLoadingQuickActions, isUsingDefaults} = useQuickActions()
@@ -346,7 +377,7 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
     <K extends keyof PluginSettings>(key: K, value: PluginSettings[K]) => {
       onSettingsChange({...settings, [key]: value})
     },
-    [settings, onSettingsChange]
+    [settings, onSettingsChange],
   )
 
   // Fetch instructions on mount
@@ -359,7 +390,7 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
 
       try {
         const result = await client.fetch<ClaudeInstructions | null>(
-          `*[_type == "claudeInstructions"][0]`
+          `*[_type == "claudeInstructions"][0]`,
         )
 
         if (result) {
@@ -412,7 +443,10 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
 
       setIsSaving(true)
       try {
-        await client.patch(instructions._id).set({[field]: value}).commit()
+        await client
+          .patch(instructions._id)
+          .set({[field]: value})
+          .commit()
 
         setInstructions((prev) => (prev ? {...prev, [field]: value} : null))
       } catch (err) {
@@ -422,7 +456,7 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
         setIsSaving(false)
       }
     },
-    [client, instructions?._id, isAdmin]
+    [client, instructions?._id, isAdmin],
   )
 
   if (!isOpen) return null
@@ -499,7 +533,8 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
                   </Text>
                   <Text size={1}>
                     You can view the Claude training but cannot modify it. Contact an administrator
-                    to request changes to writing guidelines, design rules, or technical constraints.
+                    to request changes to writing guidelines, design rules, or technical
+                    constraints.
                   </Text>
                 </Stack>
               </Flex>
@@ -546,12 +581,19 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
           </TabList>
 
           {/* API Settings Tab */}
-          <TabPanel aria-labelledby="settings-tab" hidden={activeTab !== 'settings'} id="settings-panel">
+          <TabPanel
+            aria-labelledby="settings-tab"
+            hidden={activeTab !== 'settings'}
+            id="settings-panel"
+          >
             <Stack space={5}>
               {/* Model Selection */}
               <Stack space={3}>
                 <Label>Model</Label>
-                <Select value={settings.model} onChange={(e) => updateSetting('model', e.currentTarget.value)}>
+                <Select
+                  value={settings.model}
+                  onChange={(e) => updateSetting('model', e.currentTarget.value)}
+                >
                   {AVAILABLE_MODELS.map((model) => (
                     <option key={model.value} value={model.value}>
                       {model.title}
@@ -569,7 +611,9 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
                 <TextInput
                   type="number"
                   value={settings.maxTokens}
-                  onChange={(e) => updateSetting('maxTokens', parseInt(e.currentTarget.value) || 4096)}
+                  onChange={(e) =>
+                    updateSetting('maxTokens', parseInt(e.currentTarget.value) || 4096)
+                  }
                   min={100}
                   max={8192}
                 />
@@ -616,7 +660,11 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
           </TabPanel>
 
           {/* Writing Tab */}
-          <TabPanel aria-labelledby="writing-tab" hidden={activeTab !== 'writing'} id="writing-panel">
+          <TabPanel
+            aria-labelledby="writing-tab"
+            hidden={activeTab !== 'writing'}
+            id="writing-panel"
+          >
             <Stack space={5}>
               <RichTextPreview
                 label="Writing Guidelines"
@@ -678,7 +726,8 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
                     <Flex align="center" gap={2}>
                       <EditIcon />
                       <Text size={1}>
-                        To edit forbidden terms and preferred terms, open the full editor and select the <strong>Writing</strong> tab.
+                        To edit forbidden terms and preferred terms, open the full editor and select
+                        the <strong>Writing</strong> tab.
                       </Text>
                     </Flex>
                     <Button
@@ -712,7 +761,8 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
                   Specific guidelines for individual components
                 </Text>
                 <Card padding={3} radius={2} tone="transparent" border>
-                  {instructions?.componentGuidelines && instructions.componentGuidelines.length > 0 ? (
+                  {instructions?.componentGuidelines &&
+                  instructions.componentGuidelines.length > 0 ? (
                     <Stack space={3}>
                       {instructions.componentGuidelines.map((guideline, index) => (
                         <Card key={index} padding={3} radius={2} border>
@@ -750,7 +800,8 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
                     <Flex align="center" gap={2}>
                       <EditIcon />
                       <Text size={1}>
-                        To add or edit component guidelines, open the full editor and select the <strong>Design</strong> tab.
+                        To add or edit component guidelines, open the full editor and select the{' '}
+                        <strong>Design</strong> tab.
                       </Text>
                     </Flex>
                     <Button
@@ -766,7 +817,11 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
           </TabPanel>
 
           {/* Technical Tab */}
-          <TabPanel aria-labelledby="technical-tab" hidden={activeTab !== 'technical'} id="technical-panel">
+          <TabPanel
+            aria-labelledby="technical-tab"
+            hidden={activeTab !== 'technical'}
+            id="technical-panel"
+          >
             <Stack space={5}>
               <RichTextPreview
                 label="Technical Constraints"
@@ -822,7 +877,8 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
                     <Flex align="center" gap={2}>
                       <EditIcon />
                       <Text size={1}>
-                        To add or edit required field rules, open the full editor and select the <strong>Technical</strong> tab.
+                        To add or edit required field rules, open the full editor and select the{' '}
+                        <strong>Technical</strong> tab.
                       </Text>
                     </Flex>
                     <Button
@@ -838,16 +894,22 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
           </TabPanel>
 
           {/* Quick Actions Tab */}
-          <TabPanel aria-labelledby="quick-actions-tab" hidden={activeTab !== 'quickActions'} id="quick-actions-panel">
+          <TabPanel
+            aria-labelledby="quick-actions-tab"
+            hidden={activeTab !== 'quickActions'}
+            id="quick-actions-panel"
+          >
             <Stack space={4}>
               <Text size={1} muted>
-                Quick Actions are shortcut buttons that pre-populate the chat input with common prompts.
+                Quick Actions are shortcut buttons that pre-populate the chat input with common
+                prompts.
               </Text>
 
               {isUsingDefaults && (
                 <Card padding={3} tone="caution" radius={2}>
                   <Text size={1}>
-                    Using default quick actions. Create custom actions in the Studio to override these.
+                    Using default quick actions. Create custom actions in the Studio to override
+                    these.
                   </Text>
                 </Card>
               )}
@@ -855,7 +917,8 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
               <Card padding={3} radius={2} tone="transparent" border>
                 <Flex align="center" justify="space-between">
                   <Text size={1}>
-                    <strong>{quickActions.length}</strong> quick actions {isUsingDefaults ? '(defaults)' : 'configured'}
+                    <strong>{quickActions.length}</strong> quick actions{' '}
+                    {isUsingDefaults ? '(defaults)' : 'configured'}
                   </Text>
                 </Flex>
               </Card>
@@ -925,7 +988,12 @@ export function SettingsPanel({settings, onSettingsChange, isOpen, onClose, trig
 
           {/* Actions */}
           <Flex gap={2} justify="flex-end" paddingTop={3}>
-            <Button text="Close" mode="ghost" onClick={handleClose} aria-label="Close settings dialog" />
+            <Button
+              text="Close"
+              mode="ghost"
+              onClick={handleClose}
+              aria-label="Close settings dialog"
+            />
           </Flex>
         </Stack>
       </Box>

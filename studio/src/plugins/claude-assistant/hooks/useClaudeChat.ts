@@ -6,7 +6,14 @@
  */
 
 import React, {useState, useCallback, useRef, useEffect, useMemo} from 'react'
-import type {Message, ParsedAction, SchemaContext, UseClaudeChatReturn, ImageAttachment, DocumentContext} from '../types'
+import type {
+  Message,
+  ParsedAction,
+  SchemaContext,
+  UseClaudeChatReturn,
+  ImageAttachment,
+  DocumentContext,
+} from '../types'
 import {parseActions} from '../lib/actions'
 import {buildSystemPrompt} from '../lib/instructions'
 import type {Conversation} from '../types'
@@ -63,12 +70,20 @@ export interface UseClaudeChatOptions {
   /**
    * Callback to update a message in the conversation
    */
-  onUpdateMessage?: (conversationId: string, messageId: string, updates: Partial<Message>) => Promise<void>
+  onUpdateMessage?: (
+    conversationId: string,
+    messageId: string,
+    updates: Partial<Message>,
+  ) => Promise<void>
 
   /**
    * Callback to generate a title for a new conversation
    */
-  onGenerateTitle?: (conversationId: string, userMessage: string, assistantResponse: string) => Promise<void>
+  onGenerateTitle?: (
+    conversationId: string,
+    userMessage: string,
+    assistantResponse: string,
+  ) => Promise<void>
 
   /**
    * Callback when an action is parsed from the response
@@ -81,7 +96,7 @@ export interface UseClaudeChatOptions {
   enableStreaming?: boolean
 
   /**
-   * Claude model to use (e.g., 'claude-sonnet-4-20250514')
+   * Claude model to use (e.g., 'claude-sonnet-5')
    */
   model?: string
 
@@ -133,7 +148,9 @@ function safeSerialize(obj: unknown): unknown {
 
     // Handle arrays
     if (Array.isArray(value)) {
-      return value.map((item, index) => replacer(String(index), item)).filter((v) => v !== undefined)
+      return value
+        .map((item, index) => replacer(String(index), item))
+        .filter((v) => v !== undefined)
     }
 
     // Handle objects - filter out internal properties
@@ -204,8 +221,16 @@ export interface MessageOptions {
   hidden?: boolean
 }
 
-export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChatReturn, 'sendMessage'> & {
-  sendMessage: (content: string, images?: ImageAttachment[], documentContextsOverride?: DocumentContext[], messageOptions?: MessageOptions) => Promise<void>
+export function useClaudeChat(options: UseClaudeChatOptions): Omit<
+  UseClaudeChatReturn,
+  'sendMessage'
+> & {
+  sendMessage: (
+    content: string,
+    images?: ImageAttachment[],
+    documentContextsOverride?: DocumentContext[],
+    messageOptions?: MessageOptions,
+  ) => Promise<void>
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>
   cancelStream: () => void
 } {
@@ -247,15 +272,17 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
   const mountedRef = useRef(true)
   useEffect(() => {
     mountedRef.current = true
-    return () => { mountedRef.current = false }
+    return () => {
+      mountedRef.current = false
+    }
   }, [])
 
   // Sync messages with active conversation
   // Use activeConversation.id and serialized message IDs for proper dependency tracking
   // This ensures we sync when the conversation changes OR when messages are loaded from server
-  const conversationMessageIds = useMemo(() =>
-    activeConversation?.messages.map(m => m.id).join(',') || '',
-    [activeConversation?.messages]
+  const conversationMessageIds = useMemo(
+    () => activeConversation?.messages.map((m) => m.id).join(',') || '',
+    [activeConversation?.messages],
   )
 
   useEffect(() => {
@@ -276,17 +303,17 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
 
       // For the SAME conversation, only sync when server has more or equal messages
       // This prevents overwriting local messages that haven't been persisted yet (e.g., during streaming)
-      const localMessageIds = messages.map(m => m.id).join(',')
+      const localMessageIds = messages.map((m) => m.id).join(',')
       const serverMessageCount = activeConversation.messages.length
       const localMessageCount = messages.length
 
       // If local has MORE messages than server, local is authoritative
       const localIsAhead = localMessageCount > serverMessageCount
 
-      const shouldSync = !localIsAhead && (
-        (serverMessageCount > localMessageCount) ||
-        (serverMessageCount === localMessageCount && localMessageIds !== conversationMessageIds)
-      )
+      const shouldSync =
+        !localIsAhead &&
+        (serverMessageCount > localMessageCount ||
+          (serverMessageCount === localMessageCount && localMessageIds !== conversationMessageIds))
 
       if (shouldSync && localMessageIds !== conversationMessageIds) {
         setMessages(activeConversation.messages)
@@ -309,7 +336,12 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
    * Send a message to Claude
    */
   const sendMessage = useCallback(
-    async (content: string, images?: ImageAttachment[], documentContextsOverride?: DocumentContext[], messageOptions?: MessageOptions) => {
+    async (
+      content: string,
+      images?: ImageAttachment[],
+      documentContextsOverride?: DocumentContext[],
+      messageOptions?: MessageOptions,
+    ) => {
       if (!content.trim() && (!images || images.length === 0)) return
       if (!apiEndpoint) {
         setError('API endpoint is not configured')
@@ -400,7 +432,11 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
         const conversationHistory = filteredMessages.map((msg) => {
           // If message has images, use multimodal content format
           if (msg.images && msg.images.length > 0) {
-            const contentParts: Array<{type: string; text?: string; source?: {type: string; media_type: string; data: string}}> = []
+            const contentParts: Array<{
+              type: string
+              text?: string
+              source?: {type: string; media_type: string; data: string}
+            }> = []
 
             // Build image metadata context for Claude
             const imageMetadataLines: string[] = ['[Image Attachments Metadata]']
@@ -415,11 +451,17 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
               if (image.source === 'library' && image.sanityAssetId) {
                 lines.push(`  - Source: Sanity Media Library`)
                 lines.push(`  - Asset ID: ${image.sanityAssetId}`)
-                lines.push(`  - Asset Reference: {"_type": "reference", "_ref": "${image.sanityAssetId}"}`)
-                lines.push(`  - NOTE: This image is already in Sanity. Use the asset reference above directly in image blocks.`)
+                lines.push(
+                  `  - Asset Reference: {"_type": "reference", "_ref": "${image.sanityAssetId}"}`,
+                )
+                lines.push(
+                  `  - NOTE: This image is already in Sanity. Use the asset reference above directly in image blocks.`,
+                )
               } else {
                 lines.push(`  - Source: User Upload (not yet in Sanity)`)
-                lines.push(`  - NOTE: To use this image on a page, you must first upload it to Sanity using an uploadImage action.`)
+                lines.push(
+                  `  - NOTE: To use this image on a page, you must first upload it to Sanity using an uploadImage action.`,
+                )
               }
               imageMetadataLines.push(lines.join('\n'))
             }
@@ -510,10 +552,8 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
                   fullContent += item.text
                   setMessages((prev) =>
                     prev.map((msg) =>
-                      msg.id === assistantMessageId
-                        ? {...msg, content: fullContent}
-                        : msg
-                    )
+                      msg.id === assistantMessageId ? {...msg, content: fullContent} : msg,
+                    ),
                   )
                 }
               }
@@ -542,9 +582,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
         setMessages((prev) => {
           const exists = prev.some((msg) => msg.id === assistantMessageId)
           if (exists) {
-            return prev.map((msg) =>
-              msg.id === assistantMessageId ? finalMessage : msg
-            )
+            return prev.map((msg) => (msg.id === assistantMessageId ? finalMessage : msg))
           }
           // Placeholder was removed (e.g., by conversation sync during follow-up) — append
           return [...prev, finalMessage]
@@ -571,7 +609,6 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
 
         // Notify about actions
         actions.forEach((action) => onAction?.(action))
-
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') {
           // User cancelled - update message to show cancellation
@@ -585,7 +622,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
                     content: msg.content + '\n\n*[Response cancelled]*',
                     status: 'complete' as const,
                   }
-                : msg
+                : msg,
             )
           })
         } else {
@@ -603,7 +640,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
                     content: `Error: ${errorMessage}`,
                     status: 'error' as const,
                   }
-                : msg
+                : msg,
             )
           })
         }
@@ -630,7 +667,7 @@ export function useClaudeChat(options: UseClaudeChatOptions): Omit<UseClaudeChat
       model,
       maxTokens,
       temperature,
-    ]
+    ],
   )
 
   /**

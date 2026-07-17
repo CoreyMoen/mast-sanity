@@ -116,13 +116,21 @@
 }
 
 @keyframes accordion-down {
-  from { height: 0; }
-  to { height: var(--radix-accordion-content-height); }
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
 }
 
 @keyframes accordion-up {
-  from { height: var(--radix-accordion-content-height); }
-  to { height: 0; }
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
 }
 
 /* ==========================================================================
@@ -134,8 +142,8 @@
      LAYOUT - Fluid Scaling
      Used by the clamp() functions to calculate fluid values
      -------------------------------------------------------------------------- */
-  --layout-fluid-min: 20;  /* Minimum viewport width in rem */
-  --layout-fluid-max: 90;  /* Maximum viewport width in rem */
+  --layout-fluid-min: 20; /* Minimum viewport width in rem */
+  --layout-fluid-max: 90; /* Maximum viewport width in rem */
 
   /* --------------------------------------------------------------------------
      LAYOUT - Container
@@ -356,17 +364,17 @@ html {
   color-scheme: light dark;
 }
 
-html[data-theme="light"] {
+html[data-theme='light'] {
   color-scheme: light;
 }
 
-html[data-theme="dark"] {
+html[data-theme='dark'] {
   color-scheme: dark;
 }
 
 /* Dark mode - OS preference */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
+  :root:not([data-theme='light']) {
     --theme-background: #1d1c1a;
     --theme-foreground: #ffffff;
     --theme-border: #474641;
@@ -389,7 +397,7 @@ html[data-theme="dark"] {
 }
 
 /* Dark mode - explicit */
-html[data-theme="dark"] {
+html[data-theme='dark'] {
   --theme-background: #1d1c1a;
   --theme-foreground: #ffffff;
   --theme-border: #474641;
@@ -458,7 +466,10 @@ html {
    ========================================================================== */
 @utility container {
   width: 100%;
-  max-width: min(calc(100% - var(--layout-container-gutter) * 2), var(--layout-container-max-width));
+  max-width: min(
+    calc(100% - var(--layout-container-gutter) * 2),
+    var(--layout-container-max-width)
+  );
   margin-left: auto;
   margin-right: auto;
 }
@@ -483,8 +494,19 @@ html {
   font-size: clamp(
     calc(var(--type-h1-size-min) * 1rem),
     calc(
-      (var(--type-h1-size-min) - ((var(--type-h1-size-max) - var(--type-h1-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
-      + ((var(--type-h1-size-max) - var(--type-h1-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+      (
+          var(--type-h1-size-min) -
+            (
+              (var(--type-h1-size-max) - var(--type-h1-size-min)) /
+                (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min)
+            )
+        ) *
+        1rem +
+        (
+          (var(--type-h1-size-max) - var(--type-h1-size-min)) /
+            (var(--layout-fluid-max) - var(--layout-fluid-min))
+        ) *
+        100vw
     ),
     calc(var(--type-h1-size-max) * 1rem)
   );
@@ -499,8 +521,19 @@ html {
   font-size: clamp(
     calc(var(--type-h2-size-min) * 1rem),
     calc(
-      (var(--type-h2-size-min) - ((var(--type-h2-size-max) - var(--type-h2-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
-      + ((var(--type-h2-size-max) - var(--type-h2-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+      (
+          var(--type-h2-size-min) -
+            (
+              (var(--type-h2-size-max) - var(--type-h2-size-min)) /
+                (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min)
+            )
+        ) *
+        1rem +
+        (
+          (var(--type-h2-size-max) - var(--type-h2-size-min)) /
+            (var(--layout-fluid-max) - var(--layout-fluid-min))
+        ) *
+        100vw
     ),
     calc(var(--type-h2-size-max) * 1rem)
   );
@@ -515,8 +548,19 @@ html {
   font-size: clamp(
     calc(var(--type-h3-size-min) * 1rem),
     calc(
-      (var(--type-h3-size-min) - ((var(--type-h3-size-max) - var(--type-h3-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
-      + ((var(--type-h3-size-max) - var(--type-h3-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+      (
+          var(--type-h3-size-min) -
+            (
+              (var(--type-h3-size-max) - var(--type-h3-size-min)) /
+                (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min)
+            )
+        ) *
+        1rem +
+        (
+          (var(--type-h3-size-max) - var(--type-h3-size-min)) /
+            (var(--layout-fluid-max) - var(--layout-fluid-min))
+        ) *
+        100vw
     ),
     calc(var(--type-h3-size-max) * 1rem)
   );
@@ -531,8 +575,19 @@ html {
   font-size: clamp(
     calc(var(--type-h4-size-min) * 1rem),
     calc(
-      (var(--type-h4-size-min) - ((var(--type-h4-size-max) - var(--type-h4-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
-      + ((var(--type-h4-size-max) - var(--type-h4-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+      (
+          var(--type-h4-size-min) -
+            (
+              (var(--type-h4-size-max) - var(--type-h4-size-min)) /
+                (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min)
+            )
+        ) *
+        1rem +
+        (
+          (var(--type-h4-size-max) - var(--type-h4-size-min)) /
+            (var(--layout-fluid-max) - var(--layout-fluid-min))
+        ) *
+        100vw
     ),
     calc(var(--type-h4-size-max) * 1rem)
   );
@@ -547,8 +602,19 @@ html {
   font-size: clamp(
     calc(var(--type-h5-size-min) * 1rem),
     calc(
-      (var(--type-h5-size-min) - ((var(--type-h5-size-max) - var(--type-h5-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
-      + ((var(--type-h5-size-max) - var(--type-h5-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+      (
+          var(--type-h5-size-min) -
+            (
+              (var(--type-h5-size-max) - var(--type-h5-size-min)) /
+                (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min)
+            )
+        ) *
+        1rem +
+        (
+          (var(--type-h5-size-max) - var(--type-h5-size-min)) /
+            (var(--layout-fluid-max) - var(--layout-fluid-min))
+        ) *
+        100vw
     ),
     calc(var(--type-h5-size-max) * 1rem)
   );
@@ -563,8 +629,19 @@ html {
   font-size: clamp(
     calc(var(--type-h6-size-min) * 1rem),
     calc(
-      (var(--type-h6-size-min) - ((var(--type-h6-size-max) - var(--type-h6-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
-      + ((var(--type-h6-size-max) - var(--type-h6-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+      (
+          var(--type-h6-size-min) -
+            (
+              (var(--type-h6-size-max) - var(--type-h6-size-min)) /
+                (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min)
+            )
+        ) *
+        1rem +
+        (
+          (var(--type-h6-size-max) - var(--type-h6-size-min)) /
+            (var(--layout-fluid-max) - var(--layout-fluid-min))
+        ) *
+        100vw
     ),
     calc(var(--type-h6-size-max) * 1rem)
   );
@@ -579,8 +656,19 @@ html {
   font-size: clamp(
     calc(var(--type-p-xl-size-min) * 1rem),
     calc(
-      (var(--type-p-xl-size-min) - ((var(--type-p-xl-size-max) - var(--type-p-xl-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
-      + ((var(--type-p-xl-size-max) - var(--type-p-xl-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+      (
+          var(--type-p-xl-size-min) -
+            (
+              (var(--type-p-xl-size-max) - var(--type-p-xl-size-min)) /
+                (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min)
+            )
+        ) *
+        1rem +
+        (
+          (var(--type-p-xl-size-max) - var(--type-p-xl-size-min)) /
+            (var(--layout-fluid-max) - var(--layout-fluid-min))
+        ) *
+        100vw
     ),
     calc(var(--type-p-xl-size-max) * 1rem)
   );
@@ -595,8 +683,19 @@ html {
   font-size: clamp(
     calc(var(--type-p-lg-size-min) * 1rem),
     calc(
-      (var(--type-p-lg-size-min) - ((var(--type-p-lg-size-max) - var(--type-p-lg-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
-      + ((var(--type-p-lg-size-max) - var(--type-p-lg-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+      (
+          var(--type-p-lg-size-min) -
+            (
+              (var(--type-p-lg-size-max) - var(--type-p-lg-size-min)) /
+                (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min)
+            )
+        ) *
+        1rem +
+        (
+          (var(--type-p-lg-size-max) - var(--type-p-lg-size-min)) /
+            (var(--layout-fluid-max) - var(--layout-fluid-min))
+        ) *
+        100vw
     ),
     calc(var(--type-p-lg-size-max) * 1rem)
   );
@@ -611,8 +710,19 @@ html {
   font-size: clamp(
     calc(var(--type-body-size-min) * 1rem),
     calc(
-      (var(--type-body-size-min) - ((var(--type-body-size-max) - var(--type-body-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
-      + ((var(--type-body-size-max) - var(--type-body-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+      (
+          var(--type-body-size-min) -
+            (
+              (var(--type-body-size-max) - var(--type-body-size-min)) /
+                (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min)
+            )
+        ) *
+        1rem +
+        (
+          (var(--type-body-size-max) - var(--type-body-size-min)) /
+            (var(--layout-fluid-max) - var(--layout-fluid-min))
+        ) *
+        100vw
     ),
     calc(var(--type-body-size-max) * 1rem)
   );
@@ -627,8 +737,19 @@ html {
   font-size: clamp(
     calc(var(--type-p-sm-size-min) * 1rem),
     calc(
-      (var(--type-p-sm-size-min) - ((var(--type-p-sm-size-max) - var(--type-p-sm-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
-      + ((var(--type-p-sm-size-max) - var(--type-p-sm-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+      (
+          var(--type-p-sm-size-min) -
+            (
+              (var(--type-p-sm-size-max) - var(--type-p-sm-size-min)) /
+                (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min)
+            )
+        ) *
+        1rem +
+        (
+          (var(--type-p-sm-size-max) - var(--type-p-sm-size-min)) /
+            (var(--layout-fluid-max) - var(--layout-fluid-min))
+        ) *
+        100vw
     ),
     calc(var(--type-p-sm-size-max) * 1rem)
   );
@@ -643,8 +764,19 @@ html {
   font-size: clamp(
     calc(var(--type-eyebrow-size-min) * 1rem),
     calc(
-      (var(--type-eyebrow-size-min) - ((var(--type-eyebrow-size-max) - var(--type-eyebrow-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
-      + ((var(--type-eyebrow-size-max) - var(--type-eyebrow-size-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+      (
+          var(--type-eyebrow-size-min) -
+            (
+              (var(--type-eyebrow-size-max) - var(--type-eyebrow-size-min)) /
+                (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min)
+            )
+        ) *
+        1rem +
+        (
+          (var(--type-eyebrow-size-max) - var(--type-eyebrow-size-min)) /
+            (var(--layout-fluid-max) - var(--layout-fluid-min))
+        ) *
+        100vw
     ),
     calc(var(--type-eyebrow-size-max) * 1rem)
   );
@@ -804,16 +936,38 @@ footer .text-eyebrow {
   padding-top: clamp(
     calc(var(--component-section-padding-min) * 1rem),
     calc(
-      (var(--component-section-padding-min) - ((var(--component-section-padding-max) - var(--component-section-padding-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
-      + ((var(--component-section-padding-max) - var(--component-section-padding-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+      (
+          var(--component-section-padding-min) -
+            (
+              (var(--component-section-padding-max) - var(--component-section-padding-min)) /
+                (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min)
+            )
+        ) *
+        1rem +
+        (
+          (var(--component-section-padding-max) - var(--component-section-padding-min)) /
+            (var(--layout-fluid-max) - var(--layout-fluid-min))
+        ) *
+        100vw
     ),
     calc(var(--component-section-padding-max) * 1rem)
   );
   padding-bottom: clamp(
     calc(var(--component-section-padding-min) * 1rem),
     calc(
-      (var(--component-section-padding-min) - ((var(--component-section-padding-max) - var(--component-section-padding-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
-      + ((var(--component-section-padding-max) - var(--component-section-padding-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+      (
+          var(--component-section-padding-min) -
+            (
+              (var(--component-section-padding-max) - var(--component-section-padding-min)) /
+                (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min)
+            )
+        ) *
+        1rem +
+        (
+          (var(--component-section-padding-max) - var(--component-section-padding-min)) /
+            (var(--layout-fluid-max) - var(--layout-fluid-min))
+        ) *
+        100vw
     ),
     calc(var(--component-section-padding-max) * 1rem)
   );
@@ -823,8 +977,19 @@ footer .text-eyebrow {
   padding: clamp(
     calc(var(--component-card-padding-min) * 1rem),
     calc(
-      (var(--component-card-padding-min) - ((var(--component-card-padding-max) - var(--component-card-padding-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min))) * 1rem
-      + ((var(--component-card-padding-max) - var(--component-card-padding-min)) / (var(--layout-fluid-max) - var(--layout-fluid-min))) * 100vw
+      (
+          var(--component-card-padding-min) -
+            (
+              (var(--component-card-padding-max) - var(--component-card-padding-min)) /
+                (var(--layout-fluid-max) - var(--layout-fluid-min)) * var(--layout-fluid-min)
+            )
+        ) *
+        1rem +
+        (
+          (var(--component-card-padding-max) - var(--component-card-padding-min)) /
+            (var(--layout-fluid-max) - var(--layout-fluid-min))
+        ) *
+        100vw
     ),
     calc(var(--component-card-padding-max) * 1rem)
   );

@@ -106,7 +106,7 @@ export interface RemoteClaudeRequest {
   }>
 
   /**
-   * Optional: Model override (defaults to configured model or claude-sonnet-4)
+   * Optional: Model override (defaults to configured model or claude-sonnet-5)
    */
   model?: string
 

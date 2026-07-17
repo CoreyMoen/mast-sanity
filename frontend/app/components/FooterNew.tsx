@@ -12,25 +12,25 @@ import {
 import {urlForImage} from '@/sanity/lib/utils'
 import {ThemeToggle} from './ui/theme-toggle'
 
-// Types for the footer data
+// Types for the footer data (nullable to match GROQ query results)
 interface FooterLink {
-  linkType?: string
-  href?: string
-  page?: string
-  post?: string
-  openInNewTab?: boolean
+  linkType?: string | null
+  href?: string | null
+  page?: string | null
+  post?: string | null
+  openInNewTab?: boolean | null
 }
 
 interface LinkItem {
   _key: string
   label: string
-  link?: FooterLink
+  link?: FooterLink | null
 }
 
 interface LinkColumn {
   _key: string
-  title?: string
-  links?: LinkItem[]
+  title?: string | null
+  links?: LinkItem[] | null
 }
 
 interface SocialLink {
@@ -40,16 +40,16 @@ interface SocialLink {
 }
 
 interface FooterData {
-  showLogo?: boolean
-  logoText?: string
+  showLogo?: boolean | null
+  logoText?: string | null
   logoImage?: {
     asset?: {_ref: string}
     alt?: string
-  }
-  linkColumns?: LinkColumn[]
-  socialLinks?: SocialLink[]
-  companyName?: string
-  showThemeToggle?: boolean
+  } | null
+  linkColumns?: LinkColumn[] | null
+  socialLinks?: SocialLink[] | null
+  companyName?: string | null
+  showThemeToggle?: boolean | null
 }
 
 interface FooterProps {
@@ -58,7 +58,7 @@ interface FooterProps {
 }
 
 // Helper to resolve link URL
-function resolveLink(link?: FooterLink): string {
+function resolveLink(link?: FooterLink | null): string {
   if (!link) return '#'
   if (link.linkType === 'href' && link.href) return link.href
   if (link.linkType === 'page' && link.page) return `/${link.page}`
@@ -128,12 +128,11 @@ function FooterLinkItem({
   children,
 }: {
   href: string
-  openInNewTab?: boolean
+  openInNewTab?: boolean | null
   children: React.ReactNode
 }) {
   const isExternal = href.startsWith('http') || href.startsWith('//')
-  const className =
-    'text-body transition-colors duration-300 hover:text-brand cursor-pointer'
+  const className = 'text-body transition-colors duration-300 hover:text-brand cursor-pointer'
 
   if (isExternal || openInNewTab) {
     return (
@@ -221,7 +220,10 @@ export default function FooterNew({data, siteTitle = 'Mast Sanity'}: FooterProps
           <div className="w-full md:w-3/12 px-3 mb-8 md:mb-0">
             <div className="flex flex-col h-full">
               {/* Logo */}
-              <Link href="/" className="inline-block w-20 text-brand transition-opacity duration-300 hover:opacity-80 mb-auto">
+              <Link
+                href="/"
+                className="inline-block w-20 text-brand transition-opacity duration-300 hover:opacity-80 mb-auto"
+              >
                 {hasLogoImage ? (
                   <Image
                     src={urlForImage(data.logoImage)?.width(200).height(50).url() || ''}

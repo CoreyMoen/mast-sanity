@@ -1,5 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {SquareIcon} from '@sanity/icons'
+import {SquareIcon} from '@sanity/icons/Square'
 
 /**
  * Pinboard document type for the Pinboard plugin.

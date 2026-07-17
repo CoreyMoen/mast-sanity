@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
-import {EyeOpenIcon, EarthGlobeIcon} from '@sanity/icons'
+import {EyeOpenIcon} from '@sanity/icons/EyeOpen'
+import {EarthGlobeIcon} from '@sanity/icons/EarthGlobe'
 import {Button, Card, Flex, Text, Stack, Box} from '@sanity/ui'
 import {useFormValue, type ObjectInputProps} from 'sanity'
 import {UsedOnPages} from './UsedOnPages'
@@ -57,8 +58,8 @@ export function SectionTemplateFormInput(props: ObjectInputProps) {
                   </Text>
                 </Flex>
                 <Text size={1} style={{paddingLeft: 4}}>
-                  Changes to this section will update <strong>every page</strong> that uses it.
-                  This is a shared, referenced section — not a prefill template.
+                  Changes to this section will update <strong>every page</strong> that uses it. This
+                  is a shared, referenced section — not a prefill template.
                 </Text>
                 {/* Used on pages tracker - only in Structure mode due to form context limitations */}
                 {!isInPresentation && (

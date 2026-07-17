@@ -12,7 +12,16 @@
 
 import {useState, useCallback, useEffect, useRef} from 'react'
 import {useClient, useCurrentUser} from 'sanity'
-import type {Conversation, Message, UseConversationsReturn, ParsedAction, ActionType, ActionStatus, ActionPayload, ActionResult} from '../types'
+import type {
+  Conversation,
+  Message,
+  UseConversationsReturn,
+  ParsedAction,
+  ActionType,
+  ActionStatus,
+  ActionPayload,
+  ActionResult,
+} from '../types'
 import {parseActions} from '../lib/actions'
 
 const CONVERSATIONS_PER_PAGE = 100
@@ -139,20 +148,27 @@ function sanityToConversation(doc: SanityConversation): Conversation {
                   ...parsed,
                   status: (normalizedStatus as ActionStatus) || parsed.status,
                   error: stored?.error || parsed.error,
-                  result: stored?.resultJson ? safeParse<ActionResult>(stored.resultJson) : parsed.result,
+                  result: stored?.resultJson
+                    ? safeParse<ActionResult>(stored.resultJson)
+                    : parsed.result,
                 }
               })
             : // Fallback to stored-only actions
               msg.actions?.map((action): ParsedAction => {
-                const payload = action.payloadJson ? safeParse<ActionPayload>(action.payloadJson) : {
-                  documentId: action.documentId,
-                  documentType: action.documentType,
-                }
-                const result = action.resultJson ? safeParse<ActionResult>(action.resultJson) : undefined
+                const payload = action.payloadJson
+                  ? safeParse<ActionPayload>(action.payloadJson)
+                  : {
+                      documentId: action.documentId,
+                      documentType: action.documentType,
+                    }
+                const result = action.resultJson
+                  ? safeParse<ActionResult>(action.resultJson)
+                  : undefined
                 return {
                   id: action._key,
                   type: action.type as ActionType,
-                  description: action.description || `${action.type} ${action.documentType || 'document'}`,
+                  description:
+                    action.description || `${action.type} ${action.documentType || 'document'}`,
                   status: action.status as ActionStatus,
                   payload: payload || {},
                   result,
@@ -209,12 +225,23 @@ export interface UseConversationsOptions {
 /**
  * Extended return type for Sanity-backed conversations
  */
-export interface UseConversationsSanityReturn extends Omit<UseConversationsReturn, 'createConversation'> {
+export interface UseConversationsSanityReturn extends Omit<
+  UseConversationsReturn,
+  'createConversation'
+> {
   createConversation: () => Promise<Conversation>
   addMessage: (conversationId: string, message: Message) => Promise<void>
-  updateMessage: (conversationId: string, messageId: string, updates: Partial<Message>) => Promise<void>
+  updateMessage: (
+    conversationId: string,
+    messageId: string,
+    updates: Partial<Message>,
+  ) => Promise<void>
   loadConversation: (conversationId: string) => Promise<Conversation | null>
-  generateTitle: (conversationId: string, userMessage: string, assistantResponse: string) => Promise<void>
+  generateTitle: (
+    conversationId: string,
+    userMessage: string,
+    assistantResponse: string,
+  ) => Promise<void>
   updateWorkflowIds: (conversationId: string, workflowIds: string[]) => Promise<void>
   isLoading: boolean
 }
@@ -222,7 +249,9 @@ export interface UseConversationsSanityReturn extends Omit<UseConversationsRetur
 /**
  * Hook for managing conversation history with Sanity persistence
  */
-export function useConversations(options: UseConversationsOptions = {}): UseConversationsSanityReturn {
+export function useConversations(
+  options: UseConversationsOptions = {},
+): UseConversationsSanityReturn {
   const {apiEndpoint} = options
   const client = useClient({apiVersion: API_VERSION})
   const currentUser = useCurrentUser()
@@ -346,21 +375,19 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
     // Subscribe to real-time updates
     const subscriptionQuery = `*[_type == "claudeConversation" && userId == $userId && !archived]`
 
-    subscriptionRef.current = client
-      .listen(subscriptionQuery, {userId: currentUser.id})
-      .subscribe({
-        next: () => {
-          // Skip subscription updates if we're in the middle of sending a message
-          // This prevents duplicate messages from appearing
-          if (!isUpdatingRef.current) {
-            // Bypass cache on real-time updates
-            fetchConversations(true)
-          }
-        },
-        error: (err) => {
-          console.error('Subscription error:', err)
-        },
-      })
+    subscriptionRef.current = client.listen(subscriptionQuery, {userId: currentUser.id}).subscribe({
+      next: () => {
+        // Skip subscription updates if we're in the middle of sending a message
+        // This prevents duplicate messages from appearing
+        if (!isUpdatingRef.current) {
+          // Bypass cache on real-time updates
+          fetchConversations(true)
+        }
+      },
+      error: (err) => {
+        console.error('Subscription error:', err)
+      },
+    })
 
     return () => {
       subscriptionRef.current?.unsubscribe()
@@ -462,7 +489,7 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
         console.error('Failed to archive conversation:', err)
       }
     },
-    [client, activeConversationId]
+    [client, activeConversationId],
   )
 
   /**
@@ -474,17 +501,13 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
         await client.patch(id).set({title}).commit()
 
         setConversations((prev) =>
-          prev.map((conv) =>
-            conv.id === id
-              ? {...conv, title, updatedAt: new Date()}
-              : conv
-          )
+          prev.map((conv) => (conv.id === id ? {...conv, title, updatedAt: new Date()} : conv)),
         )
       } catch (err) {
         console.error('Failed to update conversation title:', err)
       }
     },
-    [client]
+    [client],
   )
 
   /**
@@ -495,7 +518,7 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
       try {
         const doc = await client.fetch<SanityConversation>(
           `*[_type == "claudeConversation" && _id == $id][0]`,
-          {id: conversationId}
+          {id: conversationId},
         )
 
         if (!doc) return null
@@ -522,7 +545,7 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
         return null
       }
     },
-    [client]
+    [client],
   )
 
   /**
@@ -555,7 +578,7 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
               }
             }
             return conv
-          })
+          }),
         )
       } catch (err) {
         console.error('Failed to add message:', err)
@@ -569,7 +592,7 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
         }, 1000)
       }
     },
-    [client]
+    [client],
   )
 
   /**
@@ -594,14 +617,12 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
           if (conv.id === conversationId) {
             return {
               ...conv,
-              messages: conv.messages.map((msg) =>
-                msg.id === messageId ? mergedMessage : msg
-              ),
+              messages: conv.messages.map((msg) => (msg.id === messageId ? mergedMessage : msg)),
               updatedAt: new Date(),
             }
           }
           return conv
-        })
+        }),
       )
 
       // For streaming messages, debounce the Sanity update
@@ -634,7 +655,7 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
         await performUpdate()
       }
     },
-    [client]
+    [client],
   )
 
   /**
@@ -671,7 +692,7 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
         await updateConversationTitle(conversationId, fallbackTitle)
       }
     },
-    [apiEndpoint, updateConversationTitle]
+    [apiEndpoint, updateConversationTitle],
   )
 
   /**
@@ -684,16 +705,14 @@ export function useConversations(options: UseConversationsOptions = {}): UseConv
 
         setConversations((prev) =>
           prev.map((conv) =>
-            conv.id === conversationId
-              ? {...conv, workflowIds, updatedAt: new Date()}
-              : conv
-          )
+            conv.id === conversationId ? {...conv, workflowIds, updatedAt: new Date()} : conv,
+          ),
         )
       } catch (err) {
         console.error('Failed to update workflow IDs:', err)
       }
     },
-    [client]
+    [client],
   )
 
   return {

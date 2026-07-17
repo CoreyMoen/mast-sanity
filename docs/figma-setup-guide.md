@@ -73,6 +73,7 @@ For Claude to properly interpret your Figma designs, add component mapping instr
 See the example instructions template at: `docs/figma-skill-instructions.md`
 
 This template includes:
+
 - Component naming conventions to Sanity block type mappings
 - Property mapping rules (colors, spacing, alignment)
 - Image handling workflow
@@ -105,6 +106,7 @@ https://figma.com/design/{fileKey}?node-id={nodeId}
 ```
 
 To get the correct URL:
+
 1. Open your Figma file
 2. Select the frame you want to import
 3. Copy the URL from your browser (it should include `?node-id=...`)
@@ -118,6 +120,7 @@ Your Figma Personal Access Token can only access files that your Figma account h
 - **Shared files**: Accessible if the file has been shared with you
 
 If you get a "403 Access Denied" error, verify:
+
 1. Your token is correct and not expired
 2. You have access to the file in Figma
 3. The file hasn't been moved or deleted
@@ -163,6 +166,7 @@ The token is not configured or the server needs to be restarted after adding it.
 ## API Rate Limits
 
 Figma's API has rate limits. If you're importing many designs:
+
 - Space out requests
 - Consider caching frame data for unchanged designs
 - The integration handles rate limit errors gracefully
@@ -170,6 +174,7 @@ Figma's API has rate limits. If you're importing many designs:
 ## Support
 
 For issues specific to this integration:
+
 - Check the browser console and server logs for error details
 - Verify all environment variables are set correctly
 - Review the skill instructions for proper component mappings

@@ -19,27 +19,29 @@ This codebase has been audited against industry best practices:
 - **Sanity Agent Toolkit** (20+ rules) - CMS schema design, GROQ queries, visual editing, and TypeGen patterns
 
 The best practices rule files are installed in:
+
 - `.claude/skills/react-best-practices/` - React/Next.js optimization rules
 - `.cursor/rules/` - Sanity CMS best practices
 
 #### Compliance Summary (January 2026)
 
-| Category | Next.js/React | Sanity |
-|----------|---------------|--------|
-| Component Architecture | ✅ Excellent | - |
-| Server vs Client Split | ✅ ~60/40 split | - |
-| Image Optimization | ✅ LQIP implemented | - |
-| Bundle Optimization | ✅ Dynamic imports | - |
-| Icon Optimization | ✅ SSR-specific paths | - |
-| Data Fetching | ✅ Promise.all, Suspense | ✅ defineQuery |
-| Hydration Safety | ✅ Proper patterns | - |
-| Schema Design | - | ✅ Semantic naming |
-| Validation | - | ✅ Cross-field validation |
-| GROQ Queries | - | ✅ Fragment strategy |
-| Visual Editing | - | ✅ Stega cleanup |
-| TypeGen | - | ✅ Automated |
+| Category               | Next.js/React            | Sanity                    |
+| ---------------------- | ------------------------ | ------------------------- |
+| Component Architecture | ✅ Excellent             | -                         |
+| Server vs Client Split | ✅ ~60/40 split          | -                         |
+| Image Optimization     | ✅ LQIP implemented      | -                         |
+| Bundle Optimization    | ✅ Dynamic imports       | -                         |
+| Icon Optimization      | ✅ SSR-specific paths    | -                         |
+| Data Fetching          | ✅ Promise.all, Suspense | ✅ defineQuery            |
+| Hydration Safety       | ✅ Proper patterns       | -                         |
+| Schema Design          | -                        | ✅ Semantic naming        |
+| Validation             | -                        | ✅ Cross-field validation |
+| GROQ Queries           | -                        | ✅ Fragment strategy      |
+| Visual Editing         | -                        | ✅ Stega cleanup          |
+| TypeGen                | -                        | ✅ Automated              |
 
 ### Key Strengths
+
 - Comprehensive TypeScript coverage with generated types
 - Flexible page builder with hierarchical layout system
 - Real-time visual editing with custom overlays
@@ -48,14 +50,15 @@ The best practices rule files are installed in:
 - Advanced AI content creation tools
 
 ### Tech Stack at a Glance
-| Layer | Technology |
-|-------|------------|
-| Frontend | Next.js 16, React 19, TypeScript 5.9 |
-| CMS | Sanity v5.9, Sanity Studio v5 |
-| Styling | Tailwind CSS v4 (CSS-first) |
-| UI Components | Radix UI, Phosphor Icons |
-| AI Integration | Anthropic Claude API |
-| Build | Turbopack, npm workspaces |
+
+| Layer          | Technology                           |
+| -------------- | ------------------------------------ |
+| Frontend       | Next.js 16, React 19, TypeScript 5.9 |
+| CMS            | Sanity v5.9, Sanity Studio v5        |
+| Styling        | Tailwind CSS v4 (CSS-first)          |
+| UI Components  | Radix UI, Phosphor Icons             |
+| AI Integration | Anthropic Claude API                 |
+| Build          | Turbopack, npm workspaces            |
 
 ---
 
@@ -117,14 +120,14 @@ The best practices rule files are installed in:
 
 ### App Router Structure
 
-| Route | File | Purpose |
-|-------|------|---------|
-| `/` | `app/page.tsx` | Home page (hardcoded slug: 'home') |
-| `/[slug]` | `app/[slug]/page.tsx` | Dynamic pages from Sanity |
-| `/posts/[slug]` | `app/posts/[slug]/page.tsx` | Blog posts |
-| `/design-system` | `app/design-system/page.tsx` | Design system showcase |
-| `/api/draft-mode/*` | API routes | Draft mode enable/disable |
-| `/api/claude` | API route | Claude AI streaming endpoint |
+| Route               | File                         | Purpose                            |
+| ------------------- | ---------------------------- | ---------------------------------- |
+| `/`                 | `app/page.tsx`               | Home page (hardcoded slug: 'home') |
+| `/[slug]`           | `app/[slug]/page.tsx`        | Dynamic pages from Sanity          |
+| `/posts/[slug]`     | `app/posts/[slug]/page.tsx`  | Blog posts                         |
+| `/design-system`    | `app/design-system/page.tsx` | Design system showcase             |
+| `/api/draft-mode/*` | API routes                   | Draft mode enable/disable          |
+| `/api/claude`       | API route                    | Claude AI streaming endpoint       |
 
 ### Component Hierarchy
 
@@ -143,11 +146,13 @@ PageBuilder
 ### Block Types Reference
 
 **Layout Blocks:**
+
 - `Section` - Container with background, padding, max-width options
 - `Row` - Horizontal flex container with gap and alignment
 - `Column` - Width-controlled column (12-column grid)
 
 **Content Blocks:**
+
 - `HeadingBlock` - h1-h6 with size, align, color options
 - `RichTextBlock` - Portable text with typography controls
 - `EyebrowBlock` - Small label (text/overline/pill variants)
@@ -155,13 +160,15 @@ PageBuilder
 - `ButtonBlock` - Button with variant, colorScheme, icon
 - `IconBlock` - Phosphor icons with size and color
 
-**Interactive Blocks:** *(dynamically imported for bundle optimization)*
+**Interactive Blocks:** _(dynamically imported for bundle optimization)_
+
 - `AccordionBlock` - Collapsible sections
 - `TabsBlock` - Tabbed content panels (dynamic import)
 - `SliderBlock` - Image carousel using Swiper (dynamic import)
 - `ModalBlock` - Dialog/modal trigger (dynamic import)
 
 **Utility Blocks:**
+
 - `SpacerBlock` - Vertical spacing
 - `DividerBlock` - Horizontal line
 - `CardBlock` - Container with styling options
@@ -173,19 +180,19 @@ PageBuilder
 
 ```typescript
 // sanity/lib/live.ts - Real-time updates setup
-export const { sanityFetch, SanityLive } = defineLive({
+export const {sanityFetch, SanityLive} = defineLive({
   client,
-  serverToken: token,      // Allows draft content
-  browserToken: token,     // Shared only in valid draft mode
-  fetchOptions: { revalidate: 0 },
-});
+  serverToken: token, // Allows draft content
+  browserToken: token, // Shared only in valid draft mode
+  fetchOptions: {revalidate: 0},
+})
 
 // Usage in page component
-const { data: page } = await sanityFetch({
+const {data: page} = await sanityFetch({
   query: getPageQuery,
-  params: { slug },
-  stega: false,  // Disable for metadata
-});
+  params: {slug},
+  stega: false, // Disable for metadata
+})
 ```
 
 ### Styling Architecture
@@ -193,10 +200,11 @@ const { data: page } = await sanityFetch({
 **Tailwind CSS v4 (CSS-First)**
 
 Configuration is minimal (`tailwind.config.ts`):
+
 ```typescript
 export default {
   content: ['./app/**/*.{ts,tsx}', './sanity/**/*.{ts,tsx}'],
-  future: { hoverOnlyWhenSupported: true },
+  future: {hoverOnlyWhenSupported: true},
 }
 ```
 
@@ -205,9 +213,9 @@ All theming lives in `app/globals.css`:
 ```css
 /* Theme tokens via @theme directive */
 @theme {
-  --color-brand-primary: #0066FF;
+  --color-brand-primary: #0066ff;
   --color-gray-50: #fafafa;
-  --font-display: "General Sans", sans-serif;
+  --font-display: 'General Sans', sans-serif;
   /* ... generates Tailwind utilities automatically */
 }
 
@@ -220,10 +228,11 @@ All theming lives in `app/globals.css`:
 ```
 
 **Class Merging Utility:**
+
 ```typescript
 // lib/utils.ts
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import {clsx, type ClassValue} from 'clsx'
+import {twMerge} from 'tailwind-merge'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -356,6 +365,7 @@ export const PageFormInput = (props: ObjectInputProps) => {
 ```
 
 ### Key Features
+
 - **Multimodal support** - Text and image inputs
 - **Conversation persistence** - Stored in Sanity
 - **Action parsing** - Claude can create/update/delete documents
@@ -374,6 +384,7 @@ npm run typegen
 ```
 
 This creates `frontend/sanity.types.ts` with:
+
 - Document types (`Page`, `Post`, `Person`)
 - Object types (`Section`, `Row`, `Column`, all blocks)
 - Query result types (`GetPageQueryResult`, etc.)
@@ -391,13 +402,13 @@ export const getPageQuery = defineQuery(`
       // Expand nested content
     }
   }
-`);
+`)
 
 // Usage with automatic typing
-const { data: page } = await sanityFetch({
+const {data: page} = await sanityFetch({
   query: getPageQuery,
-  params: { slug: 'home' },
-});
+  params: {slug: 'home'},
+})
 // page is typed as GetPageQueryResult
 ```
 
@@ -406,14 +417,14 @@ const { data: page } = await sanityFetch({
 ```typescript
 // Most blocks use generated types
 interface HeadingBlockProps {
-  block: HeadingBlock;  // From sanity.types.ts
+  block: HeadingBlock // From sanity.types.ts
 }
 
 // Some use looser typing (area for improvement)
 interface RowProps {
-  row: any;  // Should be Row from sanity.types.ts
-  pageId?: string;
-  pageType?: string;
+  row: any // Should be Row from sanity.types.ts
+  pageId?: string
+  pageType?: string
 }
 ```
 
@@ -423,29 +434,29 @@ interface RowProps {
 
 ### Strengths
 
-| Area | Assessment |
-|------|------------|
-| **Type Coverage** | Excellent - Full TypeScript with generated types |
-| **Component Architecture** | Excellent - Clear composition patterns |
-| **Separation of Concerns** | Excellent - Frontend/studio cleanly separated |
-| **CSS Architecture** | Excellent - Modern CSS-first Tailwind approach |
-| **Real-Time Features** | Excellent - Live preview and visual editing |
-| **Documentation** | Good - CLAUDE.md provides clear guidance |
-| **Error Handling** | Good - API routes handle errors properly |
+| Area                       | Assessment                                       |
+| -------------------------- | ------------------------------------------------ |
+| **Type Coverage**          | Excellent - Full TypeScript with generated types |
+| **Component Architecture** | Excellent - Clear composition patterns           |
+| **Separation of Concerns** | Excellent - Frontend/studio cleanly separated    |
+| **CSS Architecture**       | Excellent - Modern CSS-first Tailwind approach   |
+| **Real-Time Features**     | Excellent - Live preview and visual editing      |
+| **Documentation**          | Good - CLAUDE.md provides clear guidance         |
+| **Error Handling**         | Good - API routes handle errors properly         |
 
 ### Areas for Improvement
 
-| Area | Issue | Recommendation | Status |
-|------|-------|----------------|--------|
-| **Loose Typing** | Some components use `any` for props | Created block type definitions in `frontend/app/types/blocks.ts` | ✅ Done |
-| **CSS Parsing** | Row.tsx parses custom CSS with regex | Added CSS property whitelist in `frontend/app/lib/parseCustomStyle.ts` | ✅ Done |
-| **Overlay Selectors** | Visual editing overlays use fragile DOM selectors | Centralized in `frontend/app/components/overlays/constants.ts` | ✅ Done |
-| **API Security** | Claude endpoint uses `Access-Control-Allow-Origin: *` | Implemented CORS validation with `ALLOWED_CORS_ORIGINS` env var | ✅ Done |
-| **Nesting Depth** | Sanity 20-level limit could be hit with deep structures | Expanded documentation in CLAUDE.md with depth calculator | ✅ Done |
-| **Bundle Size** | Heavy components loaded eagerly | Use dynamic imports | ✅ Done |
-| **Image Loading** | No blur placeholders for images | Add LQIP support | ✅ Done |
-| **Icon Imports** | Barrel imports increase bundle | Use SSR-specific paths | ✅ Done |
-| **Schema Types** | Missing defineArrayMember wrappers | Add for TypeGen | ✅ Done |
+| Area                  | Issue                                                   | Recommendation                                                         | Status  |
+| --------------------- | ------------------------------------------------------- | ---------------------------------------------------------------------- | ------- |
+| **Loose Typing**      | Some components use `any` for props                     | Created block type definitions in `frontend/app/types/blocks.ts`       | ✅ Done |
+| **CSS Parsing**       | Row.tsx parses custom CSS with regex                    | Added CSS property whitelist in `frontend/app/lib/parseCustomStyle.ts` | ✅ Done |
+| **Overlay Selectors** | Visual editing overlays use fragile DOM selectors       | Centralized in `frontend/app/components/overlays/constants.ts`         | ✅ Done |
+| **API Security**      | Claude endpoint uses `Access-Control-Allow-Origin: *`   | Implemented CORS validation with `ALLOWED_CORS_ORIGINS` env var        | ✅ Done |
+| **Nesting Depth**     | Sanity 20-level limit could be hit with deep structures | Expanded documentation in CLAUDE.md with depth calculator              | ✅ Done |
+| **Bundle Size**       | Heavy components loaded eagerly                         | Use dynamic imports                                                    | ✅ Done |
+| **Image Loading**     | No blur placeholders for images                         | Add LQIP support                                                       | ✅ Done |
+| **Icon Imports**      | Barrel imports increase bundle                          | Use SSR-specific paths                                                 | ✅ Done |
+| **Schema Types**      | Missing defineArrayMember wrappers                      | Add for TypeGen                                                        | ✅ Done |
 
 ### Specific Recommendations (Future Improvements)
 
@@ -455,11 +466,11 @@ Per-request deduplication would prevent duplicate data fetches in `generateMetad
 
 ```typescript
 // sanity/lib/queries.ts
-import { cache } from 'react';
+import {cache} from 'react'
 
 export const getPageBySlug = cache(async (slug: string) => {
-  return sanityFetch({ query: getPageQuery, params: { slug } });
-});
+  return sanityFetch({query: getPageQuery, params: {slug}})
+})
 ```
 
 **2. Add Memoization to Pure Components**
@@ -488,6 +499,7 @@ For very large datasets, cursor-based pagination is more efficient than deep sli
 ## Performance Considerations
 
 ### Current Optimizations
+
 - Static generation for published pages (`generateStaticParams`)
 - CDN enabled for Sanity content API
 - Next.js Image component for image optimization
@@ -499,6 +511,7 @@ For very large datasets, cursor-based pagination is more efficient than deep sli
 - **defineArrayMember wrappers** in schemas for improved TypeGen type generation
 
 ### Potential Improvements
+
 - Consider ISR (Incremental Static Regeneration) for frequently updated pages
 - Add `loading.tsx` files for streaming SSR
 - Consider preloading critical fonts
@@ -508,15 +521,15 @@ For very large datasets, cursor-based pagination is more efficient than deep sli
 
 ## Security Checklist
 
-| Item | Status | Notes |
-|------|--------|-------|
-| Environment variables | ✅ | `.env.local` is gitignored |
-| API token exposure | ✅ | Frontend token has limited scope |
-| CORS configuration | ✅ | Configurable via `ALLOWED_CORS_ORIGINS` env var |
-| Input validation | ✅ | API routes validate inputs |
-| CSS injection | ✅ | `parseCustomStyle` uses property whitelist |
-| XSS prevention | ✅ | React handles by default, Portable text is safe |
-| Draft mode auth | ✅ | Uses Sanity's built-in auth |
+| Item                  | Status | Notes                                           |
+| --------------------- | ------ | ----------------------------------------------- |
+| Environment variables | ✅     | `.env.local` is gitignored                      |
+| API token exposure    | ✅     | Frontend token has limited scope                |
+| CORS configuration    | ✅     | Configurable via `ALLOWED_CORS_ORIGINS` env var |
+| Input validation      | ✅     | API routes validate inputs                      |
+| CSS injection         | ✅     | `parseCustomStyle` uses property whitelist      |
+| XSS prevention        | ✅     | React handles by default, Portable text is safe |
+| Draft mode auth       | ✅     | Uses Sanity's built-in auth                     |
 
 ---
 
@@ -570,29 +583,29 @@ SANITY_API_TOKEN="token" npm run seed-home
 
 ### Key Frontend Files
 
-| File | Purpose |
-|------|---------|
-| `app/layout.tsx` | Root layout with theme script, navigation, footer |
-| `app/page.tsx` | Home page component |
-| `app/[slug]/page.tsx` | Dynamic page routing |
-| `app/globals.css` | Tailwind theme and CSS variables |
-| `app/components/PageBuilder.tsx` | Renders pageBuilder array |
-| `app/components/BlockRenderer.tsx` | Type-based block dispatch |
-| `sanity/lib/client.ts` | Sanity client configuration |
-| `sanity/lib/queries.ts` | GROQ queries |
-| `sanity/lib/live.ts` | Real-time updates setup |
-| `sanity.types.ts` | Generated TypeScript types |
+| File                               | Purpose                                           |
+| ---------------------------------- | ------------------------------------------------- |
+| `app/layout.tsx`                   | Root layout with theme script, navigation, footer |
+| `app/page.tsx`                     | Home page component                               |
+| `app/[slug]/page.tsx`              | Dynamic page routing                              |
+| `app/globals.css`                  | Tailwind theme and CSS variables                  |
+| `app/components/PageBuilder.tsx`   | Renders pageBuilder array                         |
+| `app/components/BlockRenderer.tsx` | Type-based block dispatch                         |
+| `sanity/lib/client.ts`             | Sanity client configuration                       |
+| `sanity/lib/queries.ts`            | GROQ queries                                      |
+| `sanity/lib/live.ts`               | Real-time updates setup                           |
+| `sanity.types.ts`                  | Generated TypeScript types                        |
 
 ### Key Studio Files
 
-| File | Purpose |
-|------|---------|
-| `sanity.config.ts` | Main Sanity configuration |
-| `src/schemaTypes/index.ts` | Schema type exports |
-| `src/schemaTypes/documents/page.ts` | Page document schema |
-| `src/schemaTypes/objects/section.ts` | Section object schema |
-| `src/structure/index.ts` | Studio navigation structure |
-| `src/plugins/claude-assistant/` | AI assistant plugin |
+| File                                 | Purpose                     |
+| ------------------------------------ | --------------------------- |
+| `sanity.config.ts`                   | Main Sanity configuration   |
+| `src/schemaTypes/index.ts`           | Schema type exports         |
+| `src/schemaTypes/documents/page.ts`  | Page document schema        |
+| `src/schemaTypes/objects/section.ts` | Section object schema       |
+| `src/structure/index.ts`             | Studio navigation structure |
+| `src/plugins/claude-assistant/`      | AI assistant plugin         |
 
 ---
 
@@ -601,12 +614,14 @@ SANITY_API_TOKEN="token" npm run seed-home
 This project demonstrates **professional-grade architecture** for a headless CMS implementation. The combination of Next.js App Router patterns, comprehensive TypeScript coverage, and a flexible page builder creates a solid foundation for content-driven websites.
 
 The codebase has been optimized following Vercel React and Sanity best practices, with particular focus on:
+
 - Bundle size optimization through dynamic imports
 - Image loading experience with blur placeholders
 - Schema type safety with defineArrayMember patterns
 - Efficient icon imports for reduced client bundle size
 
 **Recommended next steps:**
+
 1. Consider implementing `React.cache()` for per-request deduplication in data fetching
 2. Add unit tests for critical utilities
 3. Document the page builder block options for content editors
@@ -616,13 +631,15 @@ The codebase has been optimized following Vercel React and Sanity best practices
 
 **Completed optimizations (January 2026):**
 
-*Round 1 - Performance:*
+_Round 1 - Performance:_
+
 - ✅ Dynamic imports for heavy block components (SliderBlock, TabsBlock, ModalBlock)
 - ✅ Image blur placeholders (LQIP) via `getBlurDataUrl()` utility
 - ✅ Optimized icon imports using `@phosphor-icons/react/dist/ssr`
 - ✅ Schema defineArrayMember wrappers for TypeGen
 
-*Round 2 - Security & Maintainability:*
+_Round 2 - Security & Maintainability:_
+
 - ✅ CORS validation with `ALLOWED_CORS_ORIGINS` environment config
 - ✅ Centralized overlay constants (`constants.ts`) with block type labels/icons
 - ✅ CSS property whitelist in `parseCustomStyle.ts` for security
@@ -632,4 +649,4 @@ The codebase has been optimized following Vercel React and Sanity best practices
 
 ---
 
-*This review was generated with AI assistance and verified against Vercel React Best Practices and Sanity Agent Toolkit guidelines. Manual verification of specific code paths is recommended before making architectural decisions.*
+_This review was generated with AI assistance and verified against Vercel React Best Practices and Sanity Agent Toolkit guidelines. Manual verification of specific code paths is recommended before making architectural decisions._

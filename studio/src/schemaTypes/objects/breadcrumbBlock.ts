@@ -1,5 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {OlistIcon} from '@sanity/icons'
+import {OlistIcon} from '@sanity/icons/Olist'
 
 // Breadcrumb item
 const breadcrumbItem = defineArrayMember({

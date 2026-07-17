@@ -1,5 +1,5 @@
 import {defineField, defineType} from 'sanity'
-import {LaunchIcon} from '@sanity/icons'
+import {LaunchIcon} from '@sanity/icons/Launch'
 
 export const modalBlock = defineType({
   name: 'modalBlock',

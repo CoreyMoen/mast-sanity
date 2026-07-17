@@ -47,8 +47,7 @@ export function usePinboards() {
 
   const createPinboard = useCallback(
     async (name: string) => {
-      const maxOrder =
-        pinboards.length > 0 ? Math.max(...pinboards.map((c) => c.order || 0)) : 0
+      const maxOrder = pinboards.length > 0 ? Math.max(...pinboards.map((c) => c.order || 0)) : 0
       const doc = await client.create({
         _type: 'pinboard',
         name,

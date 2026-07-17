@@ -54,6 +54,7 @@ export function ThemeToggle({className, showLabels = false}: ThemeToggleProps) {
   // Initialize theme on mount
   React.useEffect(() => {
     const stored = getStoredTheme()
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reading persisted theme from localStorage after mount to avoid hydration mismatch
     setTheme(stored)
     setEffectiveTheme(stored === 'system' ? getSystemTheme() : stored)
     applyTheme(stored)
@@ -103,14 +104,10 @@ export function ThemeToggle({className, showLabels = false}: ThemeToggleProps) {
         <span
           className={cn(
             'transition-opacity duration-300',
-            isDark ? 'opacity-100' : 'opacity-0 hidden'
+            isDark ? 'opacity-100' : 'opacity-0 hidden',
           )}
         >
-          <Moon
-            size={20}
-            weight="regular"
-            className="text-[var(--primary-foreground)]"
-          />
+          <Moon size={20} weight="regular" className="text-[var(--primary-foreground)]" />
         </span>
       )}
 
@@ -128,7 +125,7 @@ export function ThemeToggle({className, showLabels = false}: ThemeToggleProps) {
           className={cn(
             'relative h-[1.5em] w-[3em] rounded-full transition-colors duration-300',
             'bg-[var(--primary-border)]',
-            'peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--color-brand)] peer-focus-visible:ring-offset-2'
+            'peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--color-brand)] peer-focus-visible:ring-offset-2',
           )}
         >
           {/* Thumb */}
@@ -136,7 +133,7 @@ export function ThemeToggle({className, showLabels = false}: ThemeToggleProps) {
             className={cn(
               'absolute top-[0.2em] left-[0.2em] h-[1.1em] w-[1.1em] rounded-full transition-transform duration-300',
               'bg-[var(--primary-foreground)]',
-              isDark && 'translate-x-[1.5em]'
+              isDark && 'translate-x-[1.5em]',
             )}
           />
         </div>
@@ -147,14 +144,10 @@ export function ThemeToggle({className, showLabels = false}: ThemeToggleProps) {
         <span
           className={cn(
             'transition-opacity duration-300',
-            !isDark ? 'opacity-100' : 'opacity-0 hidden'
+            !isDark ? 'opacity-100' : 'opacity-0 hidden',
           )}
         >
-          <Sun
-            size={20}
-            weight="regular"
-            className="text-[var(--primary-foreground)]"
-          />
+          <Sun size={20} weight="regular" className="text-[var(--primary-foreground)]" />
         </span>
       )}
     </div>
@@ -170,6 +163,7 @@ export function ThemeToggleCompact({className}: {className?: string}) {
 
   React.useEffect(() => {
     const stored = getStoredTheme()
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reading persisted theme from localStorage after mount to avoid hydration mismatch
     setEffectiveTheme(stored === 'system' ? getSystemTheme() : stored)
     setMounted(true)
   }, [])
@@ -201,7 +195,7 @@ export function ThemeToggleCompact({className}: {className?: string}) {
         className={cn(
           'flex h-10 w-10 items-center justify-center rounded-full transition-colors',
           'text-[var(--muted-foreground)] opacity-50',
-          className
+          className,
         )}
         disabled
       >
@@ -218,15 +212,11 @@ export function ThemeToggleCompact({className}: {className?: string}) {
       className={cn(
         'flex h-10 w-10 items-center justify-center rounded-full transition-colors duration-300',
         'text-[var(--muted-foreground)] hover:text-[var(--primary-foreground)]',
-        className
+        className,
       )}
       aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
     >
-      {isDark ? (
-        <Moon size={20} weight="regular" />
-      ) : (
-        <Sun size={20} weight="regular" />
-      )}
+      {isDark ? <Moon size={20} weight="regular" /> : <Sun size={20} weight="regular" />}
     </button>
   )
 }

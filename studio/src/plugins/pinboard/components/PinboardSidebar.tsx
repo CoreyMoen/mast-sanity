@@ -1,6 +1,10 @@
 import {useState, useCallback, useRef, useEffect} from 'react'
 import {Card, Stack, Flex, Text, Button, TextInput, Box} from '@sanity/ui'
-import {AddIcon, TrashIcon, EditIcon, ChevronUpIcon, ChevronDownIcon} from '@sanity/icons'
+import {AddIcon} from '@sanity/icons/Add'
+import {TrashIcon} from '@sanity/icons/Trash'
+import {EditIcon} from '@sanity/icons/Edit'
+import {ChevronUpIcon} from '@sanity/icons/ChevronUp'
+import {ChevronDownIcon} from '@sanity/icons/ChevronDown'
 import type {PinboardDocument} from '../types'
 
 interface PinboardSidebarProps {

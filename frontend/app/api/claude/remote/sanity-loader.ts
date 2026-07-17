@@ -5,7 +5,7 @@
  * from Sanity for use in the remote Claude API.
  */
 
-import { createClient, type SanityClient } from '@sanity/client'
+import {createClient, type SanityClient} from '@sanity/client'
 import type {
   WorkflowDocument,
   InstructionsDocument,
@@ -18,7 +18,8 @@ import type {
  */
 export function createSanityClient(): SanityClient {
   const projectId = process.env.SANITY_PROJECT_ID || process.env.NEXT_PUBLIC_SANITY_PROJECT_ID
-  const dataset = process.env.SANITY_DATASET || process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
+  const dataset =
+    process.env.SANITY_DATASET || process.env.NEXT_PUBLIC_SANITY_DATASET || 'production'
   const token = process.env.SANITY_API_TOKEN
 
   if (!projectId) {
@@ -85,7 +86,7 @@ export async function loadApiSettings(client: SanityClient): Promise<ApiSettings
  */
 export async function loadWorkflow(
   client: SanityClient,
-  nameOrId: string
+  nameOrId: string,
 ): Promise<WorkflowDocument | null> {
   // Try to find by ID first, then by name
   const query = `*[_type == "claudeWorkflow" && (
@@ -101,7 +102,7 @@ export async function loadWorkflow(
     active
   }`
 
-  return client.fetch(query, { nameOrId })
+  return client.fetch(query, {nameOrId})
 }
 
 /**
@@ -129,8 +130,10 @@ export async function loadSectionTemplates(client: SanityClient): Promise<unknow
  */
 export async function loadDocumentsForContext(
   client: SanityClient,
-  documentIds: string[]
-): Promise<Array<{ _id: string; _type: string; name?: string; title?: string; slug?: { current: string } }>> {
+  documentIds: string[],
+): Promise<
+  Array<{_id: string; _type: string; name?: string; title?: string; slug?: {current: string}}>
+> {
   if (!documentIds.length) return []
 
   const query = `*[_id in $documentIds]{
@@ -141,7 +144,7 @@ export async function loadDocumentsForContext(
     "slug": slug.current
   }`
 
-  return client.fetch(query, { documentIds })
+  return client.fetch(query, {documentIds})
 }
 
 /**
@@ -258,7 +261,7 @@ Fields: items (array with title and content)
  */
 export function detectRelevantCategories(
   userMessage: string,
-  instructions: InstructionsDocument | null
+  instructions: InstructionsDocument | null,
 ): Set<InstructionCategory> {
   const lowerMessage = userMessage.toLowerCase()
   const relevantCategories = new Set<InstructionCategory>()
@@ -266,35 +269,110 @@ export function detectRelevantCategories(
   // Default keywords for each category
   const categoryKeywords: Record<InstructionCategory, string[]> = {
     writing: [
-      'write', 'writing', 'copy', 'text', 'content', 'heading', 'title', 'description',
-      'paragraph', 'rich text', 'blog', 'article', 'post', 'caption', 'label',
-      'tone', 'voice', 'style', 'language', 'word', 'sentence', 'grammar'
+      'write',
+      'writing',
+      'copy',
+      'text',
+      'content',
+      'heading',
+      'title',
+      'description',
+      'paragraph',
+      'rich text',
+      'blog',
+      'article',
+      'post',
+      'caption',
+      'label',
+      'tone',
+      'voice',
+      'style',
+      'language',
+      'word',
+      'sentence',
+      'grammar',
     ],
     design: [
-      'design', 'layout', 'section', 'row', 'column', 'spacing', 'padding', 'margin',
-      'style', 'visual', 'color', 'theme', 'grid', 'responsive', 'mobile', 'desktop',
-      'hero', 'banner', 'card', 'button', 'icon', 'image', 'slider', 'tab',
-      'background', 'overlay', 'align', 'width', 'height', 'page', 'create', 'build'
+      'design',
+      'layout',
+      'section',
+      'row',
+      'column',
+      'spacing',
+      'padding',
+      'margin',
+      'style',
+      'visual',
+      'color',
+      'theme',
+      'grid',
+      'responsive',
+      'mobile',
+      'desktop',
+      'hero',
+      'banner',
+      'card',
+      'button',
+      'icon',
+      'image',
+      'slider',
+      'tab',
+      'background',
+      'overlay',
+      'align',
+      'width',
+      'height',
+      'page',
+      'create',
+      'build',
     ],
     technical: [
-      'nest', 'nesting', 'depth', 'schema', 'structure', 'field', 'type', 'key',
-      'sanity', 'groq', 'query', 'api', 'update', 'delete', 'duplicate',
-      'error', 'fail', 'bug', 'fix', 'constraint', 'limit', 'required'
+      'nest',
+      'nesting',
+      'depth',
+      'schema',
+      'structure',
+      'field',
+      'type',
+      'key',
+      'sanity',
+      'groq',
+      'query',
+      'api',
+      'update',
+      'delete',
+      'duplicate',
+      'error',
+      'fail',
+      'bug',
+      'fix',
+      'constraint',
+      'limit',
+      'required',
     ],
   }
 
   // Override with custom keywords from instructions if provided
   if (instructions?.writingKeywords) {
-    categoryKeywords.writing = instructions.writingKeywords.split(',').map(k => k.trim().toLowerCase())
+    categoryKeywords.writing = instructions.writingKeywords
+      .split(',')
+      .map((k) => k.trim().toLowerCase())
   }
   if (instructions?.designKeywords) {
-    categoryKeywords.design = instructions.designKeywords.split(',').map(k => k.trim().toLowerCase())
+    categoryKeywords.design = instructions.designKeywords
+      .split(',')
+      .map((k) => k.trim().toLowerCase())
   }
   if (instructions?.technicalKeywords) {
-    categoryKeywords.technical = instructions.technicalKeywords.split(',').map(k => k.trim().toLowerCase())
+    categoryKeywords.technical = instructions.technicalKeywords
+      .split(',')
+      .map((k) => k.trim().toLowerCase())
   }
 
-  for (const [category, keywords] of Object.entries(categoryKeywords) as [InstructionCategory, string[]][]) {
+  for (const [category, keywords] of Object.entries(categoryKeywords) as [
+    InstructionCategory,
+    string[],
+  ][]) {
     for (const keyword of keywords) {
       if (lowerMessage.includes(keyword)) {
         relevantCategories.add(category)

@@ -1,5 +1,6 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {BlockElementIcon, EarthGlobeIcon} from '@sanity/icons'
+import {BlockElementIcon} from '@sanity/icons/BlockElement'
+import {EarthGlobeIcon} from '@sanity/icons/EarthGlobe'
 import {SectionTemplateFormInput} from '../components/SectionTemplateFormInput'
 
 /**
@@ -87,7 +88,8 @@ export const sectionTemplate = defineType({
       name: 'rows',
       title: 'Template Content',
       type: 'array',
-      description: 'Build out the section content that will be copied when this template is applied',
+      description:
+        'Build out the section content that will be copied when this template is applied',
       of: [
         // Layout
         defineArrayMember({type: 'row', options: {modal: {type: 'dialog', width: 'auto'}}}),
@@ -107,7 +109,11 @@ export const sectionTemplate = defineType({
         insertMenu: {
           groups: [
             {name: 'layout', title: 'Layout', of: ['row', 'spacerBlock', 'dividerBlock']},
-            {name: 'content', title: 'Content', of: ['headingBlock', 'richTextBlock', 'buttonBlock']},
+            {
+              name: 'content',
+              title: 'Content',
+              of: ['headingBlock', 'richTextBlock', 'buttonBlock'],
+            },
             {name: 'media', title: 'Media', of: ['imageBlock']},
             {name: 'interactive', title: 'Interactive', of: ['sliderBlock', 'tabsBlock']},
           ],
@@ -210,7 +216,9 @@ export const sectionTemplate = defineType({
     },
     prepare({name, category, thumbnail, rows, isGlobal}) {
       const itemCount = rows?.length || 0
-      const categoryLabel = category ? category.charAt(0).toUpperCase() + category.slice(1) : 'Other'
+      const categoryLabel = category
+        ? category.charAt(0).toUpperCase() + category.slice(1)
+        : 'Other'
       const globalPrefix = isGlobal ? '🌐 ' : ''
       const typeLabel = isGlobal ? 'Global' : categoryLabel
       return {

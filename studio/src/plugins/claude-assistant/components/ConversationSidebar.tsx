@@ -18,17 +18,27 @@
  */
 
 import React, {useMemo, useState, useCallback, useRef, useEffect, KeyboardEvent} from 'react'
-import {Box, Button, Card, Flex, Stack, Text, Menu, MenuButton, MenuItem, Tooltip, TextInput} from '@sanity/ui'
 import {
-  AddIcon,
-  TrashIcon,
-  EllipsisVerticalIcon,
-  ClockIcon,
-  ArchiveIcon,
-  RestoreIcon,
-  CommentIcon,
-  EditIcon,
-} from '@sanity/icons'
+  Box,
+  Button,
+  Card,
+  Flex,
+  Stack,
+  Text,
+  Menu,
+  MenuButton,
+  MenuItem,
+  Tooltip,
+  TextInput,
+} from '@sanity/ui'
+import {AddIcon} from '@sanity/icons/Add'
+import {TrashIcon} from '@sanity/icons/Trash'
+import {EllipsisVerticalIcon} from '@sanity/icons/EllipsisVertical'
+import {ClockIcon} from '@sanity/icons/Clock'
+import {ArchiveIcon} from '@sanity/icons/Archive'
+import {RestoreIcon} from '@sanity/icons/Restore'
+import {CommentIcon} from '@sanity/icons/Comment'
+import {EditIcon} from '@sanity/icons/Edit'
 import type {Conversation} from '../types'
 
 // Pagination constants
@@ -191,11 +201,11 @@ export function ConversationSidebar({
         // Focus the selected item
         const items = listRef.current?.querySelectorAll('[role="option"]')
         if (items && items[nextIndex]) {
-          (items[nextIndex] as HTMLElement).focus()
+          ;(items[nextIndex] as HTMLElement).focus()
         }
       }
     },
-    [visibleConversations, activeConversationId, onSelect]
+    [visibleConversations, activeConversationId, onSelect],
   )
 
   return (
@@ -247,7 +257,9 @@ export function ConversationSidebar({
         }}
         role="listbox"
         aria-label="Conversations"
-        aria-activedescendant={activeConversationId ? `conversation-${activeConversationId}` : undefined}
+        aria-activedescendant={
+          activeConversationId ? `conversation-${activeConversationId}` : undefined
+        }
         tabIndex={visibleConversations.length > 0 ? 0 : -1}
         onKeyDown={handleListKeyDown}
       >
@@ -382,7 +394,9 @@ function ConversationGroup({
             onSelect={() => onSelect(conversation.id)}
             onDelete={() => onDelete(conversation.id)}
             onArchive={onArchive ? () => onArchive(conversation.id) : undefined}
-            onRename={onRename ? (newTitle: string) => onRename(conversation.id, newTitle) : undefined}
+            onRename={
+              onRename ? (newTitle: string) => onRename(conversation.id, newTitle) : undefined
+            }
           />
         ))}
       </Stack>
@@ -432,7 +446,7 @@ const ConversationItem = React.memo(function ConversationItem({
         onSelect()
       }
     },
-    [onSelect, isEditing]
+    [onSelect, isEditing],
   )
 
   // Handle rename submission
@@ -455,15 +469,18 @@ const ConversationItem = React.memo(function ConversationItem({
         setIsEditing(false)
       }
     },
-    [handleRenameSubmit, conversation.title]
+    [handleRenameSubmit, conversation.title],
   )
 
   // Start editing
-  const handleStartEdit = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation()
-    setEditTitle(conversation.title)
-    setIsEditing(true)
-  }, [conversation.title])
+  const handleStartEdit = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation()
+      setEditTitle(conversation.title)
+      setIsEditing(true)
+    },
+    [conversation.title],
+  )
 
   return (
     <Card
@@ -476,8 +493,8 @@ const ConversationItem = React.memo(function ConversationItem({
         backgroundColor: isActive
           ? 'var(--card-badge-primary-bg-color)'
           : isHovered
-          ? 'var(--card-bg2-color)'
-          : undefined,
+            ? 'var(--card-bg2-color)'
+            : undefined,
         transition: 'background-color 100ms ease',
       }}
       onClick={isEditing ? undefined : onSelect}
@@ -504,11 +521,7 @@ const ConversationItem = React.memo(function ConversationItem({
             />
           ) : (
             <>
-              <Text
-                size={1}
-                weight={isActive ? 'semibold' : 'regular'}
-                textOverflow="ellipsis"
-              >
+              <Text size={1} weight={isActive ? 'semibold' : 'regular'} textOverflow="ellipsis">
                 {conversation.title}
               </Text>
               <Flex align="center" gap={1} marginTop={2}>
@@ -518,9 +531,12 @@ const ConversationItem = React.memo(function ConversationItem({
                 </Text>
                 {conversation.messages.length > 0 && (
                   <>
-                    <Text size={0} muted style={{opacity: 0.5}}>|</Text>
+                    <Text size={0} muted style={{opacity: 0.5}}>
+                      |
+                    </Text>
                     <Text size={0} muted>
-                      {conversation.messages.length} message{conversation.messages.length !== 1 ? 's' : ''}
+                      {conversation.messages.length} message
+                      {conversation.messages.length !== 1 ? 's' : ''}
                     </Text>
                   </>
                 )}
@@ -545,13 +561,7 @@ const ConversationItem = React.memo(function ConversationItem({
             id={`conversation-menu-${conversation.id}`}
             menu={
               <Menu aria-label="Conversation actions">
-                {onRename && (
-                  <MenuItem
-                    icon={EditIcon}
-                    text="Rename"
-                    onClick={handleStartEdit}
-                  />
-                )}
+                {onRename && <MenuItem icon={EditIcon} text="Rename" onClick={handleStartEdit} />}
                 {onArchive && (
                   <MenuItem
                     icon={ArchiveIcon}

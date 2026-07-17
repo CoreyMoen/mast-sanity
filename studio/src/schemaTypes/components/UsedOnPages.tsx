@@ -1,6 +1,7 @@
 import React, {useMemo, useState, useEffect} from 'react'
 import {Card, Flex, Text, Stack, Spinner, Badge} from '@sanity/ui'
-import {ChevronDownIcon, ChevronRightIcon} from '@sanity/icons'
+import {ChevronDownIcon} from '@sanity/icons/ChevronDown'
+import {ChevronRightIcon} from '@sanity/icons/ChevronRight'
 import {useDocumentStore, useFormValue} from 'sanity'
 import {IntentLink} from 'sanity/router'
 
@@ -74,9 +75,7 @@ export function UsedOnPages() {
           style={{cursor: pages.length > 0 ? 'pointer' : 'default'}}
         >
           {pages.length > 0 && (
-            <Text size={1}>
-              {isExpanded ? <ChevronDownIcon /> : <ChevronRightIcon />}
-            </Text>
+            <Text size={1}>{isExpanded ? <ChevronDownIcon /> : <ChevronRightIcon />}</Text>
           )}
           <Text size={1} weight="semibold">
             Used on {loading ? '...' : `${pages.length} page${pages.length !== 1 ? 's' : ''}`}

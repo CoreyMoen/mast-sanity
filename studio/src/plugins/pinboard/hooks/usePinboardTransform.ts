@@ -61,7 +61,9 @@ export function usePinboardTransform() {
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     // Don't start panning if clicking on a card or interactive element
-    const isInteractive = (e.target as HTMLElement).closest('[data-page-card], [data-comment-overlay], [data-comment-popover], button, a, input, textarea')
+    const isInteractive = (e.target as HTMLElement).closest(
+      '[data-page-card], [data-comment-overlay], [data-comment-popover], button, a, input, textarea',
+    )
     if (e.button === 1 || (e.button === 0 && !isInteractive)) {
       isPanning.current = true
       lastPosition.current = {x: e.clientX, y: e.clientY}

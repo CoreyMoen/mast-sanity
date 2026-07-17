@@ -1,5 +1,5 @@
 import {defineField, defineType} from 'sanity'
-import {CircleIcon} from '@sanity/icons'
+import {CircleIcon} from '@sanity/icons/Circle'
 
 /**
  * Icon Block schema - Displays Phosphor icons.
@@ -136,7 +136,9 @@ export const iconBlock = defineType({
     },
     prepare({icon, size}) {
       return {
-        title: icon ? icon.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) : 'Icon',
+        title: icon
+          ? icon.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())
+          : 'Icon',
         subtitle: `Icon Block • ${size || 'md'}`,
       }
     },

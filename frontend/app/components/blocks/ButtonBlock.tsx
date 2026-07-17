@@ -23,20 +23,14 @@ interface ButtonBlockProps {
 
 // Icon components using Lucide (shadcn's icon library)
 const icons: Record<string, React.ReactNode> = {
-  none: null,
+  'none': null,
   'arrow-right': <ArrowRight className="h-4 w-4 ml-2" />,
-  external: <ExternalLink className="h-4 w-4 ml-2" />,
-  download: <Download className="h-4 w-4 ml-2" />,
+  'external': <ExternalLink className="h-4 w-4 ml-2" />,
+  'download': <Download className="h-4 w-4 ml-2" />,
 }
 
 export default function ButtonBlock({block}: ButtonBlockProps) {
-  const {
-    text,
-    link,
-    variant = 'primary',
-    color = 'brand',
-    icon = 'none',
-  } = block
+  const {text, link, variant = 'primary', color = 'brand', icon = 'none'} = block
 
   // Resolve SmartString to text value (handles both static text and variable references)
   const resolvedText = resolveSmartString(text, 'Click here')
@@ -68,11 +62,7 @@ export default function ButtonBlock({block}: ButtonBlockProps) {
   }
 
   return (
-    <Button
-      variant={cleanVariant}
-      colorScheme={cleanColor}
-      asChild
-    >
+    <Button variant={cleanVariant} colorScheme={cleanColor} asChild>
       <ResolvedLink link={link}>
         {resolvedText}
         {icons[cleanIcon]}

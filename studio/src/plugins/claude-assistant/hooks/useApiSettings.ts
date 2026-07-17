@@ -36,7 +36,7 @@ interface SanityApiSettings {
 const DEFAULT_API_SETTINGS_DOC = {
   _id: 'claudeApiSettings',
   _type: 'claudeApiSettings',
-  model: 'claude-sonnet-4-20250514',
+  model: 'claude-sonnet-5',
   maxTokens: 4096,
   temperature: 0.7,
   enableStreaming: true,
@@ -71,9 +71,7 @@ export interface UseApiSettingsReturn {
 export function useApiSettings(): UseApiSettingsReturn {
   const client = useClient({apiVersion: API_VERSION})
 
-  const [settings, setSettings] = useState<PluginSettings>(
-    cachedData?.settings ?? DEFAULT_SETTINGS
-  )
+  const [settings, setSettings] = useState<PluginSettings>(cachedData?.settings ?? DEFAULT_SETTINGS)
   const [isLoading, setIsLoading] = useState(!cachedData)
   const [error, setError] = useState<string | null>(null)
   const [isUsingDefaults, setIsUsingDefaults] = useState(!cachedData)

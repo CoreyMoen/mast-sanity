@@ -28,7 +28,12 @@ function getComponentLabel(props: OverlayComponentProps): string {
   const {type, field, node} = props
 
   // Try schema type first (but skip generic types like 'object' and document types like 'page')
-  if (type && type !== 'object' && type !== 'page' && BLOCK_TYPE_LABELS[type as keyof typeof BLOCK_TYPE_LABELS]) {
+  if (
+    type &&
+    type !== 'object' &&
+    type !== 'page' &&
+    BLOCK_TYPE_LABELS[type as keyof typeof BLOCK_TYPE_LABELS]
+  ) {
     return BLOCK_TYPE_LABELS[type as keyof typeof BLOCK_TYPE_LABELS]
   }
 
@@ -121,7 +126,10 @@ function extractPreviewText(fieldValue: Record<string, unknown> | undefined): st
   const blockType = fieldValue._type as string | undefined
 
   // headingBlock / eyebrowBlock: text field
-  if ((blockType === 'headingBlock' || blockType === 'eyebrowBlock') && typeof fieldValue.text === 'string') {
+  if (
+    (blockType === 'headingBlock' || blockType === 'eyebrowBlock') &&
+    typeof fieldValue.text === 'string'
+  ) {
     return fieldValue.text.slice(0, 100)
   }
 
@@ -139,8 +147,14 @@ function extractPreviewText(fieldValue: Record<string, unknown> | undefined): st
   // richTextBlock: extract first text span from portable text content array
   if (blockType === 'richTextBlock' && Array.isArray(fieldValue.content)) {
     for (const block of fieldValue.content) {
-      if (block && typeof block === 'object' && Array.isArray((block as Record<string, unknown>).children)) {
-        for (const child of (block as Record<string, unknown>).children as Array<Record<string, unknown>>) {
+      if (
+        block &&
+        typeof block === 'object' &&
+        Array.isArray((block as Record<string, unknown>).children)
+      ) {
+        for (const child of (block as Record<string, unknown>).children as Array<
+          Record<string, unknown>
+        >) {
           if (typeof child.text === 'string' && child.text.trim()) {
             return child.text.trim().slice(0, 100)
           }
@@ -175,21 +189,25 @@ function EnhancedOverlay(props: OverlayComponentProps) {
 
     const fieldValue = field?.value as Record<string, unknown> | undefined
     const blockType = (fieldValue?._type as string) || type || 'unknown'
-    const path = (node && 'path' in node) ? (node.path as string) : ''
+    const path = node && 'path' in node ? (node.path as string) : ''
     const preview = extractPreviewText(fieldValue)
 
-    window.parent.postMessage({
-      type: 'claude-block-context',
-      payload: {
-        blockType,
-        label,
-        icon,
-        path,
-        preview,
-        fieldValue: fieldValue && JSON.stringify(fieldValue).length < 5000 ? fieldValue : undefined,
-        timestamp: Date.now(),
+    window.parent.postMessage(
+      {
+        type: 'claude-block-context',
+        payload: {
+          blockType,
+          label,
+          icon,
+          path,
+          preview,
+          fieldValue:
+            fieldValue && JSON.stringify(fieldValue).length < 5000 ? fieldValue : undefined,
+          timestamp: Date.now(),
+        },
       },
-    }, '*')
+      '*',
+    )
   }, [focused, type, field, node, label, icon])
 
   return (

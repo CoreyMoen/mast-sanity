@@ -85,8 +85,12 @@ export function useBlockContext({
       // (e.g., click listener sends specific block context, then overlay sends
       // section context), keep the more specific one (deeper path).
       const last = lastContextRef.current
-      if (last && (now - last.timestamp) < DEDUP_WINDOW_MS && newPathDepth < last.pathDepth) {
-        console.log('[useBlockContext] Ignoring less specific context (depth %d < %d)', newPathDepth, last.pathDepth)
+      if (last && now - last.timestamp < DEDUP_WINDOW_MS && newPathDepth < last.pathDepth) {
+        console.log(
+          '[useBlockContext] Ignoring less specific context (depth %d < %d)',
+          newPathDepth,
+          last.pathDepth,
+        )
         return
       }
 

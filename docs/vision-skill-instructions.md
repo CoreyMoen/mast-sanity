@@ -12,15 +12,15 @@ SANITY_API_TOKEN="your-token" npm run seed-vision-skill
 
 This skill is designed to work **alongside** the Claude Training document (`claudeInstructions`). The Training document provides general-purpose knowledge that applies to all skills:
 
-| Training Document Covers | This Skill Adds |
-|---|---|
-| Design System Rules (grid, spacing scale, section/row/column options) | How to read annotated design images (grid overlay, section boundaries, labels) |
-| Component Guidelines (per-component do's and don'ts) | Visual cue → block type mapping (what does this look like → which block is it) |
-| Technical Constraints (nesting limits, `_key`/`_type`, required fields) | Layout analysis methodology (4-step process) |
-| Writing Guidelines (heading hierarchy, content tone) | Visual appearance → field value translation (gray background → "secondary") |
-| Forbidden terms, preferred terms | Common layout patterns (8 patterns with exact settings) |
-| | JSON format details (smartString, Portable Text, link objects) |
-| | Image handling for design-image workflow |
+| Training Document Covers                                                | This Skill Adds                                                                |
+| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Design System Rules (grid, spacing scale, section/row/column options)   | How to read annotated design images (grid overlay, section boundaries, labels) |
+| Component Guidelines (per-component do's and don'ts)                    | Visual cue → block type mapping (what does this look like → which block is it) |
+| Technical Constraints (nesting limits, `_key`/`_type`, required fields) | Layout analysis methodology (4-step process)                                   |
+| Writing Guidelines (heading hierarchy, content tone)                    | Visual appearance → field value translation (gray background → "secondary")    |
+| Forbidden terms, preferred terms                                        | Common layout patterns (8 patterns with exact settings)                        |
+|                                                                         | JSON format details (smartString, Portable Text, link objects)                 |
+|                                                                         | Image handling for design-image workflow                                       |
 
 ### Keyword Triggers
 
@@ -38,7 +38,7 @@ This means when a user selects this skill, they get the Training document's full
 
 You translate visual designs into Sanity page builder documents. When the user attaches an image of a web page design (a full page or individual section), analyze the visual layout and create the equivalent Sanity page document using the page builder component system.
 
-**Note:** Detailed component options, spacing rules, nesting depth limits, heading hierarchy, and other design system rules are provided in the Training instructions. Refer to those for valid field values and constraints. This skill focuses on how to *interpret a visual design image* and translate it into the correct page builder structure.
+**Note:** Detailed component options, spacing rules, nesting depth limits, heading hierarchy, and other design system rules are provided in the Training instructions. Refer to those for valid field values and constraints. This skill focuses on how to _interpret a visual design image_ and translate it into the correct page builder structure.
 
 ---
 
@@ -95,14 +95,14 @@ Look for section boundary outlines, background color changes, and large vertical
 
 ### Step 3: Determine Column Widths from the Grid
 
-| Visual Pattern | Column Widths | Row Setting |
-|---|---|---|
-| 1 centered column | `"8"` or `"9"` or `"10"` | `horizontalAlign: "center"` |
-| 2 equal columns | `"6"` + `"6"` | |
+| Visual Pattern       | Column Widths                  | Row Setting                  |
+| -------------------- | ------------------------------ | ---------------------------- |
+| 1 centered column    | `"8"` or `"9"` or `"10"`       | `horizontalAlign: "center"`  |
+| 2 equal columns      | `"6"` + `"6"`                  |                              |
 | 2 asymmetric columns | `"5"` + `"6"` or `"6"` + `"5"` | `horizontalAlign: "between"` |
-| 3 equal columns | `"4"` + `"4"` + `"4"` | |
-| 4 equal columns | `"3"` + `"3"` + `"3"` + `"3"` | |
-| Sidebar + main | `"3"` + `"8"` or `"4"` + `"7"` | `horizontalAlign: "between"` |
+| 3 equal columns      | `"4"` + `"4"` + `"4"`          |                              |
+| 4 equal columns      | `"3"` + `"3"` + `"3"` + `"3"`  |                              |
+| Sidebar + main       | `"3"` + `"8"` or `"4"` + `"7"` | `horizontalAlign: "between"` |
 
 ### Step 4: Identify Blocks in Each Column
 

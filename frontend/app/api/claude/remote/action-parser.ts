@@ -5,7 +5,7 @@
  * This is a server-side version of the studio plugin's action parser.
  */
 
-import type { ActionType, ParsedAction, ActionPayload } from './types'
+import type {ActionType, ParsedAction, ActionPayload} from './types'
 
 /**
  * Generate a unique action ID
@@ -65,12 +65,14 @@ function parsePayload(payload: unknown): ActionPayload {
   return {
     documentType: (payloadData.documentType as string) || undefined,
     documentId: (payloadData.documentId as string) || undefined,
-    fields: (payloadData.fields as Record<string, unknown>) ||
-      (payloadData.data as Record<string, unknown>) || undefined,
+    fields:
+      (payloadData.fields as Record<string, unknown>) ||
+      (payloadData.data as Record<string, unknown>) ||
+      undefined,
     query: (payloadData.query as string) || (payloadData.groq as string) || undefined,
     path: (payloadData.path as string) || (payloadData.url as string) || undefined,
-    explanation: (payloadData.explanation as string) ||
-      (payloadData.message as string) || undefined,
+    explanation:
+      (payloadData.explanation as string) || (payloadData.message as string) || undefined,
   }
 }
 

@@ -17,6 +17,7 @@ The Claude Assistant is a custom Sanity Studio plugin that provides an AI-powere
 ## Prerequisites
 
 Your target project must have:
+
 - **Sanity Studio v3** (v4.x recommended)
 - **Next.js 13+** with App Router
 - **React 18+** (React 19 recommended)
@@ -193,8 +194,8 @@ export default defineConfig({
   // Note: claudeApiSettings, claudeQuickAction, and claudeWorkflow are managed via the Structure tool
   document: {
     newDocumentOptions: (prev, context) =>
-      prev.filter((item) =>
-        !['claudeConversation', 'claudeInstructions'].includes(item.templateId)
+      prev.filter(
+        (item) => !['claudeConversation', 'claudeInstructions'].includes(item.templateId),
       ),
   },
 })
@@ -249,14 +250,16 @@ createStudioLayout({
 Edit the API routes to change models:
 
 **Main chat** (`frontend/app/api/claude/route.ts`):
+
 ```typescript
 // Line 72 - Main chat model
-const DEFAULT_MODEL = 'claude-sonnet-4-20250514'  // Change to your preferred model
+const DEFAULT_MODEL = 'claude-sonnet-4-20250514' // Change to your preferred model
 
 // Default max tokens and temperature can be overridden via claudeApiSettings in Sanity
 ```
 
 **Title generation** (`frontend/app/api/claude/generate-title/route.ts`):
+
 ```typescript
 // Line 72 - Uses cheaper/faster model for titles
 const MODEL = 'claude-3-5-haiku-20241022'
@@ -305,6 +308,7 @@ your-project/
 ## Features Overview
 
 ### Chat Interface
+
 - Real-time streaming responses from Claude
 - Multimodal support (text + images)
 - Action execution (create/update/delete documents)
@@ -312,29 +316,34 @@ your-project/
 - Document context detection (auto-detects current document in Structure/Presentation mode)
 
 ### Floating Chat
+
 - Accessible from any Studio tool via keyboard shortcut
 - Maintains context across navigation
 - Can be minimized/maximized
 
 ### Custom Instructions
+
 - Configure via the `claudeInstructions` document
 - Set writing guidelines, brand voice, forbidden terms
 - Define component-specific rules
 - Keyword-triggered conditional instructions (only includes relevant instructions based on user's message)
 
 ### Workflows
+
 - Create reusable workflow templates via `claudeWorkflow` documents
 - Pre-filled prompts for common tasks
 - Role-based access control (administrator, editor, viewer)
 - System instructions appended to Claude's context
 
 ### Quick Actions
+
 - Configure quick action buttons via `claudeQuickAction` documents
 - Pre-populated prompts for common tasks
 - Categorize actions (content, query, help, navigation)
 - Set display order and icons
 
 ### API Settings
+
 - Configure Claude model, tokens, and temperature via `claudeApiSettings` document
 - Streaming toggle for real-time responses
 - No code changes required to adjust API parameters
@@ -348,6 +357,7 @@ your-project/
 **Cause:** The API key is not set or not being read.
 
 **Solution:**
+
 1. Ensure `ANTHROPIC_API_KEY` is in your frontend's `.env.local` file
 2. Restart your Next.js dev server after adding the variable
 3. Verify the key format: `sk-ant-api03-...`
@@ -357,6 +367,7 @@ your-project/
 **Cause:** The API key is invalid or expired.
 
 **Solution:**
+
 1. Generate a new key at [console.anthropic.com](https://console.anthropic.com/)
 2. Update your `.env.local` file
 3. Restart your development server
@@ -366,6 +377,7 @@ your-project/
 **Cause:** Too many requests to the Anthropic API.
 
 **Solution:**
+
 1. Wait a moment and try again
 2. Consider implementing request queuing
 3. Check your Anthropic usage limits
@@ -375,6 +387,7 @@ your-project/
 **Cause:** Studio can't reach the API endpoint.
 
 **Solution:**
+
 1. Ensure your Next.js frontend is running
 2. Verify `SANITY_STUDIO_PREVIEW_URL` matches your frontend URL
 3. Check that the API route files are in the correct location
@@ -385,6 +398,7 @@ your-project/
 **Cause:** Schema types not registered or database issue.
 
 **Solution:**
+
 1. Verify schema types are exported in `schemaTypes/index.ts`
 2. Run `sanity deploy` if using Sanity's hosted studio
 3. Check Sanity Studio console for errors
@@ -394,6 +408,7 @@ your-project/
 **Cause:** Document operation permissions or validation errors.
 
 **Solution:**
+
 1. Check Studio console for error details
 2. Verify the user has write permissions
 3. Ensure referenced document types exist in your schema
@@ -431,7 +446,7 @@ const rateLimiter = new Map<string, number[]>()
 function checkRateLimit(ip: string, limit: number, windowMs: number): boolean {
   const now = Date.now()
   const requests = rateLimiter.get(ip) || []
-  const recentRequests = requests.filter(t => t > now - windowMs)
+  const recentRequests = requests.filter((t) => t > now - windowMs)
 
   if (recentRequests.length >= limit) {
     return false
@@ -451,12 +466,7 @@ function checkRateLimit(ip: string, limit: number, windowMs: number): boolean {
 Edit `lib/actions.ts` to add new action types:
 
 ```typescript
-export type ActionType =
-  | 'create'
-  | 'update'
-  | 'delete'
-  | 'publish'
-  | 'yourCustomAction'  // Add new types here
+export type ActionType = 'create' | 'update' | 'delete' | 'publish' | 'yourCustomAction' // Add new types here
 ```
 
 Then handle them in `lib/operations.ts`.
@@ -475,6 +485,7 @@ You are an AI assistant for [Your Company Name].
 ### Styling the UI
 
 The plugin uses styled-components and Sanity UI. Customize in:
+
 - `styles.css` for global styles
 - Individual component files for component-specific styling
 
@@ -496,6 +507,7 @@ This project includes best practices toolkits that may be helpful when building 
 - **Sanity Agent Toolkit** (`.cursor/rules/`) - 20+ Sanity CMS best practices for schemas, GROQ, visual editing, and more
 
 These were sourced from:
+
 - [Vercel Agent Skills](https://github.com/vercel-labs/agent-skills)
 - [Sanity Agent Toolkit](https://github.com/sanity-io/agent-toolkit)
 
@@ -503,14 +515,14 @@ These were sourced from:
 
 ## Version Compatibility
 
-| Component | Tested Version | Minimum Version |
-|-----------|---------------|-----------------|
-| Sanity Studio | v4.20.0 | v3.0.0 |
-| Next.js | v15.5.9 | v13.0.0 |
-| React | v19.2.1 | v18.0.0 |
-| @anthropic-ai/sdk | v0.71.2 | v0.6.0 |
-| styled-components | v6.1.19 | v5.0.0 |
+| Component         | Tested Version | Minimum Version |
+| ----------------- | -------------- | --------------- |
+| Sanity Studio     | v4.20.0        | v3.0.0          |
+| Next.js           | v15.5.9        | v13.0.0         |
+| React             | v19.2.1        | v18.0.0         |
+| @anthropic-ai/sdk | v0.71.2        | v0.6.0          |
+| styled-components | v6.1.19        | v5.0.0          |
 
 ---
 
-*Last updated: January 2026*
+_Last updated: January 2026_

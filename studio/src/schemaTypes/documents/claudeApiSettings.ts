@@ -1,4 +1,4 @@
-import {CogIcon} from '@sanity/icons'
+import {CogIcon} from '@sanity/icons/Cog'
 import {defineField, defineType} from 'sanity'
 
 /**
@@ -11,8 +11,8 @@ import {defineField, defineType} from 'sanity'
  * Available Claude models
  */
 const AVAILABLE_MODELS = [
-  {title: 'Claude Opus 4.5 (Most Capable)', value: 'claude-opus-4-5-20251101'},
-  {title: 'Claude Sonnet 4 (Recommended)', value: 'claude-sonnet-4-20250514'},
+  {title: 'Claude Opus 4.8 (Most Capable)', value: 'claude-opus-4-8'},
+  {title: 'Claude Sonnet 5 (Recommended)', value: 'claude-sonnet-5'},
 ]
 
 export const claudeApiSettings = defineType({
@@ -30,14 +30,14 @@ export const claudeApiSettings = defineType({
         list: AVAILABLE_MODELS,
         layout: 'dropdown',
       },
-      initialValue: 'claude-sonnet-4-20250514',
+      initialValue: 'claude-sonnet-5',
       validation: (rule) => rule.required(),
     }),
     defineField({
       name: 'maxTokens',
       title: 'Max Output Tokens',
       type: 'number',
-      description: 'Maximum number of tokens in Claude\'s response (100-8192).',
+      description: "Maximum number of tokens in Claude's response (100-8192).",
       initialValue: 4096,
       validation: (rule) => rule.required().min(100).max(8192),
     }),
@@ -45,7 +45,8 @@ export const claudeApiSettings = defineType({
       name: 'temperature',
       title: 'Temperature',
       type: 'number',
-      description: 'Lower values (0.0) make responses more focused, higher values (1.0) more creative.',
+      description:
+        'Lower values (0.0) make responses more focused, higher values (1.0) more creative.',
       initialValue: 0.7,
       validation: (rule) => rule.required().min(0).max(1),
       options: {
@@ -59,7 +60,8 @@ export const claudeApiSettings = defineType({
       name: 'enableStreaming',
       title: 'Enable Streaming',
       type: 'boolean',
-      description: 'Show responses as they are generated instead of waiting for the complete response.',
+      description:
+        'Show responses as they are generated instead of waiting for the complete response.',
       initialValue: true,
     }),
   ],

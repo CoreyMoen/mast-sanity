@@ -12,9 +12,7 @@ const projectId =
   '<your-project-id>'
 
 const dataset =
-  process.env.NEXT_PUBLIC_SANITY_DATASET ||
-  process.env.SANITY_STUDIO_DATASET ||
-  'production'
+  process.env.NEXT_PUBLIC_SANITY_DATASET || process.env.SANITY_STUDIO_DATASET || 'production'
 
 export default defineCliConfig({
   api: {

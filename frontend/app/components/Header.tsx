@@ -115,7 +115,11 @@ export default function Header({navigation}: HeaderProps) {
                                 key={dropdownLink._key}
                                 href={href}
                                 target={dropdownLink.link?.openInNewTab ? '_blank' : undefined}
-                                rel={dropdownLink.link?.openInNewTab ? 'noopener noreferrer' : undefined}
+                                rel={
+                                  dropdownLink.link?.openInNewTab
+                                    ? 'noopener noreferrer'
+                                    : undefined
+                                }
                                 className="block px-4 py-2 text-body text-foreground hover:bg-muted-background hover:text-brand transition-colors"
                               >
                                 {dropdownLink.label}
@@ -146,10 +150,7 @@ export default function Header({navigation}: HeaderProps) {
 
             {/* CTA Button */}
             {showCta && ctaLabel && ctaLink && (
-              <Button
-                asChild
-                variant={ctaStyle === 'secondary' ? 'secondary' : 'primary'}
-              >
+              <Button asChild variant={ctaStyle === 'secondary' ? 'secondary' : 'primary'}>
                 <Link
                   href={linkResolver(ctaLink) || '#'}
                   target={ctaLink?.openInNewTab ? '_blank' : undefined}
@@ -205,7 +206,9 @@ export default function Header({navigation}: HeaderProps) {
                                 href={href}
                                 target={dropdownLink.link?.openInNewTab ? '_blank' : undefined}
                                 rel={
-                                  dropdownLink.link?.openInNewTab ? 'noopener noreferrer' : undefined
+                                  dropdownLink.link?.openInNewTab
+                                    ? 'noopener noreferrer'
+                                    : undefined
                                 }
                                 className="text-body text-muted-foreground hover:text-brand transition-colors"
                                 onClick={() => setMobileMenuOpen(false)}

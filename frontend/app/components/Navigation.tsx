@@ -8,40 +8,40 @@ import {urlForImage} from '@/sanity/lib/utils'
 import {Button} from './ui/button'
 import {cn} from '@/lib/utils'
 
-// Types for the navigation data
+// Types for the navigation data (nullable to match GROQ query results)
 interface NavLink {
-  linkType?: string
-  href?: string
-  page?: string
-  post?: string
-  openInNewTab?: boolean
+  linkType?: string | null
+  href?: string | null
+  page?: string | null
+  post?: string | null
+  openInNewTab?: boolean | null
 }
 
 interface DropdownLink {
   _key: string
   label: string
-  link?: NavLink
+  link?: NavLink | null
 }
 
 interface NavItem {
   _key: string
   label: string
-  type: 'link' | 'dropdown'
-  link?: NavLink
-  dropdownLinks?: DropdownLink[]
+  type: 'link' | 'dropdown' | null
+  link?: NavLink | null
+  dropdownLinks?: DropdownLink[] | null
 }
 
 interface NavigationData {
-  logoText?: string
+  logoText?: string | null
   logoImage?: {
     asset?: {_ref: string}
     alt?: string
-  }
-  items?: NavItem[]
-  showCta?: boolean
-  ctaLabel?: string
-  ctaLink?: NavLink
-  ctaStyle?: 'primary' | 'secondary'
+  } | null
+  items?: NavItem[] | null
+  showCta?: boolean | null
+  ctaLabel?: string | null
+  ctaLink?: NavLink | null
+  ctaStyle?: 'primary' | 'secondary' | null
 }
 
 interface NavigationProps {
@@ -62,7 +62,11 @@ const defaultNavItems: NavItem[] = [
     label: 'Pages',
     type: 'dropdown',
     dropdownLinks: [
-      {_key: 'inspired', label: 'Inspired Layouts', link: {linkType: 'page', page: 'inspired-layouts'}},
+      {
+        _key: 'inspired',
+        label: 'Inspired Layouts',
+        link: {linkType: 'page', page: 'inspired-layouts'},
+      },
       {_key: 'about', label: 'About', link: {linkType: 'page', page: 'about'}},
       {_key: 'contact', label: 'Contact', link: {linkType: 'page', page: 'contact'}},
     ],
@@ -114,7 +118,7 @@ function MastLogo({className}: {className?: string}) {
 }
 
 // Helper to resolve link URL
-function resolveLink(link?: NavLink): string {
+function resolveLink(link?: NavLink | null): string {
   if (!link) return '#'
   if (link.linkType === 'href' && link.href) return link.href
   if (link.linkType === 'page' && link.page) return `/${link.page}`
@@ -130,7 +134,7 @@ function NavLinkItem({
   className,
 }: {
   href: string
-  openInNewTab?: boolean
+  openInNewTab?: boolean | null
   children: React.ReactNode
   className?: string
 }) {
@@ -162,6 +166,7 @@ export default function Navigation({data, siteTitle = 'Mast Sanity'}: Navigation
 
   // Prevent hydration mismatch with Radix NavigationMenu IDs
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional mount flag for SSR hydration safety
     setMounted(true)
   }, [])
 
@@ -188,7 +193,10 @@ export default function Navigation({data, siteTitle = 'Mast Sanity'}: Navigation
         <div className="container">
           <div className="flex h-16 items-center justify-between md:h-20">
             {/* Logo - Shows uploaded image or MAST SVG as default */}
-            <Link href="/" className="flex-shrink-0 text-brand transition-opacity duration-300 hover:opacity-80">
+            <Link
+              href="/"
+              className="flex-shrink-0 text-brand transition-opacity duration-300 hover:opacity-80"
+            >
               {hasLogoImage ? (
                 <Image
                   src={urlForImage(data.logoImage)?.width(200).height(50).url() || ''}
@@ -211,7 +219,11 @@ export default function Navigation({data, siteTitle = 'Mast Sanity'}: Navigation
                   {(data?.items?.length ? data.items : defaultNavItems).map((item) => (
                     <div key={item._key} className="relative">
                       {item.type === 'dropdown' && item.dropdownLinks?.length ? (
-                        <DesktopDropdown item={item} linkClasses={linkClasses} dropdownLinkClasses={dropdownLinkClasses} />
+                        <DesktopDropdown
+                          item={item}
+                          linkClasses={linkClasses}
+                          dropdownLinkClasses={dropdownLinkClasses}
+                        />
                       ) : (
                         <NavLinkItem
                           href={resolveLink(item.link)}
@@ -235,9 +247,7 @@ export default function Navigation({data, siteTitle = 'Mast Sanity'}: Navigation
                       className={linkClasses}
                     >
                       {item.label}
-                      {item.type === 'dropdown' && (
-                        <CaretDown className="h-4 w-4" weight="bold" />
-                      )}
+                      {item.type === 'dropdown' && <CaretDown className="h-4 w-4" weight="bold" />}
                     </NavLinkItem>
                   ))}
                 </nav>
@@ -246,7 +256,7 @@ export default function Navigation({data, siteTitle = 'Mast Sanity'}: Navigation
               {/* CTA Button */}
               {(data?.showCta ?? defaultCta.show) && (data?.ctaLabel || defaultCta.label) && (
                 <Button
-                  variant={(data?.ctaStyle === 'secondary' ? 'secondary' : 'primary')}
+                  variant={data?.ctaStyle === 'secondary' ? 'secondary' : 'primary'}
                   colorScheme="brand"
                   asChild
                 >
@@ -273,33 +283,32 @@ export default function Navigation({data, siteTitle = 'Mast Sanity'}: Navigation
                 <span
                   className={cn(
                     'absolute left-0 h-0.5 w-full bg-foreground transition-all duration-300',
-                    mobileMenuOpen ? 'top-2.5 rotate-45' : 'top-0'
+                    mobileMenuOpen ? 'top-2.5 rotate-45' : 'top-0',
                   )}
                 />
                 <span
                   className={cn(
                     'absolute left-0 top-2.5 h-0.5 w-full bg-foreground transition-opacity duration-300',
-                    mobileMenuOpen ? 'opacity-0' : 'opacity-100'
+                    mobileMenuOpen ? 'opacity-0' : 'opacity-100',
                   )}
                 />
                 <span
                   className={cn(
                     'absolute left-0 h-0.5 w-full bg-foreground transition-all duration-300',
-                    mobileMenuOpen ? 'top-2.5 -rotate-45' : 'top-5'
+                    mobileMenuOpen ? 'top-2.5 -rotate-45' : 'top-5',
                   )}
                 />
               </div>
             </button>
           </div>
         </div>
-
       </header>
 
       {/* Mobile Menu - Full screen overlay with fade */}
       <div
         className={cn(
           'fixed inset-0 z-[60] bg-[var(--primary-background)] transition-opacity duration-300 md:hidden',
-          mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+          mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none',
         )}
       >
         {/* Mobile menu header with logo, CTA, and close button */}
@@ -329,7 +338,7 @@ export default function Navigation({data, siteTitle = 'Mast Sanity'}: Navigation
               <div className="flex items-center gap-4">
                 {(data?.showCta ?? defaultCta.show) && (data?.ctaLabel || defaultCta.label) && (
                   <Button
-                    variant={(data?.ctaStyle === 'secondary' ? 'secondary' : 'primary')}
+                    variant={data?.ctaStyle === 'secondary' ? 'secondary' : 'primary'}
                     colorScheme="brand"
                     asChild
                   >
@@ -416,10 +425,7 @@ function DesktopDropdown({
       >
         {item.label}
         <CaretDown
-          className={cn(
-            'h-4 w-4 transition-transform duration-300',
-            isOpen && 'rotate-180'
-          )}
+          className={cn('h-4 w-4 transition-transform duration-300', isOpen && 'rotate-180')}
           weight="bold"
         />
       </button>
@@ -444,13 +450,7 @@ function DesktopDropdown({
 }
 
 // Mobile dropdown component
-function MobileDropdown({
-  item,
-  onLinkClick,
-}: {
-  item: NavItem
-  onLinkClick: () => void
-}) {
+function MobileDropdown({item, onLinkClick}: {item: NavItem; onLinkClick: () => void}) {
   const [isOpen, setIsOpen] = React.useState(false)
 
   return (
@@ -463,17 +463,14 @@ function MobileDropdown({
       >
         {item.label}
         <CaretDown
-          className={cn(
-            'h-5 w-5 transition-transform duration-300',
-            isOpen && 'rotate-180'
-          )}
+          className={cn('h-5 w-5 transition-transform duration-300', isOpen && 'rotate-180')}
           weight="bold"
         />
       </button>
       <div
         className={cn(
           'overflow-hidden transition-all duration-300',
-          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+          isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0',
         )}
       >
         {/* Bordered container for dropdown links - matches Mast Webflow style */}

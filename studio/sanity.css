@@ -6,10 +6,10 @@
  * which clips descenders (g, y, p, q) and ascenders on many surfaces.
  */
 
-[data-ui="Text"] {
+[data-ui='Text'] {
   overflow: visible !important;
 }
 
-[data-ui="Label"] {
+[data-ui='Label'] {
   overflow: visible !important;
 }

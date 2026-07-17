@@ -32,37 +32,37 @@ interface SectionProps {
 
 // Background color mapping - using semantic CSS variables
 const bgColorClasses: Record<string, string> = {
-  primary: 'bg-[var(--primary-background)]',
-  secondary: 'bg-[var(--secondary-background)]',
+  'primary': 'bg-[var(--primary-background)]',
+  'secondary': 'bg-[var(--secondary-background)]',
   // Legacy values for backwards compatibility
-  none: '',
-  white: 'bg-[var(--primary-background)]',
+  'none': '',
+  'white': 'bg-[var(--primary-background)]',
   'gray-50': 'bg-[var(--secondary-background)]',
   'gray-100': 'bg-[var(--secondary-background)]',
   'gray-800': 'bg-gray-800',
-  black: 'bg-black',
-  brand: 'bg-brand',
-  blue: 'bg-blue',
+  'black': 'bg-black',
+  'brand': 'bg-brand',
+  'blue': 'bg-blue',
 }
 
 // Max width mapping
 const maxWidthClasses: Record<string, string> = {
-  full: 'w-full',
-  container: 'container',
-  sm: 'max-w-screen-sm mx-auto',
-  md: 'max-w-screen-md mx-auto',
-  lg: 'max-w-screen-lg mx-auto',
-  xl: 'max-w-screen-xl mx-auto',
+  'full': 'w-full',
+  'container': 'container',
+  'sm': 'max-w-screen-sm mx-auto',
+  'md': 'max-w-screen-md mx-auto',
+  'lg': 'max-w-screen-lg mx-auto',
+  'xl': 'max-w-screen-xl mx-auto',
   '2xl': 'max-w-screen-2xl mx-auto',
 }
 
 // Simplified padding - uses CSS variable-based fluid spacing
 // Presets: 'none', 'compact', 'default' (fluid), 'spacious'
 const paddingPresets: Record<string, string> = {
-  none: '',
-  compact: 'py-6 md:py-8 lg:py-12',
-  default: 'section-padding', // Uses fluid clamp() from CSS
-  spacious: 'py-16 md:py-24 lg:py-32',
+  'none': '',
+  'compact': 'py-6 md:py-8 lg:py-12',
+  'default': 'section-padding', // Uses fluid clamp() from CSS
+  'spacious': 'py-16 md:py-24 lg:py-32',
   // Legacy support for numeric values (maps to closest preset)
   '0': '',
   '4': 'py-4',
@@ -122,8 +122,9 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
   const paddingClass = paddingPresets[cleanPaddingTop] || paddingPresets['default']
 
   // Handle min-height (preset or custom)
-  const minHeightClass = cleanMinHeight === 'custom' ? '' : (minHeightClasses[cleanMinHeight] || '')
-  const customMinHeightStyle = cleanMinHeight === 'custom' && cleanCustomMinHeight ? {minHeight: cleanCustomMinHeight} : {}
+  const minHeightClass = cleanMinHeight === 'custom' ? '' : minHeightClasses[cleanMinHeight] || ''
+  const customMinHeightStyle =
+    cleanMinHeight === 'custom' && cleanCustomMinHeight ? {minHeight: cleanCustomMinHeight} : {}
 
   // Vertical alignment (only applies when min-height is set)
   const hasMinHeight = cleanMinHeight !== 'auto'
@@ -133,19 +134,22 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
   // Primary/secondary backgrounds use theme-aware colors, so no override needed
   const backgroundImageUrl = urlForImage(backgroundImage)?.url()
   const backgroundBlurUrl = getBlurDataUrl(backgroundImage)
-  const isDarkBg = ['gray-800', 'black', 'brand', 'blue'].includes(cleanBgColor) || (backgroundImageUrl && cleanOverlay >= 40)
+  const isDarkBg =
+    ['gray-800', 'black', 'brand', 'blue'].includes(cleanBgColor) ||
+    (backgroundImageUrl && cleanOverlay >= 40)
 
   // For global sections, point data-sanity to the sectionTemplate document
   // so clicking in Presentation mode opens the source document for editing.
   // For inline sections, point to the page document as usual.
   const isGlobal = block.isGlobal && block.sourceId && block.sourceType
-  const sectionDataSanity = pageId && pageType
-    ? dataAttr({
-        id: isGlobal ? block.sourceId! : pageId,
-        type: isGlobal ? block.sourceType! : pageType,
-        path: isGlobal ? 'rows' : `pageBuilder:${block._key}`,
-      }).toString()
-    : undefined
+  const sectionDataSanity =
+    pageId && pageType
+      ? dataAttr({
+          id: isGlobal ? block.sourceId! : pageId,
+          type: isGlobal ? block.sourceType! : pageType,
+          path: isGlobal ? 'rows' : `pageBuilder:${block._key}`,
+        }).toString()
+      : undefined
 
   return (
     <section
@@ -168,27 +172,27 @@ export default function Section({block, index, pageId, pageType}: SectionProps) 
           />
           {/* Overlay */}
           {cleanOverlay > 0 && (
-            <div
-              className="absolute inset-0 bg-black"
-              style={{opacity: cleanOverlay / 100}}
-            />
+            <div className="absolute inset-0 bg-black" style={{opacity: cleanOverlay / 100}} />
           )}
         </>
       )}
 
       {/* Content Container */}
-      <div className={`relative z-10 ${maxWidthClass} ${paddingClass} ${hasMinHeight ? 'flex-1 flex flex-col' : ''} ${alignClass}`}>
+      <div
+        className={`relative z-10 ${maxWidthClass} ${paddingClass} ${hasMinHeight ? 'flex-1 flex flex-col' : ''} ${alignClass}`}
+      >
         {rowItems.map((item, itemIndex) => {
           // For global sections, point inner items to the sectionTemplate document
-          const itemDataSanity = pageId && pageType
-            ? dataAttr({
-                id: isGlobal ? block.sourceId! : pageId,
-                type: isGlobal ? block.sourceType! : pageType,
-                path: isGlobal
-                  ? `rows:${item._key}`
-                  : `pageBuilder:${block._key}.rows:${item._key}`,
-              }).toString()
-            : undefined
+          const itemDataSanity =
+            pageId && pageType
+              ? dataAttr({
+                  id: isGlobal ? block.sourceId! : pageId,
+                  type: isGlobal ? block.sourceType! : pageType,
+                  path: isGlobal
+                    ? `rows:${item._key}`
+                    : `pageBuilder:${block._key}.rows:${item._key}`,
+                }).toString()
+              : undefined
 
           return (
             <div

@@ -6,18 +6,11 @@
  */
 
 import React, {useState, useCallback, useMemo} from 'react'
-import {
-  Box,
-  Card,
-  Flex,
-  Text,
-  Button,
-  TextInput,
-  Checkbox,
-  Layer,
-  Stack,
-} from '@sanity/ui'
-import {CloseIcon, SearchIcon, BoltIcon, WarningOutlineIcon} from '@sanity/icons'
+import {Box, Card, Flex, Text, Button, TextInput, Checkbox, Layer, Stack} from '@sanity/ui'
+import {CloseIcon} from '@sanity/icons/Close'
+import {SearchIcon} from '@sanity/icons/Search'
+import {BoltIcon} from '@sanity/icons/Bolt'
+import {WarningOutlineIcon} from '@sanity/icons/WarningOutline'
 import type {WorkflowOption} from './MessageInput'
 
 /**
@@ -131,14 +124,14 @@ export function WorkflowPickerDialog({
   const [figmaConfigured, setFigmaConfigured] = useState<boolean | null>(null)
 
   // Check if any selected workflow has Figma enabled
-  const hasFigmaWorkflow = selectedWorkflows.some(w => w.enableFigmaFetch)
+  const hasFigmaWorkflow = selectedWorkflows.some((w) => w.enableFigmaFetch)
 
   // Check Figma configuration when a Figma-enabled workflow is selected
   React.useEffect(() => {
     if (hasFigmaWorkflow && figmaConfigured === null) {
       fetch('/api/figma/status')
-        .then(res => res.json())
-        .then(data => setFigmaConfigured(data.configured))
+        .then((res) => res.json())
+        .then((data) => setFigmaConfigured(data.configured))
         .catch(() => setFigmaConfigured(false))
     }
   }, [hasFigmaWorkflow, figmaConfigured])
@@ -150,19 +143,22 @@ export function WorkflowPickerDialog({
     return availableWorkflows.filter(
       (workflow) =>
         workflow.name.toLowerCase().includes(query) ||
-        workflow.description?.toLowerCase().includes(query)
+        workflow.description?.toLowerCase().includes(query),
     )
   }, [availableWorkflows, searchQuery])
 
-  const handleToggleWorkflow = useCallback((workflow: WorkflowOption) => {
-    const isSelected = selectedWorkflows.some(w => w._id === workflow._id)
+  const handleToggleWorkflow = useCallback(
+    (workflow: WorkflowOption) => {
+      const isSelected = selectedWorkflows.some((w) => w._id === workflow._id)
 
-    if (isSelected) {
-      onWorkflowsChange(selectedWorkflows.filter(w => w._id !== workflow._id))
-    } else {
-      onWorkflowsChange([...selectedWorkflows, workflow])
-    }
-  }, [selectedWorkflows, onWorkflowsChange])
+      if (isSelected) {
+        onWorkflowsChange(selectedWorkflows.filter((w) => w._id !== workflow._id))
+      } else {
+        onWorkflowsChange([...selectedWorkflows, workflow])
+      }
+    },
+    [selectedWorkflows, onWorkflowsChange],
+  )
 
   const handleClearAll = useCallback(() => {
     onWorkflowsChange([])
@@ -215,12 +211,7 @@ export function WorkflowPickerDialog({
               <BoltIcon style={{fontSize: 18}} />
               <Text weight="semibold">Select Skills</Text>
             </Flex>
-            <Button
-              icon={CloseIcon}
-              mode="bleed"
-              onClick={onClose}
-              aria-label="Close"
-            />
+            <Button icon={CloseIcon} mode="bleed" onClick={onClose} aria-label="Close" />
           </Flex>
 
           {/* Search input */}
@@ -236,11 +227,21 @@ export function WorkflowPickerDialog({
 
           {/* Figma configuration warning */}
           {hasFigmaWorkflow && figmaConfigured === false && (
-            <Box padding={3} style={{borderBottom: '1px solid var(--card-border-color)', backgroundColor: 'var(--card-caution-bg-color)'}}>
+            <Box
+              padding={3}
+              style={{
+                borderBottom: '1px solid var(--card-border-color)',
+                backgroundColor: 'var(--card-caution-bg-color)',
+              }}
+            >
               <Flex align="center" gap={2}>
-                <WarningOutlineIcon style={{color: 'var(--card-caution-icon-color)', flexShrink: 0}} />
+                <WarningOutlineIcon
+                  style={{color: 'var(--card-caution-icon-color)', flexShrink: 0}}
+                />
                 <Text size={1}>
-                  Figma integration requires the <code style={{fontSize: '0.75rem'}}>FIGMA_ACCESS_TOKEN</code> environment variable.{' '}
+                  Figma integration requires the{' '}
+                  <code style={{fontSize: '0.75rem'}}>FIGMA_ACCESS_TOKEN</code> environment
+                  variable.{' '}
                   <a
                     href="/docs/figma-setup-guide.md"
                     target="_blank"
@@ -277,7 +278,7 @@ export function WorkflowPickerDialog({
             ) : (
               <Stack space={1} padding={2}>
                 {filteredWorkflows.map((workflow) => {
-                  const isSelected = selectedWorkflows.some(w => w._id === workflow._id)
+                  const isSelected = selectedWorkflows.some((w) => w._id === workflow._id)
 
                   return (
                     <Card
@@ -329,18 +330,9 @@ export function WorkflowPickerDialog({
             </Text>
             <Flex gap={2}>
               {selectedWorkflows.length > 0 && (
-                <Button
-                  text="Clear all"
-                  mode="ghost"
-                  tone="critical"
-                  onClick={handleClearAll}
-                />
+                <Button text="Clear all" mode="ghost" tone="critical" onClick={handleClearAll} />
               )}
-              <Button
-                text="Done"
-                tone="primary"
-                onClick={onClose}
-              />
+              <Button text="Done" tone="primary" onClick={onClose} />
             </Flex>
           </Flex>
         </Card>
