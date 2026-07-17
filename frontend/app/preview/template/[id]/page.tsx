@@ -26,13 +26,13 @@ export default async function SectionTemplatePreview(props: Props) {
   const sectionBlock = {
     _key: template._id,
     _type: 'section',
-    label: template.name,
+    label: template.name ?? undefined,
     rows: template.rows || [],
-    backgroundColor: template.backgroundColor,
-    minHeight: template.minHeight,
-    verticalAlign: template.verticalAlign,
-    maxWidth: template.maxWidth,
-    paddingTop: template.paddingTop,
+    backgroundColor: template.backgroundColor ?? undefined,
+    minHeight: template.minHeight ?? undefined,
+    verticalAlign: template.verticalAlign ?? undefined,
+    maxWidth: template.maxWidth ?? undefined,
+    paddingTop: template.paddingTop ?? undefined,
   }
 
   return (

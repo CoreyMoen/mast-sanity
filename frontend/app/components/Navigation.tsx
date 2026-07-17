@@ -8,40 +8,40 @@ import {urlForImage} from '@/sanity/lib/utils'
 import {Button} from './ui/button'
 import {cn} from '@/lib/utils'
 
-// Types for the navigation data
+// Types for the navigation data (nullable to match GROQ query results)
 interface NavLink {
-  linkType?: string
-  href?: string
-  page?: string
-  post?: string
-  openInNewTab?: boolean
+  linkType?: string | null
+  href?: string | null
+  page?: string | null
+  post?: string | null
+  openInNewTab?: boolean | null
 }
 
 interface DropdownLink {
   _key: string
   label: string
-  link?: NavLink
+  link?: NavLink | null
 }
 
 interface NavItem {
   _key: string
   label: string
-  type: 'link' | 'dropdown'
-  link?: NavLink
-  dropdownLinks?: DropdownLink[]
+  type: 'link' | 'dropdown' | null
+  link?: NavLink | null
+  dropdownLinks?: DropdownLink[] | null
 }
 
 interface NavigationData {
-  logoText?: string
+  logoText?: string | null
   logoImage?: {
     asset?: {_ref: string}
     alt?: string
-  }
-  items?: NavItem[]
-  showCta?: boolean
-  ctaLabel?: string
-  ctaLink?: NavLink
-  ctaStyle?: 'primary' | 'secondary'
+  } | null
+  items?: NavItem[] | null
+  showCta?: boolean | null
+  ctaLabel?: string | null
+  ctaLink?: NavLink | null
+  ctaStyle?: 'primary' | 'secondary' | null
 }
 
 interface NavigationProps {
@@ -114,7 +114,7 @@ function MastLogo({className}: {className?: string}) {
 }
 
 // Helper to resolve link URL
-function resolveLink(link?: NavLink): string {
+function resolveLink(link?: NavLink | null): string {
   if (!link) return '#'
   if (link.linkType === 'href' && link.href) return link.href
   if (link.linkType === 'page' && link.page) return `/${link.page}`
@@ -130,7 +130,7 @@ function NavLinkItem({
   className,
 }: {
   href: string
-  openInNewTab?: boolean
+  openInNewTab?: boolean | null
   children: React.ReactNode
   className?: string
 }) {

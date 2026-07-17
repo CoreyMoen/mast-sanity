@@ -12,25 +12,25 @@ import {
 import {urlForImage} from '@/sanity/lib/utils'
 import {ThemeToggle} from './ui/theme-toggle'
 
-// Types for the footer data
+// Types for the footer data (nullable to match GROQ query results)
 interface FooterLink {
-  linkType?: string
-  href?: string
-  page?: string
-  post?: string
-  openInNewTab?: boolean
+  linkType?: string | null
+  href?: string | null
+  page?: string | null
+  post?: string | null
+  openInNewTab?: boolean | null
 }
 
 interface LinkItem {
   _key: string
   label: string
-  link?: FooterLink
+  link?: FooterLink | null
 }
 
 interface LinkColumn {
   _key: string
-  title?: string
-  links?: LinkItem[]
+  title?: string | null
+  links?: LinkItem[] | null
 }
 
 interface SocialLink {
@@ -40,16 +40,16 @@ interface SocialLink {
 }
 
 interface FooterData {
-  showLogo?: boolean
-  logoText?: string
+  showLogo?: boolean | null
+  logoText?: string | null
   logoImage?: {
     asset?: {_ref: string}
     alt?: string
-  }
-  linkColumns?: LinkColumn[]
-  socialLinks?: SocialLink[]
-  companyName?: string
-  showThemeToggle?: boolean
+  } | null
+  linkColumns?: LinkColumn[] | null
+  socialLinks?: SocialLink[] | null
+  companyName?: string | null
+  showThemeToggle?: boolean | null
 }
 
 interface FooterProps {
@@ -58,7 +58,7 @@ interface FooterProps {
 }
 
 // Helper to resolve link URL
-function resolveLink(link?: FooterLink): string {
+function resolveLink(link?: FooterLink | null): string {
   if (!link) return '#'
   if (link.linkType === 'href' && link.href) return link.href
   if (link.linkType === 'page' && link.page) return `/${link.page}`
@@ -128,7 +128,7 @@ function FooterLinkItem({
   children,
 }: {
   href: string
-  openInNewTab?: boolean
+  openInNewTab?: boolean | null
   children: React.ReactNode
 }) {
   const isExternal = href.startsWith('http') || href.startsWith('//')
