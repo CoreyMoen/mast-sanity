@@ -1,11 +1,11 @@
 import {defineField, defineType} from 'sanity'
-import {TextColumns} from '@phosphor-icons/react'
+import {DoubleChevronRightIcon} from '@sanity/icons'
 
 export const marqueeBlock = defineType({
   name: 'marqueeBlock',
   title: 'Marquee',
   type: 'object',
-  icon: TextColumns,
+  icon: DoubleChevronRightIcon,
   fields: [
     defineField({
       name: 'items',
