@@ -132,8 +132,7 @@ function FooterLinkItem({
   children: React.ReactNode
 }) {
   const isExternal = href.startsWith('http') || href.startsWith('//')
-  const className =
-    'text-body transition-colors duration-300 hover:text-brand cursor-pointer'
+  const className = 'text-body transition-colors duration-300 hover:text-brand cursor-pointer'
 
   if (isExternal || openInNewTab) {
     return (
@@ -221,7 +220,10 @@ export default function FooterNew({data, siteTitle = 'Mast Sanity'}: FooterProps
           <div className="w-full md:w-3/12 px-3 mb-8 md:mb-0">
             <div className="flex flex-col h-full">
               {/* Logo */}
-              <Link href="/" className="inline-block w-20 text-brand transition-opacity duration-300 hover:opacity-80 mb-auto">
+              <Link
+                href="/"
+                className="inline-block w-20 text-brand transition-opacity duration-300 hover:opacity-80 mb-auto"
+              >
                 {hasLogoImage ? (
                   <Image
                     src={urlForImage(data.logoImage)?.width(200).height(50).url() || ''}

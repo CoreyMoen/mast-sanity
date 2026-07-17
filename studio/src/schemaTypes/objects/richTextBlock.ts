@@ -42,7 +42,8 @@ export const richTextBlock = defineType({
       title: 'Text Size',
       type: 'string',
       group: 'content',
-      description: 'Visual size of the text (heading sizes use the design system heading variables)',
+      description:
+        'Visual size of the text (heading sizes use the design system heading variables)',
       options: {
         list: [
           {title: 'Base (default)', value: 'inherit'},
@@ -109,10 +110,11 @@ export const richTextBlock = defineType({
     prepare({content}) {
       // Extract first block text for preview
       const firstBlock = content?.find((block: any) => block._type === 'block')
-      const text = firstBlock?.children
-        ?.filter((child: any) => child._type === 'span')
-        ?.map((span: any) => span.text)
-        ?.join('') || ''
+      const text =
+        firstBlock?.children
+          ?.filter((child: any) => child._type === 'span')
+          ?.map((span: any) => span.text)
+          ?.join('') || ''
 
       return {
         title: text.slice(0, 50) + (text.length > 50 ? '...' : '') || 'Rich Text',

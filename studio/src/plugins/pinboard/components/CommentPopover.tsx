@@ -112,7 +112,13 @@ function AuthorAvatar({name, size = 24}: {name: string; size?: number}) {
 
 // -- New Comment Form -------------------------------------------------------
 
-function NewCommentForm({onSubmit, onClose}: {onSubmit: (text: string) => void; onClose: () => void}) {
+function NewCommentForm({
+  onSubmit,
+  onClose,
+}: {
+  onSubmit: (text: string) => void
+  onClose: () => void
+}) {
   const [text, setText] = useState('')
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 

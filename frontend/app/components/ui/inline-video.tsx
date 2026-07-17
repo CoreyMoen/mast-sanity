@@ -5,7 +5,22 @@ import Image from 'next/image'
 import {Pause, Play} from '@phosphor-icons/react/dist/ssr'
 import {cn} from '@/lib/utils'
 
-type AspectRatio = '16/9' | '4/3' | '1/1' | '9/16' | '21/9' | '16×9' | '4×3' | '1×1' | '9×16' | '21×9' | '16x9' | '4x3' | '1x1' | '9x16' | '21x9'
+type AspectRatio =
+  | '16/9'
+  | '4/3'
+  | '1/1'
+  | '9/16'
+  | '21/9'
+  | '16×9'
+  | '4×3'
+  | '1×1'
+  | '9×16'
+  | '21×9'
+  | '16x9'
+  | '4x3'
+  | '1x1'
+  | '9x16'
+  | '21x9'
 type ControlPosition = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left' | 'center'
 
 interface InlineVideoProps {
@@ -86,7 +101,7 @@ export function InlineVideo({
       },
       {
         threshold: 0.5, // Trigger when 50% visible
-      }
+      },
     )
 
     observer.observe(video)
@@ -135,7 +150,7 @@ export function InlineVideo({
       className={cn(
         'relative overflow-hidden rounded-lg bg-[var(--color-black)]',
         aspectRatioClasses[aspectRatio],
-        className
+        className,
       )}
     >
       {/* Video element */}
@@ -148,20 +163,14 @@ export function InlineVideo({
         preload="metadata"
         className={cn(
           'absolute inset-0 h-full w-full object-cover transition-opacity duration-300',
-          showPoster && !isLoaded ? 'opacity-0' : 'opacity-100'
+          showPoster && !isLoaded ? 'opacity-0' : 'opacity-100',
         )}
       />
 
       {/* Poster image */}
       {poster && showPoster && (
         <div className="absolute inset-0">
-          <Image
-            src={poster}
-            alt={posterAlt}
-            fill
-            className="object-cover"
-            priority
-          />
+          <Image src={poster} alt={posterAlt} fill className="object-cover" priority />
         </div>
       )}
 
@@ -175,23 +184,20 @@ export function InlineVideo({
             'hover:bg-white hover:scale-105',
             'focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2',
             controlPosition === 'center' ? 'h-16 w-16' : 'h-10 w-10',
-            controlPositionClasses[controlPosition]
+            controlPositionClasses[controlPosition],
           )}
           aria-label={isPlaying ? 'Pause video' : 'Play video'}
         >
           {isPlaying ? (
             <Pause
-              className={cn(
-                'text-black',
-                controlPosition === 'center' ? 'h-7 w-7' : 'h-5 w-5'
-              )}
+              className={cn('text-black', controlPosition === 'center' ? 'h-7 w-7' : 'h-5 w-5')}
               weight="fill"
             />
           ) : (
             <Play
               className={cn(
                 'text-black ml-0.5',
-                controlPosition === 'center' ? 'h-7 w-7' : 'h-5 w-5'
+                controlPosition === 'center' ? 'h-7 w-7' : 'h-5 w-5',
               )}
               weight="fill"
             />

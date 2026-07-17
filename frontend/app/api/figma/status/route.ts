@@ -6,7 +6,7 @@
  * are enabled but the token is not set.
  */
 
-import { NextResponse } from 'next/server'
+import {NextResponse} from 'next/server'
 
 export async function GET() {
   const configured = !!process.env.FIGMA_ACCESS_TOKEN

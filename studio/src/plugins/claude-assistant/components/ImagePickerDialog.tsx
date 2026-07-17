@@ -101,12 +101,7 @@ async function urlToBase64(url: string): Promise<{base64: string; mimeType: stri
   })
 }
 
-export function ImagePickerDialog({
-  isOpen,
-  onClose,
-  onSelect,
-  client,
-}: ImagePickerDialogProps) {
+export function ImagePickerDialog({isOpen, onClose, onSelect, client}: ImagePickerDialogProps) {
   const [activeTab, setActiveTab] = useState<'upload' | 'library'>('upload')
   const [isDragging, setIsDragging] = useState(false)
   const [isUploading, setIsUploading] = useState(false)
@@ -197,7 +192,7 @@ export function ImagePickerDialog({
         setIsUploading(false)
       }
     },
-    [onSelect, onClose]
+    [onSelect, onClose],
   )
 
   /**
@@ -240,7 +235,7 @@ export function ImagePickerDialog({
         setSelectedAssetId(null)
       }
     },
-    [onSelect, onClose]
+    [onSelect, onClose],
   )
 
   /**
@@ -266,7 +261,7 @@ export function ImagePickerDialog({
         handleFileSelect(file)
       }
     },
-    [handleFileSelect]
+    [handleFileSelect],
   )
 
   /**
@@ -279,7 +274,7 @@ export function ImagePickerDialog({
         handleFileSelect(file)
       }
     },
-    [handleFileSelect]
+    [handleFileSelect],
   )
 
   /**
@@ -294,13 +289,7 @@ export function ImagePickerDialog({
   if (!isOpen) return null
 
   return (
-    <Dialog
-      id="image-picker-dialog"
-      header="Add Image"
-      onClose={onClose}
-      width={1}
-      zOffset={1000}
-    >
+    <Dialog id="image-picker-dialog" header="Add Image" onClose={onClose} width={1} zOffset={1000}>
       <Box padding={4}>
         <TabList space={2}>
           <Tab
@@ -322,11 +311,7 @@ export function ImagePickerDialog({
 
         <Box marginTop={4}>
           {/* Upload Tab */}
-          <TabPanel
-            id="upload-panel"
-            aria-labelledby="upload-tab"
-            hidden={activeTab !== 'upload'}
-          >
+          <TabPanel id="upload-panel" aria-labelledby="upload-tab" hidden={activeTab !== 'upload'}>
             <Card
               padding={5}
               radius={2}
@@ -443,9 +428,10 @@ export function ImagePickerDialog({
                           paddingBottom: '100%',
                           cursor: isUploading ? 'wait' : 'pointer',
                           overflow: 'hidden',
-                          border: selectedAssetId === asset._id
-                            ? '2px solid var(--card-focus-ring-color)'
-                            : '2px solid transparent',
+                          border:
+                            selectedAssetId === asset._id
+                              ? '2px solid var(--card-focus-ring-color)'
+                              : '2px solid transparent',
                         }}
                         onClick={() => !isUploading && handleLibrarySelect(asset)}
                       >

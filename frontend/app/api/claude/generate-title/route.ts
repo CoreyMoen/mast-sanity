@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { NextRequest, NextResponse } from 'next/server'
+import {NextRequest, NextResponse} from 'next/server'
 
 // Initialize Anthropic client
 const anthropic = new Anthropic({
@@ -18,7 +18,7 @@ function getAllowedOrigins(): string[] {
     // Default to allowing all origins in development
     return ['*']
   }
-  return originsEnv.split(',').map(origin => origin.trim())
+  return originsEnv.split(',').map((origin) => origin.trim())
 }
 
 /**
@@ -110,9 +110,9 @@ export async function POST(request: NextRequest) {
   // Check for API key
   if (!process.env.ANTHROPIC_API_KEY) {
     return jsonResponse(
-      { error: 'ANTHROPIC_API_KEY environment variable is not configured' },
+      {error: 'ANTHROPIC_API_KEY environment variable is not configured'},
       500,
-      origin
+      origin,
     )
   }
 
@@ -121,23 +121,19 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json()
   } catch {
-    return jsonResponse(
-      { error: 'Invalid JSON in request body' },
-      400,
-      origin
-    )
+    return jsonResponse({error: 'Invalid JSON in request body'}, 400, origin)
   }
 
   // Validate request
   if (!validateRequest(body)) {
     return jsonResponse(
-      { error: 'Invalid request body. Expected { userMessage: string, assistantResponse: string }' },
+      {error: 'Invalid request body. Expected { userMessage: string, assistantResponse: string }'},
       400,
-      origin
+      origin,
     )
   }
 
-  const { userMessage, assistantResponse } = body
+  const {userMessage, assistantResponse} = body
 
   try {
     // Generate title using Claude
@@ -162,13 +158,12 @@ Example good responses:
     })
 
     // Extract title from response
-    const title = message.content[0].type === 'text'
-        ? message.content[0].text.trim()
-        : 'New Conversation'
+    const title =
+      message.content[0].type === 'text' ? message.content[0].text.trim() : 'New Conversation'
 
     console.log('[generate-title] Generated title:', title)
 
-    return jsonResponse({ title }, 200, origin)
+    return jsonResponse({title}, 200, origin)
   } catch (error) {
     console.error('[generate-title] Error:', error)
 
@@ -180,26 +175,26 @@ Example good responses:
       // Handle rate limiting
       if (statusCode === 429) {
         return jsonResponse(
-          { error: 'Rate limit exceeded. Please wait a moment and try again.' },
+          {error: 'Rate limit exceeded. Please wait a moment and try again.'},
           429,
-          origin
+          origin,
         )
       }
 
       // Handle authentication errors
       if (statusCode === 401) {
         return jsonResponse(
-          { error: 'Invalid API key. Please check your ANTHROPIC_API_KEY configuration.' },
+          {error: 'Invalid API key. Please check your ANTHROPIC_API_KEY configuration.'},
           401,
-          origin
+          origin,
         )
       }
 
-      return jsonResponse({ error: message }, statusCode, origin)
+      return jsonResponse({error: message}, statusCode, origin)
     }
 
     // Generic error response - still return a fallback title
     const fallbackTitle = userMessage.slice(0, 50) + (userMessage.length > 50 ? '...' : '')
-    return jsonResponse({ title: fallbackTitle }, 200, origin)
+    return jsonResponse({title: fallbackTitle}, 200, origin)
   }
 }

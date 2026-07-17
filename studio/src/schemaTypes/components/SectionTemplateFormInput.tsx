@@ -58,8 +58,8 @@ export function SectionTemplateFormInput(props: ObjectInputProps) {
                   </Text>
                 </Flex>
                 <Text size={1} style={{paddingLeft: 4}}>
-                  Changes to this section will update <strong>every page</strong> that uses it.
-                  This is a shared, referenced section — not a prefill template.
+                  Changes to this section will update <strong>every page</strong> that uses it. This
+                  is a shared, referenced section — not a prefill template.
                 </Text>
                 {/* Used on pages tracker - only in Structure mode due to form context limitations */}
                 {!isInPresentation && (

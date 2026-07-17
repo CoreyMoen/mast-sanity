@@ -127,10 +127,7 @@ function safeExtractOptions(options: unknown): Record<string, unknown> | undefin
 /**
  * Extract information about a single field
  */
-function extractFieldInfo(field: {
-  name: string
-  type: SchemaType
-}): FieldInfo {
+function extractFieldInfo(field: {name: string; type: SchemaType}): FieldInfo {
   const fieldType = field.type
 
   // Check if field has validation (indicates required) - just check existence, don't copy the object
@@ -141,9 +138,10 @@ function extractFieldInfo(field: {
     title: fieldType.title || field.name,
     type: fieldType.type?.name || fieldType.name || 'unknown',
     required: hasValidation,
-    description: typeof (fieldType as ObjectSchemaType).description === 'string'
-      ? (fieldType as ObjectSchemaType).description
-      : undefined,
+    description:
+      typeof (fieldType as ObjectSchemaType).description === 'string'
+        ? (fieldType as ObjectSchemaType).description
+        : undefined,
   }
 
   // Handle array types
@@ -233,10 +231,7 @@ export function getSchemasSummary(context: SchemaContext): string {
 /**
  * Find a schema type by name
  */
-export function findSchemaType(
-  context: SchemaContext,
-  typeName: string
-): SchemaInfo | undefined {
+export function findSchemaType(context: SchemaContext, typeName: string): SchemaInfo | undefined {
   return (
     context.documentTypes.find((t) => t.name === typeName) ||
     context.objectTypes.find((t) => t.name === typeName)

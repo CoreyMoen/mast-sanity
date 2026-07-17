@@ -1,20 +1,10 @@
 import {useState, useEffect, useCallback, useMemo} from 'react'
-import {
-  Autocomplete,
-  Box,
-  Card,
-  Flex,
-  Text,
-  Spinner,
-} from '@sanity/ui'
+import {Autocomplete, Box, Card, Flex, Text, Spinner} from '@sanity/ui'
 import {SearchIcon} from '@sanity/icons/Search'
 import {DocumentIcon} from '@sanity/icons/Document'
 import {HomeIcon} from '@sanity/icons/Home'
 import {useClient} from 'sanity'
-import {
-  type PreviewHeaderProps,
-  usePresentationNavigate,
-} from 'sanity/presentation'
+import {type PreviewHeaderProps, usePresentationNavigate} from 'sanity/presentation'
 
 interface PageDocument {
   _id: string
@@ -51,12 +41,8 @@ export function PageNavigator(props: PreviewHeaderProps) {
     const fetchDocuments = async () => {
       try {
         const [pages, posts] = await Promise.all([
-          client.fetch<PageDocument[]>(
-            `*[_type == "page"] | order(name asc) {_id, name, slug}`
-          ),
-          client.fetch<PostDocument[]>(
-            `*[_type == "post"] | order(title asc) {_id, title, slug}`
-          ),
+          client.fetch<PageDocument[]>(`*[_type == "page"] | order(name asc) {_id, name, slug}`),
+          client.fetch<PostDocument[]>(`*[_type == "post"] | order(title asc) {_id, title, slug}`),
         ])
         setDocuments([...pages, ...posts])
       } catch (error) {
@@ -95,7 +81,7 @@ export function PageNavigator(props: PreviewHeaderProps) {
         navigate(value)
       }
     },
-    [navigate]
+    [navigate],
   )
 
   // Render option - lookup info from map
@@ -109,9 +95,7 @@ export function PageNavigator(props: PreviewHeaderProps) {
       return (
         <Card as="button" padding={3}>
           <Flex align="center" gap={3}>
-            <Text size={1}>
-              {path === '/' ? <HomeIcon /> : <DocumentIcon />}
-            </Text>
+            <Text size={1}>{path === '/' ? <HomeIcon /> : <DocumentIcon />}</Text>
             <Flex direction="column" gap={1}>
               <Text size={1} weight="medium">
                 {title}
@@ -124,7 +108,7 @@ export function PageNavigator(props: PreviewHeaderProps) {
         </Card>
       )
     },
-    [documentMap]
+    [documentMap],
   )
 
   // Filter function for search - lookup info from map
@@ -135,12 +119,9 @@ export function PageNavigator(props: PreviewHeaderProps) {
 
       const {title, path} = info
       const searchTerm = query.toLowerCase()
-      return (
-        title?.toLowerCase().includes(searchTerm) ||
-        path.toLowerCase().includes(searchTerm)
-      )
+      return title?.toLowerCase().includes(searchTerm) || path.toLowerCase().includes(searchTerm)
     },
-    [documentMap]
+    [documentMap],
   )
 
   return (

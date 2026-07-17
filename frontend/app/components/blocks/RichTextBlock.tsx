@@ -43,8 +43,8 @@ const sizeClasses: Record<string, string> = {
 
 // Max width for readability
 const maxWidthClasses: Record<string, string> = {
-  none: '',
-  prose: 'max-w-prose',
+  'none': '',
+  'prose': 'max-w-prose',
   'prose-lg': 'max-w-[80ch]',
   'prose-xl': 'max-w-[90ch]',
 }
@@ -85,7 +85,10 @@ export default function RichTextBlock({block}: RichTextBlockProps) {
   const inlineStyle = parseCustomStyle(customStyle)
 
   return (
-    <div className={`${alignClass} ${maxWidthClass} ${colorClass} ${sizeClass}`} style={inlineStyle}>
+    <div
+      className={`${alignClass} ${maxWidthClass} ${colorClass} ${sizeClass}`}
+      style={inlineStyle}
+    >
       <PortableText value={content} disableProse />
     </div>
   )

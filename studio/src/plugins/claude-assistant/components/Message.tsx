@@ -31,7 +31,15 @@ import {ActionCard} from './ActionCard'
  * - Language is JSON (always start collapsed)
  * - Streaming (always start collapsed with streaming indicator)
  */
-function CollapsibleCodeBlock({language, code, isStreaming = false}: {language: string; code: string; isStreaming?: boolean}) {
+function CollapsibleCodeBlock({
+  language,
+  code,
+  isStreaming = false,
+}: {
+  language: string
+  code: string
+  isStreaming?: boolean
+}) {
   const lines = code.trim().split('\n')
   const isLongByLines = lines.length > 10
   const isLongByChars = code.length > 500
@@ -57,12 +65,18 @@ function CollapsibleCodeBlock({language, code, isStreaming = false}: {language: 
   const displayCode = isExpanded
     ? code.trim()
     : isStreaming && !isExpanded
-    ? getStreamingPreview()
-    : lines.slice(0, previewLines).join('\n') + (lines.length > previewLines ? '\n...' : '')
+      ? getStreamingPreview()
+      : lines.slice(0, previewLines).join('\n') + (lines.length > previewLines ? '\n...' : '')
 
   return (
     <Box marginY={3}>
-      <Card padding={3} radius={2} tone="transparent" border style={{backgroundColor: 'var(--card-code-bg-color)'}}>
+      <Card
+        padding={3}
+        radius={2}
+        tone="transparent"
+        border
+        style={{backgroundColor: 'var(--card-code-bg-color)'}}
+      >
         <Flex align="center" justify="space-between" marginBottom={2}>
           <Flex align="center" gap={2}>
             <Text size={0} muted style={{fontFamily: 'monospace', textTransform: 'uppercase'}}>
@@ -91,14 +105,34 @@ function CollapsibleCodeBlock({language, code, isStreaming = false}: {language: 
               tone="primary"
               fontSize={0}
               padding={1}
-              text={isExpanded ? 'Collapse' : isStreaming ? `Expand (${lines.length} lines)` : `Expand (${lines.length} lines)`}
+              text={
+                isExpanded
+                  ? 'Collapse'
+                  : isStreaming
+                    ? `Expand (${lines.length} lines)`
+                    : `Expand (${lines.length} lines)`
+              }
               icon={isExpanded ? ChevronUpIcon : ChevronDownIcon}
               onClick={() => setIsExpanded(!isExpanded)}
             />
           )}
         </Flex>
-        <Box style={{maxHeight: isExpanded ? 'none' : '120px', overflow: 'hidden', position: 'relative'}}>
-          <Code size={0} style={{display: 'block', whiteSpace: 'pre-wrap', overflowX: 'auto', opacity: isStreaming && !isExpanded ? 0.7 : 1}}>
+        <Box
+          style={{
+            maxHeight: isExpanded ? 'none' : '120px',
+            overflow: 'hidden',
+            position: 'relative',
+          }}
+        >
+          <Code
+            size={0}
+            style={{
+              display: 'block',
+              whiteSpace: 'pre-wrap',
+              overflowX: 'auto',
+              opacity: isStreaming && !isExpanded ? 0.7 : 1,
+            }}
+          >
             {displayCode}
           </Code>
           {/* Fade overlay when collapsed and streaming */}
@@ -202,7 +236,7 @@ function parseMarkdown(content: string, isStreaming: boolean = false): React.Rea
       const code = parts[i + 1] || ''
       // Use collapsible component for complete code blocks
       elements.push(
-        <CollapsibleCodeBlock key={key++} language={language} code={code} isStreaming={false} />
+        <CollapsibleCodeBlock key={key++} language={language} code={code} isStreaming={false} />,
       )
       i += 2
       continue
@@ -224,7 +258,7 @@ function parseMarkdown(content: string, isStreaming: boolean = false): React.Rea
         language={incompleteBlockLanguage}
         code={incompleteBlockCode}
         isStreaming={true}
-      />
+      />,
     )
   }
 
@@ -247,9 +281,17 @@ function parseInlineMarkdown(text: string, startKey: number): React.ReactNode[] 
   const flushParagraph = () => {
     if (currentParagraph.length > 0) {
       elements.push(
-        <div key={key++} style={{whiteSpace: 'pre-wrap', wordBreak: 'break-word', lineHeight: 1.5, fontSize: '0.9375rem'}}>
+        <div
+          key={key++}
+          style={{
+            whiteSpace: 'pre-wrap',
+            wordBreak: 'break-word',
+            lineHeight: 1.5,
+            fontSize: '0.9375rem',
+          }}
+        >
           {currentParagraph}
-        </div>
+        </div>,
       )
       currentParagraph = []
     }
@@ -258,9 +300,12 @@ function parseInlineMarkdown(text: string, startKey: number): React.ReactNode[] 
   const flushList = () => {
     if (listItems.length > 0) {
       elements.push(
-        <ul key={key++} style={{margin: 0, paddingLeft: 24, listStyleType: 'disc', listStylePosition: 'outside'}}>
+        <ul
+          key={key++}
+          style={{margin: 0, paddingLeft: 24, listStyleType: 'disc', listStylePosition: 'outside'}}
+        >
           {listItems}
-        </ul>
+        </ul>,
       )
       listItems = []
       inList = false
@@ -277,7 +322,7 @@ function parseInlineMarkdown(text: string, startKey: number): React.ReactNode[] 
       listItems.push(
         <li key={key++} style={{marginBottom: 4, lineHeight: 1.5, fontSize: '0.9375rem'}}>
           {parseInlineStyles(listMatch[2], key++)}
-        </li>
+        </li>,
       )
     } else {
       if (inList) {
@@ -304,7 +349,7 @@ function parseInlineMarkdown(text: string, startKey: number): React.ReactNode[] 
               }}
             >
               {parseInlineStyles(headerText, key++)}
-            </div>
+            </div>,
           )
         } else {
           if (currentParagraph.length > 0) {
@@ -346,14 +391,14 @@ function parseInlineStyles(text: string, startKey: number): React.ReactNode {
       elements.push(
         <span key={key++} style={{fontWeight: 600}}>
           {match[2]}
-        </span>
+        </span>,
       )
     } else if (match[3]) {
       // Italic *text*
       elements.push(
         <span key={key++} style={{fontStyle: 'italic'}}>
           {match[4]}
-        </span>
+        </span>,
       )
     } else if (match[5]) {
       // Inline code `code`
@@ -369,7 +414,7 @@ function parseInlineStyles(text: string, startKey: number): React.ReactNode {
           }}
         >
           {match[6]}
-        </code>
+        </code>,
       )
     } else if (match[7]) {
       // Link [text](url)
@@ -382,7 +427,7 @@ function parseInlineStyles(text: string, startKey: number): React.ReactNode {
           style={{color: 'var(--card-link-color)', textDecoration: 'underline'}}
         >
           {match[8]}
-        </a>
+        </a>,
       )
     }
 
@@ -485,11 +530,19 @@ function ActionGroup({
         }}
         onClick={() => setIsGroupExpanded((prev) => !prev)}
       >
-        <Box style={{color: 'var(--card-muted-fg-color)', display: 'flex', alignItems: 'center', flexShrink: 0}}>
-          {isGroupExpanded
-            ? <ChevronDownIcon style={{width: 16, height: 16}} />
-            : <ChevronRightIcon style={{width: 16, height: 16}} />
-          }
+        <Box
+          style={{
+            color: 'var(--card-muted-fg-color)',
+            display: 'flex',
+            alignItems: 'center',
+            flexShrink: 0,
+          }}
+        >
+          {isGroupExpanded ? (
+            <ChevronDownIcon style={{width: 16, height: 16}} />
+          ) : (
+            <ChevronRightIcon style={{width: 16, height: 16}} />
+          )}
         </Box>
         <Text size={1} muted>
           Used {actions.length} tools
@@ -519,7 +572,14 @@ function ActionGroup({
   )
 }
 
-export function Message({message, onActionClick, onActionExecute, onActionUndo, hideNavigationLinks, conversationId}: MessageProps) {
+export function Message({
+  message,
+  onActionClick,
+  onActionExecute,
+  onActionUndo,
+  hideNavigationLinks,
+  conversationId,
+}: MessageProps) {
   const isUser = message.role === 'user'
   const isStreaming = message.status === 'streaming'
   const isError = message.status === 'error'
@@ -554,63 +614,66 @@ export function Message({message, onActionClick, onActionExecute, onActionUndo, 
         // User messages: slightly less vertical padding, Claude messages: uniform padding
         padding: isUser ? '0.75rem 1rem' : '1rem',
         // User messages: visible background in both light and dark modes
-        backgroundColor: isUser ? 'var(--card-hairline-soft-color, rgba(128, 128, 128, 0.15))' : undefined,
+        backgroundColor: isUser
+          ? 'var(--card-hairline-soft-color, rgba(128, 128, 128, 0.15))'
+          : undefined,
         // User messages: 12px border radius to match chat input
         borderRadius: isUser ? 12 : 4,
         // User messages: auto-width based on content, max 85% of container
         // Assistant messages: full width so action accordions stretch edge-to-edge
-        ...(isUser ? {
-          width: 'fit-content',
-          maxWidth: '85%',
-        } : {
-          width: '100%',
-        }),
+        ...(isUser
+          ? {
+              width: 'fit-content',
+              maxWidth: '85%',
+            }
+          : {
+              width: '100%',
+            }),
       }}
       aria-label={accessibleLabel}
     >
       {/* Content */}
       <Stack space={3} style={{minWidth: 0}}>
-
-          {/* Images */}
-          {message.images && message.images.length > 0 && (
-            <Flex gap={2} wrap="wrap" marginBottom={2}>
-              {message.images.map((image) => (
-                <Card
-                  key={image.id}
-                  radius={2}
-                  shadow={1}
+        {/* Images */}
+        {message.images && message.images.length > 0 && (
+          <Flex gap={2} wrap="wrap" marginBottom={2}>
+            {message.images.map((image) => (
+              <Card
+                key={image.id}
+                radius={2}
+                shadow={1}
+                style={{
+                  overflow: 'hidden',
+                  width: 120,
+                  height: 120,
+                  flexShrink: 0,
+                  cursor: 'pointer',
+                  border: '1px solid var(--card-border-color)',
+                }}
+                onClick={() => window.open(image.url, '_blank')}
+                title={`${image.name}${image.sanityAssetId ? ` (${image.sanityAssetId})` : ''}`}
+              >
+                <img
+                  src={image.url}
+                  alt={image.name}
                   style={{
-                    overflow: 'hidden',
-                    width: 120,
-                    height: 120,
-                    flexShrink: 0,
-                    cursor: 'pointer',
-                    border: '1px solid var(--card-border-color)',
+                    display: 'block',
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
                   }}
-                  onClick={() => window.open(image.url, '_blank')}
-                  title={`${image.name}${image.sanityAssetId ? ` (${image.sanityAssetId})` : ''}`}
-                >
-                  <img
-                    src={image.url}
-                    alt={image.name}
-                    style={{
-                      display: 'block',
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                    }}
-                  />
-                </Card>
-              ))}
-            </Flex>
-          )}
+                />
+              </Card>
+            ))}
+          </Flex>
+        )}
 
-          {/*
+        {/*
             Flex layout prevents margin collapsing between sibling elements.
             Gap provides consistent spacing, and we zero out individual margins.
             Using !important to override Sanity UI Box component styles.
           */}
-          <style>{`
+        <style>{`
             .message-content {
               display: flex !important;
               flex-direction: column !important;
@@ -621,61 +684,61 @@ export function Message({message, onActionClick, onActionExecute, onActionUndo, 
               margin-bottom: 0 !important;
             }
           `}</style>
-          {/* Message content */}
-          <Box className="message-content">
-            {parsedContent}
-          </Box>
+        {/* Message content */}
+        <Box className="message-content">{parsedContent}</Box>
 
-          {/* Streaming indicator below content */}
-          {isStreaming && (
-            <Flex align="center" gap={3} role="status" aria-live="polite">
-              <img
-                src="/static/claude-writing-animation.gif"
-                alt=""
-                aria-hidden="true"
-                style={{
-                  width: 48,
-                  height: 48,
-                  flexShrink: 0,
-                }}
-              />
-              <Text size={1} muted>
-                {message.content ? 'Typing...' : 'Thinking...'}
-              </Text>
-            </Flex>
-          )}
-
-          {/* Actions */}
-          {message.actions && message.actions.length > 0 && (
-            <ActionGroup
-              actions={message.actions}
-              onActionExecute={onActionExecute}
-              onActionClick={onActionClick}
-              onActionUndo={onActionUndo}
-              messageTimestamp={message.timestamp}
-              hideNavigationLinks={hideNavigationLinks}
-              conversationId={conversationId}
+        {/* Streaming indicator below content */}
+        {isStreaming && (
+          <Flex align="center" gap={3} role="status" aria-live="polite">
+            <img
+              src="/static/claude-writing-animation.gif"
+              alt=""
+              aria-hidden="true"
+              style={{
+                width: 48,
+                height: 48,
+                flexShrink: 0,
+              }}
             />
-          )}
+            <Text size={1} muted>
+              {message.content ? 'Typing...' : 'Thinking...'}
+            </Text>
+          </Flex>
+        )}
 
-          {/* Metadata (tokens, model) */}
-          {message.metadata && (message.metadata.tokensUsed || message.metadata.model) && (
-            <Flex gap={2} marginTop={1}>
-              {message.metadata.tokensUsed && (
-                <Text size={0} muted>
-                  {message.metadata.tokensUsed.toLocaleString()} tokens
-                </Text>
-              )}
-              {message.metadata.tokensUsed && message.metadata.model && (
-                <Text size={0} muted>|</Text>
-              )}
-              {message.metadata.model && (
-                <Text size={0} muted>
-                  {message.metadata.model}
-                </Text>
-              )}
-            </Flex>
-          )}
+        {/* Actions */}
+        {message.actions && message.actions.length > 0 && (
+          <ActionGroup
+            actions={message.actions}
+            onActionExecute={onActionExecute}
+            onActionClick={onActionClick}
+            onActionUndo={onActionUndo}
+            messageTimestamp={message.timestamp}
+            hideNavigationLinks={hideNavigationLinks}
+            conversationId={conversationId}
+          />
+        )}
+
+        {/* Metadata (tokens, model) */}
+        {message.metadata && (message.metadata.tokensUsed || message.metadata.model) && (
+          <Flex gap={2} marginTop={1}>
+            {message.metadata.tokensUsed && (
+              <Text size={0} muted>
+                {message.metadata.tokensUsed.toLocaleString()} tokens
+              </Text>
+            )}
+            {message.metadata.tokensUsed && message.metadata.model && (
+              <Text size={0} muted>
+                |
+              </Text>
+            )}
+            {message.metadata.model && (
+              <Text size={0} muted>
+                {message.metadata.model}
+              </Text>
+            )}
+          </Flex>
+        )}
       </Stack>
     </Card>
   )

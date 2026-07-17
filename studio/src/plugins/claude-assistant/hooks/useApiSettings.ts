@@ -71,9 +71,7 @@ export interface UseApiSettingsReturn {
 export function useApiSettings(): UseApiSettingsReturn {
   const client = useClient({apiVersion: API_VERSION})
 
-  const [settings, setSettings] = useState<PluginSettings>(
-    cachedData?.settings ?? DEFAULT_SETTINGS
-  )
+  const [settings, setSettings] = useState<PluginSettings>(cachedData?.settings ?? DEFAULT_SETTINGS)
   const [isLoading, setIsLoading] = useState(!cachedData)
   const [error, setError] = useState<string | null>(null)
   const [isUsingDefaults, setIsUsingDefaults] = useState(!cachedData)

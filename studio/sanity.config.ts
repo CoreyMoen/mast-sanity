@@ -205,7 +205,7 @@ export default defineConfig({
     newDocumentOptions: (prev) =>
       prev.filter(
         (item) =>
-          !['claudeConversation', 'claudeInstructions', 'pinboard'].includes(item.templateId)
+          !['claudeConversation', 'claudeInstructions', 'pinboard'].includes(item.templateId),
       ),
   },
 

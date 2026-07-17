@@ -1,10 +1,10 @@
-import nextCoreWebVitals from "eslint-config-next/core-web-vitals";
+import nextCoreWebVitals from 'eslint-config-next/core-web-vitals'
 
 const config = [
   ...nextCoreWebVitals,
   {
-    ignores: ["sanity.types.ts"],
+    ignores: ['sanity.types.ts'],
   },
-];
+]
 
-export default config;
+export default config

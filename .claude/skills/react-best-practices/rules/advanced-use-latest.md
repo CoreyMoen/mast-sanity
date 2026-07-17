@@ -24,7 +24,7 @@ function useLatest<T>(value: T) {
 **Incorrect (effect re-runs on every callback change):**
 
 ```tsx
-function SearchInput({ onSearch }: { onSearch: (q: string) => void }) {
+function SearchInput({onSearch}: {onSearch: (q: string) => void}) {
   const [query, setQuery] = useState('')
 
   useEffect(() => {
@@ -37,7 +37,7 @@ function SearchInput({ onSearch }: { onSearch: (q: string) => void }) {
 **Correct (stable effect, fresh callback):**
 
 ```tsx
-function SearchInput({ onSearch }: { onSearch: (q: string) => void }) {
+function SearchInput({onSearch}: {onSearch: (q: string) => void}) {
   const [query, setQuery] = useState('')
   const onSearchRef = useLatest(onSearch)
 

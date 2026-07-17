@@ -44,11 +44,11 @@ const verticalAlignClasses: Record<string, string> = {
 // This cancels out the column padding on the outer edges
 const rowNegativeMarginClasses: Record<string, string> = {
   '0': '',
-  '2': '-mx-1',    // 4px each side (8px total gap)
-  '4': '-mx-2',    // 8px each side (16px total gap)
-  '6': '-mx-3',    // 12px each side (24px total gap)
-  '8': '-mx-4',    // 16px each side (32px total gap)
-  '12': '-mx-6',   // 24px each side (48px total gap)
+  '2': '-mx-1', // 4px each side (8px total gap)
+  '4': '-mx-2', // 8px each side (16px total gap)
+  '6': '-mx-3', // 12px each side (24px total gap)
+  '8': '-mx-4', // 16px each side (32px total gap)
+  '12': '-mx-6', // 24px each side (48px total gap)
 }
 
 // Vertical gap for stacked mobile columns

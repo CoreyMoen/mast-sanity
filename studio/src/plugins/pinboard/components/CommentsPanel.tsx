@@ -83,8 +83,7 @@ interface CommentItemProps {
 }
 
 function CommentItem({comment, isActive, onSelect}: CommentItemProps) {
-  const truncatedText =
-    comment.text.length > 80 ? comment.text.slice(0, 80) + '...' : comment.text
+  const truncatedText = comment.text.length > 80 ? comment.text.slice(0, 80) + '...' : comment.text
   const replyCount = comment.replies?.length || 0
 
   return (
@@ -100,12 +99,7 @@ function CommentItem({comment, isActive, onSelect}: CommentItemProps) {
         <AuthorAvatar name={comment.authorName} size={24} />
         <Stack space={2} style={{flex: 1, minWidth: 0}}>
           <Flex align="center" gap={2}>
-            <Text
-              size={1}
-              weight="medium"
-              textOverflow="ellipsis"
-              style={{flex: 1, minWidth: 0}}
-            >
+            <Text size={1} weight="medium" textOverflow="ellipsis" style={{flex: 1, minWidth: 0}}>
               {comment.authorName}
             </Text>
             <Text size={0} muted style={{flexShrink: 0}}>

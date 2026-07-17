@@ -28,8 +28,8 @@ interface ColumnProps {
 
 // Desktop width classes (lg breakpoint) - percentage based
 const desktopWidthClasses: Record<string, string> = {
-  auto: 'lg:w-auto lg:flex-none',
-  fill: 'lg:flex-1',
+  'auto': 'lg:w-auto lg:flex-none',
+  'fill': 'lg:flex-1',
   '1': 'lg:w-1/12',
   '2': 'lg:w-2/12',
   '3': 'lg:w-3/12',
@@ -46,8 +46,8 @@ const desktopWidthClasses: Record<string, string> = {
 
 // Tablet width classes (md breakpoint)
 const tabletWidthClasses: Record<string, string> = {
-  auto: 'md:w-auto md:flex-none',
-  fill: 'md:flex-1',
+  'auto': 'md:w-auto md:flex-none',
+  'fill': 'md:flex-1',
   '1': 'md:w-1/12',
   '2': 'md:w-2/12',
   '3': 'md:w-3/12',
@@ -64,8 +64,8 @@ const tabletWidthClasses: Record<string, string> = {
 
 // Mobile width classes (base) - on mobile, columns stack full width by default
 const mobileWidthClasses: Record<string, string> = {
-  auto: 'w-auto flex-none',
-  fill: 'flex-1',
+  'auto': 'w-auto flex-none',
+  'fill': 'flex-1',
   '1': 'w-1/12',
   '2': 'w-2/12',
   '3': 'w-3/12',
@@ -83,11 +83,11 @@ const mobileWidthClasses: Record<string, string> = {
 // Column horizontal padding (half of gap on each side) - Bootstrap gutter style
 const columnGutterClasses: Record<string, string> = {
   '0': '',
-  '2': 'px-1',    // 4px each side (8px total gap)
-  '4': 'px-2',    // 8px each side (16px total gap)
-  '6': 'px-3',    // 12px each side (24px total gap)
-  '8': 'px-4',    // 16px each side (32px total gap)
-  '12': 'px-6',   // 24px each side (48px total gap)
+  '2': 'px-1', // 4px each side (8px total gap)
+  '4': 'px-2', // 8px each side (16px total gap)
+  '6': 'px-3', // 12px each side (24px total gap)
+  '8': 'px-4', // 16px each side (32px total gap)
+  '12': 'px-6', // 24px each side (48px total gap)
 }
 
 // Inner padding classes (user-configurable padding inside the column)
@@ -99,7 +99,15 @@ const innerPaddingClasses: Record<string, string> = {
   '8': 'p-8',
 }
 
-export default function Column({block, index, pageId, pageType, sectionKey, rowKey, gap = '6'}: ColumnProps) {
+export default function Column({
+  block,
+  index,
+  pageId,
+  pageType,
+  sectionKey,
+  rowKey,
+  gap = '6',
+}: ColumnProps) {
   const {
     content,
     widthDesktop = 'fill',
@@ -123,7 +131,8 @@ export default function Column({block, index, pageId, pageType, sectionKey, rowK
   // Calculate effective tablet width (inherit means use desktop value)
   const effectiveTabletWidth = cleanWidthTablet === 'inherit' ? cleanWidthDesktop : cleanWidthTablet
   // Calculate effective mobile width (inherit means use tablet value)
-  const effectiveMobileWidth = cleanWidthMobile === 'inherit' ? effectiveTabletWidth : cleanWidthMobile
+  const effectiveMobileWidth =
+    cleanWidthMobile === 'inherit' ? effectiveTabletWidth : cleanWidthMobile
 
   // Use percentage width classes for Flexbox
   const desktopClass = desktopWidthClasses[cleanWidthDesktop] || desktopWidthClasses['12']
@@ -136,18 +145,20 @@ export default function Column({block, index, pageId, pageType, sectionKey, rowK
 
   // Build the path for nested content blocks using shorthand format (field:key)
   // This format may help Sanity resolve types in polymorphic arrays
-  const basePath = pageId && sectionKey && rowKey
-    ? `pageBuilder:${sectionKey}.rows:${rowKey}.columns:${block._key}`
-    : null
+  const basePath =
+    pageId && sectionKey && rowKey
+      ? `pageBuilder:${sectionKey}.rows:${rowKey}.columns:${block._key}`
+      : null
 
   // Only include data-sanity attributes when in visual editing context
-  const columnDataSanity = pageId && pageType && basePath
-    ? dataAttr({
-        id: pageId,
-        type: pageType,
-        path: basePath,
-      }).toString()
-    : undefined
+  const columnDataSanity =
+    pageId && pageType && basePath
+      ? dataAttr({
+          id: pageId,
+          type: pageType,
+          path: basePath,
+        }).toString()
+      : undefined
 
   const inlineStyle = parseCustomStyle(customStyle)
 
@@ -159,50 +170,52 @@ export default function Column({block, index, pageId, pageType, sectionKey, rowK
     >
       <ColumnOverlay gap={gap} verticalAlign={cleanVerticalAlign}>
         {contentBlocks.map((contentBlock, contentIndex) => {
-        const blockDataSanity = pageId && pageType && basePath
-          ? dataAttr({
-              id: pageId,
-              type: pageType,
-              path: `${basePath}.content:${contentBlock._key}`,
-            }).toString()
-          : undefined
+          const blockDataSanity =
+            pageId && pageType && basePath
+              ? dataAttr({
+                  id: pageId,
+                  type: pageType,
+                  path: `${basePath}.content:${contentBlock._key}`,
+                }).toString()
+              : undefined
 
-        // Handle nested rows
-        if (contentBlock._type === 'row') {
+          // Handle nested rows
+          if (contentBlock._type === 'row') {
+            return (
+              <div
+                key={contentBlock._key}
+                data-sanity={blockDataSanity}
+                data-block-type={pageId ? contentBlock._type : undefined}
+              >
+                <ContentBlockOverlay blockType="row">
+                  <Row
+                    block={contentBlock}
+                    index={contentIndex}
+                    pageId={pageId}
+                    pageType={pageType}
+                    sectionKey={
+                      basePath
+                        ? `${basePath.replace('pageBuilder:', '')}.content:${contentBlock._key}`
+                        : undefined
+                    }
+                  />
+                </ContentBlockOverlay>
+              </div>
+            )
+          }
+
           return (
             <div
               key={contentBlock._key}
               data-sanity={blockDataSanity}
               data-block-type={pageId ? contentBlock._type : undefined}
             >
-              <ContentBlockOverlay blockType="row">
-                <Row
-                  block={contentBlock}
-                  index={contentIndex}
-                  pageId={pageId}
-                  pageType={pageType}
-                  sectionKey={basePath ? `${basePath.replace('pageBuilder:', '')}.content:${contentBlock._key}` : undefined}
-                />
+              <ContentBlockOverlay blockType={contentBlock._type}>
+                <ContentBlockRenderer block={contentBlock} index={contentIndex} />
               </ContentBlockOverlay>
             </div>
           )
-        }
-
-        return (
-          <div
-            key={contentBlock._key}
-            data-sanity={blockDataSanity}
-            data-block-type={pageId ? contentBlock._type : undefined}
-          >
-            <ContentBlockOverlay blockType={contentBlock._type}>
-              <ContentBlockRenderer
-                block={contentBlock}
-                index={contentIndex}
-              />
-            </ContentBlockOverlay>
-          </div>
-        )
-      })}
+        })}
       </ColumnOverlay>
     </div>
   )

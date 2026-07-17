@@ -10,7 +10,23 @@ interface ImageBlockProps {
     alt?: string
     caption?: string
     size?: 'full' | 'lg' | 'md' | 'sm' | 'thumb'
-    aspectRatio?: 'original' | '16/9' | '4/3' | '1/1' | '3/4' | '9/16' | '16×9' | '4×3' | '1×1' | '3×4' | '9×16' | '16x9' | '4x3' | '1x1' | '3x4' | '9x16'
+    aspectRatio?:
+      | 'original'
+      | '16/9'
+      | '4/3'
+      | '1/1'
+      | '3/4'
+      | '9/16'
+      | '16×9'
+      | '4×3'
+      | '1×1'
+      | '3×4'
+      | '9×16'
+      | '16x9'
+      | '4x3'
+      | '1x1'
+      | '3x4'
+      | '9x16'
     rounded?: 'none' | 'sm' | 'md' | 'lg' | 'full'
     shadow?: boolean
   }
@@ -28,7 +44,7 @@ const sizeClasses: Record<string, string> = {
 
 // Aspect ratio CSS values
 const aspectRatioStyles: Record<string, string | undefined> = {
-  original: undefined,
+  'original': undefined,
   '16/9': '16/9',
   '4/3': '4/3',
   '1/1': '1/1',

@@ -5,6 +5,7 @@ This document contains project-specific instructions and context for Claude Code
 ## Project Overview
 
 This is a **Mast design system** implementation using:
+
 - **Frontend**: Next.js 16 with App Router
 - **CMS**: Sanity Studio v6 with Visual Editing/Presentation mode
 - **Styling**: Tailwind CSS v4 with CSS-first configuration
@@ -19,6 +20,7 @@ This is a **Mast design system** implementation using:
 ## Sanity Content Architecture
 
 ### Page Structure Hierarchy
+
 ```
 Page
 └── pageBuilder (array)
@@ -31,9 +33,11 @@ Page
 ```
 
 ### Sanity API Nesting Limit
+
 **CRITICAL**: Sanity has a **maximum attribute depth of 20 levels**. When creating pages programmatically, you must carefully track nesting depth to avoid hitting this limit.
 
 #### Depth Calculation Reference
+
 Here's how nesting depth accumulates in this page builder:
 
 ```
@@ -51,18 +55,20 @@ Level 9:                              └── [block]
 **Base path to a simple block: 9 levels**
 
 Block types add additional depth based on their internal structure:
-| Block Type | Additional Depth | Total from Page | Notes |
-|------------|------------------|-----------------|-------|
-| headingBlock | +1 (text field) | 10 | Safe |
-| richTextBlock | +4 (content→block→children→text) | 13 | Safe |
-| buttonBlock | +3 (link→href/page/post) | 12 | Safe |
-| imageBlock | +3 (image→asset→_ref) | 12 | Safe |
-| cardBlock | +2 (content array + block) | 11+ | ⚠️ Adds nesting |
-| tabsBlock | +4 (tabs→tab→content→block) | 13+ | ⚠️ Risky |
-| accordionBlock | +3 (items→item→content) | 12+ | ⚠️ Adds nesting |
-| sliderBlock | +3 (slides→slide→image) | 12 | Safe |
+
+| Block Type     | Additional Depth                 | Total from Page | Notes           |
+| -------------- | -------------------------------- | --------------- | --------------- |
+| headingBlock   | +1 (text field)                  | 10              | Safe            |
+| richTextBlock  | +4 (content→block→children→text) | 13              | Safe            |
+| buttonBlock    | +3 (link→href/page/post)         | 12              | Safe            |
+| imageBlock     | +3 (image→asset→_ref)            | 12              | Safe            |
+| cardBlock      | +2 (content array + block)       | 11+             | ⚠️ Adds nesting |
+| tabsBlock      | +4 (tabs→tab→content→block)      | 13+             | ⚠️ Risky        |
+| accordionBlock | +3 (items→item→content)          | 12+             | ⚠️ Adds nesting |
+| sliderBlock    | +3 (slides→slide→image)          | 12              | Safe            |
 
 #### Safe Nesting Patterns
+
 ```
 ✅ section → row → column → headingBlock (10 levels)
 ✅ section → row → column → richTextBlock (13 levels)
@@ -71,6 +77,7 @@ Block types add additional depth based on their internal structure:
 ```
 
 #### Unsafe Nesting Patterns
+
 ```
 ❌ section → row → column → tabsBlock → row → column → cardBlock → richTextBlock (19+ levels)
 ❌ section → row → column → cardBlock → tabsBlock → content (18+ levels)
@@ -78,6 +85,7 @@ Block types add additional depth based on their internal structure:
 ```
 
 #### Best Practices
+
 1. **Avoid nesting containers**: Don't put tabsBlock inside cardBlock or vice versa
 2. **Prefer flat layouts**: Use multiple columns with icons instead of nested cards
 3. **Limit accordion/tab content**: Keep content inside accordions/tabs simple (headings, text, buttons)
@@ -85,7 +93,9 @@ Block types add additional depth based on their internal structure:
 5. **Use the validation helper**: When writing seed scripts, consider adding depth tracking
 
 #### Depth Validation Helper (Optional)
+
 For complex seed scripts, you can add a depth checker:
+
 ```javascript
 function checkDepth(obj, maxDepth = 20, currentDepth = 0, path = '') {
   if (currentDepth > maxDepth) {
@@ -113,6 +123,7 @@ function checkDepth(obj, maxDepth = 20, currentDepth = 0, path = '') {
 4. Run with: `SANITY_API_TOKEN="your-token" node scripts/your-script.mjs`
 
 Example seed script pattern:
+
 ```javascript
 import {createClient} from '@sanity/client'
 
@@ -132,14 +143,15 @@ const page = {
   _type: 'page',
   _id: 'your-page-id',
   name: 'Page Name',
-  slug: { _type: 'slug', current: 'page-slug' },
-  pageBuilder: [/* sections */]
+  slug: {_type: 'slug', current: 'page-slug'},
+  pageBuilder: [/* sections */],
 }
 
 await client.createOrReplace(page)
 ```
 
 ### Available Block Types
+
 - `headingBlock` - h1-h6 with size, align, color options
 - `richTextBlock` - Portable text with size, align, color, maxWidth
 - `eyebrowBlock` - Small label text with variant (text/overline/pill)
@@ -156,17 +168,21 @@ await client.createOrReplace(page)
 ## Content Best Practices
 
 ### Spacing Guidelines
+
 **Do NOT add spacer blocks between text elements or buttons.** Most components have default bottom margins that create natural spacing. Only use spacers for:
+
 - Large gaps between distinct content groups
 - Spacing between sections/rows
 - After sliders or images where extra breathing room is needed
 
 **Bad example:**
+
 ```
 eyebrowBlock → spacerBlock → headingBlock → spacerBlock → richTextBlock → spacerBlock → buttonBlock
 ```
 
 **Good example:**
+
 ```
 eyebrowBlock → headingBlock → richTextBlock → buttonBlock
 ```
@@ -174,13 +190,16 @@ eyebrowBlock → headingBlock → richTextBlock → buttonBlock
 The same applies to button groups - don't add spacers between buttons in a row. The row's `gap` property handles button spacing.
 
 ### Heading Hierarchy (SEO & Accessibility)
+
 Always follow proper heading order within each section for SEO and accessibility:
+
 - Each page should have exactly ONE `h1` (typically in the hero section)
 - Sections should start with `h2` headings
 - Subsections use `h3`, then `h4`, etc.
 - Never skip levels (e.g., don't go from `h2` directly to `h4`)
 
 **Example section structure:**
+
 ```
 h2: Section Title
   h3: Subsection
@@ -189,7 +208,9 @@ h2: Section Title
 ```
 
 ### Eyebrow Consistency
+
 Be consistent with eyebrow variants throughout a page. Pick ONE variant and stick with it:
+
 - `text` - Plain uppercase text (most common)
 - `overline` - Text with decorative line
 - `pill` - Text in a pill/badge shape
@@ -197,6 +218,7 @@ Be consistent with eyebrow variants throughout a page. Pick ONE variant and stic
 Don't mix `overline` eyebrows in some sections and `text` eyebrows in others.
 
 ### Button Links
+
 Buttons without a valid link will still render with their proper variant styling (primary, secondary, ghost) but will display a **magenta dashed outline** (3px thick, 3px offset) to indicate the missing link. This makes it easy to spot buttons that need links while editing in Presentation mode.
 
 When creating pages via script, always set a `url` property on buttons, even if it's just `'#'` as a placeholder.
@@ -204,12 +226,14 @@ When creating pages via script, always set a `url` property on buttons, even if 
 ### Schema Field Reference
 
 **IMPORTANT**: Always check these schemas for the latest field names before creating pages via script:
+
 - Section: `studio/src/schemaTypes/objects/section.ts`
 - Row: `studio/src/schemaTypes/objects/row.ts`
 - Column: `studio/src/schemaTypes/objects/column.ts`
 - Block types: `studio/src/schemaTypes/objects/blocks/`
 
 #### Section Fields
+
 ```
 label: string              - Internal label (not displayed)
 rows: array                - Content (rows or direct blocks)
@@ -224,6 +248,7 @@ paddingTop: 'none' | 'compact' | 'default' | 'spacious'  (NOT numeric!)
 ```
 
 #### Row Fields
+
 ```
 columns: array             - Column array
 horizontalAlign: 'start' | 'center' | 'end' | 'between' | 'around' | 'evenly'
@@ -235,6 +260,7 @@ customStyle: string        - Custom inline CSS
 ```
 
 #### Column Fields
+
 ```
 content: array             - Block array
 widthDesktop: 'auto' | 'fill' | '1'-'12'
@@ -248,14 +274,18 @@ customStyle: string        - Custom inline CSS
 ## Sanity Studio Customizations
 
 ### Custom Form Input Components
+
 Located in `studio/src/schemaTypes/components/`:
+
 - `PageFormInput.tsx` - Adds "Open in Presentation" banner to Page documents
 - `PostFormInput.tsx` - Adds "Open in Presentation" banner to Post documents
 
 These banners only display in Structure mode (not Presentation mode) by checking `window.location.pathname`.
 
 ### Adding Custom Components
+
 When adding JSX to Sanity schemas:
+
 1. Create a separate `.tsx` file in `studio/src/schemaTypes/components/`
 2. Import and use in the schema's `components` property
 3. Do NOT put JSX directly in `.ts` schema files
@@ -263,12 +293,15 @@ When adding JSX to Sanity schemas:
 ## Frontend Components
 
 ### Tailwind CSS v4
+
 - CSS-first configuration in `frontend/app/app.css`
 - Custom properties defined with `@theme` directive
 - No `tailwind.config.js` - all config in CSS
 
 ### Design Tokens
+
 Located in CSS custom properties:
+
 - `--brand-*` - Brand colors
 - `--primary-*` - Primary theme (light backgrounds)
 - `--secondary-*` - Secondary theme (gray backgrounds)
@@ -277,6 +310,7 @@ Located in CSS custom properties:
 ## Common Tasks
 
 ### Running the project
+
 ```bash
 npm run dev          # Start both frontend and studio
 npm run dev:next     # Frontend only (port 3001)
@@ -284,6 +318,7 @@ npm run dev:studio   # Studio only (port 3334)
 ```
 
 ### Seeding content
+
 ```bash
 # Requires SANITY_STUDIO_PROJECT_ID and SANITY_API_TOKEN in .env
 npm run seed

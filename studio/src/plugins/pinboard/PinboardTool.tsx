@@ -17,7 +17,8 @@ import {CommentsPanel} from './components/CommentsPanel'
 import type {PageDocument, PendingComment} from './types'
 
 export function PinboardTool({tool}: {tool: Tool<{previewOrigin?: string}>}) {
-  const previewOrigin = tool.options?.previewOrigin || process.env.SANITY_STUDIO_PREVIEW_URL || 'http://localhost:3001'
+  const previewOrigin =
+    tool.options?.previewOrigin || process.env.SANITY_STUDIO_PREVIEW_URL || 'http://localhost:3001'
   const {
     pinboards,
     loading: pinboardsLoading,
@@ -32,9 +33,7 @@ export function PinboardTool({tool}: {tool: Tool<{previewOrigin?: string}>}) {
 
   const currentUser = useCurrentUser()
   const router = useRouter()
-  const routerPinboardId = useRouterState(
-    (state) => (state.pinboardId as string) || null,
-  )
+  const routerPinboardId = useRouterState((state) => (state.pinboardId as string) || null)
 
   const navigateToPinboard = useCallback(
     (id: string | null) => {
@@ -67,17 +66,16 @@ export function PinboardTool({tool}: {tool: Tool<{previewOrigin?: string}>}) {
   const effectivePinboardId = activePinboardExists ? routerPinboardId : (pinboards[0]?._id ?? null)
   const activePinboard = pinboards.find((c) => c._id === effectivePinboardId)
 
-  const {pages, loading: pagesLoading, error: pagesError, refetch: refetchPages} = usePinboardPages(effectivePinboardId)
+  const {
+    pages,
+    loading: pagesLoading,
+    error: pagesError,
+    refetch: refetchPages,
+  } = usePinboardPages(effectivePinboardId)
   const {transform, containerRef, handlers, zoomIn, zoomOut, resetTransform} =
     usePinboardTransform()
-  const {
-    comments,
-    addComment,
-    deleteComment,
-    resolveComment,
-    addReply,
-    deleteReply,
-  } = usePinboardComments(effectivePinboardId)
+  const {comments, addComment, deleteComment, resolveComment, addReply, deleteReply} =
+    usePinboardComments(effectivePinboardId)
 
   const filteredPages = pages
 
@@ -156,13 +154,10 @@ export function PinboardTool({tool}: {tool: Tool<{previewOrigin?: string}>}) {
   const closePicker = useCallback(() => setPickerOpen(false), [])
 
   // Comment handlers
-  const handlePlaceComment = useCallback(
-    (pageRef: string, xPercent: number, yPercent: number) => {
-      setActiveCommentKey(null)
-      setPendingComment({pageRef, xPercent, yPercent})
-    },
-    [],
-  )
+  const handlePlaceComment = useCallback((pageRef: string, xPercent: number, yPercent: number) => {
+    setActiveCommentKey(null)
+    setPendingComment({pageRef, xPercent, yPercent})
+  }, [])
 
   const handleSubmitNewComment = useCallback(
     async (text: string) => {

@@ -60,7 +60,10 @@ export default function ModalBlock({
   const cleanTriggerVariant = stegaClean(triggerVariant)
   // Map legacy 'blue' color to 'brand' for backwards compatibility
   const rawTriggerColor = stegaClean(triggerColor)
-  const cleanTriggerColor = (rawTriggerColor === 'blue' ? 'brand' : rawTriggerColor) as 'brand' | 'black' | 'white'
+  const cleanTriggerColor = (rawTriggerColor === 'blue' ? 'brand' : rawTriggerColor) as
+    | 'brand'
+    | 'black'
+    | 'white'
   const cleanModalId = stegaClean(modalId)
 
   // Check URL parameter for opening modal

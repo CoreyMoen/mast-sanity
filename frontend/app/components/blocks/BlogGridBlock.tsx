@@ -243,9 +243,10 @@ export default function BlogGridBlock({block}: BlogGridBlockProps) {
         let query: string
         let params: Record<string, any> = {}
 
-        const orderClause = cleanSortBy === 'date'
-          ? `order(date ${cleanSortOrder}, _updatedAt ${cleanSortOrder})`
-          : `order(title ${cleanSortOrder})`
+        const orderClause =
+          cleanSortBy === 'date'
+            ? `order(date ${cleanSortOrder}, _updatedAt ${cleanSortOrder})`
+            : `order(title ${cleanSortOrder})`
 
         if (cleanSelectionMode === 'specific' && specificPosts && specificPosts.length > 0) {
           const ids = specificPosts.map((ref) => stegaClean(ref._ref))
@@ -298,7 +299,8 @@ export default function BlogGridBlock({block}: BlogGridBlockProps) {
   }, [cleanSelectionMode, cleanSortBy, cleanSortOrder, cleanLimit, specificPosts, category])
 
   // Calculate effective column values (handle 'inherit')
-  const effectiveTablet = cleanColumnsTablet === 'inherit' ? cleanColumnsDesktop : cleanColumnsTablet
+  const effectiveTablet =
+    cleanColumnsTablet === 'inherit' ? cleanColumnsDesktop : cleanColumnsTablet
   const effectiveMobile = cleanColumnsMobile === 'inherit' ? effectiveTablet : cleanColumnsMobile
 
   // Build grid classes
@@ -314,7 +316,10 @@ export default function BlogGridBlock({block}: BlogGridBlockProps) {
     return (
       <div className={gridClasses}>
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="border border-border rounded-lg overflow-hidden bg-muted-background animate-pulse">
+          <div
+            key={i}
+            className="border border-border rounded-lg overflow-hidden bg-muted-background animate-pulse"
+          >
             <div className="aspect-[16/9] bg-border" />
             <div className="p-5 space-y-3">
               <div className="h-4 bg-border rounded w-1/4" />
@@ -329,11 +334,7 @@ export default function BlogGridBlock({block}: BlogGridBlockProps) {
   }
 
   if (posts.length === 0) {
-    return (
-      <div className="text-center text-muted-foreground py-8">
-        No posts found
-      </div>
-    )
+    return <div className="text-center text-muted-foreground py-8">No posts found</div>
   }
 
   return (

@@ -32,6 +32,7 @@ Mast is a component-based design system and page builder framework that provides
 
 - Heading Block
 - Rich Text Block
+- Eyebrow Block
 - Image Block
 - Button Block
 - Spacer Block
@@ -46,6 +47,7 @@ Mast is a component-based design system and page builder framework that provides
 - Marquee Block
 - Breadcrumb Block
 - Table Block
+- Blog Grid Block
 
 ### Claude AI Assistant
 
@@ -63,7 +65,7 @@ See the [Claude Assistant Porting Guide](docs/claude-assistant-porting-guide.md)
 ## Tech Stack
 
 - **Frontend:** Next.js 16 (App Router, Turbopack)
-- **CMS:** Sanity v5 with Presentation Tool
+- **CMS:** Sanity Studio v6 with Presentation Tool (next-sanity 13)
 - **Styling:** Tailwind CSS v4
 - **UI Components:** Radix UI primitives
 - **Icons:** Phosphor Icons, Lucide React
@@ -90,7 +92,7 @@ See the [Claude Assistant Porting Guide](docs/claude-assistant-porting-guide.md)
 
 ### Prerequisites
 
-- **Node.js 22 LTS** (recommended — Node 24 has been reported to segfault during `npm install` on macOS; use Node 22 if you hit install issues)
+- **Node.js 22.12+** (required by Sanity Studio v6; Node 22 LTS recommended — Node 24 has been reported to segfault during `npm install` on macOS)
 - A Sanity account ([sanity.io](https://www.sanity.io/))
 
 ### Installation
@@ -118,7 +120,7 @@ SANITY_API_TOKEN="your-write-token"
 ```
 SANITY_STUDIO_PROJECT_ID="your-project-id"
 SANITY_STUDIO_DATASET="production"
-SANITY_STUDIO_PREVIEW_URL="http://localhost:4000"
+SANITY_STUDIO_PREVIEW_URL="http://localhost:3001"
 ```
 
 **`frontend/.env.local`**
@@ -127,7 +129,7 @@ SANITY_STUDIO_PREVIEW_URL="http://localhost:4000"
 NEXT_PUBLIC_SANITY_PROJECT_ID="your-project-id"
 NEXT_PUBLIC_SANITY_DATASET="production"
 NEXT_PUBLIC_SANITY_API_VERSION="2025-09-25"
-NEXT_PUBLIC_SANITY_STUDIO_URL="http://localhost:3333"
+NEXT_PUBLIC_SANITY_STUDIO_URL="http://localhost:3334"
 SANITY_API_READ_TOKEN="your-read-token"
 ANTHROPIC_API_KEY="your-anthropic-key"  # Optional — enables Claude assistant
 ```
@@ -140,15 +142,15 @@ npm run seed
 
 This single command populates your Sanity dataset with everything you need to get started:
 
-| Category | What gets created |
-|----------|-------------------|
-| **Singletons** | Site Settings, Navigation (links + CTA), Footer (link columns + social links) |
-| **Pages** | Home page (hero section) + Mast demo page (all block types) |
-| **Blog** | 3 categories + 5 sample blog posts |
-| **People** | 2 sample authors (Jane Doe, Alex Chen) |
-| **Section Templates** | Hero Center, Features 3-Column, CTA Banner, FAQ Accordion |
-| **Content Variables** | Brand Name, Support Email, Tagline |
-| **Claude AI Config** | API Settings, Training/Instructions, 4 Quick Actions |
+| Category              | What gets created                                                             |
+| --------------------- | ----------------------------------------------------------------------------- |
+| **Singletons**        | Site Settings, Navigation (links + CTA), Footer (link columns + social links) |
+| **Pages**             | Home page (hero section) + Mast demo page (all block types)                   |
+| **Blog**              | 3 categories + 5 sample blog posts                                            |
+| **People**            | 2 sample authors (Jane Doe, Alex Chen)                                        |
+| **Section Templates** | Hero Center, Features 3-Column, CTA Banner, FAQ Accordion                     |
+| **Content Variables** | Brand Name, Support Email, Tagline                                            |
+| **Claude AI Config**  | API Settings, Training/Instructions, 4 Quick Actions                          |
 
 After seeding, open Sanity Studio and **publish all documents** so they appear on the frontend.
 
@@ -158,8 +160,8 @@ After seeding, open Sanity Studio and **publish all documents** so they appear o
 npm run dev
 ```
 
-- **Sanity Studio:** http://localhost:3333
-- **Next.js Frontend:** http://localhost:4000
+- **Sanity Studio:** http://localhost:3334
+- **Next.js Frontend:** http://localhost:3001
 
 ## Development
 
@@ -171,21 +173,35 @@ npm run dev:studio    # Run only Sanity Studio
 npm run dev:next      # Run only Next.js frontend
 ```
 
-### Type Generation
+### Checks
 
 ```shell
-npm run type-check    # Check TypeScript types
+npm run lint          # ESLint on the frontend
+npm run type-check    # TypeScript in both workspaces
+npm run format        # Prettier
+```
+
+### Type Generation
+
+After changing any Sanity schema, regenerate the schema snapshot and typed query results and commit both generated files (`studio/schema.json`, `frontend/sanity.types.ts`) — CI fails if they're stale:
+
+```shell
+cd frontend && npm run typegen
 ```
 
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| [Full Project Code Review](docs/full-project-code-review.md) | Comprehensive technical specification of the codebase |
-| [Claude Assistant Porting Guide](docs/claude-assistant-porting-guide.md) | Extract the AI assistant plugin for other projects |
-| [CLAUDE.md](CLAUDE.md) | Project-specific context for Claude Code |
+| Document                                                                 | Description                                           |
+| ------------------------------------------------------------------------ | ----------------------------------------------------- |
+| [Full Project Code Review](docs/full-project-code-review.md)             | Comprehensive technical specification of the codebase |
+| [Claude Assistant Porting Guide](docs/claude-assistant-porting-guide.md) | Extract the AI assistant plugin for other projects    |
+| [CLAUDE.md](CLAUDE.md)                                                   | Project-specific context for Claude Code              |
 
 This project is configured to work with AI assistants like Claude Code. The `.claude/` directory contains performance optimization skills (React and Sanity best practices) that provide context for high-quality code generation.
+
+## Contributing
+
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for setup instructions and guidelines. To report a security issue, see [SECURITY.md](SECURITY.md).
 
 ## Credits
 

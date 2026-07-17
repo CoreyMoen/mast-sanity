@@ -29,7 +29,11 @@ type PageData = {
  * The PageBuilder component is used to render the blocks from the `pageBuilder` field in the Page type in your Sanity Studio.
  */
 
-function renderSections(pageBuilderSections: PageBuilderSection[], page: GetPageQueryResult, isDraftMode?: boolean) {
+function renderSections(
+  pageBuilderSections: PageBuilderSection[],
+  page: GetPageQueryResult,
+  isDraftMode?: boolean,
+) {
   if (!page) {
     return null
   }
@@ -66,7 +70,9 @@ function renderEmptyState(page: GetPageQueryResult) {
       <h1 className="text-4xl font-extrabold text-foreground tracking-tight sm:text-5xl">
         This page has no content!
       </h1>
-      <p className="mt-2 text-base text-muted-foreground">Open the page in Sanity Studio to add content.</p>
+      <p className="mt-2 text-base text-muted-foreground">
+        Open the page in Sanity Studio to add content.
+      </p>
       <div className="mt-10 flex">
         <Link
           className="rounded-[0.5rem] flex gap-2 mr-6 items-center bg-brand hover:bg-brand-dark focus:bg-brand-dark py-3 px-6 text-white transition-colors duration-300"
@@ -104,14 +110,22 @@ export default function PageBuilder({page, isDraftMode}: PageBuilderPageProps) {
       // 2. Field changes - use the new data from the live update
       //
       // Check if this is a reorder by comparing keys
-      const currentKeys = currentSections?.map((s) => s._key).sort().join(',') || ''
-      const newKeys = action.document.pageBuilder.map((s: PageBuilderSection) => s._key).sort().join(',')
+      const currentKeys =
+        currentSections
+          ?.map((s) => s._key)
+          .sort()
+          .join(',') || ''
+      const newKeys = action.document.pageBuilder
+        .map((s: PageBuilderSection) => s._key)
+        .sort()
+        .join(',')
       const isReorder = currentKeys === newKeys && currentKeys.length > 0
 
       if (isReorder) {
         // This is a reorder - preserve expanded reference data from original query
         return action.document.pageBuilder.map(
-          (section: PageBuilderSection) => currentSections?.find((s) => s._key === section?._key) || section,
+          (section: PageBuilderSection) =>
+            currentSections?.find((s) => s._key === section?._key) || section,
         )
       }
 

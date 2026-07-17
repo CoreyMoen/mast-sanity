@@ -50,9 +50,7 @@ export function CommentPin({comment, isActive, onSelect}: CommentPinProps) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: isActive
-            ? `0 0 0 3px white, 0 0 0 5px ${color}`
-            : '0 1px 3px rgba(0,0,0,0.3)',
+          boxShadow: isActive ? `0 0 0 3px white, 0 0 0 5px ${color}` : '0 1px 3px rgba(0,0,0,0.3)',
           transition: 'box-shadow 0.15s ease',
         }}
       >

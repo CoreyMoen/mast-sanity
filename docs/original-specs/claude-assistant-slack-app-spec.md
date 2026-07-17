@@ -5,6 +5,7 @@ This document outlines how to build a Slack app that integrates with the Remote 
 ## Overview
 
 The goal is to create a Slack app that allows users to:
+
 - Create, update, and query Sanity content via natural language in Slack
 - Have multi-turn conversations with Claude for complex content tasks
 - Receive links to created/updated content in Sanity Studio
@@ -354,21 +355,21 @@ npm install @slack/bolt dotenv
 Create `app.js`:
 
 ```javascript
-const { App, Assistant } = require('@slack/bolt');
-require('dotenv').config();
+const {App, Assistant} = require('@slack/bolt')
+require('dotenv').config()
 
 const app = new App({
   token: process.env.SLACK_BOT_TOKEN,
   appToken: process.env.SLACK_APP_TOKEN,
   socketMode: true,
-});
+})
 
 // Conversation history store
-const conversationStore = new Map();
+const conversationStore = new Map()
 
 // Remote Claude API configuration
-const CLAUDE_API_URL = process.env.CLAUDE_API_URL || 'http://localhost:4000/api/claude/remote';
-const CLAUDE_API_SECRET = process.env.CLAUDE_REMOTE_API_SECRET;
+const CLAUDE_API_URL = process.env.CLAUDE_API_URL || 'http://localhost:4000/api/claude/remote'
+const CLAUDE_API_SECRET = process.env.CLAUDE_REMOTE_API_SECRET
 
 async function callRemoteClaudeAPI(message, conversationHistory) {
   const response = await fetch(CLAUDE_API_URL, {
@@ -382,120 +383,120 @@ async function callRemoteClaudeAPI(message, conversationHistory) {
       conversationHistory,
       dryRun: false,
     }),
-  });
-  return response.json();
+  })
+  return response.json()
 }
 
 function formatSlackResponse(apiResponse) {
-  const parts = [];
+  const parts = []
 
   if (apiResponse.response) {
-    parts.push(apiResponse.response);
+    parts.push(apiResponse.response)
   }
 
-  const summary = apiResponse.summary || {};
+  const summary = apiResponse.summary || {}
   if (summary.totalActions > 0) {
-    parts.push('\n---');
-    parts.push(`*Actions:* ${summary.successfulActions}/${summary.totalActions} successful`);
+    parts.push('\n---')
+    parts.push(`*Actions:* ${summary.successfulActions}/${summary.totalActions} successful`)
 
     if (summary.createdDocuments?.length) {
-      parts.push(`*Created:* ${summary.createdDocuments.length} document(s)`);
+      parts.push(`*Created:* ${summary.createdDocuments.length} document(s)`)
     }
     if (summary.updatedDocuments?.length) {
-      parts.push(`*Updated:* ${summary.updatedDocuments.length} document(s)`);
+      parts.push(`*Updated:* ${summary.updatedDocuments.length} document(s)`)
     }
   }
 
-  const studioLinks = apiResponse.studioLinks || [];
+  const studioLinks = apiResponse.studioLinks || []
   if (studioLinks.length) {
-    parts.push('\n*View in Sanity Studio:*');
+    parts.push('\n*View in Sanity Studio:*')
     for (const link of studioLinks) {
-      parts.push(`• <${link.structureUrl}|${link.documentType}: ${link.documentId}>`);
+      parts.push(`• <${link.structureUrl}|${link.documentType}: ${link.documentId}>`)
     }
   }
 
-  return parts.join('\n');
+  return parts.join('\n')
 }
 
 // Set up the Assistant using Bolt's Assistant class
 const assistant = new Assistant({
-  threadStarted: async ({ say, setStatus }) => {
-    await setStatus('Ready to help with Sanity content!');
+  threadStarted: async ({say, setStatus}) => {
+    await setStatus('Ready to help with Sanity content!')
   },
 
-  threadContextChanged: async ({ say, setStatus }) => {
+  threadContextChanged: async ({say, setStatus}) => {
     // Handle context changes if needed
   },
 
-  userMessage: async ({ message, say, setStatus, context }) => {
-    const threadTs = message.thread_ts || message.ts;
-    const text = message.text;
+  userMessage: async ({message, say, setStatus, context}) => {
+    const threadTs = message.thread_ts || message.ts
+    const text = message.text
 
     try {
-      await setStatus('Thinking...');
+      await setStatus('Thinking...')
 
       // Get conversation history
-      const history = conversationStore.get(threadTs) || [];
+      const history = conversationStore.get(threadTs) || []
 
       // Call Remote Claude API
-      const apiResponse = await callRemoteClaudeAPI(text, history);
+      const apiResponse = await callRemoteClaudeAPI(text, history)
 
       if (apiResponse.success) {
         // Update history
-        history.push({ role: 'user', content: text });
-        history.push({ role: 'assistant', content: apiResponse.response || '' });
-        conversationStore.set(threadTs, history.slice(-20)); // Keep last 20
+        history.push({role: 'user', content: text})
+        history.push({role: 'assistant', content: apiResponse.response || ''})
+        conversationStore.set(threadTs, history.slice(-20)) // Keep last 20
 
         // Send response
-        const formatted = formatSlackResponse(apiResponse);
-        await say(formatted);
+        const formatted = formatSlackResponse(apiResponse)
+        await say(formatted)
       } else {
-        await say(`Sorry, something went wrong: ${apiResponse.error || 'Unknown error'}`);
+        await say(`Sorry, something went wrong: ${apiResponse.error || 'Unknown error'}`)
       }
 
-      await setStatus('');
+      await setStatus('')
     } catch (error) {
-      console.error('Error handling message:', error);
-      await say('Sorry, I encountered an error. Please try again.');
+      console.error('Error handling message:', error)
+      await say('Sorry, I encountered an error. Please try again.')
     }
   },
-});
+})
 
-app.assistant(assistant);
+app.assistant(assistant)
 
 // Handle @mentions in channels (optional)
-app.event('app_mention', async ({ event, say, client }) => {
-  const text = event.text.split(' ').slice(1).join(' ');
-  const threadTs = event.thread_ts || event.ts;
+app.event('app_mention', async ({event, say, client}) => {
+  const text = event.text.split(' ').slice(1).join(' ')
+  const threadTs = event.thread_ts || event.ts
 
   if (!text) {
-    await say({ text: 'Hi! How can I help you with Sanity content today?', thread_ts: threadTs });
-    return;
+    await say({text: 'Hi! How can I help you with Sanity content today?', thread_ts: threadTs})
+    return
   }
 
   try {
-    const history = conversationStore.get(threadTs) || [];
-    const apiResponse = await callRemoteClaudeAPI(text, history);
+    const history = conversationStore.get(threadTs) || []
+    const apiResponse = await callRemoteClaudeAPI(text, history)
 
     if (apiResponse.success) {
-      history.push({ role: 'user', content: text });
-      history.push({ role: 'assistant', content: apiResponse.response || '' });
-      conversationStore.set(threadTs, history.slice(-20));
+      history.push({role: 'user', content: text})
+      history.push({role: 'assistant', content: apiResponse.response || ''})
+      conversationStore.set(threadTs, history.slice(-20))
 
-      await say({ text: formatSlackResponse(apiResponse), thread_ts: threadTs });
+      await say({text: formatSlackResponse(apiResponse), thread_ts: threadTs})
     } else {
-      await say({ text: `Sorry, something went wrong: ${apiResponse.error}`, thread_ts: threadTs });
+      await say({text: `Sorry, something went wrong: ${apiResponse.error}`, thread_ts: threadTs})
     }
   } catch (error) {
-    console.error('Error:', error);
-    await say({ text: 'Sorry, I encountered an error.', thread_ts: threadTs });
+    console.error('Error:', error)
+    await say({text: 'Sorry, I encountered an error.', thread_ts: threadTs})
   }
-});
+})
 
-(async () => {
-  await app.start();
-  console.log('⚡️ Claude Sanity Assistant is running!');
-})();
+;(async () => {
+  await app.start()
+  console.log('⚡️ Claude Sanity Assistant is running!')
+})()
 ```
 
 ### Phase 6: Enable Socket Mode
@@ -523,6 +524,7 @@ node app.js
 ```
 
 Test by:
+
 1. Opening the app in Slack's sidebar (Agents & AI Apps)
 2. Typing "List all pages in Sanity"
 3. Or @mention the bot in a channel
@@ -641,6 +643,7 @@ def handle_preview_command(ack, respond, command):
 ## Quick Reference: Remote Claude API
 
 ### Endpoint
+
 ```
 POST /api/claude/remote
 Authorization: Bearer <CLAUDE_REMOTE_API_SECRET>
@@ -648,24 +651,26 @@ Content-Type: application/json
 ```
 
 ### Request Body
+
 ```json
 {
   "message": "Create a landing page with a hero section",
   "conversationHistory": [
-    { "role": "user", "content": "Previous message" },
-    { "role": "assistant", "content": "Previous response" }
+    {"role": "user", "content": "Previous message"},
+    {"role": "assistant", "content": "Previous response"}
   ],
   "dryRun": false,
-  "workflow": "content-creation",  // optional
-  "includeInstructions": ["writing", "design"],  // optional
+  "workflow": "content-creation", // optional
+  "includeInstructions": ["writing", "design"], // optional
   "context": {
-    "documents": ["page-123"],  // optional document IDs for context
-    "additionalContext": "Extra info"  // optional
+    "documents": ["page-123"], // optional document IDs for context
+    "additionalContext": "Extra info" // optional
   }
 }
 ```
 
 ### Response
+
 ```json
 {
   "success": true,

@@ -4,14 +4,15 @@
 
 ## 1. Architecture Overview
 
-| Component | Purpose |
-|-----------|---------|
-| **Shopify** | Product catalog, inventory, checkout (source of truth for commerce) |
-| **Sanity Connect** | Syncs Shopify data to Sanity in real-time |
-| **Sanity Studio** | Editorial content, rich descriptions, media (enhances Shopify data) |
-| **Hydrogen** | React Router 7 front-end optimized for Shopify |
+| Component          | Purpose                                                             |
+| ------------------ | ------------------------------------------------------------------- |
+| **Shopify**        | Product catalog, inventory, checkout (source of truth for commerce) |
+| **Sanity Connect** | Syncs Shopify data to Sanity in real-time                           |
+| **Sanity Studio**  | Editorial content, rich descriptions, media (enhances Shopify data) |
+| **Hydrogen**       | React Router 7 front-end optimized for Shopify                      |
 
 **Project Structure:**
+
 ```
 ./
 ├── /studio    # Sanity Studio
@@ -37,6 +38,7 @@ SANITY_PREVIEW_TOKEN="sk..."  # Viewer token for previews
 ## 3. Sanity Client Setup
 
 ### Vite Config
+
 ```typescript
 // web/vite.config.ts
 import {hydrogen} from '@shopify/hydrogen/vite'
@@ -48,6 +50,7 @@ export default defineConfig({
 ```
 
 ### Context Setup
+
 ```typescript
 // web/app/lib/context.ts
 import {createSanityContext, type SanityContext} from 'hydrogen-sanity'
@@ -66,16 +69,17 @@ const sanity = await createSanityContext({
     stega: {
       enabled: isPreviewEnabled(env.SANITY_PROJECT_ID, previewSession),
       studioUrl: 'http://localhost:3333',
-    }
+    },
   },
   preview: {
     token: env.SANITY_PREVIEW_TOKEN,
     session: previewSession,
-  }
+  },
 })
 ```
 
 ### Provider Setup (entry.server.tsx)
+
 ```typescript
 const {SanityProvider} = context.sanity
 
@@ -89,6 +93,7 @@ const body = await renderToReadableStream(
 ```
 
 ### Root Layout (root.tsx)
+
 ```typescript
 import {Sanity} from 'hydrogen-sanity'
 
@@ -111,6 +116,7 @@ export function Layout({children}) {
 Fetch from **both** Shopify (GraphQL) and Sanity (GROQ). Use `defineQuery` for TypeGen support.
 
 ### Recommended: `query` + `Query` component
+
 ```typescript
 import {defineQuery} from 'groq'
 import {Query} from 'hydrogen-sanity'
@@ -134,14 +140,16 @@ export default function ProductPage({loaderData}) {
 ```
 
 ### Alternative methods
-| Method | Use Case |
-|--------|----------|
+
+| Method                     | Use Case                        |
+| -------------------------- | ------------------------------- |
 | `sanity.query()` + `Query` | Recommended - auto preview mode |
-| `sanity.loadQuery()` | Manual loader integration |
-| `sanity.fetch()` | No preview needed, lightweight |
-| `sanity.client` | Mutations in actions |
+| `sanity.loadQuery()`       | Manual loader integration       |
+| `sanity.fetch()`           | No preview needed, lightweight  |
+| `sanity.client`            | Mutations in actions            |
 
 ### Images
+
 ```typescript
 import {useImageUrl} from 'hydrogen-sanity'
 
@@ -156,6 +164,7 @@ function Hero({image}) {
 ## 5. Visual Editing Setup
 
 ### Root Layout
+
 ```typescript
 // web/app/root.tsx
 import {usePreviewMode} from 'hydrogen-sanity/preview'
@@ -176,20 +185,19 @@ export function Layout({children}: {children?: React.ReactNode}) {
 ```
 
 ### Preview Route
+
 ```typescript
 // web/app/routes/api.preview.ts
 export {action, loader} from 'hydrogen-sanity/preview/route'
 ```
 
 ### Content Security Policy
+
 ```typescript
 // web/entry.server.tsx
 const {nonce, header, NonceProvider} = createContentSecurityPolicy({
   frameAncestors: isPreviewEnabled ? [studioHostname] : [],
-  connectSrc: [
-    `https://${projectId}.api.sanity.io`,
-    `wss://${projectId}.api.sanity.io`,
-  ],
+  connectSrc: [`https://${projectId}.api.sanity.io`, `wss://${projectId}.api.sanity.io`],
 })
 ```
 
@@ -205,11 +213,11 @@ export default defineConfig({
       resolve: {
         locations: {
           product: defineLocations({
-            select: { title: 'store.title', slug: 'store.slug.current' },
+            select: {title: 'store.title', slug: 'store.slug.current'},
             resolve: (doc) => ({
               locations: [
-                { title: doc?.title || 'Untitled', href: `/products/${doc?.slug}` },
-                { title: 'Products', href: `/collections/all` },
+                {title: doc?.title || 'Untitled', href: `/products/${doc?.slug}`},
+                {title: 'Products', href: `/collections/all`},
               ],
             }),
           }),
@@ -217,7 +225,7 @@ export default defineConfig({
       },
       previewUrl: {
         origin: 'http://localhost:3000',
-        previewMode: { enable: '/api/preview' },
+        previewMode: {enable: '/api/preview'},
       },
     }),
   ],

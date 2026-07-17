@@ -58,14 +58,18 @@ export interface ResolvedLink {
   _type?: 'link'
   linkType?: 'href' | 'page' | 'post' | 'variable' | 'external'
   href?: string
-  page?: string | {
-    _ref?: string
-    slug?: string
-  }
-  post?: string | {
-    _ref?: string
-    slug?: string
-  }
+  page?:
+    | string
+    | {
+        _ref?: string
+        slug?: string
+      }
+  post?:
+    | string
+    | {
+        _ref?: string
+        slug?: string
+      }
   variable?: ContentVariable
   openInNewTab?: boolean
 }
@@ -99,7 +103,7 @@ export interface ContentVariableInline {
  */
 export function resolveSmartString(
   smartString?: SmartString | string | null,
-  fallback: string = ''
+  fallback: string = '',
 ): string {
   // Handle null/undefined
   if (!smartString) {

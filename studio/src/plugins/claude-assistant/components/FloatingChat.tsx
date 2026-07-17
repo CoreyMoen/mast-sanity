@@ -33,7 +33,15 @@ import {useCurrentDocument} from '../hooks/useCurrentDocument'
 import {useBlockContext} from '../hooks/useBlockContext'
 import {extractSchemaContext} from '../lib/schema-context'
 import {DEFAULT_SETTINGS} from '../types'
-import type {Message, ParsedAction, PluginSettings, SchemaContext, ImageAttachment, DocumentContext, BlockContext} from '../types'
+import type {
+  Message,
+  ParsedAction,
+  PluginSettings,
+  SchemaContext,
+  ImageAttachment,
+  DocumentContext,
+  BlockContext,
+} from '../types'
 import type {MessageOptions} from '../hooks/useClaudeChat'
 import {ImagePickerDialog} from './ImagePickerDialog'
 import {DocumentPickerDialog} from './DocumentPicker'
@@ -245,7 +253,11 @@ function FloatingChatPanel({
   const [hasManualSelection, setHasManualSelection] = useState(false)
 
   // Auto-detect current document from URL (Structure or Presentation mode)
-  const {currentDocument, mode: currentMode, fieldPath} = useCurrentDocument({
+  const {
+    currentDocument,
+    mode: currentMode,
+    fieldPath,
+  } = useCurrentDocument({
     client,
     enabled: !hasManualSelection,
     pollInterval: 500,
@@ -329,18 +341,26 @@ function FloatingChatPanel({
           // Clear it so we don't re-select on subsequent mounts or page navigations
           localStorage.removeItem('claude-floating-pending-conversation')
 
-          console.log('[FloatingChat] Loading pending conversation from main tool:', pendingConversationId)
+          console.log(
+            '[FloatingChat] Loading pending conversation from main tool:',
+            pendingConversationId,
+          )
 
           // Select and load the conversation
           selectConversation(pendingConversationId)
           const loaded = await loadConversation(pendingConversationId)
 
           if (loaded) {
-            console.log('[FloatingChat] Successfully loaded pending conversation:', pendingConversationId)
+            console.log(
+              '[FloatingChat] Successfully loaded pending conversation:',
+              pendingConversationId,
+            )
             // Save as active conversation for this session
             saveFloatingChatConversation(pendingConversationId)
           } else {
-            console.warn('[FloatingChat] Failed to load pending conversation, it may have been deleted')
+            console.warn(
+              '[FloatingChat] Failed to load pending conversation, it may have been deleted',
+            )
           }
           return
         }
@@ -378,26 +398,39 @@ function FloatingChatPanel({
   }, [schema])
 
   const setMessagesRef = useRef<React.Dispatch<React.SetStateAction<Message[]>> | null>(null)
-  const sendMessageRef = useRef<((content: string, images?: ImageAttachment[], documentContextsOverride?: DocumentContext[], messageOptions?: MessageOptions) => Promise<void>) | null>(null)
+  const sendMessageRef = useRef<
+    | ((
+        content: string,
+        images?: ImageAttachment[],
+        documentContextsOverride?: DocumentContext[],
+        messageOptions?: MessageOptions,
+      ) => Promise<void>)
+    | null
+  >(null)
 
   const updateActionStatus = useCallback(
-    (actionId: string, status: ParsedAction['status'], result?: ParsedAction['result'], error?: string) => {
+    (
+      actionId: string,
+      status: ParsedAction['status'],
+      result?: ParsedAction['result'],
+      error?: string,
+    ) => {
       if (setMessagesRef.current) {
         setMessagesRef.current((prev) =>
           prev.map((msg) => {
             if (!msg.actions) return msg
             const updatedActions = msg.actions.map((a) =>
-              a.id === actionId ? {...a, status, result, error} : a
+              a.id === actionId ? {...a, status, result, error} : a,
             )
             if (updatedActions.some((a, i) => a !== msg.actions![i])) {
               return {...msg, actions: updatedActions}
             }
             return msg
-          })
+          }),
         )
       }
     },
-    []
+    [],
   )
 
   const handleAction = useCallback(
@@ -412,7 +445,7 @@ function FloatingChatPanel({
         action.id,
         result.success ? 'completed' : 'failed',
         result,
-        result.success ? undefined : result.message
+        result.success ? undefined : result.message,
       )
 
       // Show toast notifications (same as main tool)
@@ -439,7 +472,8 @@ ${resultJson}
               messageLength: followUpMessage.length,
               hasSendMessage: !!sendMessageRef.current,
             })
-            sendMessageRef.current?.(followUpMessage, undefined, undefined, {hidden: true})
+            sendMessageRef
+              .current?.(followUpMessage, undefined, undefined, {hidden: true})
               ?.catch((err: unknown) => {
                 console.error('[FloatingChat] Follow-up sendMessage failed:', err)
                 toast.push({
@@ -458,7 +492,7 @@ ${resultJson}
         })
       }
     },
-    [executeAction, updateActionStatus, toast]
+    [executeAction, updateActionStatus, toast],
   )
 
   const handleUndo = useCallback(
@@ -485,36 +519,27 @@ ${resultJson}
         })
       }
     },
-    [undoAction, updateActionStatus, toast]
+    [undoAction, updateActionStatus, toast],
   )
 
-  const workflowContext = selectedWorkflow
-    ? buildWorkflowContext(selectedWorkflow)
-    : undefined
+  const workflowContext = selectedWorkflow ? buildWorkflowContext(selectedWorkflow) : undefined
 
-  const {
-    messages,
-    isLoading,
-    error,
-    sendMessage,
-    clearMessages,
-    retryLastMessage,
-    setMessages,
-  } = useClaudeChat({
-    apiEndpoint: apiEndpoint || '/api/claude',
-    schemaContext,
-    customInstructions: settings.customInstructions,
-    workflowContext,
-    documentContexts: pendingDocuments,
-    rawInstructions: rawInstructions || undefined,
-    sectionTemplates: sectionTemplates || undefined,
-    activeConversation,
-    onAddMessage: addMessage,
-    onUpdateMessage: updateMessage,
-    onGenerateTitle: generateTitle,
-    enableStreaming: settings.enableStreaming,
-    enableFigmaFetch: selectedWorkflow?.enableFigmaFetch,
-  })
+  const {messages, isLoading, error, sendMessage, clearMessages, retryLastMessage, setMessages} =
+    useClaudeChat({
+      apiEndpoint: apiEndpoint || '/api/claude',
+      schemaContext,
+      customInstructions: settings.customInstructions,
+      workflowContext,
+      documentContexts: pendingDocuments,
+      rawInstructions: rawInstructions || undefined,
+      sectionTemplates: sectionTemplates || undefined,
+      activeConversation,
+      onAddMessage: addMessage,
+      onUpdateMessage: updateMessage,
+      onGenerateTitle: generateTitle,
+      enableStreaming: settings.enableStreaming,
+      enableFigmaFetch: selectedWorkflow?.enableFigmaFetch,
+    })
 
   useEffect(() => {
     setMessagesRef.current = setMessages
@@ -543,52 +568,55 @@ ${resultJson}
   // When block context is present, prepend it as structured context so Claude knows
   // exactly which block the user is referring to.
   // Reads blockContext from ref to avoid recreating this callback on every block click.
-  const handleSendMessage = useCallback(async (content: string, images?: ImageAttachment[]) => {
-    let enrichedContent = content
+  const handleSendMessage = useCallback(
+    async (content: string, images?: ImageAttachment[]) => {
+      let enrichedContent = content
 
-    // If block context is attached, prepend it as structured context
-    const currentBlockContext = blockContextRef.current
-    if (currentBlockContext) {
-      const contextLines = [
-        `[Selected Block Context]`,
-        `Type: ${currentBlockContext.label} (${currentBlockContext.blockType})`,
-      ]
-      if (currentBlockContext.path) {
-        contextLines.push(`Path: ${currentBlockContext.path}`)
-      }
-      if (currentBlockContext.preview) {
-        contextLines.push(`Content: "${currentBlockContext.preview}"`)
-      }
-      if (currentBlockContext.fieldValue) {
-        // Include field value as JSON for Claude to use in updates
-        try {
-          const fieldJson = JSON.stringify(currentBlockContext.fieldValue, null, 2)
-          if (fieldJson.length < 3000) {
-            contextLines.push(`Field Value:\n\`\`\`json\n${fieldJson}\n\`\`\``)
-          }
-        } catch {
-          // Skip if not serializable
+      // If block context is attached, prepend it as structured context
+      const currentBlockContext = blockContextRef.current
+      if (currentBlockContext) {
+        const contextLines = [
+          `[Selected Block Context]`,
+          `Type: ${currentBlockContext.label} (${currentBlockContext.blockType})`,
+        ]
+        if (currentBlockContext.path) {
+          contextLines.push(`Path: ${currentBlockContext.path}`)
         }
+        if (currentBlockContext.preview) {
+          contextLines.push(`Content: "${currentBlockContext.preview}"`)
+        }
+        if (currentBlockContext.fieldValue) {
+          // Include field value as JSON for Claude to use in updates
+          try {
+            const fieldJson = JSON.stringify(currentBlockContext.fieldValue, null, 2)
+            if (fieldJson.length < 3000) {
+              contextLines.push(`Field Value:\n\`\`\`json\n${fieldJson}\n\`\`\``)
+            }
+          } catch {
+            // Skip if not serializable
+          }
+        }
+        contextLines.push('') // blank line before user message
+
+        enrichedContent = contextLines.join('\n') + '\n' + content
+        // Clear block context after including it in the message
+        clearBlockContext()
       }
-      contextLines.push('') // blank line before user message
 
-      enrichedContent = contextLines.join('\n') + '\n' + content
-      // Clear block context after including it in the message
-      clearBlockContext()
-    }
-
-    // If no active conversation, create one first and queue the message
-    if (!activeConversation) {
-      pendingMessageRef.current = {content: enrichedContent, images}
-      await createConversation()
-      // The useEffect above will send the message once activeConversation updates
-    } else {
-      // Already have a conversation, send directly
-      await sendMessage(enrichedContent, images)
-    }
-    // Clear pending images after sending
-    setPendingImages([])
-  }, [activeConversation, createConversation, sendMessage, clearBlockContext])
+      // If no active conversation, create one first and queue the message
+      if (!activeConversation) {
+        pendingMessageRef.current = {content: enrichedContent, images}
+        await createConversation()
+        // The useEffect above will send the message once activeConversation updates
+      } else {
+        // Already have a conversation, send directly
+        await sendMessage(enrichedContent, images)
+      }
+      // Clear pending images after sending
+      setPendingImages([])
+    },
+    [activeConversation, createConversation, sendMessage, clearBlockContext],
+  )
 
   // Handle image selection from picker
   const handleImageSelect = useCallback((image: ImageAttachment) => {
@@ -690,7 +718,11 @@ ${resultJson}
 
           <Flex gap={1}>
             <Tooltip
-              content={<Box padding={2}><Text size={1}>New chat</Text></Box>}
+              content={
+                <Box padding={2}>
+                  <Text size={1}>New chat</Text>
+                </Box>
+              }
               placement="top"
               portal
             >
@@ -706,7 +738,11 @@ ${resultJson}
             </Tooltip>
 
             <Tooltip
-              content={<Box padding={2}><Text size={1}>Open full view</Text></Box>}
+              content={
+                <Box padding={2}>
+                  <Text size={1}>Open full view</Text>
+                </Box>
+              }
               placement="top"
               portal
             >
@@ -722,7 +758,11 @@ ${resultJson}
             {messages.length > 0 && (
               <>
                 <Tooltip
-                  content={<Box padding={2}><Text size={1}>Retry</Text></Box>}
+                  content={
+                    <Box padding={2}>
+                      <Text size={1}>Retry</Text>
+                    </Box>
+                  }
                   placement="top"
                   portal
                 >
@@ -736,7 +776,11 @@ ${resultJson}
                   />
                 </Tooltip>
                 <Tooltip
-                  content={<Box padding={2}><Text size={1}>Clear</Text></Box>}
+                  content={
+                    <Box padding={2}>
+                      <Text size={1}>Clear</Text>
+                    </Box>
+                  }
                   placement="top"
                   portal
                 >
@@ -754,17 +798,15 @@ ${resultJson}
             )}
 
             <Tooltip
-              content={<Box padding={2}><Text size={1}>Close</Text></Box>}
+              content={
+                <Box padding={2}>
+                  <Text size={1}>Close</Text>
+                </Box>
+              }
               placement="top"
               portal
             >
-              <Button
-                icon={CloseIcon}
-                mode="bleed"
-                onClick={onClose}
-                fontSize={1}
-                padding={2}
-              />
+              <Button icon={CloseIcon} mode="bleed" onClick={onClose} fontSize={1} padding={2} />
             </Tooltip>
           </Flex>
         </Flex>
@@ -780,14 +822,11 @@ ${resultJson}
       {/* Messages */}
       <Box style={{flex: 1, overflow: 'auto'}}>
         {messages.length === 0 ? (
-          <Flex
-            align="center"
-            justify="center"
-            style={{height: '100%', padding: 24}}
-          >
+          <Flex align="center" justify="center" style={{height: '100%', padding: 24}}>
             <Stack space={3} style={{textAlign: 'center'}}>
               <Text size={1} muted>
-                Hi{currentUser?.name ? `, ${currentUser.name.split(' ')[0]}` : ''}! How can I help you today?
+                Hi{currentUser?.name ? `, ${currentUser.name.split(' ')[0]}` : ''}! How can I help
+                you today?
               </Text>
               <Text size={0} muted>
                 Ask me to create, update, or query content
@@ -902,7 +941,9 @@ export function FloatingChat({apiEndpoint}: FloatingChatProps) {
   // Drag state
   const [position, setPosition] = useState<Position | null>(loadFloatingChatPosition)
   const [isDragging, setIsDragging] = useState(false)
-  const dragStartRef = useRef<{mouseX: number; mouseY: number; posX: number; posY: number} | null>(null)
+  const dragStartRef = useRef<{mouseX: number; mouseY: number; posX: number; posY: number} | null>(
+    null,
+  )
 
   const handleOpen = useCallback(() => {
     setIsOpen(true)
@@ -926,48 +967,54 @@ export function FloatingChat({apiEndpoint}: FloatingChatProps) {
   }, [])
 
   // Drag handlers
-  const handleDragStart = useCallback((e: React.MouseEvent) => {
-    // Don't start drag if clicking on buttons
-    if ((e.target as HTMLElement).closest('button')) {
-      return
-    }
+  const handleDragStart = useCallback(
+    (e: React.MouseEvent) => {
+      // Don't start drag if clicking on buttons
+      if ((e.target as HTMLElement).closest('button')) {
+        return
+      }
 
-    e.preventDefault()
-    setIsDragging(true)
+      e.preventDefault()
+      setIsDragging(true)
 
-    // Calculate current position (default to bottom-left if not set)
-    const currentX = position?.x ?? 24
-    const currentY = position?.y ?? 24
+      // Calculate current position (default to bottom-left if not set)
+      const currentX = position?.x ?? 24
+      const currentY = position?.y ?? 24
 
-    dragStartRef.current = {
-      mouseX: e.clientX,
-      mouseY: e.clientY,
-      posX: currentX,
-      posY: currentY,
-    }
-  }, [position])
+      dragStartRef.current = {
+        mouseX: e.clientX,
+        mouseY: e.clientY,
+        posX: currentX,
+        posY: currentY,
+      }
+    },
+    [position],
+  )
 
-  const handleDrag = useCallback((e: MouseEvent) => {
-    if (!isDragging || !dragStartRef.current) return
+  const handleDrag = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging || !dragStartRef.current) return
 
-    const deltaX = e.clientX - dragStartRef.current.mouseX
-    const deltaY = e.clientY - dragStartRef.current.mouseY
+      const deltaX = e.clientX - dragStartRef.current.mouseX
+      const deltaY = e.clientY - dragStartRef.current.mouseY
 
-    // Calculate new position (position is from bottom-left, so invert Y delta)
-    let newX = dragStartRef.current.posX + deltaX
-    let newY = dragStartRef.current.posY - deltaY
+      // Calculate new position (position is from bottom-left, so invert Y delta)
+      let newX = dragStartRef.current.posX + deltaX
+      let newY = dragStartRef.current.posY - deltaY
 
-    // Constrain to viewport bounds
-    const panelWidth = 420
-    const panelHeight = 560
-    const margin = 10
+      // Constrain to viewport bounds
+      const panelWidth = 420
+      const panelHeight = 560
+      const margin = 10
 
-    // Ensure panel stays within viewport
-    newX = Math.max(margin, Math.min(window.innerWidth - panelWidth - margin, newX))
-    newY = Math.max(margin, Math.min(window.innerHeight - panelHeight - margin, newY))
+      // Ensure panel stays within viewport
+      newX = Math.max(margin, Math.min(window.innerWidth - panelWidth - margin, newX))
+      newY = Math.max(margin, Math.min(window.innerHeight - panelHeight - margin, newY))
 
-    setPosition({x: newX, y: newY})
-  }, [isDragging])
+      setPosition({x: newX, y: newY})
+    },
+    [isDragging],
+  )
 
   const handleDragEnd = useCallback(() => {
     if (isDragging && position) {
@@ -1035,9 +1082,7 @@ export function FloatingChat({apiEndpoint}: FloatingChatProps) {
   }
 
   // Calculate position styles
-  const positionStyle = position
-    ? {left: position.x, bottom: position.y}
-    : {left: 24, bottom: 24}
+  const positionStyle = position ? {left: position.x, bottom: position.y} : {left: 24, bottom: 24}
 
   return (
     <div

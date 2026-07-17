@@ -56,11 +56,7 @@ export default function CardBlock({block}: CardBlockProps) {
       backgroundOverlay={cleanOverlay}
     >
       {contentItems.map((contentBlock, contentIndex) => (
-        <ContentBlockRenderer
-          key={contentBlock._key}
-          block={contentBlock}
-          index={contentIndex}
-        />
+        <ContentBlockRenderer key={contentBlock._key} block={contentBlock} index={contentIndex} />
       ))}
     </Card>
   )

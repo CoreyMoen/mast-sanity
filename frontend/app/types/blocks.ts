@@ -43,8 +43,8 @@ export interface LinkObject {
   _type?: 'link'
   linkType?: 'href' | 'page' | 'post' | 'variable' | 'external'
   href?: string
-  page?: string | { slug?: string } // Resolved slug or reference
-  post?: string | { slug?: string } // Resolved slug or reference
+  page?: string | {slug?: string} // Resolved slug or reference
+  post?: string | {slug?: string} // Resolved slug or reference
   variable?: ContentVariableRef // Reference to link-type content variable
   openInNewTab?: boolean
 }
@@ -54,7 +54,7 @@ export interface ContentVariableRef {
   _id?: string
   _type?: 'contentVariable'
   name?: string
-  key?: { current?: string }
+  key?: {current?: string}
   variableType?: 'text' | 'link' | 'image'
   textValue?: string
   linkValue?: LinkObject
@@ -295,9 +295,53 @@ export interface RowBlock extends BaseBlock {
 export interface ColumnBlock extends BaseBlock {
   _type: 'column'
   content?: ContentBlock[]
-  widthDesktop?: 'auto' | 'fill' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12'
-  widthTablet?: 'inherit' | 'auto' | 'fill' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12'
-  widthMobile?: 'inherit' | 'auto' | 'fill' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12'
+  widthDesktop?:
+    | 'auto'
+    | 'fill'
+    | '1'
+    | '2'
+    | '3'
+    | '4'
+    | '5'
+    | '6'
+    | '7'
+    | '8'
+    | '9'
+    | '10'
+    | '11'
+    | '12'
+  widthTablet?:
+    | 'inherit'
+    | 'auto'
+    | 'fill'
+    | '1'
+    | '2'
+    | '3'
+    | '4'
+    | '5'
+    | '6'
+    | '7'
+    | '8'
+    | '9'
+    | '10'
+    | '11'
+    | '12'
+  widthMobile?:
+    | 'inherit'
+    | 'auto'
+    | 'fill'
+    | '1'
+    | '2'
+    | '3'
+    | '4'
+    | '5'
+    | '6'
+    | '7'
+    | '8'
+    | '9'
+    | '10'
+    | '11'
+    | '12'
   verticalAlign?: 'start' | 'center' | 'end' | 'between'
   padding?: '0' | '2' | '4' | '6' | '8'
   customStyle?: string
@@ -345,9 +389,7 @@ export type ContentBlock =
   | RowBlock
 
 /** All page builder block types */
-export type PageBuilderBlock =
-  | SectionBlock
-  | ContentBlock
+export type PageBuilderBlock = SectionBlock | ContentBlock
 
 // =============================================================================
 // COMPONENT PROPS

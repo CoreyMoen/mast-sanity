@@ -122,7 +122,7 @@ export function useQuickActions(): UseQuickActionsReturn {
   const client = useClient({apiVersion: API_VERSION})
 
   const [quickActions, setQuickActions] = useState<QuickAction[]>(
-    cachedData?.actions ?? DEFAULT_QUICK_ACTIONS
+    cachedData?.actions ?? DEFAULT_QUICK_ACTIONS,
   )
   const [isLoading, setIsLoading] = useState(!cachedData)
   const [error, setError] = useState<string | null>(null)

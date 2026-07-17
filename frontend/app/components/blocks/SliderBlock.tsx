@@ -48,7 +48,7 @@ interface SliderBlockProps {
 
 // Aspect ratio CSS values
 const aspectRatioStyles: Record<string, string | undefined> = {
-  original: undefined,
+  'original': undefined,
   '16/9': '16/9',
   '4/3': '4/3',
   '1/1': '1/1',

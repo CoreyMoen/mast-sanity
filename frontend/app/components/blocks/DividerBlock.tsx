@@ -20,11 +20,5 @@ export default function DividerBlock({block}: DividerBlockProps) {
   const cleanMarginBottom = stegaClean(marginBottom) as SpacingSize
   const cleanColor = stegaClean(color) as DividerColor
 
-  return (
-    <Divider
-      marginTop={cleanMarginTop}
-      marginBottom={cleanMarginBottom}
-      color={cleanColor}
-    />
-  )
+  return <Divider marginTop={cleanMarginTop} marginBottom={cleanMarginBottom} color={cleanColor} />
 }

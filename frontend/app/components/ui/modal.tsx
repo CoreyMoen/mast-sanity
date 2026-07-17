@@ -28,7 +28,7 @@ const ModalOverlay = React.forwardRef<
       'fixed inset-0 z-50 bg-black/60 backdrop-blur-sm',
       'data-[state=open]:animate-in data-[state=closed]:animate-out',
       'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
-      className
+      className,
     )}
     {...props}
   />
@@ -68,7 +68,7 @@ const ModalContent = React.forwardRef<
         'data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]',
         'duration-200',
         sizeClasses[size],
-        className
+        className,
       )}
       {...props}
     >
@@ -78,7 +78,7 @@ const ModalContent = React.forwardRef<
           className={cn(
             'absolute right-4 top-4 rounded-full p-2',
             'text-muted-foreground transition-colors hover:bg-muted-background hover:text-foreground',
-            'focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2'
+            'focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2',
           )}
           aria-label="Close"
         >
@@ -101,11 +101,7 @@ const ModalTitle = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Title>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
 >(({className, ...props}, ref) => (
-  <DialogPrimitive.Title
-    ref={ref}
-    className={cn('text-h4 font-medium', className)}
-    {...props}
-  />
+  <DialogPrimitive.Title ref={ref} className={cn('text-h4 font-medium', className)} {...props} />
 ))
 ModalTitle.displayName = 'ModalTitle'
 
@@ -155,7 +151,7 @@ const VideoModalContent = React.forwardRef<
         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
         'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
         'duration-200',
-        sizeClasses[size]
+        sizeClasses[size],
       )}
       {...props}
     >
@@ -172,7 +168,7 @@ const VideoModalContent = React.forwardRef<
         className={cn(
           'absolute -right-3 -top-3 rounded-full bg-white p-2 shadow-lg',
           'text-muted-foreground transition-colors hover:bg-muted-background hover:text-foreground',
-          'focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2'
+          'focus:outline-none focus:ring-2 focus:ring-brand focus:ring-offset-2',
         )}
         aria-label="Close"
       >

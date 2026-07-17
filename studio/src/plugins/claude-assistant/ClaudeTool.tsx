@@ -78,19 +78,11 @@ export function ClaudeTool(props: ClaudeToolProps) {
   } = useConversations({apiEndpoint})
 
   // Instructions hook
-  const {
-    instructions,
-    activeInstruction,
-    setActiveInstruction,
-    rawInstructions,
-    sectionTemplates,
-  } = useInstructions()
+  const {instructions, activeInstruction, setActiveInstruction, rawInstructions, sectionTemplates} =
+    useInstructions()
 
   // Workflows hook
-  const {
-    workflows,
-    isLoading: workflowsLoading,
-  } = useWorkflows()
+  const {workflows, isLoading: workflowsLoading} = useWorkflows()
 
   // Extract schema context on mount
   useEffect(() => {
@@ -121,13 +113,23 @@ export function ClaudeTool(props: ClaudeToolProps) {
 
   // Ref to hold sendMessage function for auto-follow-up after query results
   // This uses sendMessage directly (not handleSendMessage) to avoid creating duplicate conversations
-  const sendMessageRef = useRef<((content: string, images?: ImageAttachment[], documentContextsOverride?: DocumentContext[], messageOptions?: MessageOptions) => Promise<void>) | null>(null)
+  const sendMessageRef = useRef<
+    | ((
+        content: string,
+        images?: ImageAttachment[],
+        documentContextsOverride?: DocumentContext[],
+        messageOptions?: MessageOptions,
+      ) => Promise<void>)
+    | null
+  >(null)
 
   // Ref to hold handleSendMessage for user-initiated messages (with conversation creation)
-  const handleSendMessageRef = useRef<((content: string, images?: ImageAttachment[]) => Promise<void>) | null>(null)
+  const handleSendMessageRef = useRef<
+    ((content: string, images?: ImageAttachment[]) => Promise<void>) | null
+  >(null)
 
   // Accumulates query results from concurrent auto-executions for batched sending
-  const pendingQueryResultsRef = useRef<Array<{ description: string; data: unknown }>>([])
+  const pendingQueryResultsRef = useRef<Array<{description: string; data: unknown}>>([])
   const queryResultTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Track active conversation for use in callbacks without stale closures
@@ -158,29 +160,39 @@ export function ClaudeTool(props: ClaudeToolProps) {
 
   // Helper to update action status in messages
   const updateActionStatus = useCallback(
-    (actionId: string, status: ParsedAction['status'], result?: ParsedAction['result'], error?: string) => {
+    (
+      actionId: string,
+      status: ParsedAction['status'],
+      result?: ParsedAction['result'],
+      error?: string,
+    ) => {
       if (setMessagesRef.current) {
         setMessagesRef.current((prev) =>
           prev.map((msg) => {
             if (!msg.actions) return msg
             const updatedActions = msg.actions.map((a) =>
-              a.id === actionId ? {...a, status, result, error} : a
+              a.id === actionId ? {...a, status, result, error} : a,
             )
             // Only update if something changed
             if (updatedActions.some((a, i) => a !== msg.actions![i])) {
               return {...msg, actions: updatedActions}
             }
             return msg
-          })
+          }),
         )
       }
     },
-    []
+    [],
   )
 
   // Persist action results to the conversation store
   const persistActionResult = useCallback(
-    (actionId: string, status: ParsedAction['status'], result?: ParsedAction['result'], error?: string) => {
+    (
+      actionId: string,
+      status: ParsedAction['status'],
+      result?: ParsedAction['result'],
+      error?: string,
+    ) => {
       const conversationId = activeConversationRef.current?.id
       if (!conversationId || !updateMessage) return
       // Read from the latest state using a functional update pattern
@@ -189,7 +201,7 @@ export function ClaudeTool(props: ClaudeToolProps) {
           const msg = prev.find((m) => m.actions?.some((a) => a.id === actionId))
           if (msg) {
             const updatedActions = msg.actions!.map((a) =>
-              a.id === actionId ? {...a, status, result, error} : a
+              a.id === actionId ? {...a, status, result, error} : a,
             )
             updateMessage(conversationId, msg.id, {actions: updatedActions})
           }
@@ -197,7 +209,7 @@ export function ClaudeTool(props: ClaudeToolProps) {
         })
       }
     },
-    [updateMessage]
+    [updateMessage],
   )
 
   // Handle action execution
@@ -215,7 +227,7 @@ export function ClaudeTool(props: ClaudeToolProps) {
         action.id,
         result.success ? 'completed' : 'failed',
         result,
-        result.success ? undefined : result.message
+        result.success ? undefined : result.message,
       )
 
       // Persist action result to conversation store
@@ -223,7 +235,7 @@ export function ClaudeTool(props: ClaudeToolProps) {
         action.id,
         result.success ? 'completed' : 'failed',
         result,
-        result.success ? undefined : result.message
+        result.success ? undefined : result.message,
       )
 
       if (result.success) {
@@ -265,7 +277,8 @@ export function ClaudeTool(props: ClaudeToolProps) {
               followUpMessage = `Here are the results from ${results.length} queries:\n\n${parts.join('\n\n')}`
             }
 
-            sendMessageRef.current(followUpMessage, undefined, undefined, {hidden: true})
+            sendMessageRef
+              .current(followUpMessage, undefined, undefined, {hidden: true})
               .catch((err) => {
                 toast.push({
                   status: 'error',
@@ -283,7 +296,7 @@ export function ClaudeTool(props: ClaudeToolProps) {
         })
       }
     },
-    [executeAction, toast, updateActionStatus, persistActionResult]
+    [executeAction, toast, updateActionStatus, persistActionResult],
   )
 
   // Handle undo of a previously executed action
@@ -311,47 +324,41 @@ export function ClaudeTool(props: ClaudeToolProps) {
         })
       }
     },
-    [undoAction, toast, updateActionStatus]
+    [undoAction, toast, updateActionStatus],
   )
 
   // Build workflow context from pending workflows
-  const workflowContext = pendingWorkflows.length > 0
-    ? pendingWorkflows
-        .filter(w => w.systemInstructions)
-        .map(w => `## Workflow: ${w.name}\n\n${w.systemInstructions}`)
-        .join('\n\n')
-    : undefined
+  const workflowContext =
+    pendingWorkflows.length > 0
+      ? pendingWorkflows
+          .filter((w) => w.systemInstructions)
+          .map((w) => `## Workflow: ${w.name}\n\n${w.systemInstructions}`)
+          .join('\n\n')
+      : undefined
 
   // Initialize chat hook with apiEndpoint from options
   // Note: We don't pass onAction here because action execution happens via ActionCard
   // which calls onActionExecute after the action is rendered in the UI
-  const {
-    messages,
-    isLoading,
-    error,
-    sendMessage,
-    clearMessages,
-    retryLastMessage,
-    setMessages,
-  } = useClaudeChat({
-    apiEndpoint: apiEndpoint || '/api/claude',
-    schemaContext,
-    customInstructions: activeInstruction?.content || settings.customInstructions,
-    workflowContext,
-    documentContexts: pendingDocuments,
-    rawInstructions: rawInstructions || undefined,
-    sectionTemplates: sectionTemplates || undefined,
-    activeConversation,
-    onAddMessage: addMessage,
-    onUpdateMessage: updateMessage,
-    onGenerateTitle: generateTitle,
-    // onAction is intentionally not set - action execution happens via ActionCard's
-    // auto-execute useEffect (for read-only actions) or manual button click (for modifying actions)
-    enableStreaming: settings.enableStreaming,
-    model: settings.model,
-    maxTokens: settings.maxTokens,
-    temperature: settings.temperature,
-  })
+  const {messages, isLoading, error, sendMessage, clearMessages, retryLastMessage, setMessages} =
+    useClaudeChat({
+      apiEndpoint: apiEndpoint || '/api/claude',
+      schemaContext,
+      customInstructions: activeInstruction?.content || settings.customInstructions,
+      workflowContext,
+      documentContexts: pendingDocuments,
+      rawInstructions: rawInstructions || undefined,
+      sectionTemplates: sectionTemplates || undefined,
+      activeConversation,
+      onAddMessage: addMessage,
+      onUpdateMessage: updateMessage,
+      onGenerateTitle: generateTitle,
+      // onAction is intentionally not set - action execution happens via ActionCard's
+      // auto-execute useEffect (for read-only actions) or manual button click (for modifying actions)
+      enableStreaming: settings.enableStreaming,
+      model: settings.model,
+      maxTokens: settings.maxTokens,
+      temperature: settings.temperature,
+    })
 
   // Update refs when functions are available
   useEffect(() => {
@@ -365,7 +372,11 @@ export function ClaudeTool(props: ClaudeToolProps) {
   }, [sendMessage])
 
   // Track pending message that needs to be sent after conversation is created
-  const pendingMessageRef = useRef<{content: string, images?: ImageAttachment[], documents?: DocumentContext[]} | null>(null)
+  const pendingMessageRef = useRef<{
+    content: string
+    images?: ImageAttachment[]
+    documents?: DocumentContext[]
+  } | null>(null)
 
   // Keep sendMessage in a ref so the pending message effect doesn't re-run
   // every time sendMessage is recreated
@@ -389,18 +400,21 @@ export function ClaudeTool(props: ClaudeToolProps) {
   }, [activeConversation])
 
   // Wrap sendMessage to auto-create conversation if needed
-  const handleSendMessage = useCallback(async (content: string, images?: ImageAttachment[]) => {
-    // If no active conversation, create one first and queue the message
-    if (!activeConversation) {
-      // Capture current documents at queue time to avoid stale closure
-      pendingMessageRef.current = {content, images, documents: pendingDocuments}
-      await createConversation()
-      // The useEffect above will send the message once activeConversation updates
-    } else {
-      // Already have a conversation, send directly
-      await sendMessage(content, images)
-    }
-  }, [activeConversation, createConversation, sendMessage, pendingDocuments])
+  const handleSendMessage = useCallback(
+    async (content: string, images?: ImageAttachment[]) => {
+      // If no active conversation, create one first and queue the message
+      if (!activeConversation) {
+        // Capture current documents at queue time to avoid stale closure
+        pendingMessageRef.current = {content, images, documents: pendingDocuments}
+        await createConversation()
+        // The useEffect above will send the message once activeConversation updates
+      } else {
+        // Already have a conversation, send directly
+        await sendMessage(content, images)
+      }
+    },
+    [activeConversation, createConversation, sendMessage, pendingDocuments],
+  )
 
   // Update handleSendMessageRef for user-initiated messages (with conversation creation)
   useEffect(() => {
@@ -427,7 +441,7 @@ export function ClaudeTool(props: ClaudeToolProps) {
         await loadConversation(id)
       }
     },
-    [selectConversation, loadConversation]
+    [selectConversation, loadConversation],
   )
 
   // Handle conversation rename
@@ -435,9 +449,8 @@ export function ClaudeTool(props: ClaudeToolProps) {
     async (id: string, newTitle: string) => {
       await updateConversationTitle(id, newTitle)
     },
-    [updateConversationTitle]
+    [updateConversationTitle],
   )
-
 
   // Handle document context changes
   const handleDocumentsChange = useCallback((documents: DocumentContext[]) => {
@@ -467,11 +480,15 @@ export function ClaudeTool(props: ClaudeToolProps) {
       setPendingWorkflows([])
 
       // If the conversation has stored workflow IDs, restore them
-      if (activeConversation?.workflowIds && activeConversation.workflowIds.length > 0 && workflows.length > 0) {
+      if (
+        activeConversation?.workflowIds &&
+        activeConversation.workflowIds.length > 0 &&
+        workflows.length > 0
+      ) {
         const restoredWorkflows = activeConversation.workflowIds
-          .map(wfId => workflows.find(w => w.id === wfId))
-          .filter((w): w is typeof workflows[number] => w !== undefined)
-          .map(w => ({
+          .map((wfId) => workflows.find((w) => w.id === wfId))
+          .filter((w): w is (typeof workflows)[number] => w !== undefined)
+          .map((w) => ({
             _id: w.id,
             name: w.name,
             description: w.description,
@@ -487,30 +504,36 @@ export function ClaudeTool(props: ClaudeToolProps) {
   }, [activeConversation?.id, activeConversation?.workflowIds, workflows])
 
   // Handle workflow context changes
-  const handleWorkflowsChange = useCallback((newWorkflows: WorkflowOption[]) => {
-    setPendingWorkflows(newWorkflows)
-    hasManualWorkflowChangeRef.current = true
+  const handleWorkflowsChange = useCallback(
+    (newWorkflows: WorkflowOption[]) => {
+      setPendingWorkflows(newWorkflows)
+      hasManualWorkflowChangeRef.current = true
 
-    // Save workflow IDs to the conversation if we have an active conversation
-    if (activeConversation?.id) {
-      const workflowIds = newWorkflows.map(w => w._id)
-      updateWorkflowIds(activeConversation.id, workflowIds)
-    }
-  }, [activeConversation?.id, updateWorkflowIds])
-
-  // Handle removing a workflow from context
-  const handleRemoveWorkflow = useCallback((workflowId: string) => {
-    setPendingWorkflows((prev) => {
-      const newWorkflows = prev.filter((w) => w._id !== workflowId)
-      // Save updated workflow IDs to the conversation
+      // Save workflow IDs to the conversation if we have an active conversation
       if (activeConversation?.id) {
-        const workflowIds = newWorkflows.map(w => w._id)
+        const workflowIds = newWorkflows.map((w) => w._id)
         updateWorkflowIds(activeConversation.id, workflowIds)
       }
-      return newWorkflows
-    })
-    hasManualWorkflowChangeRef.current = true
-  }, [activeConversation?.id, updateWorkflowIds])
+    },
+    [activeConversation?.id, updateWorkflowIds],
+  )
+
+  // Handle removing a workflow from context
+  const handleRemoveWorkflow = useCallback(
+    (workflowId: string) => {
+      setPendingWorkflows((prev) => {
+        const newWorkflows = prev.filter((w) => w._id !== workflowId)
+        // Save updated workflow IDs to the conversation
+        if (activeConversation?.id) {
+          const workflowIds = newWorkflows.map((w) => w._id)
+          updateWorkflowIds(activeConversation.id, workflowIds)
+        }
+        return newWorkflows
+      })
+      hasManualWorkflowChangeRef.current = true
+    },
+    [activeConversation?.id, updateWorkflowIds],
+  )
 
   return (
     <Card

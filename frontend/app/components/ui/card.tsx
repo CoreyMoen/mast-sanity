@@ -109,10 +109,7 @@ export function Card({
         blurDataURL={blurDataUrl}
       />
       {backgroundOverlay > 0 && (
-        <div
-          className="absolute inset-0 bg-black"
-          style={{opacity: backgroundOverlay / 100}}
-        />
+        <div className="absolute inset-0 bg-black" style={{opacity: backgroundOverlay / 100}} />
       )}
     </>
   ) : null

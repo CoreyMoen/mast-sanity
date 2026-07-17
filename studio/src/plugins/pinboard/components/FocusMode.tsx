@@ -238,13 +238,7 @@ export function FocusMode({
 
               {/* Actions */}
               <MenuButton
-                button={
-                  <Button
-                    icon={EllipsisVerticalIcon}
-                    mode="bleed"
-                    title="More actions"
-                  />
-                }
+                button={<Button icon={EllipsisVerticalIcon} mode="bleed" title="More actions" />}
                 id="focus-mode-menu"
                 menu={
                   <Menu>
@@ -255,11 +249,7 @@ export function FocusMode({
                         onClick={() => window.open(`${previewOrigin}${previewPath}`, '_blank')}
                       />
                     )}
-                    <MenuItem
-                      icon={EditIcon}
-                      text="Edit document"
-                      onClick={() => onEdit(page)}
-                    />
+                    <MenuItem icon={EditIcon} text="Edit document" onClick={() => onEdit(page)} />
                   </Menu>
                 }
                 popover={{portal: true}}

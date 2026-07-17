@@ -34,7 +34,11 @@ const accordionItem = defineArrayMember({
         insertMenu: {
           groups: [
             {name: 'layout', title: 'Layout', of: ['spacerBlock', 'dividerBlock']},
-            {name: 'content', title: 'Content', of: ['headingBlock', 'richTextBlock', 'buttonBlock']},
+            {
+              name: 'content',
+              title: 'Content',
+              of: ['headingBlock', 'richTextBlock', 'buttonBlock'],
+            },
             {name: 'media', title: 'Media', of: ['imageBlock', 'iconBlock']},
           ],
         },
@@ -111,7 +115,8 @@ export const accordionBlock = defineType({
       title: 'Allow Multiple Open',
       type: 'boolean',
       group: 'settings',
-      description: 'Allow multiple items to be open at the same time. When disabled, opening one item closes others.',
+      description:
+        'Allow multiple items to be open at the same time. When disabled, opening one item closes others.',
       initialValue: true,
     }),
     defineField({

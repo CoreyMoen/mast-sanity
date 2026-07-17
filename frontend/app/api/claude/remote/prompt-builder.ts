@@ -6,12 +6,8 @@
  * works in a server-side context.
  */
 
-import type {
-  InstructionsDocument,
-  WorkflowDocument,
-  InstructionCategory,
-} from './types'
-import { getServerSchemaContext, detectRelevantCategories } from './sanity-loader'
+import type {InstructionsDocument, WorkflowDocument, InstructionCategory} from './types'
+import {getServerSchemaContext, detectRelevantCategories} from './sanity-loader'
 
 /**
  * Base system prompt for the Claude assistant (same as Studio plugin)
@@ -129,14 +125,15 @@ function portableTextToPlainText(content: unknown): string {
 
   if (Array.isArray(content)) {
     return content
-      .filter((block): block is { _type: string; children?: Array<{ text?: string }> } =>
-        block && typeof block === 'object' && block._type === 'block'
+      .filter(
+        (block): block is {_type: string; children?: Array<{text?: string}>} =>
+          block && typeof block === 'object' && block._type === 'block',
       )
-      .map(block => {
+      .map((block) => {
         if (!block.children) return ''
         return block.children
-          .filter((child): child is { text: string } => child && typeof child.text === 'string')
-          .map(child => child.text)
+          .filter((child): child is {text: string} => child && typeof child.text === 'string')
+          .map((child) => child.text)
           .join('')
       })
       .join('\n\n')
@@ -150,14 +147,14 @@ function portableTextToPlainText(content: unknown): string {
  */
 function formatInstructions(
   instructions: InstructionsDocument,
-  categories: Set<InstructionCategory>
+  categories: Set<InstructionCategory>,
 ): string {
   const parts: string[] = []
 
   // Always include forbidden terms (critical for brand safety)
   if (instructions.forbiddenTerms && instructions.forbiddenTerms.length > 0) {
     parts.push('## Forbidden Terms (ALWAYS FOLLOW)')
-    instructions.forbiddenTerms.forEach(term => {
+    instructions.forbiddenTerms.forEach((term) => {
       parts.push(`- Never use: "${term}"`)
     })
     parts.push('')
@@ -188,7 +185,7 @@ function formatInstructions(
 
     if (instructions.preferredTerms && instructions.preferredTerms.length > 0) {
       parts.push('### Preferred Terms')
-      instructions.preferredTerms.forEach(term => {
+      instructions.preferredTerms.forEach((term) => {
         parts.push(`- Instead of "${term.avoid}", use "${term.useInstead}"`)
       })
       parts.push('')
@@ -206,7 +203,7 @@ function formatInstructions(
 
     if (instructions.componentGuidelines && instructions.componentGuidelines.length > 0) {
       parts.push('### Component Guidelines')
-      instructions.componentGuidelines.forEach(comp => {
+      instructions.componentGuidelines.forEach((comp) => {
         parts.push(`**${comp.component}**`)
         if (comp.guidelines) {
           parts.push(`- Guidelines: ${comp.guidelines}`)
@@ -230,7 +227,7 @@ function formatInstructions(
 
     if (instructions.requiredFields && instructions.requiredFields.length > 0) {
       parts.push('### Required Fields')
-      instructions.requiredFields.forEach(rule => {
+      instructions.requiredFields.forEach((rule) => {
         const fields = rule.fields?.join(', ') || 'None specified'
         parts.push(`- ${rule.component}: ${fields}`)
       })
@@ -245,7 +242,7 @@ function formatInstructions(
  * Build context string for selected documents
  */
 function formatDocumentContext(
-  documents: Array<{ _id: string; _type: string; name?: string; title?: string; slug?: string }>
+  documents: Array<{_id: string; _type: string; name?: string; title?: string; slug?: string}>,
 ): string {
   if (!documents.length) return ''
 
@@ -280,7 +277,13 @@ export interface BuildPromptOptions {
   includeCategories?: InstructionCategory[]
 
   /** Documents loaded for context */
-  contextDocuments?: Array<{ _id: string; _type: string; name?: string; title?: string; slug?: string }>
+  contextDocuments?: Array<{
+    _id: string
+    _type: string
+    name?: string
+    title?: string
+    slug?: string
+  }>
 
   /** Additional context text */
   additionalContext?: string

@@ -16,7 +16,16 @@ import {cn} from '@/lib/utils'
  */
 
 export type IconSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'inherit'
-export type IconColor = 'inherit' | 'foreground' | 'brand' | 'blue' | 'yellow' | 'black' | 'white' | 'gray' | 'muted'
+export type IconColor =
+  | 'inherit'
+  | 'foreground'
+  | 'brand'
+  | 'blue'
+  | 'yellow'
+  | 'black'
+  | 'white'
+  | 'gray'
+  | 'muted'
 
 interface IconProps {
   icon: PhosphorIcon

@@ -70,10 +70,7 @@ const ContentBlocks: ContentBlocksType = {
   blogGridBlock: BlogGridBlock,
 }
 
-export default function ContentBlockRenderer({
-  block,
-  index,
-}: ContentBlockProps) {
+export default function ContentBlockRenderer({block, index}: ContentBlockProps) {
   const Component = ContentBlocks[block._type]
 
   if (Component) {

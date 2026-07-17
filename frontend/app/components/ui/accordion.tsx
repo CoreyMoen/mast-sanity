@@ -63,7 +63,7 @@ const Accordion = React.forwardRef<HTMLDivElement, AccordionProps>(
     const generatedId = React.useId()
     const accordionName = React.useMemo(
       () => (allowMultiple ? undefined : name || `accordion-${generatedId}`),
-      [allowMultiple, name, generatedId]
+      [allowMultiple, name, generatedId],
     )
 
     return (
@@ -78,7 +78,7 @@ const Accordion = React.forwardRef<HTMLDivElement, AccordionProps>(
         })}
       </div>
     )
-  }
+  },
 )
 Accordion.displayName = 'Accordion'
 
@@ -103,7 +103,7 @@ const AccordionItem = React.forwardRef<HTMLDetailsElement, AccordionItemProps>(
         {children}
       </details>
     )
-  }
+  },
 )
 AccordionItem.displayName = 'AccordionItem'
 
@@ -123,7 +123,7 @@ const AccordionTrigger = React.forwardRef<HTMLElement, AccordionTriggerProps>(
           'accordion-trigger flex cursor-pointer items-center justify-between py-4',
           'list-none [&::-webkit-details-marker]:hidden',
           'hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2',
-          className
+          className,
         )}
       >
         <Component
@@ -132,7 +132,7 @@ const AccordionTrigger = React.forwardRef<HTMLElement, AccordionTriggerProps>(
             Component === 'h3' && 'text-h3',
             Component === 'h4' && 'text-h4',
             Component === 'h5' && 'text-h5',
-            Component === 'span' && 'text-h4'
+            Component === 'span' && 'text-h4',
           )}
         >
           {children}
@@ -140,7 +140,7 @@ const AccordionTrigger = React.forwardRef<HTMLElement, AccordionTriggerProps>(
         <PlusIcon className="text-muted-foreground group-open:rotate-45" />
       </summary>
     )
-  }
+  },
 )
 AccordionTrigger.displayName = 'AccordionTrigger'
 
@@ -159,7 +159,7 @@ const AccordionContent = React.forwardRef<HTMLDivElement, AccordionContentProps>
           // Animate height using CSS grid trick
           'grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-in-out',
           'group-open:grid-rows-[1fr]',
-          className
+          className,
         )}
       >
         <div className="overflow-hidden">
@@ -167,7 +167,7 @@ const AccordionContent = React.forwardRef<HTMLDivElement, AccordionContentProps>
         </div>
       </div>
     )
-  }
+  },
 )
 AccordionContent.displayName = 'AccordionContent'
 

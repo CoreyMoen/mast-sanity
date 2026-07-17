@@ -156,10 +156,10 @@ export function getBlockIcon(label: string): string {
  * @param blockType - The _type value from Sanity schema
  * @returns Object with label and icon
  */
-export function getBlockInfo(blockType: string): { label: string; icon: string } {
+export function getBlockInfo(blockType: string): {label: string; icon: string} {
   const label = getBlockLabel(blockType)
   const icon = getBlockIcon(label)
-  return { label, icon }
+  return {label, icon}
 }
 
 // =============================================================================

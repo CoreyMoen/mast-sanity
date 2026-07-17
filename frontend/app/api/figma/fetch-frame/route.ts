@@ -5,7 +5,7 @@
  * for Claude to interpret and map to Sanity page builder blocks.
  */
 
-import { NextRequest, NextResponse } from 'next/server'
+import {NextRequest, NextResponse} from 'next/server'
 
 /**
  * Simplified Figma node structure for Claude
@@ -35,7 +35,7 @@ interface FigmaNode {
   fills?: Array<{
     type: string
     imageRef?: string
-    color?: { r: number; g: number; b: number; a: number }
+    color?: {r: number; g: number; b: number; a: number}
   }>
   absoluteBoundingBox?: {
     x: number
@@ -59,7 +59,7 @@ interface ImageReference {
 /**
  * Parse Figma URL to extract fileKey and nodeId
  */
-function parseFigmaUrl(url: string): { fileKey: string; nodeId: string } | null {
+function parseFigmaUrl(url: string): {fileKey: string; nodeId: string} | null {
   try {
     const urlObj = new URL(url)
     // Match both /design/ and /file/ paths
@@ -71,7 +71,7 @@ function parseFigmaUrl(url: string): { fileKey: string; nodeId: string } | null 
     const nodeId = nodeIdParam?.replace(/-/g, ':')
 
     if (!fileKey || !nodeId) return null
-    return { fileKey, nodeId }
+    return {fileKey, nodeId}
   } catch {
     return null
   }
@@ -196,13 +196,13 @@ export async function POST(request: NextRequest) {
           success: false,
           error: 'FIGMA_ACCESS_TOKEN environment variable is not configured',
         },
-        { status: 500 }
+        {status: 500},
       )
     }
 
     // Parse request body
     const body = await request.json()
-    const { url } = body
+    const {url} = body
 
     if (!url) {
       return NextResponse.json(
@@ -210,7 +210,7 @@ export async function POST(request: NextRequest) {
           success: false,
           error: 'Figma URL is required',
         },
-        { status: 400 }
+        {status: 400},
       )
     }
 
@@ -220,13 +220,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Invalid Figma URL. Expected format: https://www.figma.com/design/{fileKey}/...?node-id={nodeId}',
+          error:
+            'Invalid Figma URL. Expected format: https://www.figma.com/design/{fileKey}/...?node-id={nodeId}',
         },
-        { status: 400 }
+        {status: 400},
       )
     }
 
-    const { fileKey, nodeId } = parsed
+    const {fileKey, nodeId} = parsed
 
     // Fetch from Figma API
     const figmaApiUrl = `https://api.figma.com/v1/files/${fileKey}/nodes?ids=${encodeURIComponent(nodeId)}`
@@ -247,7 +248,7 @@ export async function POST(request: NextRequest) {
             success: false,
             error: 'Figma access denied. Check that your token has access to this file.',
           },
-          { status: 403 }
+          {status: 403},
         )
       }
 
@@ -257,7 +258,7 @@ export async function POST(request: NextRequest) {
             success: false,
             error: 'Figma file or node not found. Check the URL is correct.',
           },
-          { status: 404 }
+          {status: 404},
         )
       }
 
@@ -266,7 +267,7 @@ export async function POST(request: NextRequest) {
           success: false,
           error: `Figma API error: ${figmaResponse.status}`,
         },
-        { status: figmaResponse.status }
+        {status: figmaResponse.status},
       )
     }
 
@@ -280,7 +281,7 @@ export async function POST(request: NextRequest) {
           success: false,
           error: 'Node data not found in Figma response',
         },
-        { status: 404 }
+        {status: 404},
       )
     }
 
@@ -305,7 +306,7 @@ export async function POST(request: NextRequest) {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error occurred',
       },
-      { status: 500 }
+      {status: 500},
     )
   }
 }

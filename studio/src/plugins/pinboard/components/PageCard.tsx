@@ -151,7 +151,7 @@ export function PageCard({
   const basePageId = page._id.replace('drafts.', '')
   const pageComments = comments?.filter((c) => c.pageRef === basePageId) ?? []
   const activeComment = activeCommentKey
-    ? pageComments.find((c) => c._key === activeCommentKey) ?? null
+    ? (pageComments.find((c) => c._key === activeCommentKey) ?? null)
     : null
   const isPendingOnThisCard = pendingComment?.pageRef === basePageId
 
@@ -255,12 +255,7 @@ export function PageCard({
       </Flex>
 
       {/* Preview area — iframe for previewable types, static card for others */}
-      <Card
-        data-page-card
-        radius={2}
-        shadow={1}
-        style={{overflow: 'hidden', userSelect: 'none'}}
-      >
+      <Card data-page-card radius={2} shadow={1} style={{overflow: 'hidden', userSelect: 'none'}}>
         {previewUrl ? (
           <div
             style={{
@@ -338,18 +333,25 @@ export function PageCard({
       )}
 
       {/* Comment popover — existing thread */}
-      {activeComment && !isPendingOnThisCard && onCloseComment && onResolveComment && onDeleteComment && onReplyToComment && onDeleteReply && currentUserId && (
-        <CommentPopover
-          mode="thread"
-          comment={activeComment}
-          currentUserId={currentUserId}
-          onClose={onCloseComment}
-          onResolve={onResolveComment}
-          onDelete={onDeleteComment}
-          onReply={onReplyToComment}
-          onDeleteReply={onDeleteReply}
-        />
-      )}
+      {activeComment &&
+        !isPendingOnThisCard &&
+        onCloseComment &&
+        onResolveComment &&
+        onDeleteComment &&
+        onReplyToComment &&
+        onDeleteReply &&
+        currentUserId && (
+          <CommentPopover
+            mode="thread"
+            comment={activeComment}
+            currentUserId={currentUserId}
+            onClose={onCloseComment}
+            onResolve={onResolveComment}
+            onDelete={onDeleteComment}
+            onReply={onReplyToComment}
+            onDeleteReply={onDeleteReply}
+          />
+        )}
     </div>
   )
 }

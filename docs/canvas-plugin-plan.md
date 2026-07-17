@@ -37,13 +37,14 @@ A Sanity Studio tool plugin called **"Canvas"** that provides a Figma-like infin
 
 After researching tldraw, React Flow, Excalidraw, and other options:
 
-| Library | Pros | Cons |
-|---------|------|------|
-| **React Flow** | Nodes are real React components (DOM-based), native iframe support, MIT license, built-in minimap/controls, auto-layout support, pan/zoom built-in | Performance degrades with many DOM nodes |
-| **tldraw** | True infinite canvas, built-in collaboration, feels more like Figma | Canvas-based rendering (iframes need custom shapes), requires watermark or license, more complex iframe integration |
-| **Excalidraw** | Great drawing tools | Not designed for embedding live content |
+| Library        | Pros                                                                                                                                               | Cons                                                                                                                |
+| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **React Flow** | Nodes are real React components (DOM-based), native iframe support, MIT license, built-in minimap/controls, auto-layout support, pan/zoom built-in | Performance degrades with many DOM nodes                                                                            |
+| **tldraw**     | True infinite canvas, built-in collaboration, feels more like Figma                                                                                | Canvas-based rendering (iframes need custom shapes), requires watermark or license, more complex iframe integration |
+| **Excalidraw** | Great drawing tools                                                                                                                                | Not designed for embedding live content                                                                             |
 
 **Why React Flow wins for this use case:**
+
 - Each page frame is a **custom React node** — you literally render `<iframe>` inside a node component. No hacks needed.
 - Built-in **pan, zoom, minimap, controls, and drag** — all the canvas primitives.
 - **Auto-layout** via dagre or elkjs for the initial grid arrangement.
@@ -57,8 +58,8 @@ After researching tldraw, React Flow, Excalidraw, and other options:
 
 ```json
 {
-  "@xyflow/react": "^12.x",       // React Flow v12
-  "elkjs": "^0.9.x",              // Auto-layout engine (optional)
+  "@xyflow/react": "^12.x", // React Flow v12
+  "elkjs": "^0.9.x", // Auto-layout engine (optional)
   "@sanity/ui": "already installed" // Sanity's design system
 }
 ```
@@ -100,6 +101,7 @@ canvasPlugin(),
 **Goal:** Open multiple pages side by side on an infinite canvas, rearrange them, zoom in/out.
 
 #### Features
+
 - **Page picker**: Search/select pages and posts to add to the canvas
 - **Auto-layout**: New pages arrange in a grid automatically (e.g., 3 columns)
 - **Iframe preview frames**: Each page renders in a sandboxed iframe pointing at your frontend in draft mode
@@ -118,6 +120,7 @@ canvasPlugin(),
 #### Technical Implementation
 
 **Page Frame Node (React Flow Custom Node):**
+
 ```typescript
 function PageFrameNode({ data }: NodeProps<PageFrameData>) {
   const { page, previewUrl } = data
@@ -143,6 +146,7 @@ function PageFrameNode({ data }: NodeProps<PageFrameData>) {
 ```
 
 **Canvas Tool Component:**
+
 ```typescript
 function CanvasTool() {
   const [nodes, setNodes] = useNodesState([])
@@ -167,6 +171,7 @@ function CanvasTool() {
 ```
 
 #### Estimated Complexity
+
 - Plugin scaffolding: straightforward (follow Claude plugin pattern)
 - React Flow integration: well-documented, standard setup
 - Iframe previews: simple — point at frontend URL with draft mode
@@ -179,6 +184,7 @@ function CanvasTool() {
 **Goal:** Deeper integration with Sanity's document system and team workflows.
 
 #### Features
+
 - **Canvas presets/templates**: Save and load named canvas arrangements ("Homepage Redesign", "Blog Overview", etc.) — stored as Sanity documents
 - **Bulk actions**: Select multiple frames → batch open in Structure, batch remove
 - **Frame annotations**: Add text labels/sticky notes next to frames (stored in canvas document)
@@ -189,6 +195,7 @@ function CanvasTool() {
 - **Frame grouping**: Group related frames with a visual container
 
 #### Technical Notes
+
 - Canvas presets stored as `canvasLayout` Sanity document type:
   ```typescript
   {
@@ -211,12 +218,14 @@ function CanvasTool() {
 #### Feasibility Assessment
 
 **What's possible:**
+
 - Each iframe already runs your Next.js frontend with draft mode enabled
 - The `<VisualEditing />` component in your frontend renders click-to-edit overlays
 - Stega encoding is active in draft mode, making fields clickable
 - Your existing `BlockContextBridge` sends click events via `postMessage`
 
 **What's challenging:**
+
 - Sanity's Presentation tool has a **tight bidirectional coupling** between the iframe and the Studio's document editing pane. The canvas plugin would need to replicate this.
 - When a user clicks a field in the iframe, you'd need to:
   1. Intercept the click (already works via overlays)
@@ -237,6 +246,7 @@ User clicks text in iframe frame
 This gives you "edit from canvas" without rebuilding the full Presentation tool internals. The side panel could use Sanity's `DocumentPane` or `useDocumentStore` to render the native form editor.
 
 #### Key Technical Pieces
+
 - `useDocumentStore()` from `sanity` — access document editing state
 - `DocumentPane` component — render a document editor in a panel
 - `postMessage` listener — already proven in your Claude plugin's `useBlockContext.ts`
@@ -251,6 +261,7 @@ This gives you "edit from canvas" without rebuilding the full Presentation tool 
 #### Feasibility Assessment
 
 **Current state of Sanity's Comments API:**
+
 - Comments are a **UI-level feature** built into Sanity Studio (available on paid plans, v3.40.0+)
 - Comments can be attached to specific document fields or even words within Portable Text
 - Comments are stored in a separate add-on dataset (e.g., `production-comments`)
@@ -259,12 +270,12 @@ This gives you "edit from canvas" without rebuilding the full Presentation tool 
 
 **What this means for the Canvas plugin:**
 
-| Approach | Feasibility | Notes |
-|----------|-------------|-------|
-| Use Sanity's native comment UI | Not possible from custom tool | No public API to trigger comment creation programmatically |
-| Build custom comment system | Fully possible | Store comments as Sanity documents, but they won't appear in Studio's native comment sidebar |
-| Open document in Structure to comment | Possible (MVP workaround) | "Open in Structure" button lets users use native comments there |
-| Wait for Sanity's API | Unknown timeline | Issue #7610 is open but no ETA |
+| Approach                              | Feasibility                   | Notes                                                                                        |
+| ------------------------------------- | ----------------------------- | -------------------------------------------------------------------------------------------- |
+| Use Sanity's native comment UI        | Not possible from custom tool | No public API to trigger comment creation programmatically                                   |
+| Build custom comment system           | Fully possible                | Store comments as Sanity documents, but they won't appear in Studio's native comment sidebar |
+| Open document in Structure to comment | Possible (MVP workaround)     | "Open in Structure" button lets users use native comments there                              |
+| Wait for Sanity's API                 | Unknown timeline              | Issue #7610 is open but no ETA                                                               |
 
 **Recommended approach:** For MVP/Phase 2, provide a "Comment" button that opens the specific document in Structure mode (where native commenting works). For Phase 4, build a lightweight custom annotation system stored as Sanity documents. If/when Sanity exposes a programmatic commenting API, migrate to that.
 
@@ -275,6 +286,7 @@ This gives you "edit from canvas" without rebuilding the full Presentation tool 
 **Goal:** Add non-page elements to the canvas for a more Figma-like creative workspace.
 
 #### Possible Elements
+
 - **Sticky notes** — text annotations on the canvas
 - **Images** — drag-and-drop images for reference/moodboarding
 - **Text blocks** — rich text annotations
@@ -283,13 +295,16 @@ This gives you "edit from canvas" without rebuilding the full Presentation tool 
 - **Color swatches** — reference design tokens
 
 #### Technology Pivot
+
 At this stage, **tldraw becomes the better foundation** than React Flow:
+
 - tldraw is purpose-built for freeform creative canvases
 - It supports custom shapes (page iframes), drawing, text, images, sticky notes natively
 - Built-in real-time collaboration via Yjs
 - The "Make Real" demo proves iframes work on the tldraw canvas
 
 You could either:
+
 1. **Migrate from React Flow to tldraw** at this phase
 2. **Hybrid approach** — use React Flow for the structured page grid, and overlay tldraw for freeform annotations
 
@@ -334,6 +349,7 @@ studio/src/plugins/canvas/
 ### 1. How do iframes get draft mode?
 
 Each iframe points at your frontend with draft mode enabled. The URL pattern:
+
 ```
 https://your-frontend.com/page-slug
 ```
@@ -353,11 +369,11 @@ Draft mode is activated by the Presentation tool's `/api/draft-mode/enable` endp
 
 ### 3. Where is canvas state stored?
 
-| Storage | Pros | Cons |
-|---------|------|------|
-| localStorage | Instant, no API calls | Per-browser, not shared |
-| Sanity document | Shared across team, versioned | API overhead, needs schema |
-| Both | Best UX — fast local with sync | More complex |
+| Storage         | Pros                           | Cons                       |
+| --------------- | ------------------------------ | -------------------------- |
+| localStorage    | Instant, no API calls          | Per-browser, not shared    |
+| Sanity document | Shared across team, versioned  | API overhead, needs schema |
+| Both            | Best UX — fast local with sync | More complex               |
 
 **Recommendation:** Start with localStorage for MVP, add Sanity document storage in Phase 2 for shared presets.
 
@@ -378,13 +394,13 @@ Toggle between "Move" mode (drag frames) and "Interact" mode (click inside frame
 
 ## Phased Delivery Summary
 
-| Phase | Scope | Canvas Lib | Key Milestone |
-|-------|-------|------------|---------------|
-| **1 — MVP** | View, arrange, zoom, per-frame menu | React Flow | "I can see 5 pages side by side and zoom around" |
-| **2 — Collaboration** | Presets, annotations, live reload, responsive | React Flow | "My team can save and share canvas layouts" |
-| **3 — Inline Editing** | Click-to-edit via side panel, postMessage | React Flow | "I can edit content from the canvas" |
-| **4 — Commenting** | Custom or native comments on fields | React Flow | "I can leave feedback on specific blocks" |
-| **5 — Freeform** | Images, text, drawing, full creative canvas | tldraw (migrate) | "This feels like Figma for content" |
+| Phase                  | Scope                                         | Canvas Lib       | Key Milestone                                    |
+| ---------------------- | --------------------------------------------- | ---------------- | ------------------------------------------------ |
+| **1 — MVP**            | View, arrange, zoom, per-frame menu           | React Flow       | "I can see 5 pages side by side and zoom around" |
+| **2 — Collaboration**  | Presets, annotations, live reload, responsive | React Flow       | "My team can save and share canvas layouts"      |
+| **3 — Inline Editing** | Click-to-edit via side panel, postMessage     | React Flow       | "I can edit content from the canvas"             |
+| **4 — Commenting**     | Custom or native comments on fields           | React Flow       | "I can leave feedback on specific blocks"        |
+| **5 — Freeform**       | Images, text, drawing, full creative canvas   | tldraw (migrate) | "This feels like Figma for content"              |
 
 ---
 

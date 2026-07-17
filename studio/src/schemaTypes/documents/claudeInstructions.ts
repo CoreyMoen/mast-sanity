@@ -70,17 +70,20 @@ const COMPONENT_OPTIONS = [
 /**
  * Default keywords that trigger Writing instructions inclusion
  */
-const DEFAULT_WRITING_KEYWORDS = 'write, writing, copy, text, content, heading, title, description, paragraph, rich text, blog, article, post, caption, label, tone, voice, style, language, word, sentence, grammar'
+const DEFAULT_WRITING_KEYWORDS =
+  'write, writing, copy, text, content, heading, title, description, paragraph, rich text, blog, article, post, caption, label, tone, voice, style, language, word, sentence, grammar'
 
 /**
  * Default keywords that trigger Design instructions inclusion
  */
-const DEFAULT_DESIGN_KEYWORDS = 'design, layout, section, row, column, spacing, padding, margin, style, visual, color, theme, grid, responsive, mobile, desktop, hero, banner, card, button, icon, image, slider, tab, background, overlay, align, width, height'
+const DEFAULT_DESIGN_KEYWORDS =
+  'design, layout, section, row, column, spacing, padding, margin, style, visual, color, theme, grid, responsive, mobile, desktop, hero, banner, card, button, icon, image, slider, tab, background, overlay, align, width, height'
 
 /**
  * Default keywords that trigger Technical instructions inclusion
  */
-const DEFAULT_TECHNICAL_KEYWORDS = 'nest, nesting, depth, schema, structure, field, type, key, sanity, groq, query, api, update, create, delete, duplicate, error, fail, bug, fix, constraint, limit, required'
+const DEFAULT_TECHNICAL_KEYWORDS =
+  'nest, nesting, depth, schema, structure, field, type, key, sanity, groq, query, api, update, create, delete, duplicate, error, fail, bug, fix, constraint, limit, required'
 
 // Preferred terms object for terminology replacements
 const preferredTermObject = defineArrayMember({
@@ -222,7 +225,8 @@ export const claudeInstructions = defineType({
       name: 'writingGuidelines',
       title: 'Writing Guidelines',
       type: 'array',
-      description: 'General guidelines for writing style, tone, and voice. Use headings and lists for better organization.',
+      description:
+        'General guidelines for writing style, tone, and voice. Use headings and lists for better organization.',
       group: 'writing',
       of: instructionBlockContent,
     }),
@@ -257,7 +261,8 @@ export const claudeInstructions = defineType({
       name: 'writingKeywords',
       title: 'Trigger Keywords',
       type: 'text',
-      description: 'Comma-separated keywords that trigger inclusion of Writing instructions when detected in user prompts. This optimizes performance by only including relevant instructions.',
+      description:
+        'Comma-separated keywords that trigger inclusion of Writing instructions when detected in user prompts. This optimizes performance by only including relevant instructions.',
       group: 'writing',
       rows: 3,
       initialValue: DEFAULT_WRITING_KEYWORDS,
@@ -268,7 +273,8 @@ export const claudeInstructions = defineType({
       name: 'designSystemRules',
       title: 'Design System Rules',
       type: 'array',
-      description: 'General rules for the design system and visual consistency. Use headings and lists for better organization.',
+      description:
+        'General rules for the design system and visual consistency. Use headings and lists for better organization.',
       group: 'design',
       of: instructionBlockContent,
     }),
@@ -284,7 +290,8 @@ export const claudeInstructions = defineType({
       name: 'designKeywords',
       title: 'Trigger Keywords',
       type: 'text',
-      description: 'Comma-separated keywords that trigger inclusion of Design instructions when detected in user prompts.',
+      description:
+        'Comma-separated keywords that trigger inclusion of Design instructions when detected in user prompts.',
       group: 'design',
       rows: 3,
       initialValue: DEFAULT_DESIGN_KEYWORDS,
@@ -295,7 +302,8 @@ export const claudeInstructions = defineType({
       name: 'includeSectionTemplates',
       title: 'Include Section Templates',
       type: 'boolean',
-      description: 'When enabled, all published section templates will be included in Claude\'s context when design-related prompts are detected',
+      description:
+        "When enabled, all published section templates will be included in Claude's context when design-related prompts are detected",
       group: 'design',
       initialValue: true,
     }),
@@ -303,7 +311,8 @@ export const claudeInstructions = defineType({
       name: 'sectionTemplateGuidance',
       title: 'Section Template Guidance',
       type: 'text',
-      description: 'Additional instructions for how Claude should use section templates (e.g., when to suggest templates vs custom builds)',
+      description:
+        'Additional instructions for how Claude should use section templates (e.g., when to suggest templates vs custom builds)',
       group: 'design',
       rows: 4,
       hidden: ({parent}) => !parent?.includeSectionTemplates,
@@ -314,7 +323,8 @@ export const claudeInstructions = defineType({
       name: 'technicalConstraints',
       title: 'Technical Constraints',
       type: 'array',
-      description: 'Technical limitations and constraints Claude should be aware of. Use headings and lists for better organization.',
+      description:
+        'Technical limitations and constraints Claude should be aware of. Use headings and lists for better organization.',
       group: 'technical',
       of: instructionBlockContent,
     }),
@@ -339,7 +349,8 @@ export const claudeInstructions = defineType({
       name: 'technicalKeywords',
       title: 'Trigger Keywords',
       type: 'text',
-      description: 'Comma-separated keywords that trigger inclusion of Technical instructions when detected in user prompts.',
+      description:
+        'Comma-separated keywords that trigger inclusion of Technical instructions when detected in user prompts.',
       group: 'technical',
       rows: 3,
       initialValue: DEFAULT_TECHNICAL_KEYWORDS,

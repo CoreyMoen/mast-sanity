@@ -3,6 +3,7 @@
 ## Overview
 
 Getting started with Sanity follows three phases:
+
 1. **Studio & Schema** — Set up Sanity Studio and define your content model
 2. **Content** — Import existing content or generate placeholder content via MCP
 3. **Frontend** — Integrate with your application (framework-specific)
@@ -30,6 +31,7 @@ Getting started with Sanity follows three phases:
 **Before starting:** Let the user know they can pause and resume anytime by saying "Continue Sanity setup".
 
 **RESUME TRIGGER:** If the user says "Continue Sanity setup", check what's already configured:
+
 - Does `sanity.config.ts` exist? → Studio is set up
 - Are there files in `schemaTypes/`? → Schema exists
 - Is there a frontend framework in `package.json`? → May need integration
@@ -45,6 +47,7 @@ Resume from where they left off.
 **Look for `sanity.config.ts` or `sanity.cli.ts`:**
 
 **If NO Studio found:**
+
 - Ask: "Want to create a new Sanity Studio?"
 - If yes, run:
   ```bash
@@ -52,6 +55,7 @@ Resume from where they left off.
   ```
 
 **If Studio exists:**
+
 - Read the config to get `projectId` and `dataset`
 - Proceed to Step 2
 
@@ -60,28 +64,31 @@ Resume from where they left off.
 **Look in `schemaTypes/`, `schemas/`, or `src/sanity/schemaTypes/`:**
 
 **If NO schema found:**
+
 - Ask: "What kind of content are you building? (e.g., Blog, E-commerce, Portfolio)"
 - Create appropriate schema types based on their answer
 - See `sanity-schema.md` for patterns
 
 **If schema exists:**
+
 - Show them what you found
 - Ask: "Want to add more content types or modify existing ones?"
 
 **If they want a quick example:**
 Create a basic blog schema:
+
 ```typescript
 // schemaTypes/post.ts
-import { defineType, defineField } from 'sanity'
+import {defineType, defineField} from 'sanity'
 
 export const post = defineType({
   name: 'post',
   title: 'Post',
   type: 'document',
   fields: [
-    defineField({ name: 'title', type: 'string' }),
-    defineField({ name: 'slug', type: 'slug', options: { source: 'title' } }),
-    defineField({ name: 'body', type: 'array', of: [{ type: 'block' }] }),
+    defineField({name: 'title', type: 'string'}),
+    defineField({name: 'slug', type: 'slug', options: {source: 'title'}}),
+    defineField({name: 'body', type: 'array', of: [{type: 'block'}]}),
   ],
 })
 ```
@@ -103,15 +110,18 @@ This uploads your schema to the Content Lake so MCP tools can work with it.
 ### Step 1: Check for Existing Content
 
 **Use MCP `query_documents` to check:**
+
 ```
 *[_type == "post"][0...5]
 ```
 
 **If content exists:**
+
 - Show them a summary
 - Ask: "Want to add more content or move to frontend integration?"
 
 **If NO content:**
+
 - Ask: "Do you want to:
   1. Import existing content (from another CMS, markdown, etc.)
   2. Generate sample content with AI
@@ -120,12 +130,14 @@ This uploads your schema to the Content Lake so MCP tools can work with it.
 ### Step 2a: Import Existing Content
 
 If migrating from another CMS or files:
+
 - See `sanity-migration.md`
 - Use MCP `migrate_content` tool for guidance
 
 ### Step 2b: Generate Sample Content (MCP)
 
 Use the Sanity MCP Server:
+
 ```
 Tool: create_document
 Type: post
@@ -137,11 +149,13 @@ Content: Create a sample blog post about getting started with Sanity
 ### MCP Setup (If Not Configured)
 
 **Quick start via Sanity CLI:**
+
 ```bash
 npx sanity@latest mcp configure
 ```
 
 **Claude Code:**
+
 ```bash
 claude mcp add Sanity -t http https://mcp.sanity.io --scope user
 ```
@@ -154,15 +168,16 @@ claude mcp add Sanity -t http https://mcp.sanity.io --scope user
 
 **Check `package.json` dependencies:**
 
-| Dependency | Framework | Rule File |
-|------------|-----------|-----------|
-| `next` | Next.js | `sanity-nextjs.md` |
-| `@remix-run/react` or `react-router` | React Router / Remix | `sanity-remix.md` |
-| `svelte` or `@sveltejs/kit` | SvelteKit | `sanity-svelte.md` |
-| `nuxt` | Nuxt | `sanity-nuxt.md` |
-| `astro` | Astro | `sanity-astro.md` |
+| Dependency                           | Framework            | Rule File          |
+| ------------------------------------ | -------------------- | ------------------ |
+| `next`                               | Next.js              | `sanity-nextjs.md` |
+| `@remix-run/react` or `react-router` | React Router / Remix | `sanity-remix.md`  |
+| `svelte` or `@sveltejs/kit`          | SvelteKit            | `sanity-svelte.md` |
+| `nuxt`                               | Nuxt                 | `sanity-nuxt.md`   |
+| `astro`                              | Astro                | `sanity-astro.md`  |
 
 **If NO framework found:**
+
 - Ask: "Which framework are you using, or would you like to create a new app?"
 - Guide them to create one or specify their choice
 
@@ -171,23 +186,26 @@ claude mcp add Sanity -t http https://mcp.sanity.io --scope user
 If Next.js is detected, follow these essential steps:
 
 **Install dependencies:**
+
 ```bash
 npm install @sanity/client @sanity/image-url @portabletext/react
 ```
 
 **Create the client (`src/sanity/client.ts`):**
+
 ```typescript
-import { createClient } from "@sanity/client";
+import {createClient} from '@sanity/client'
 
 export const client = createClient({
   projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!,
   dataset: process.env.NEXT_PUBLIC_SANITY_DATASET!,
-  apiVersion: "2024-01-01",
+  apiVersion: '2024-01-01',
   useCdn: false,
-});
+})
 ```
 
 **Fetch content in a Server Component:**
+
 ```typescript
 // app/posts/page.tsx
 import { client } from "@/sanity/client";
@@ -210,6 +228,7 @@ export default async function PostsPage() {
 ```
 
 **Add environment variables (`.env.local`):**
+
 ```
 NEXT_PUBLIC_SANITY_PROJECT_ID=your-project-id
 NEXT_PUBLIC_SANITY_DATASET=production
@@ -250,13 +269,13 @@ Just ask about any of these!"
 
 ### Framework-Specific Prefixes
 
-| Framework | Client-Side Prefix | Example |
-|-----------|-------------------|---------|
-| Next.js | `NEXT_PUBLIC_` | `NEXT_PUBLIC_SANITY_PROJECT_ID` |
-| React Router / Remix | None (use loader) | `SANITY_PROJECT_ID` |
-| SvelteKit | `PUBLIC_` | `PUBLIC_SANITY_PROJECT_ID` |
-| Nuxt | `NUXT_PUBLIC_` | `NUXT_PUBLIC_SANITY_PROJECT_ID` |
-| Astro | `PUBLIC_` | `PUBLIC_SANITY_PROJECT_ID` |
+| Framework            | Client-Side Prefix | Example                         |
+| -------------------- | ------------------ | ------------------------------- |
+| Next.js              | `NEXT_PUBLIC_`     | `NEXT_PUBLIC_SANITY_PROJECT_ID` |
+| React Router / Remix | None (use loader)  | `SANITY_PROJECT_ID`             |
+| SvelteKit            | `PUBLIC_`          | `PUBLIC_SANITY_PROJECT_ID`      |
+| Nuxt                 | `NUXT_PUBLIC_`     | `NUXT_PUBLIC_SANITY_PROJECT_ID` |
+| Astro                | `PUBLIC_`          | `PUBLIC_SANITY_PROJECT_ID`      |
 
 ---
 

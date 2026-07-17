@@ -86,20 +86,84 @@ export type InstructionCategory = 'writing' | 'design' | 'technical'
  */
 const DEFAULT_CATEGORY_KEYWORDS: Record<InstructionCategory, string[]> = {
   writing: [
-    'write', 'writing', 'copy', 'text', 'content', 'heading', 'title', 'description',
-    'paragraph', 'rich text', 'blog', 'article', 'post', 'caption', 'label',
-    'tone', 'voice', 'style', 'language', 'word', 'sentence', 'grammar'
+    'write',
+    'writing',
+    'copy',
+    'text',
+    'content',
+    'heading',
+    'title',
+    'description',
+    'paragraph',
+    'rich text',
+    'blog',
+    'article',
+    'post',
+    'caption',
+    'label',
+    'tone',
+    'voice',
+    'style',
+    'language',
+    'word',
+    'sentence',
+    'grammar',
   ],
   design: [
-    'design', 'layout', 'section', 'row', 'column', 'spacing', 'padding', 'margin',
-    'style', 'visual', 'color', 'theme', 'grid', 'responsive', 'mobile', 'desktop',
-    'hero', 'banner', 'card', 'button', 'icon', 'image', 'slider', 'tab',
-    'background', 'overlay', 'align', 'width', 'height'
+    'design',
+    'layout',
+    'section',
+    'row',
+    'column',
+    'spacing',
+    'padding',
+    'margin',
+    'style',
+    'visual',
+    'color',
+    'theme',
+    'grid',
+    'responsive',
+    'mobile',
+    'desktop',
+    'hero',
+    'banner',
+    'card',
+    'button',
+    'icon',
+    'image',
+    'slider',
+    'tab',
+    'background',
+    'overlay',
+    'align',
+    'width',
+    'height',
   ],
   technical: [
-    'nest', 'nesting', 'depth', 'schema', 'structure', 'field', 'type', 'key',
-    'sanity', 'groq', 'query', 'api', 'update', 'create', 'delete', 'duplicate',
-    'error', 'fail', 'bug', 'fix', 'constraint', 'limit', 'required'
+    'nest',
+    'nesting',
+    'depth',
+    'schema',
+    'structure',
+    'field',
+    'type',
+    'key',
+    'sanity',
+    'groq',
+    'query',
+    'api',
+    'update',
+    'create',
+    'delete',
+    'duplicate',
+    'error',
+    'fail',
+    'bug',
+    'fix',
+    'constraint',
+    'limit',
+    'required',
   ],
 }
 
@@ -118,7 +182,7 @@ function parseKeywords(keywordsString?: string): string[] {
  * Build category keywords map from Sanity instructions (with fallback to defaults)
  */
 export function buildCategoryKeywords(
-  instructions?: SanityClaudeInstructions | null
+  instructions?: SanityClaudeInstructions | null,
 ): Record<InstructionCategory, string[]> {
   const writingKeywords = instructions?.writingKeywords
     ? parseKeywords(instructions.writingKeywords)
@@ -145,7 +209,7 @@ export function buildCategoryKeywords(
  */
 export function detectRelevantCategories(
   userMessage: string,
-  instructions?: SanityClaudeInstructions | null
+  instructions?: SanityClaudeInstructions | null,
 ): Set<InstructionCategory> {
   const lowerMessage = userMessage.toLowerCase()
   const relevantCategories = new Set<InstructionCategory>()
@@ -153,7 +217,10 @@ export function detectRelevantCategories(
   // Build keywords map (uses Sanity config or defaults)
   const categoryKeywords = buildCategoryKeywords(instructions)
 
-  for (const [category, keywords] of Object.entries(categoryKeywords) as [InstructionCategory, string[]][]) {
+  for (const [category, keywords] of Object.entries(categoryKeywords) as [
+    InstructionCategory,
+    string[],
+  ][]) {
     for (const keyword of keywords) {
       if (lowerMessage.includes(keyword)) {
         relevantCategories.add(category)
@@ -199,9 +266,7 @@ function describeTemplateStructure(rows: any[]): string {
     if (row._type === 'row') {
       const columns = row.columns || []
       const colCount = columns.length
-      const colWidths = columns
-        .map((col: any) => col?.widthDesktop || 'auto')
-        .join('/')
+      const colWidths = columns.map((col: any) => col?.widthDesktop || 'auto').join('/')
 
       const blockTypes = columns
         .flatMap((col: any) => (col?.content || []).map((block: any) => block?._type))
@@ -224,7 +289,7 @@ function describeTemplateStructure(rows: any[]): string {
  */
 export function formatSectionTemplatesForClaude(
   templates: SectionTemplateForContext[],
-  guidance?: string
+  guidance?: string,
 ): string {
   if (!templates || templates.length === 0) {
     return ''
@@ -233,7 +298,9 @@ export function formatSectionTemplatesForClaude(
   const parts: string[] = []
   parts.push('## Available Section Templates')
   parts.push('')
-  parts.push('When building new sections, consider using these pre-built templates. You can suggest applying a template by telling the user which template matches their needs, then they can apply it from the Section\'s template selector.')
+  parts.push(
+    "When building new sections, consider using these pre-built templates. You can suggest applying a template by telling the user which template matches their needs, then they can apply it from the Section's template selector.",
+  )
   parts.push('')
 
   // Add custom guidance if provided
@@ -254,7 +321,16 @@ export function formatSectionTemplatesForClaude(
   }
 
   // Output templates by category
-  const categoryOrder = ['heroes', 'features', 'content', 'testimonials', 'ctas', 'pricing', 'faq', 'other']
+  const categoryOrder = [
+    'heroes',
+    'features',
+    'content',
+    'testimonials',
+    'ctas',
+    'pricing',
+    'faq',
+    'other',
+  ]
   for (const category of categoryOrder) {
     const categoryTemplates = grouped[category]
     if (!categoryTemplates || categoryTemplates.length === 0) continue
@@ -273,8 +349,10 @@ export function formatSectionTemplatesForClaude(
       const settings: string[] = []
       if (template.backgroundColor) settings.push(`bg: ${template.backgroundColor}`)
       if (template.paddingTop) settings.push(`padding: ${template.paddingTop}`)
-      if (template.maxWidth && template.maxWidth !== 'container') settings.push(`maxWidth: ${template.maxWidth}`)
-      if (template.minHeight && template.minHeight !== 'auto') settings.push(`minHeight: ${template.minHeight}`)
+      if (template.maxWidth && template.maxWidth !== 'container')
+        settings.push(`maxWidth: ${template.maxWidth}`)
+      if (template.minHeight && template.minHeight !== 'auto')
+        settings.push(`minHeight: ${template.minHeight}`)
       if (settings.length > 0) {
         parts.push(`- Settings: ${settings.join(', ')}`)
       }
@@ -331,7 +409,7 @@ export interface FormatInstructionsOptions {
  */
 export function formatInstructionsForClaude(
   instructions: SanityClaudeInstructions | null,
-  options?: FormatInstructionsOptions
+  options?: FormatInstructionsOptions,
 ): string {
   if (!instructions) {
     return getDefaultInstructions()
@@ -341,9 +419,10 @@ export function formatInstructionsForClaude(
 
   // Detect relevant categories if userMessage provided
   // Pass instructions so custom keywords from Sanity can be used
-  const relevantCategories = options?.userMessage && !options?.includeAll
-    ? detectRelevantCategories(options.userMessage, instructions)
-    : new Set<InstructionCategory>(['writing', 'design', 'technical'])
+  const relevantCategories =
+    options?.userMessage && !options?.includeAll
+      ? detectRelevantCategories(options.userMessage, instructions)
+      : new Set<InstructionCategory>(['writing', 'design', 'technical'])
 
   const includeWriting = relevantCategories.has('writing')
   const includeDesign = relevantCategories.has('design')
@@ -421,10 +500,14 @@ export function formatInstructionsForClaude(
     }
 
     // Section Templates (when enabled and templates provided)
-    if (instructions.includeSectionTemplates !== false && options?.sectionTemplates && options.sectionTemplates.length > 0) {
+    if (
+      instructions.includeSectionTemplates !== false &&
+      options?.sectionTemplates &&
+      options.sectionTemplates.length > 0
+    ) {
       const templateContext = formatSectionTemplatesForClaude(
         options.sectionTemplates,
-        instructions.sectionTemplateGuidance
+        instructions.sectionTemplateGuidance,
       )
       if (templateContext) {
         parts.push(templateContext)

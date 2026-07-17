@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { NextRequest, NextResponse } from 'next/server'
+import {NextRequest, NextResponse} from 'next/server'
 
 // Initialize Anthropic client
 const anthropic = new Anthropic({
@@ -18,7 +18,7 @@ function getAllowedOrigins(): string[] {
     // Default to allowing all origins in development
     return ['*']
   }
-  return originsEnv.split(',').map(origin => origin.trim())
+  return originsEnv.split(',').map((origin) => origin.trim())
 }
 
 /**
@@ -291,9 +291,9 @@ export async function POST(request: NextRequest) {
   // Check for API key
   if (!process.env.ANTHROPIC_API_KEY) {
     return jsonResponse(
-      { error: 'ANTHROPIC_API_KEY environment variable is not configured' },
+      {error: 'ANTHROPIC_API_KEY environment variable is not configured'},
       500,
-      origin
+      origin,
     )
   }
 
@@ -302,31 +302,27 @@ export async function POST(request: NextRequest) {
   try {
     body = await request.json()
   } catch {
-    return jsonResponse(
-      { error: 'Invalid JSON in request body' },
-      400,
-      origin
-    )
+    return jsonResponse({error: 'Invalid JSON in request body'}, 400, origin)
   }
 
   // Validate request
   if (!validateRequest(body)) {
     return jsonResponse(
-      { error: 'Invalid request body. Expected { messages: Array<{ role: "user" | "assistant", content: string }>, schema?: object, instructions?: string }' },
+      {
+        error:
+          'Invalid request body. Expected { messages: Array<{ role: "user" | "assistant", content: string }>, schema?: object, instructions?: string }',
+      },
       400,
-      origin
+      origin,
     )
   }
 
-  const { messages, schema, instructions, system, model, maxTokens, temperature } = body as ClaudeChatRequest
+  const {messages, schema, instructions, system, model, maxTokens, temperature} =
+    body as ClaudeChatRequest
 
   // Ensure there's at least one message
   if (messages.length === 0) {
-    return jsonResponse(
-      { error: 'At least one message is required' },
-      400,
-      origin
-    )
+    return jsonResponse({error: 'At least one message is required'}, 400, origin)
   }
 
   // Use pre-built system prompt from studio if provided, otherwise build fallback
@@ -360,11 +356,8 @@ export async function POST(request: NextRequest) {
         try {
           for await (const event of stream) {
             // Handle text delta events
-            if (
-              event.type === 'content_block_delta' &&
-              event.delta.type === 'text_delta'
-            ) {
-              const data = JSON.stringify({ text: event.delta.text })
+            if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+              const data = JSON.stringify({text: event.delta.text})
               controller.enqueue(encoder.encode(`data: ${data}\n\n`))
             }
 
@@ -407,29 +400,29 @@ export async function POST(request: NextRequest) {
       // Handle rate limiting
       if (statusCode === 429) {
         return jsonResponse(
-          { error: 'Rate limit exceeded. Please wait a moment and try again.' },
+          {error: 'Rate limit exceeded. Please wait a moment and try again.'},
           429,
-          origin
+          origin,
         )
       }
 
       // Handle authentication errors
       if (statusCode === 401) {
         return jsonResponse(
-          { error: 'Invalid API key. Please check your ANTHROPIC_API_KEY configuration.' },
+          {error: 'Invalid API key. Please check your ANTHROPIC_API_KEY configuration.'},
           401,
-          origin
+          origin,
         )
       }
 
-      return jsonResponse({ error: message }, statusCode, origin)
+      return jsonResponse({error: message}, statusCode, origin)
     }
 
     // Generic error response
     return jsonResponse(
-      { error: 'An unexpected error occurred while processing your request' },
+      {error: 'An unexpected error occurred while processing your request'},
       500,
-      origin
+      origin,
     )
   }
 }

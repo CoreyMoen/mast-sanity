@@ -27,35 +27,80 @@ export const column = defineType({
         defineArrayMember({type: 'row', options: {modal: {type: 'dialog', width: 'auto'}}}),
         defineArrayMember({type: 'contentWrap', options: {modal: {type: 'dialog', width: 'auto'}}}),
         defineArrayMember({type: 'spacerBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'dividerBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({
+          type: 'dividerBlock',
+          options: {modal: {type: 'dialog', width: 'auto'}},
+        }),
         defineArrayMember({type: 'cardBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
         defineArrayMember({type: 'tableBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
         // Content
-        defineArrayMember({type: 'headingBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'richTextBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'eyebrowBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({
+          type: 'headingBlock',
+          options: {modal: {type: 'dialog', width: 'auto'}},
+        }),
+        defineArrayMember({
+          type: 'richTextBlock',
+          options: {modal: {type: 'dialog', width: 'auto'}},
+        }),
+        defineArrayMember({
+          type: 'eyebrowBlock',
+          options: {modal: {type: 'dialog', width: 'auto'}},
+        }),
         defineArrayMember({type: 'buttonBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'breadcrumbBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({
+          type: 'breadcrumbBlock',
+          options: {modal: {type: 'dialog', width: 'auto'}},
+        }),
         // Media
         defineArrayMember({type: 'imageBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'inlineVideoBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({
+          type: 'inlineVideoBlock',
+          options: {modal: {type: 'dialog', width: 'auto'}},
+        }),
         defineArrayMember({type: 'iconBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
         // Interactive
         defineArrayMember({type: 'tabsBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'accordionBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({
+          type: 'accordionBlock',
+          options: {modal: {type: 'dialog', width: 'auto'}},
+        }),
         defineArrayMember({type: 'modalBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
         defineArrayMember({type: 'sliderBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
-        defineArrayMember({type: 'marqueeBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({
+          type: 'marqueeBlock',
+          options: {modal: {type: 'dialog', width: 'auto'}},
+        }),
         // Dynamic content
-        defineArrayMember({type: 'blogGridBlock', options: {modal: {type: 'dialog', width: 'auto'}}}),
+        defineArrayMember({
+          type: 'blogGridBlock',
+          options: {modal: {type: 'dialog', width: 'auto'}},
+        }),
       ],
       options: {
         insertMenu: {
           groups: [
-            {name: 'layout', title: 'Layout', of: ['row', 'contentWrap', 'spacerBlock', 'dividerBlock', 'cardBlock', 'tableBlock']},
-            {name: 'content', title: 'Content', of: ['headingBlock', 'richTextBlock', 'eyebrowBlock', 'buttonBlock', 'breadcrumbBlock']},
+            {
+              name: 'layout',
+              title: 'Layout',
+              of: ['row', 'contentWrap', 'spacerBlock', 'dividerBlock', 'cardBlock', 'tableBlock'],
+            },
+            {
+              name: 'content',
+              title: 'Content',
+              of: [
+                'headingBlock',
+                'richTextBlock',
+                'eyebrowBlock',
+                'buttonBlock',
+                'breadcrumbBlock',
+              ],
+            },
             {name: 'media', title: 'Media', of: ['imageBlock', 'inlineVideoBlock', 'iconBlock']},
-            {name: 'interactive', title: 'Interactive', of: ['tabsBlock', 'accordionBlock', 'modalBlock', 'sliderBlock', 'marqueeBlock']},
+            {
+              name: 'interactive',
+              title: 'Interactive',
+              of: ['tabsBlock', 'accordionBlock', 'modalBlock', 'sliderBlock', 'marqueeBlock'],
+            },
             {name: 'collections', title: 'Collections', of: ['blogGridBlock']},
           ],
         },
@@ -193,7 +238,8 @@ export const column = defineType({
     },
     prepare({content, widthDesktop}) {
       const blockCount = content?.length || 0
-      const widthLabel = widthDesktop === 'fill' ? 'Fill' : widthDesktop === 'auto' ? 'Auto' : `${widthDesktop}/12`
+      const widthLabel =
+        widthDesktop === 'fill' ? 'Fill' : widthDesktop === 'auto' ? 'Auto' : `${widthDesktop}/12`
       return {
         title: 'Column',
         subtitle: `${widthLabel} • ${blockCount} block${blockCount !== 1 ? 's' : ''}`,

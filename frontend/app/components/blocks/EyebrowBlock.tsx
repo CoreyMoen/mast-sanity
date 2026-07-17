@@ -26,13 +26,7 @@ const alignClasses: Record<string, string> = {
 }
 
 export default function EyebrowBlock({block}: EyebrowBlockProps) {
-  const {
-    text,
-    variant = 'text',
-    color = 'default',
-    align = 'left',
-    customStyle,
-  } = block
+  const {text, variant = 'text', color = 'default', align = 'left', customStyle} = block
 
   // Resolve SmartString to text value (handles both static text and variable references)
   const resolvedText = resolveSmartString(text, '')

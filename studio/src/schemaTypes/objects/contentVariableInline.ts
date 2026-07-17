@@ -51,7 +51,9 @@ export const contentVariableInline = defineType({
     prepare({name, key, value}) {
       return {
         title: `{{${key || name || 'variable'}}}`,
-        subtitle: value ? `"${value.slice(0, 40)}${value.length > 40 ? '...' : ''}"` : 'Text Variable',
+        subtitle: value
+          ? `"${value.slice(0, 40)}${value.length > 40 ? '...' : ''}"`
+          : 'Text Variable',
         media: TagIcon,
       }
     },

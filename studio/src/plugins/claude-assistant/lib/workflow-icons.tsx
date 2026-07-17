@@ -79,7 +79,7 @@ export function getWorkflowIcon(iconName?: string | null): ComponentType {
  */
 export function renderWorkflowIcon(
   iconName?: string | null,
-  props?: React.SVGProps<SVGSVGElement>
+  props?: React.SVGProps<SVGSVGElement>,
 ): React.ReactElement {
   const IconComponent = getWorkflowIcon(iconName)
   return <IconComponent {...props} />

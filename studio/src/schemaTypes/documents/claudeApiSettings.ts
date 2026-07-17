@@ -37,7 +37,7 @@ export const claudeApiSettings = defineType({
       name: 'maxTokens',
       title: 'Max Output Tokens',
       type: 'number',
-      description: 'Maximum number of tokens in Claude\'s response (100-8192).',
+      description: "Maximum number of tokens in Claude's response (100-8192).",
       initialValue: 4096,
       validation: (rule) => rule.required().min(100).max(8192),
     }),
@@ -45,7 +45,8 @@ export const claudeApiSettings = defineType({
       name: 'temperature',
       title: 'Temperature',
       type: 'number',
-      description: 'Lower values (0.0) make responses more focused, higher values (1.0) more creative.',
+      description:
+        'Lower values (0.0) make responses more focused, higher values (1.0) more creative.',
       initialValue: 0.7,
       validation: (rule) => rule.required().min(0).max(1),
       options: {
@@ -59,7 +60,8 @@ export const claudeApiSettings = defineType({
       name: 'enableStreaming',
       title: 'Enable Streaming',
       type: 'boolean',
-      description: 'Show responses as they are generated instead of waiting for the complete response.',
+      description:
+        'Show responses as they are generated instead of waiting for the complete response.',
       initialValue: true,
     }),
   ],

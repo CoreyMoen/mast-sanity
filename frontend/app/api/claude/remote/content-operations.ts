@@ -5,8 +5,8 @@
  * This is a simplified server-side version of the studio plugin's operations.
  */
 
-import type { SanityClient } from '@sanity/client'
-import type { ParsedAction, ActionResult } from './types'
+import type {SanityClient} from '@sanity/client'
+import type {ParsedAction, ActionResult} from './types'
 
 /**
  * Generate a random key for Sanity array items
@@ -40,22 +40,22 @@ function ensureKeysAndTypes(obj: unknown, parentType?: string): unknown {
 
     for (const [key, value] of Object.entries(typedObj)) {
       if (key === 'pageBuilder' && Array.isArray(value)) {
-        result[key] = (value as unknown[]).map(section => {
+        result[key] = (value as unknown[]).map((section) => {
           const s = section as Record<string, unknown>
           if (!s._type) s._type = 'section'
           if (!s._key) s._key = generateKey()
           if (s.rows && Array.isArray(s.rows)) {
-            s.rows = (s.rows as unknown[]).map(row => {
+            s.rows = (s.rows as unknown[]).map((row) => {
               const r = row as Record<string, unknown>
               if (!r._type) r._type = 'row'
               if (!r._key) r._key = generateKey()
               if (r.columns && Array.isArray(r.columns)) {
-                r.columns = (r.columns as unknown[]).map(col => {
+                r.columns = (r.columns as unknown[]).map((col) => {
                   const c = col as Record<string, unknown>
                   if (!c._type) c._type = 'column'
                   if (!c._key) c._key = generateKey()
                   if (c.content && Array.isArray(c.content)) {
-                    c.content = (c.content as unknown[]).map(block => {
+                    c.content = (c.content as unknown[]).map((block) => {
                       const b = block as Record<string, unknown>
                       if (!b._key) b._key = generateKey()
                       return ensureKeysAndTypes(b)
@@ -82,11 +82,8 @@ function ensureKeysAndTypes(obj: unknown, parentType?: string): unknown {
 /**
  * Execute a create action
  */
-async function executeCreate(
-  client: SanityClient,
-  action: ParsedAction
-): Promise<ActionResult> {
-  const { documentType, fields } = action.payload
+async function executeCreate(client: SanityClient, action: ParsedAction): Promise<ActionResult> {
+  const {documentType, fields} = action.payload
 
   if (!documentType) {
     return {
@@ -136,11 +133,8 @@ async function executeCreate(
 /**
  * Execute an update action
  */
-async function executeUpdate(
-  client: SanityClient,
-  action: ParsedAction
-): Promise<ActionResult> {
-  const { documentId, fields } = action.payload
+async function executeUpdate(client: SanityClient, action: ParsedAction): Promise<ActionResult> {
+  const {documentId, fields} = action.payload
 
   if (!documentId) {
     return {
@@ -164,14 +158,14 @@ async function executeUpdate(
     const processedFields = ensureKeysAndTypes(fields) as Record<string, unknown>
 
     // Check if any fields use path notation (e.g., "pageBuilder[_key==...].rows")
-    const hasPathNotation = Object.keys(processedFields).some(key => key.includes('['))
+    const hasPathNotation = Object.keys(processedFields).some((key) => key.includes('['))
 
     if (hasPathNotation) {
       // Use patch API for path-based updates
       let patch = client.patch(documentId)
 
       for (const [path, value] of Object.entries(processedFields)) {
-        patch = patch.set({ [path]: value })
+        patch = patch.set({[path]: value})
       }
 
       const result = await patch.commit()
@@ -185,10 +179,7 @@ async function executeUpdate(
       }
     } else {
       // Simple field update
-      const result = await client
-        .patch(documentId)
-        .set(processedFields)
-        .commit()
+      const result = await client.patch(documentId).set(processedFields).commit()
 
       return {
         success: true,
@@ -209,11 +200,8 @@ async function executeUpdate(
 /**
  * Execute a delete action
  */
-async function executeDelete(
-  client: SanityClient,
-  action: ParsedAction
-): Promise<ActionResult> {
-  const { documentId } = action.payload
+async function executeDelete(client: SanityClient, action: ParsedAction): Promise<ActionResult> {
+  const {documentId} = action.payload
 
   if (!documentId) {
     return {
@@ -247,44 +235,45 @@ async function executeDelete(
  * Validate a GROQ query for safety
  * Only allows read-only queries that start with standard patterns
  */
-function validateQuery(query: string): { valid: boolean; error?: string } {
+function validateQuery(query: string): {valid: boolean; error?: string} {
   const trimmed = query.trim()
 
   // Must start with a standard GROQ query pattern
-  if (!trimmed.startsWith('*[') && !trimmed.startsWith('count(') && !trimmed.startsWith('coalesce(')) {
-    return { valid: false, error: 'Query must start with *[ or count( or coalesce(' }
+  if (
+    !trimmed.startsWith('*[') &&
+    !trimmed.startsWith('count(') &&
+    !trimmed.startsWith('coalesce(')
+  ) {
+    return {valid: false, error: 'Query must start with *[ or count( or coalesce('}
   }
 
   // Block potentially dangerous patterns
   const dangerousPatterns = [
-    /\bsanity::/i,        // Internal Sanity functions
-    /_createdAt\s*</,     // Time-based attacks
-    /identity\(\)/i,      // User identity access
-    /\$.*token/i,         // Token parameter access
+    /\bsanity::/i, // Internal Sanity functions
+    /_createdAt\s*</, // Time-based attacks
+    /identity\(\)/i, // User identity access
+    /\$.*token/i, // Token parameter access
   ]
 
   for (const pattern of dangerousPatterns) {
     if (pattern.test(trimmed)) {
-      return { valid: false, error: 'Query contains restricted patterns' }
+      return {valid: false, error: 'Query contains restricted patterns'}
     }
   }
 
   // Limit query length to prevent DoS
   if (trimmed.length > 5000) {
-    return { valid: false, error: 'Query exceeds maximum length of 5000 characters' }
+    return {valid: false, error: 'Query exceeds maximum length of 5000 characters'}
   }
 
-  return { valid: true }
+  return {valid: true}
 }
 
 /**
  * Execute a query action with validation
  */
-async function executeQuery(
-  client: SanityClient,
-  action: ParsedAction
-): Promise<ActionResult> {
-  const { query } = action.payload
+async function executeQuery(client: SanityClient, action: ParsedAction): Promise<ActionResult> {
+  const {query} = action.payload
 
   if (!query) {
     return {
@@ -307,11 +296,12 @@ async function executeQuery(
 
     // Limit result size to prevent large data exfiltration
     const resultStr = JSON.stringify(result)
-    if (resultStr.length > 1000000) { // 1MB limit
+    if (resultStr.length > 1000000) {
+      // 1MB limit
       return {
         success: true,
         message: 'Query executed successfully (result truncated due to size)',
-        data: { _truncated: true, _message: 'Result exceeds 1MB limit' },
+        data: {_truncated: true, _message: 'Result exceeds 1MB limit'},
       }
     }
 
@@ -333,7 +323,7 @@ async function executeQuery(
  */
 export async function executeAction(
   client: SanityClient,
-  action: ParsedAction
+  action: ParsedAction,
 ): Promise<ActionResult> {
   switch (action.type) {
     case 'create':
@@ -353,7 +343,7 @@ export async function executeAction(
       return {
         success: true,
         message: 'Navigate action acknowledged (no-op in headless mode)',
-        data: { path: action.payload.path, documentId: action.payload.documentId },
+        data: {path: action.payload.path, documentId: action.payload.documentId},
       }
 
     case 'explain':
@@ -361,7 +351,7 @@ export async function executeAction(
       return {
         success: true,
         message: 'Explanation provided',
-        data: { explanation: action.payload.explanation },
+        data: {explanation: action.payload.explanation},
       }
 
     case 'uploadImage':

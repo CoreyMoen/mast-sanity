@@ -33,7 +33,8 @@ export const section = defineType({
       name: 'rows',
       title: 'Content',
       type: 'array',
-      description: 'Add rows for complex layouts, or add content blocks directly for simpler sections',
+      description:
+        'Add rows for complex layouts, or add content blocks directly for simpler sections',
       of: [
         // Layout
         defineArrayMember({type: 'row', options: {modal: {type: 'dialog', width: 'auto'}}}),
@@ -55,7 +56,11 @@ export const section = defineType({
         insertMenu: {
           groups: [
             {name: 'layout', title: 'Layout', of: ['row', 'spacerBlock', 'dividerBlock']},
-            {name: 'content', title: 'Content', of: ['headingBlock', 'richTextBlock', 'buttonBlock']},
+            {
+              name: 'content',
+              title: 'Content',
+              of: ['headingBlock', 'richTextBlock', 'buttonBlock'],
+            },
             {name: 'media', title: 'Media', of: ['imageBlock']},
             {name: 'interactive', title: 'Interactive', of: ['sliderBlock', 'tabsBlock']},
             {name: 'collections', title: 'Collections', of: ['blogGridBlock']},

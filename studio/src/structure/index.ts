@@ -69,7 +69,7 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
               S.documentTypeListItem('post').title('Blogs'),
               S.documentTypeListItem('category').title('Categories'),
               S.documentTypeListItem('person').title('People'),
-            ])
+            ]),
         ),
 
       S.divider(),
@@ -106,8 +106,11 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
                     .schemaType('sectionTemplate')
                     .filter('_type == "sectionTemplate" && (isGlobal != true)')
                     .apiVersion('2024-01-01')
-                    .defaultOrdering([{field: 'category', direction: 'asc'}, {field: 'name', direction: 'asc'}])
-                    .initialValueTemplates([S.initialValueTemplateItem('sectionTemplate-prefill')])
+                    .defaultOrdering([
+                      {field: 'category', direction: 'asc'},
+                      {field: 'name', direction: 'asc'},
+                    ])
+                    .initialValueTemplates([S.initialValueTemplateItem('sectionTemplate-prefill')]),
                 ),
               // Global Sections - referenced sections that update everywhere
               S.listItem()
@@ -121,10 +124,13 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
                     .schemaType('sectionTemplate')
                     .filter('_type == "sectionTemplate" && isGlobal == true')
                     .apiVersion('2024-01-01')
-                    .defaultOrdering([{field: 'category', direction: 'asc'}, {field: 'name', direction: 'asc'}])
-                    .initialValueTemplates([S.initialValueTemplateItem('sectionTemplate-global')])
+                    .defaultOrdering([
+                      {field: 'category', direction: 'asc'},
+                      {field: 'name', direction: 'asc'},
+                    ])
+                    .initialValueTemplates([S.initialValueTemplateItem('sectionTemplate-global')]),
                 ),
-            ])
+            ]),
         ),
 
       // Footer Singleton
@@ -147,7 +153,10 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
         .child(
           S.documentTypeList('contentVariable')
             .title('Content Variables')
-            .defaultOrdering([{field: 'variableType', direction: 'asc'}, {field: 'name', direction: 'asc'}])
+            .defaultOrdering([
+              {field: 'variableType', direction: 'asc'},
+              {field: 'name', direction: 'asc'},
+            ]),
         ),
 
       // Site Settings Singleton
@@ -176,7 +185,9 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
               S.listItem()
                 .id('claudeInstructions')
                 .title('Training')
-                .child(S.document().schemaType('claudeInstructions').documentId('claudeInstructions'))
+                .child(
+                  S.document().schemaType('claudeInstructions').documentId('claudeInstructions'),
+                )
                 .icon(BookIcon),
               // Quick Actions List
               S.listItem()
@@ -190,6 +201,6 @@ export const structure: StructureResolver = (S: StructureBuilder, context) =>
                 .title('Skills')
                 .child(S.documentTypeList('claudeWorkflow').title('Skills'))
                 .icon(BoltIcon),
-            ])
+            ]),
         ),
     ])

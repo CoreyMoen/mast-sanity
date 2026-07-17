@@ -5,6 +5,7 @@ Portable Text is Sanity's rich text format, used for content like article bodies
 **Note:** For page-level layout blocks (`pageBuilder[]`), see `sanity-page-builder.md`.
 
 ## 1. The Component
+
 Use the `PortableText` component from `next-sanity` (or `@portabletext/react`).
 
 ```typescript
@@ -17,6 +18,7 @@ export function Content({ value }: { value: any }) {
 ```
 
 ## 2. Custom Components (`components` prop)
+
 **Always** define a typed components object to handle custom blocks, marks, and list styles.
 
 ```typescript
@@ -58,11 +60,11 @@ const components: PortableTextComponents = {
 
 Portable Text has three types of custom components, each with different patterns:
 
-| Type | Examples | Pattern |
-|------|----------|---------|
-| **Block styles** | h1, h2, blockquote, normal | Text blocks with `children` prop |
+| Type             | Examples                   | Pattern                           |
+| ---------------- | -------------------------- | --------------------------------- |
+| **Block styles** | h1, h2, blockquote, normal | Text blocks with `children` prop  |
 | **Custom types** | image, video, callToAction | Non-text blocks with `value` prop |
-| **Marks** | link, strong, productRef | Inline annotations wrapping text |
+| **Marks**        | link, strong, productRef   | Inline annotations wrapping text  |
 
 ## 4. Creating Block Style Components
 
@@ -116,19 +118,19 @@ Custom types are non-text blocks like images, videos, or CTAs embedded in rich t
 
 ```typescript
 // schemaTypes/blocks/pteImageBlock.ts
-import { defineType, defineField } from 'sanity'
+import {defineType, defineField} from 'sanity'
 
 export const pteImageBlock = defineType({
   name: 'pteImage',
   title: 'Image',
   type: 'object',
   fields: [
-    defineField({ name: 'image', type: 'image', options: { hotspot: true } }),
-    defineField({ name: 'caption', type: 'string' }),
-    defineField({ name: 'alt', type: 'string', validation: (r) => r.required() }),
+    defineField({name: 'image', type: 'image', options: {hotspot: true}}),
+    defineField({name: 'caption', type: 'string'}),
+    defineField({name: 'alt', type: 'string', validation: (r) => r.required()}),
   ],
   preview: {
-    select: { title: 'caption', media: 'image' },
+    select: {title: 'caption', media: 'image'},
   },
 })
 ```
@@ -140,9 +142,9 @@ defineField({
   name: 'body',
   type: 'array',
   of: [
-    { type: 'block' },      // Standard text
-    { type: 'pteImage' },   // Custom image block
-    { type: 'pteVideo' },   // Custom video block
+    {type: 'block'}, // Standard text
+    {type: 'pteImage'}, // Custom image block
+    {type: 'pteVideo'}, // Custom video block
   ],
 })
 ```
@@ -199,9 +201,9 @@ defineField({
       type: 'block',
       marks: {
         decorators: [
-          { title: 'Strong', value: 'strong' },
-          { title: 'Emphasis', value: 'em' },
-          { title: 'Highlight', value: 'highlight' },
+          {title: 'Strong', value: 'strong'},
+          {title: 'Emphasis', value: 'em'},
+          {title: 'Highlight', value: 'highlight'},
         ],
         annotations: [
           {
@@ -209,17 +211,15 @@ defineField({
             type: 'object',
             title: 'Link',
             fields: [
-              { name: 'href', type: 'url', title: 'URL' },
-              { name: 'openInNewTab', type: 'boolean', title: 'Open in new tab' },
+              {name: 'href', type: 'url', title: 'URL'},
+              {name: 'openInNewTab', type: 'boolean', title: 'Open in new tab'},
             ],
           },
           {
             name: 'productRef',
             type: 'object',
             title: 'Product Reference',
-            fields: [
-              { name: 'product', type: 'reference', to: [{ type: 'product' }] },
-            ],
+            fields: [{name: 'product', type: 'reference', to: [{type: 'product'}]}],
           },
         ],
       },
@@ -285,12 +285,12 @@ Then in your component:
 
 ```typescript
 'use client'
-import { usePresentationQuery } from 'next-sanity/hooks'
+import {usePresentationQuery} from 'next-sanity/hooks'
 
-export function PteImageComponent({ value, documentId }: { value: any; documentId?: string }) {
-  const { data } = usePresentationQuery({
+export function PteImageComponent({value, documentId}: {value: any; documentId?: string}) {
+  const {data} = usePresentationQuery({
     query: PTE_IMAGE_PRESENTATION_QUERY,
-    params: { documentId, blockKey: value._key },
+    params: {documentId, blockKey: value._key},
   })
 
   const blockData = data?.pteImageBlock || value
@@ -327,12 +327,14 @@ When querying documents with Portable Text, expand custom blocks:
 When Visual Editing is enabled, text content contains invisible stega characters for click-to-edit functionality.
 
 **For text rendering:** Let stega characters pass through—they enable overlays:
+
 ```typescript
 // Good - stega preserved for click-to-edit
 <h2>{children}</h2>
 ```
 
 **For logic/comparisons:** Clean the values first:
+
 ```typescript
 import { stegaClean } from '@sanity/client/stega'
 
@@ -342,14 +344,15 @@ if (cleanedStyle === 'h2') { ... }
 ```
 
 ## 10. Type Safety
-When using TypeGen, the Portable Text value usually has a complex generated type. You can often use `any` or `PortableTextBlock[]` for the *prop*, but cast specific blocks if needed.
+
+When using TypeGen, the Portable Text value usually has a complex generated type. You can often use `any` or `PortableTextBlock[]` for the _prop_, but cast specific blocks if needed.
 
 ```typescript
-import { PortableTextBlock } from "next-sanity";
+import {PortableTextBlock} from 'next-sanity'
 
 type Props = {
-  value: PortableTextBlock[];
-};
+  value: PortableTextBlock[]
+}
 ```
 
 ## 11. Best Practices

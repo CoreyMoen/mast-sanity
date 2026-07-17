@@ -3,36 +3,40 @@
 ## 1. Query Definition & Imports
 
 ### The `defineQuery` Function
+
 **ALWAYS** wrap GROQ queries in `defineQuery` for TypeGen support. The import location depends on your framework:
 
 ```typescript
 // Framework-agnostic (Remix, SvelteKit, Astro, vanilla)
-import { defineQuery } from "groq";
+import {defineQuery} from 'groq'
 
 // Next.js (re-exported for convenience)
-import { defineQuery } from "next-sanity";
+import {defineQuery} from 'next-sanity'
 ```
 
 ### Syntax Highlighting
+
 For VS Code syntax highlighting, either:
+
 1. Use the `groq` tagged template (recommended): `groq\`...\``
 2. Or prefix with `/* groq */` comment when using `defineQuery`
 
 ```typescript
-import { defineQuery } from "groq";
+import {defineQuery} from 'groq'
 
 // Option A: groq tag (provides highlighting automatically)
-import groq from "groq";
-const QUERY = defineQuery(groq`*[_type == "post"]`);
+import groq from 'groq'
+const QUERY = defineQuery(groq`*[_type == "post"]`)
 
 // Option B: Comment prefix (for plain template literals)
-const QUERY = defineQuery(/* groq */ `*[_type == "post"]`);
+const QUERY = defineQuery(/* groq */ `*[_type == "post"]`)
 
 // Also valid: Just defineQuery (TypeGen works, but no editor highlighting)
-const QUERY = defineQuery(`*[_type == "post"]`);
+const QUERY = defineQuery(`*[_type == "post"]`)
 ```
 
 ## 2. Query Fragments
+
 Use string interpolation to reuse query logic and keep queries maintainable.
 
 ```typescript
@@ -44,11 +48,11 @@ export const imageFragment = /* groq */ `
     metadata { lqip, dimensions }
   },
   alt
-`;
+`
 
 // src/sanity/queries/post.ts
-import { defineQuery } from "groq";
-import { imageFragment } from "../fragments/image";
+import {defineQuery} from 'groq'
+import {imageFragment} from '../fragments/image'
 
 export const POST_QUERY = defineQuery(/* groq */ `
   *[_type == "post"][0] {
@@ -57,10 +61,11 @@ export const POST_QUERY = defineQuery(/* groq */ `
       ${imageFragment}
     }
   }
-`);
+`)
 ```
 
 ## 3. Expansion Patterns (Page Builder)
+
 When building a Page Builder query, expand all potential component types.
 
 **Best Practice:** Use a `pageFields` fragment or similar strategy to keep the main query clean.
@@ -77,11 +82,13 @@ const pageBuilderExpansion = /* groq */ `
       images[] { ${imageFragment} }
     }
   }
-`;
+`
 ```
 
 ## 4. Maintenance Workflow
+
 When you add a new field or component to the Schema:
+
 1.  **Update the Query:** Add the new field/expansion to the relevant GROQ query immediately.
 2.  **Run TypeGen:** Execute `npm run typegen` (or `update-types`) to regenerate TypeScript interfaces.
 3.  **Verify:** Ensure the new field is available in the generated types.
@@ -89,6 +96,7 @@ When you add a new field or component to the Schema:
 ## 5. Common Patterns
 
 ### Ordering
+
 ```groq
 // Single field
 *[_type == "post"] | order(publishedAt desc)
@@ -102,6 +110,7 @@ When you add a new field or component to the Schema:
 ```
 
 ### Slice Notation
+
 ```groq
 *[_type == "post"][0]       // Single document (object, not array)
 *[_type == "post"][0...5]   // First 5 (exclusive) - Most common
@@ -109,6 +118,7 @@ When you add a new field or component to the Schema:
 ```
 
 ### Default Values with `coalesce()`
+
 ```groq
 *[_type == "page"]{
   "title": coalesce(seoTitle, title, "Untitled"),
@@ -117,6 +127,7 @@ When you add a new field or component to the Schema:
 ```
 
 ### Conditionals with `select()`
+
 ```groq
 *[_type == "product"]{
   title,
@@ -129,6 +140,7 @@ When you add a new field or component to the Schema:
 ```
 
 ### Aggregation with `count()`
+
 ```groq
 // Total count
 count(*[_type == "post" && defined(slug.current)])
@@ -141,6 +153,7 @@ count(*[_type == "post" && defined(slug.current)])
 ```
 
 ### Reverse References
+
 ```groq
 *[_type == "author"]{
   name,
@@ -149,6 +162,7 @@ count(*[_type == "post" && defined(slug.current)])
 ```
 
 ### Array Filtering
+
 ```groq
 *[_type == "movie"]{
   title,
@@ -160,6 +174,7 @@ count(*[_type == "post" && defined(slug.current)])
 ```
 
 ### Special Variables
+
 ```groq
 // ^ = parent document (in nested queries)
 *[_type == "author"]{
@@ -176,6 +191,7 @@ count(*[_type == "post" && defined(slug.current)])
 ## 6. Performance Rules
 
 ### Optimizable vs Non-Optimizable Filters
+
 GROQ uses indexes for **optimizable** filters. Non-optimizable filters scan ALL documents.
 
 ```groq
@@ -190,12 +206,14 @@ GROQ uses indexes for **optimizable** filters. Non-optimizable filters scan ALL 
 ```
 
 **Fix non-optimizable filters by stacking:**
+
 ```groq
 // Stack optimizable filters FIRST to reduce search space
 *[_type == "product" && defined(salePrice) && salePrice < displayPrice]
 ```
 
 ### Avoid Joins in Filters
+
 Reference resolution (`->`) in filters is expensive. Use `_ref` instead:
 
 ```groq
@@ -207,6 +225,7 @@ Reference resolution (`->`) in filters is expensive. Use `_ref` instead:
 ```
 
 ### Merge Repeated Reference Resolutions
+
 Each `->` is a subquery. Don't repeat it:
 
 ```groq
@@ -223,6 +242,7 @@ Each `->` is a subquery. Don't repeat it:
 ```
 
 ### Cursor-Based Pagination (Not Deep Slicing)
+
 Deep slices are slow because all skipped docs must be sorted first.
 
 ```groq
@@ -234,6 +254,7 @@ Deep slices are slow because all skipped docs must be sorted first.
 ```
 
 ### Don't Filter/Sort on Projected Values
+
 Computed attributes can't use indexes:
 
 ```groq
@@ -247,15 +268,16 @@ Computed attributes can't use indexes:
 ```
 
 ### Quick Checklist
-| Rule | Why |
-|------|-----|
-| Always project `{ fields }` | Reduces data returned |
-| Use `defined()` checks | Filters use indexes |
-| Use `$params` not interpolation | Security + caching |
-| Order BEFORE slice | `order()[0...N]` not `[0...N] order()` |
-| Use `_ref` not `->field` in filters | Avoids expensive joins |
-| Merge repeated `->` calls | Single subquery vs many |
-| Cursor pagination for deep pages | Avoids sorting entire dataset |
+
+| Rule                                | Why                                    |
+| ----------------------------------- | -------------------------------------- |
+| Always project `{ fields }`         | Reduces data returned                  |
+| Use `defined()` checks              | Filters use indexes                    |
+| Use `$params` not interpolation     | Security + caching                     |
+| Order BEFORE slice                  | `order()[0...N]` not `[0...N] order()` |
+| Use `_ref` not `->field` in filters | Avoids expensive joins                 |
+| Merge repeated `->` calls           | Single subquery vs many                |
+| Cursor pagination for deep pages    | Avoids sorting entire dataset          |
 
 ## 7. API Version Best Practices
 

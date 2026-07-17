@@ -136,7 +136,9 @@ export const iconBlock = defineType({
     },
     prepare({icon, size}) {
       return {
-        title: icon ? icon.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()) : 'Icon',
+        title: icon
+          ? icon.replace(/-/g, ' ').replace(/\b\w/g, (l: string) => l.toUpperCase())
+          : 'Icon',
         subtitle: `Icon Block • ${size || 'md'}`,
       }
     },

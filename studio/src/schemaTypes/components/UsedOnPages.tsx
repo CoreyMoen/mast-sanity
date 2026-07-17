@@ -75,9 +75,7 @@ export function UsedOnPages() {
           style={{cursor: pages.length > 0 ? 'pointer' : 'default'}}
         >
           {pages.length > 0 && (
-            <Text size={1}>
-              {isExpanded ? <ChevronDownIcon /> : <ChevronRightIcon />}
-            </Text>
+            <Text size={1}>{isExpanded ? <ChevronDownIcon /> : <ChevronRightIcon />}</Text>
           )}
           <Text size={1} weight="semibold">
             Used on {loading ? '...' : `${pages.length} page${pages.length !== 1 ? 's' : ''}`}

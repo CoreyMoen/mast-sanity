@@ -1,6 +1,18 @@
 import {useState, useEffect, useCallback, useRef, useMemo} from 'react'
 import {useClient} from 'sanity'
-import {Layer, Card, Flex, Stack, Text, TextInput, Button, Checkbox, Spinner, Box, Badge} from '@sanity/ui'
+import {
+  Layer,
+  Card,
+  Flex,
+  Stack,
+  Text,
+  TextInput,
+  Button,
+  Checkbox,
+  Spinner,
+  Box,
+  Badge,
+} from '@sanity/ui'
 import {SearchIcon} from '@sanity/icons/Search'
 import {CloseIcon} from '@sanity/icons/Close'
 import {PINBOARD_DOC_TYPES} from '../types'
@@ -133,20 +145,17 @@ export function PagePickerDialog({
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [isOpen, onClose])
 
-  const handleToggle = useCallback(
-    (id: string) => {
-      setSelectedIds((prev) => {
-        const next = new Set(prev)
-        if (next.has(id)) {
-          next.delete(id)
-        } else {
-          next.add(id)
-        }
-        return next
-      })
-    },
-    [],
-  )
+  const handleToggle = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+      return next
+    })
+  }, [])
 
   const handleAdd = useCallback(() => {
     onAddPages(Array.from(selectedIds))
@@ -249,11 +258,7 @@ export function PagePickerDialog({
                         </Box>
                         <Stack space={2} style={{flex: 1, minWidth: 0}}>
                           <Flex align="center" gap={2}>
-                            <Text
-                              size={1}
-                              weight="medium"
-                              textOverflow="ellipsis"
-                            >
+                            <Text size={1} weight="medium" textOverflow="ellipsis">
                               {page.displayName || 'Untitled'}
                             </Text>
                             <Badge fontSize={0} mode="outline" style={{flexShrink: 0}}>
@@ -283,9 +288,7 @@ export function PagePickerDialog({
           <Card padding={3} borderTop style={{flexShrink: 0}}>
             <Flex align="center" justify="space-between">
               <Text size={1} muted>
-                {selectedIds.size > 0
-                  ? `${selectedIds.size} selected`
-                  : 'Select documents to add'}
+                {selectedIds.size > 0 ? `${selectedIds.size} selected` : 'Select documents to add'}
               </Text>
               <Flex gap={2}>
                 {selectedIds.size > 0 && (

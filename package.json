@@ -1,8 +1,6 @@
 {
   "name": "mast-sanity",
   "description": "Mast Component Framework for Sanity + Next.js with AI-powered content creation",
-  "author": "Corey Moen",
-  "license": "MIT",
   "keywords": [
     "Sanity",
     "Next.js",
@@ -12,14 +10,16 @@
     "Mast",
     "Claude AI"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/CoreyMoen/mast-sanity.git"
-  },
   "homepage": "https://github.com/CoreyMoen/mast-sanity#readme",
   "bugs": {
     "url": "https://github.com/CoreyMoen/mast-sanity/issues"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CoreyMoen/mast-sanity.git"
+  },
+  "license": "MIT",
+  "author": "Corey Moen",
   "workspaces": [
     "studio",
     "frontend"

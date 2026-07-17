@@ -42,7 +42,21 @@ export interface ColumnStructure {
   _key?: string
   _type: 'column'
   content?: ComponentStructure[]
-  widthDesktop?: 'auto' | 'fill' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '10' | '11' | '12'
+  widthDesktop?:
+    | 'auto'
+    | 'fill'
+    | '1'
+    | '2'
+    | '3'
+    | '4'
+    | '5'
+    | '6'
+    | '7'
+    | '8'
+    | '9'
+    | '10'
+    | '11'
+    | '12'
   widthMobile?: 'inherit' | 'auto' | 'fill' | '12'
   verticalAlign?: 'start' | 'center' | 'end' | 'between'
   padding?: '0' | '2' | '4' | '6' | '8'
@@ -65,11 +79,24 @@ function generateKey(): string {
  * Valid Sanity types for nested content
  */
 const VALID_NESTED_TYPES = new Set([
-  'section', 'row', 'column',
-  'headingBlock', 'richTextBlock', 'eyebrowBlock', 'imageBlock',
-  'buttonBlock', 'spacerBlock', 'dividerBlock', 'iconBlock',
-  'cardBlock', 'sliderBlock', 'tabsBlock', 'accordionBlock',
-  'slug', 'image', 'reference',
+  'section',
+  'row',
+  'column',
+  'headingBlock',
+  'richTextBlock',
+  'eyebrowBlock',
+  'imageBlock',
+  'buttonBlock',
+  'spacerBlock',
+  'dividerBlock',
+  'iconBlock',
+  'cardBlock',
+  'sliderBlock',
+  'tabsBlock',
+  'accordionBlock',
+  'slug',
+  'image',
+  'reference',
 ])
 
 /**
@@ -90,14 +117,22 @@ const EXPECTED_TYPES: Record<string, string> = {
  * Validate that nested objects have required _type and _key fields
  * Returns an error message if validation fails, null if valid
  */
-function validateNestedObjects(value: unknown, path: string = '', parentArrayName: string = ''): string | null {
+function validateNestedObjects(
+  value: unknown,
+  path: string = '',
+  parentArrayName: string = '',
+): string | null {
   if (value === null || value === undefined) {
     return null
   }
 
   if (Array.isArray(value)) {
     // Extract the array field name from the path (e.g., "pageBuilder" from "pageBuilder" or "rows" from "pageBuilder[0].rows")
-    const arrayName = path.split('.').pop()?.replace(/\[.*\]/, '') || ''
+    const arrayName =
+      path
+        .split('.')
+        .pop()
+        ?.replace(/\[.*\]/, '') || ''
     const isTypedArray = TYPED_ARRAY_FIELDS.has(arrayName)
 
     for (let i = 0; i < value.length; i++) {
@@ -154,7 +189,11 @@ function validateNestedObjects(value: unknown, path: string = '', parentArrayNam
   } else if (typeof value === 'object') {
     const obj = value as Record<string, unknown>
     for (const key of Object.keys(obj)) {
-      const nestedError = validateNestedObjects(obj[key], path ? `${path}.${key}` : key, parentArrayName)
+      const nestedError = validateNestedObjects(
+        obj[key],
+        path ? `${path}.${key}` : key,
+        parentArrayName,
+      )
       if (nestedError) return nestedError
     }
   }
@@ -261,7 +300,9 @@ export class ContentOperations {
           }
 
           // Use createOrReplace to restore the exact pre-state
-          const result = await this.client.createOrReplace(preState as Parameters<typeof this.client.createOrReplace>[0])
+          const result = await this.client.createOrReplace(
+            preState as Parameters<typeof this.client.createOrReplace>[0],
+          )
           return {
             success: true,
             documentId: result._id,
@@ -272,7 +313,9 @@ export class ContentOperations {
 
         case 'delete': {
           // Recreate the deleted document from pre-state
-          const result = await this.client.createOrReplace(preState as Parameters<typeof this.client.createOrReplace>[0])
+          const result = await this.client.createOrReplace(
+            preState as Parameters<typeof this.client.createOrReplace>[0],
+          )
           return {
             success: true,
             documentId: result._id,
@@ -434,10 +477,7 @@ export class ContentOperations {
       const preState = JSON.parse(JSON.stringify(draft))
 
       // Apply the patch with the provided fields
-      const result = await this.client
-        .patch(draftId)
-        .set(payload.fields)
-        .commit()
+      const result = await this.client.patch(draftId).set(payload.fields).commit()
 
       return {
         success: true,
@@ -563,14 +603,8 @@ export class ContentOperations {
   /**
    * Fetch documents by type
    */
-  async getDocumentsByType(
-    type: string,
-    limit: number = 10
-  ): Promise<SanityDocument[]> {
-    return this.client.fetch(
-      `*[_type == $type][0...$limit]`,
-      {type, limit}
-    )
+  async getDocumentsByType(type: string, limit: number = 10): Promise<SanityDocument[]> {
+    return this.client.fetch(`*[_type == $type][0...$limit]`, {type, limit})
   }
 
   /**
@@ -636,9 +670,10 @@ export class ContentOperations {
     } catch (error) {
       return {
         success: false,
-        message: error instanceof Error
-          ? `Failed to create page: ${error.message}`
-          : 'Failed to create page: Unknown error',
+        message:
+          error instanceof Error
+            ? `Failed to create page: ${error.message}`
+            : 'Failed to create page: Unknown error',
       }
     }
   }
@@ -649,7 +684,7 @@ export class ContentOperations {
   private async addRowsToSection(
     documentId: string,
     sectionIndex: number,
-    rows: RowStructure[]
+    rows: RowStructure[],
   ): Promise<void> {
     const sectionPath = `pageBuilder[${sectionIndex}]`
 
@@ -687,7 +722,7 @@ export class ContentOperations {
     documentId: string,
     sectionIndex: number,
     rowIndex: number,
-    columns: ColumnStructure[]
+    columns: ColumnStructure[],
   ): Promise<void> {
     const rowPath = `pageBuilder[${sectionIndex}].rows[${rowIndex}]`
 
@@ -727,7 +762,7 @@ export class ContentOperations {
     sectionIndex: number,
     rowIndex: number,
     columnIndex: number,
-    content: ComponentStructure[]
+    content: ComponentStructure[],
   ): Promise<void> {
     const columnPath = `pageBuilder[${sectionIndex}].rows[${rowIndex}].columns[${columnIndex}]`
 
@@ -753,9 +788,12 @@ export class ContentOperations {
   async addSectionToPage(documentId: string, section: SectionStructure): Promise<ActionResult> {
     try {
       // First, get the current page to determine the section index
-      const page = await this.client.fetch<{pageBuilder?: unknown[]}>(`*[_id == $id][0]{pageBuilder}`, {
-        id: documentId,
-      })
+      const page = await this.client.fetch<{pageBuilder?: unknown[]}>(
+        `*[_id == $id][0]{pageBuilder}`,
+        {
+          id: documentId,
+        },
+      )
 
       if (!page) {
         return {success: false, message: `Document ${documentId} not found`}
@@ -794,9 +832,10 @@ export class ContentOperations {
     } catch (error) {
       return {
         success: false,
-        message: error instanceof Error
-          ? `Failed to add section: ${error.message}`
-          : 'Failed to add section: Unknown error',
+        message:
+          error instanceof Error
+            ? `Failed to add section: ${error.message}`
+            : 'Failed to add section: Unknown error',
       }
     }
   }
@@ -807,7 +846,7 @@ export class ContentOperations {
   async updateSection(
     documentId: string,
     sectionIndex: number,
-    updates: Partial<SectionStructure>
+    updates: Partial<SectionStructure>,
   ): Promise<ActionResult> {
     try {
       const sectionPath = `pageBuilder[${sectionIndex}]`
@@ -816,7 +855,8 @@ export class ContentOperations {
       const setOps: Record<string, unknown> = {}
 
       if (updates.label !== undefined) setOps[`${sectionPath}.label`] = updates.label
-      if (updates.backgroundColor !== undefined) setOps[`${sectionPath}.backgroundColor`] = updates.backgroundColor
+      if (updates.backgroundColor !== undefined)
+        setOps[`${sectionPath}.backgroundColor`] = updates.backgroundColor
       if (updates.paddingTop !== undefined) setOps[`${sectionPath}.paddingTop`] = updates.paddingTop
       if (updates.maxWidth !== undefined) setOps[`${sectionPath}.maxWidth`] = updates.maxWidth
       if (updates.minHeight !== undefined) setOps[`${sectionPath}.minHeight`] = updates.minHeight
@@ -833,9 +873,10 @@ export class ContentOperations {
     } catch (error) {
       return {
         success: false,
-        message: error instanceof Error
-          ? `Failed to update section: ${error.message}`
-          : 'Failed to update section: Unknown error',
+        message:
+          error instanceof Error
+            ? `Failed to update section: ${error.message}`
+            : 'Failed to update section: Unknown error',
       }
     }
   }
@@ -848,7 +889,7 @@ export class ContentOperations {
     sectionIndex: number,
     rowIndex: number,
     columnIndex: number,
-    content: ComponentStructure[]
+    content: ComponentStructure[],
   ): Promise<ActionResult> {
     try {
       await this.addContentToColumn(documentId, sectionIndex, rowIndex, columnIndex, content)
@@ -861,9 +902,10 @@ export class ContentOperations {
     } catch (error) {
       return {
         success: false,
-        message: error instanceof Error
-          ? `Failed to append content: ${error.message}`
-          : 'Failed to append content: Unknown error',
+        message:
+          error instanceof Error
+            ? `Failed to append content: ${error.message}`
+            : 'Failed to append content: Unknown error',
       }
     }
   }
@@ -901,9 +943,10 @@ export class ContentOperations {
     } catch (error) {
       return {
         success: false,
-        message: error instanceof Error
-          ? `Failed to publish: ${error.message}`
-          : 'Failed to publish: Unknown error',
+        message:
+          error instanceof Error
+            ? `Failed to publish: ${error.message}`
+            : 'Failed to publish: Unknown error',
       }
     }
   }
@@ -966,9 +1009,10 @@ export class ContentOperations {
     } catch (error) {
       return {
         success: false,
-        message: error instanceof Error
-          ? `Failed to upload image: ${error.message}`
-          : 'Failed to upload image: Unknown error',
+        message:
+          error instanceof Error
+            ? `Failed to upload image: ${error.message}`
+            : 'Failed to upload image: Unknown error',
       }
     }
   }
@@ -983,7 +1027,7 @@ export class ContentOperations {
     try {
       // Get the max order value from existing pinboards
       const maxOrderResult = await this.client.fetch<number | null>(
-        `*[_type == "pinboard"] | order(order desc) [0].order`
+        `*[_type == "pinboard"] | order(order desc) [0].order`,
       )
       const nextOrder = (maxOrderResult ?? -1) + 1
 
@@ -997,11 +1041,9 @@ export class ContentOperations {
           {
             ids: rawPageIds,
             draftIds: rawPageIds.map((id) => `drafts.${id}`),
-          }
+          },
         )
-        const existingIdSet = new Set(
-          existingDocs.map((d) => d._id.replace(/^drafts\./, ''))
-        )
+        const existingIdSet = new Set(existingDocs.map((d) => d._id.replace(/^drafts\./, '')))
         const missingIds = rawPageIds.filter((id) => !existingIdSet.has(id))
 
         if (missingIds.length > 0) {
@@ -1044,9 +1086,10 @@ export class ContentOperations {
     } catch (error) {
       return {
         success: false,
-        message: error instanceof Error
-          ? `Failed to create pinboard: ${error.message}`
-          : 'Failed to create pinboard: Unknown error',
+        message:
+          error instanceof Error
+            ? `Failed to create pinboard: ${error.message}`
+            : 'Failed to create pinboard: Unknown error',
       }
     }
   }
@@ -1089,9 +1132,10 @@ export class ContentOperations {
     } catch (error) {
       return {
         success: false,
-        message: error instanceof Error
-          ? `Failed to unpublish: ${error.message}`
-          : 'Failed to unpublish: Unknown error',
+        message:
+          error instanceof Error
+            ? `Failed to unpublish: ${error.message}`
+            : 'Failed to unpublish: Unknown error',
       }
     }
   }

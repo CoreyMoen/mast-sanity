@@ -185,7 +185,13 @@ export function useCurrentDocument({
     setIsDetecting(true)
 
     try {
-      let doc: {_id: string; _type: string; name?: string; title?: string; slug?: {current: string}} | null = null
+      let doc: {
+        _id: string
+        _type: string
+        name?: string
+        title?: string
+        slug?: {current: string}
+      } | null = null
 
       if (documentId) {
         // Fetch by document ID (Structure mode)
@@ -197,7 +203,7 @@ export function useCurrentDocument({
             title,
             slug
           }`,
-          {id: documentId}
+          {id: documentId},
         )
       } else if (pageSlug !== null) {
         // Fetch by slug (Presentation mode) - check page and post types
@@ -209,12 +215,17 @@ export function useCurrentDocument({
             title,
             slug
           }`,
-          {slug: pageSlug}
+          {slug: pageSlug},
         )
       }
 
       if (doc) {
-        console.debug('[useCurrentDocument] Document detected:', {mode: detectedMode, id: doc._id, type: doc._type, name: doc.name || doc.title})
+        console.debug('[useCurrentDocument] Document detected:', {
+          mode: detectedMode,
+          id: doc._id,
+          type: doc._type,
+          name: doc.name || doc.title,
+        })
         lastDocIdRef.current = cacheKey
         setCurrentDocument({
           _id: doc._id,

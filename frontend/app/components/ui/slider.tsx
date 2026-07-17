@@ -55,7 +55,7 @@ function NavButton({
       className={cn(
         'flex h-10 w-10 items-center justify-center rounded-full border transition-all cursor-pointer',
         'border-brand bg-brand text-white hover:bg-brand/90',
-        'disabled:opacity-40 disabled:cursor-not-allowed'
+        'disabled:opacity-40 disabled:cursor-not-allowed',
       )}
       aria-label={direction === 'prev' ? 'Previous slide' : 'Next slide'}
     >
@@ -89,7 +89,9 @@ function CustomPagination({
           onClick={() => swiperInstance?.slideToLoop(index)}
           className={cn(
             'h-2 w-2 rounded-full transition-all cursor-pointer',
-            index === activeIndex ? 'bg-brand w-4' : 'bg-muted-foreground/40 hover:bg-muted-foreground/60'
+            index === activeIndex
+              ? 'bg-brand w-4'
+              : 'bg-muted-foreground/40 hover:bg-muted-foreground/60',
           )}
           aria-label={`Go to slide ${index + 1}`}
           aria-current={index === activeIndex ? 'true' : 'false'}
@@ -174,13 +176,7 @@ export function Slider({
   const slides = React.Children.toArray(children)
 
   return (
-    <div
-      className={cn(
-        'relative slider-container',
-        isSides && 'px-14',
-        className
-      )}
-    >
+    <div className={cn('relative slider-container', isSides && 'px-14', className)}>
       {/* Side Navigation - Left */}
       {showNavigation && isSides && (
         <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10">
@@ -235,7 +231,12 @@ export function Slider({
       {showNavigation && navigationPosition === 'overlay-center' && (
         <div className="absolute inset-x-0 bottom-4 flex items-center justify-center gap-4 z-10">
           <NavButton direction="prev" onClick={handlePrev} disabled={isBeginning} loop={loop} />
-          <CustomPagination showPagination={showPagination} totalSlides={totalSlides} activeIndex={activeIndex} swiperInstance={swiperInstance} />
+          <CustomPagination
+            showPagination={showPagination}
+            totalSlides={totalSlides}
+            activeIndex={activeIndex}
+            swiperInstance={swiperInstance}
+          />
           <NavButton direction="next" onClick={handleNext} disabled={isEnd} loop={loop} />
         </div>
       )}
@@ -251,7 +252,12 @@ export function Slider({
           </div>
           {showPagination && (
             <div className="absolute inset-x-0 bottom-4 flex justify-center z-10">
-              <CustomPagination showPagination={showPagination} totalSlides={totalSlides} activeIndex={activeIndex} swiperInstance={swiperInstance} />
+              <CustomPagination
+                showPagination={showPagination}
+                totalSlides={totalSlides}
+                activeIndex={activeIndex}
+                swiperInstance={swiperInstance}
+              />
             </div>
           )}
         </>
@@ -262,7 +268,12 @@ export function Slider({
         <div className="flex items-center justify-center gap-2 mt-6">
           <NavButton direction="prev" onClick={handlePrev} disabled={isBeginning} loop={loop} />
           <div className="mx-4">
-            <CustomPagination showPagination={showPagination} totalSlides={totalSlides} activeIndex={activeIndex} swiperInstance={swiperInstance} />
+            <CustomPagination
+              showPagination={showPagination}
+              totalSlides={totalSlides}
+              activeIndex={activeIndex}
+              swiperInstance={swiperInstance}
+            />
           </div>
           <NavButton direction="next" onClick={handleNext} disabled={isEnd} loop={loop} />
         </div>
@@ -271,7 +282,12 @@ export function Slider({
       {/* Pagination only (no navigation) */}
       {!showNavigation && showPagination && (
         <div className="flex justify-center mt-6">
-          <CustomPagination showPagination={showPagination} totalSlides={totalSlides} activeIndex={activeIndex} swiperInstance={swiperInstance} />
+          <CustomPagination
+            showPagination={showPagination}
+            totalSlides={totalSlides}
+            activeIndex={activeIndex}
+            swiperInstance={swiperInstance}
+          />
         </div>
       )}
     </div>
@@ -279,6 +295,12 @@ export function Slider({
 }
 
 // Individual slide wrapper for semantic clarity (kept for backwards compatibility)
-export function SliderSlide({children, className}: {children: React.ReactNode; className?: string}) {
+export function SliderSlide({
+  children,
+  className,
+}: {
+  children: React.ReactNode
+  className?: string
+}) {
   return <div className={cn('h-full', className)}>{children}</div>
 }

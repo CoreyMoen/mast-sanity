@@ -18,7 +18,22 @@ interface InlineVideoBlockProps {
       asset?: {_ref: string}
       alt?: string
     }
-    aspectRatio?: '16/9' | '4/3' | '1/1' | '9/16' | '21/9' | '16×9' | '4×3' | '1×1' | '9×16' | '21×9' | '16x9' | '4x3' | '1x1' | '9x16' | '21x9'
+    aspectRatio?:
+      | '16/9'
+      | '4/3'
+      | '1/1'
+      | '9/16'
+      | '21/9'
+      | '16×9'
+      | '4×3'
+      | '1×1'
+      | '9×16'
+      | '21×9'
+      | '16x9'
+      | '4x3'
+      | '1x1'
+      | '9x16'
+      | '21x9'
     autoplayOnScroll?: boolean
     loop?: boolean
     muted?: boolean
@@ -47,9 +62,7 @@ export default function InlineVideoBlock({block}: InlineVideoBlockProps) {
   if (!videoSrc) return null
 
   // Get poster image URL
-  const posterUrl = poster?.asset
-    ? urlForImage(poster)?.width(1200).height(675).url()
-    : undefined
+  const posterUrl = poster?.asset ? urlForImage(poster)?.width(1200).height(675).url() : undefined
 
   return (
     <div className="my-6">

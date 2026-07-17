@@ -33,7 +33,12 @@ export interface UseContentOperationsExtendedReturn extends UseContentOperations
   /** Fetch frame data from Figma URL */
   handleFetchFigmaFrame: (url: string, workflow?: Workflow) => Promise<ActionResult>
   /** Upload an image from Figma to Sanity */
-  handleUploadFigmaImage: (fileKey: string, nodeId: string, filename: string, workflow?: Workflow) => Promise<ActionResult>
+  handleUploadFigmaImage: (
+    fileKey: string,
+    nodeId: string,
+    filename: string,
+    workflow?: Workflow,
+  ) => Promise<ActionResult>
 }
 
 /**
@@ -43,9 +48,7 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
   const client = useClient({apiVersion: '2024-01-01'})
   const router = useRouter()
   const [isExecuting, setIsExecuting] = useState(false)
-  const [pendingActions, setPendingActions] = useState<Map<string, AbortController>>(
-    new Map()
-  )
+  const [pendingActions, setPendingActions] = useState<Map<string, AbortController>>(new Map())
 
   const operationsRef = useRef<ContentOperations | null>(null)
 
@@ -87,8 +90,8 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
             // Call the API endpoint directly
             const response = await fetch('/api/figma/fetch-frame', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ url }),
+              headers: {'Content-Type': 'application/json'},
+              body: JSON.stringify({url}),
             })
             const data = await response.json()
             if (data.success) {
@@ -111,7 +114,7 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
             }
           }
         } else if (action.type === 'uploadFigmaImage') {
-          const { figmaNodeId, figmaFileKey, filename } = action.payload
+          const {figmaNodeId, figmaFileKey, filename} = action.payload
           const nodeId = figmaNodeId || action.payload.path
           const fileKey = figmaFileKey
           const name = filename || 'figma-image.png'
@@ -124,13 +127,14 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
           } else if (!fileKey) {
             result = {
               success: false,
-              message: 'File key is required for uploadFigmaImage action. Make sure to include the fileKey from the fetchFigmaFrame response.',
+              message:
+                'File key is required for uploadFigmaImage action. Make sure to include the fileKey from the fetchFigmaFrame response.',
             }
           } else {
             // Call the API endpoint directly
             const response = await fetch('/api/figma/export-image', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {'Content-Type': 'application/json'},
               body: JSON.stringify({
                 fileKey,
                 nodeId,
@@ -179,7 +183,7 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
         })
       }
     },
-    [getOperations]
+    [getOperations],
   )
 
   /**
@@ -196,7 +200,7 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
         }
       }
     },
-    [getOperations]
+    [getOperations],
   )
 
   /**
@@ -214,7 +218,7 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
         })
       }
     },
-    [pendingActions]
+    [pendingActions],
   )
 
   /**
@@ -236,7 +240,7 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
         setIsExecuting(false)
       }
     },
-    [getOperations]
+    [getOperations],
   )
 
   /**
@@ -252,15 +256,16 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
       } catch (err) {
         return {
           success: false,
-          message: err instanceof Error
-            ? `Failed to create page: ${err.message}`
-            : 'Failed to create page: Unknown error',
+          message:
+            err instanceof Error
+              ? `Failed to create page: ${err.message}`
+              : 'Failed to create page: Unknown error',
         }
       } finally {
         setIsExecuting(false)
       }
     },
-    [getOperations]
+    [getOperations],
   )
 
   /**
@@ -276,15 +281,16 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
       } catch (err) {
         return {
           success: false,
-          message: err instanceof Error
-            ? `Failed to add section: ${err.message}`
-            : 'Failed to add section: Unknown error',
+          message:
+            err instanceof Error
+              ? `Failed to add section: ${err.message}`
+              : 'Failed to add section: Unknown error',
         }
       } finally {
         setIsExecuting(false)
       }
     },
-    [getOperations]
+    [getOperations],
   )
 
   /**
@@ -311,7 +317,7 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
         window.location.href = `/structure/${documentType};${cleanId}`
       }
     },
-    [router]
+    [router],
   )
 
   /**
@@ -337,7 +343,7 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
         navigateToStructure(documentId, documentType)
       }
     },
-    [router, navigateToStructure]
+    [router, navigateToStructure],
   )
 
   /**
@@ -353,15 +359,16 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
       } catch (err) {
         return {
           success: false,
-          message: err instanceof Error
-            ? `Failed to publish: ${err.message}`
-            : 'Failed to publish: Unknown error',
+          message:
+            err instanceof Error
+              ? `Failed to publish: ${err.message}`
+              : 'Failed to publish: Unknown error',
         }
       } finally {
         setIsExecuting(false)
       }
     },
-    [getOperations]
+    [getOperations],
   )
 
   /**
@@ -377,15 +384,16 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
       } catch (err) {
         return {
           success: false,
-          message: err instanceof Error
-            ? `Failed to unpublish: ${err.message}`
-            : 'Failed to unpublish: Unknown error',
+          message:
+            err instanceof Error
+              ? `Failed to unpublish: ${err.message}`
+              : 'Failed to unpublish: Unknown error',
         }
       } finally {
         setIsExecuting(false)
       }
     },
-    [getOperations]
+    [getOperations],
   )
 
   /**
@@ -398,7 +406,8 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
       if (workflow && !workflow.enableFigmaFetch) {
         return {
           success: false,
-          message: 'Figma integration is not enabled for this skill. Enable it in the skill settings.',
+          message:
+            'Figma integration is not enabled for this skill. Enable it in the skill settings.',
         }
       }
 
@@ -409,7 +418,7 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ url }),
+          body: JSON.stringify({url}),
         })
 
         const data = await response.json()
@@ -441,7 +450,7 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
         setIsExecuting(false)
       }
     },
-    []
+    [],
   )
 
   /**
@@ -449,12 +458,18 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
    * Requires the active workflow to have enableFigmaFetch: true
    */
   const handleUploadFigmaImage = useCallback(
-    async (fileKey: string, nodeId: string, filename: string, workflow?: Workflow): Promise<ActionResult> => {
+    async (
+      fileKey: string,
+      nodeId: string,
+      filename: string,
+      workflow?: Workflow,
+    ): Promise<ActionResult> => {
       // Validate that Figma fetch is enabled for this workflow
       if (workflow && !workflow.enableFigmaFetch) {
         return {
           success: false,
-          message: 'Figma integration is not enabled for this skill. Enable it in the skill settings.',
+          message:
+            'Figma integration is not enabled for this skill. Enable it in the skill settings.',
         }
       }
 
@@ -502,7 +517,7 @@ export function useContentOperations(): UseContentOperationsExtendedReturn {
         setIsExecuting(false)
       }
     },
-    []
+    [],
   )
 
   return {
@@ -552,7 +567,7 @@ export function useBatchOperations() {
       setIsProcessing(false)
       return resultsMap
     },
-    [executeAction]
+    [executeAction],
   )
 
   /**

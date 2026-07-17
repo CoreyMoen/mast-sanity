@@ -7,11 +7,13 @@ This guide covers **Page Builder** patterns—arrays of block objects that allow
 A page builder is an **array of objects** (`pageBuilder[]`) that allows content teams to compose pages from reusable blocks without developer intervention.
 
 **When to use:**
+
 - Flexible layouts needed (marketing pages, landing pages)
 - Content can be reordered
 - Different components on different pages
 
 **When NOT to use:**
+
 - Rigid, formulaic content (blog posts, product pages)
 - Highly structured data that doesn't change layout
 - Rich text within a document body—use Portable Text instead
@@ -19,6 +21,7 @@ A page builder is an **array of objects** (`pageBuilder[]`) that allows content 
 ## 2. Schema Organization
 
 ### Directory Structure
+
 ```
 schemaTypes/
 ├── blocks/           # Page builder blocks (objects)
@@ -31,62 +34,64 @@ schemaTypes/
 
 ### Objects vs References
 
-| Use **Objects** | Use **References** |
-|-----------------|-------------------|
+| Use **Objects**                | Use **References**               |
+| ------------------------------ | -------------------------------- |
 | Content is unique to this page | Content reused across many pages |
-| Simpler queries | Needs central management |
-| Default choice | FAQs, CTAs, testimonials |
+| Simpler queries                | Needs central management         |
+| Default choice                 | FAQs, CTAs, testimonials         |
 
 **Rule:** Use references sparingly. Most blocks should be objects.
 
 ### Page Builder Array
+
 ```typescript
 // pageBuilderType.ts
-import { defineType, defineArrayMember } from "sanity";
+import {defineType, defineArrayMember} from 'sanity'
 
 export const pageBuilderType = defineType({
-  name: "pageBuilder",
-  type: "array",
+  name: 'pageBuilder',
+  type: 'array',
   of: [
-    defineArrayMember({ type: "hero" }),
-    defineArrayMember({ type: "splitImage" }),
-    defineArrayMember({ type: "features" }),
-    defineArrayMember({ type: "faqs" }),
+    defineArrayMember({type: 'hero'}),
+    defineArrayMember({type: 'splitImage'}),
+    defineArrayMember({type: 'features'}),
+    defineArrayMember({type: 'faqs'}),
   ],
   options: {
     insertMenu: {
       views: [
         // Optional: Show visual thumbnails in the insert menu grid
-        { name: "grid", previewImageUrl: (type) => `/block-previews/${type}.png` },
+        {name: 'grid', previewImageUrl: (type) => `/block-previews/${type}.png`},
       ],
     },
   },
-});
+})
 ```
 
 ### Block Preview Pattern
+
 Every block should have consistent previews:
 
 ```typescript
-import { defineType } from "sanity";
-import { BlockContentIcon } from "@sanity/icons";
+import {defineType} from 'sanity'
+import {BlockContentIcon} from '@sanity/icons'
 
 export const splitImageType = defineType({
-  name: "splitImage",
-  type: "object",
+  name: 'splitImage',
+  type: 'object',
   icon: BlockContentIcon,
   fields: [/* ... */],
   preview: {
-    select: { title: "title", media: "image" },
-    prepare({ title, media }) {
+    select: {title: 'title', media: 'image'},
+    prepare({title, media}) {
       return {
-        title: title || "Untitled",
-        subtitle: "Split Image", // Block type name
+        title: title || 'Untitled',
+        subtitle: 'Split Image', // Block type name
         media: media ?? BlockContentIcon, // Fallback to icon
-      };
+      }
     },
   },
-});
+})
 ```
 
 ## 3. Querying Page Builders
@@ -109,22 +114,24 @@ Expand references only for blocks that need them:
 ## 4. Rendering Page Builders
 
 ### TypeScript Typing
+
 Use `Extract` to type individual blocks from the query result:
 
 ```typescript
-import { PAGE_QUERYResult } from "@/sanity/types";
+import {PAGE_QUERYResult} from '@/sanity/types'
 
 type HeroProps = Extract<
-  NonNullable<NonNullable<PAGE_QUERYResult>["content"]>[number],
-  { _type: "hero" }
->;
+  NonNullable<NonNullable<PAGE_QUERYResult>['content']>[number],
+  {_type: 'hero'}
+>
 
-export function Hero({ title, image }: HeroProps) {
+export function Hero({title, image}: HeroProps) {
   // Fully typed!
 }
 ```
 
 ### Switch-Based Rendering
+
 ```typescript
 export function PageBuilder({ content }: { content: Block[] }) {
   if (!Array.isArray(content)) return null;
@@ -149,6 +156,7 @@ export function PageBuilder({ content }: { content: Block[] }) {
 ```
 
 **Always use `_key` for React keys:**
+
 ```typescript
 // Breaks Visual Editing and causes hydration issues
 {items.map((item, i) => <Component key={i} {...item} />)}
@@ -158,6 +166,7 @@ export function PageBuilder({ content }: { content: Block[] }) {
 ```
 
 ### Cleaning Values for Logic
+
 Use `stegaClean` when block fields control rendering logic:
 
 ```typescript
@@ -241,44 +250,52 @@ This pattern is especially valuable for pages with many blocks or complex nested
 
 ## 6. Page Builder Pitfalls
 
-| Pitfall | Solution |
-|---------|----------|
-| Too many block variations | Split into separate blocks if >2 variants |
-| Paradox of choice | Limit blocks per document type |
-| Overusing references | Default to objects; references only for truly shared content |
-| Unused blocks accumulate | Prune regularly; see deprecation patterns |
-| Inconsistent previews | Always set title, subtitle (block name), and media/icon |
+| Pitfall                   | Solution                                                     |
+| ------------------------- | ------------------------------------------------------------ |
+| Too many block variations | Split into separate blocks if >2 variants                    |
+| Paradox of choice         | Limit blocks per document type                               |
+| Overusing references      | Default to objects; references only for truly shared content |
+| Unused blocks accumulate  | Prune regularly; see deprecation patterns                    |
+| Inconsistent previews     | Always set title, subtitle (block name), and media/icon      |
 
 ## 7. Component Alignment Pattern
+
 Map Sanity "alignment" fields (usually string/select) to CSS classes using utility functions.
 
 **Schema:**
+
 ```typescript
 defineField({
   name: 'align',
   type: 'string',
-  options: { list: ['left', 'center', 'right'], layout: 'radio' }
+  options: {list: ['left', 'center', 'right'], layout: 'radio'},
 })
 ```
 
 **Implementation (Utility):**
+
 ```typescript
-import { stegaClean } from "@sanity/client/stega";
+import {stegaClean} from '@sanity/client/stega'
 
 export function getTextAlign(align?: string) {
   // CLEAN the value before switching!
   switch (stegaClean(align)) {
-    case 'left': return 'text-left';
-    case 'right': return 'text-right';
-    default: return 'text-center';
+    case 'left':
+      return 'text-left'
+    case 'right':
+      return 'text-right'
+    default:
+      return 'text-center'
   }
 }
 ```
 
 ## 8. Semantic Heading Levels
+
 **Rule:** Do NOT store heading levels (h1, h2) in Sanity schema options. Determine them dynamically in the frontend to ensure accessibility.
 
 **Bad Schema:**
+
 ```typescript
 // Don't do this
 { name: 'level', type: 'string', options: { list: ['h1', 'h2'] } }
@@ -299,4 +316,4 @@ export default function Section({ block, level = 'h2' }: Props) {
 }
 ```
 
-*Note: For Image patterns, see `sanity-image.md`. For Portable Text patterns, see `sanity-portable-text.md`.*
+_Note: For Image patterns, see `sanity-image.md`. For Portable Text patterns, see `sanity-portable-text.md`._

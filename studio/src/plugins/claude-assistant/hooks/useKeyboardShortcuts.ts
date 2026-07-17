@@ -42,7 +42,10 @@ function isInputElement(element: Element | null): boolean {
 /**
  * Hook for managing keyboard shortcuts
  */
-export function useKeyboardShortcuts({enabled = true, shortcuts}: UseKeyboardShortcutsOptions): void {
+export function useKeyboardShortcuts({
+  enabled = true,
+  shortcuts,
+}: UseKeyboardShortcutsOptions): void {
   const shortcutsRef = useRef(shortcuts)
   shortcutsRef.current = shortcuts
 
@@ -75,7 +78,7 @@ export function useKeyboardShortcuts({enabled = true, shortcuts}: UseKeyboardSho
         }
       }
     },
-    [enabled]
+    [enabled],
   )
 
   useEffect(() => {
@@ -91,7 +94,10 @@ export function useKeyboardShortcuts({enabled = true, shortcuts}: UseKeyboardSho
 /**
  * Hook for focus management in accessible components
  */
-export function useFocusTrap(containerRef: React.RefObject<HTMLElement | null>, isActive: boolean): void {
+export function useFocusTrap(
+  containerRef: React.RefObject<HTMLElement | null>,
+  isActive: boolean,
+): void {
   const previousActiveElementRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
@@ -162,7 +168,7 @@ export function useRovingTabindex<T extends HTMLElement>(
   items: Array<{id: string; ref: React.RefObject<T>}>,
   activeId: string | null,
   onSelect: (id: string) => void,
-  orientation: 'horizontal' | 'vertical' = 'vertical'
+  orientation: 'horizontal' | 'vertical' = 'vertical',
 ): {
   getTabIndex: (id: string) => number
   handleKeyDown: (event: React.KeyboardEvent, id: string) => void
@@ -175,7 +181,7 @@ export function useRovingTabindex<T extends HTMLElement>(
       }
       return id === activeId ? 0 : -1
     },
-    [activeId, items]
+    [activeId, items],
   )
 
   const handleKeyDown = useCallback(
@@ -221,7 +227,7 @@ export function useRovingTabindex<T extends HTMLElement>(
         }
       }
     },
-    [items, onSelect, orientation]
+    [items, onSelect, orientation],
   )
 
   return {getTabIndex, handleKeyDown}
@@ -230,7 +236,10 @@ export function useRovingTabindex<T extends HTMLElement>(
 /**
  * Announce message to screen readers via live region
  */
-export function announceToScreenReader(message: string, priority: 'polite' | 'assertive' = 'polite'): void {
+export function announceToScreenReader(
+  message: string,
+  priority: 'polite' | 'assertive' = 'polite',
+): void {
   const announcement = document.createElement('div')
   announcement.setAttribute('role', 'status')
   announcement.setAttribute('aria-live', priority)
