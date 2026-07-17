@@ -96,6 +96,36 @@ function baseIdOf(id: string | undefined): string {
   return (id ?? '').replace(/^drafts\./, '').replace(/^versions\.[^.]+\./, '')
 }
 
+/**
+ * Fingerprint of a value's nested array `_key` structure, at every depth.
+ * Changes on any reorder/insert/remove anywhere in the tree, but NOT on field
+ * edits, and deliberately ignores non-array object shapes — so GROQ-expanded
+ * data (dereferenced links, asset URLs) fingerprints the same as its raw
+ * draft counterpart.
+ */
+function keySignature(value: unknown): string {
+  if (Array.isArray(value)) {
+    return `[${value
+      .map((item) => {
+        const key =
+          item && typeof item === 'object' && typeof (item as {_key?: unknown})._key === 'string'
+            ? ((item as {_key: string})._key as string)
+            : ''
+        return key + keySignature(item)
+      })
+      .join(',')}]`
+  }
+  if (value && typeof value === 'object') {
+    let out = ''
+    for (const prop of Object.keys(value).sort()) {
+      const sig = keySignature((value as Record<string, unknown>)[prop])
+      if (sig) out += prop + sig
+    }
+    return out
+  }
+  return ''
+}
+
 export default function PageBuilder({page, slug, isDraftMode}: PageBuilderPageProps) {
   // Live query results streamed from the Presentation tool over postMessage.
   // The Studio runs the query against its in-memory draft on every keystroke,
@@ -129,39 +159,28 @@ export default function PageBuilder({page, slug, isDraftMode}: PageBuilderPagePr
       return currentSections
     }
 
-    // If there are sections in the updated document, use them
+    // If there are sections in the updated document, use them.
+    // `action.document` is the RAW draft (no GROQ expansion), so reconcile
+    // per section against what's currently displayed:
+    // https://www.sanity.io/docs/enabling-drag-and-drop#ffe728eea8c1
     if (action.document.pageBuilder) {
-      // Reconcile References for drag-and-drop reordering only.
-      // https://www.sanity.io/docs/enabling-drag-and-drop#ffe728eea8c1
-      //
-      // We need to distinguish between:
-      // 1. Reordering (same sections, different order) - preserve expanded GROQ data
-      // 2. Field changes - use the new data from the live update
-      //
-      // Check if this is a reorder by comparing keys
-      const currentKeys =
-        currentSections
-          ?.map((s) => s._key)
-          .sort()
-          .join(',') || ''
-      const newKeys = action.document.pageBuilder
-        .map((s: PageBuilderSection) => s._key)
-        .sort()
-        .join(',')
-      const isReorder = currentKeys === newKeys && currentKeys.length > 0
+      return action.document.pageBuilder.map((rawSection: PageBuilderSection) => {
+        const displayed = currentSections?.find((s) => s._key === rawSection?._key)
 
-      if (isReorder) {
-        // This is a reorder - preserve expanded reference data from original query
-        return action.document.pageBuilder.map(
-          (section: PageBuilderSection) =>
-            currentSections?.find((s) => s._key === section?._key) || section,
-        )
-      }
+        // Newly inserted/duplicated section — render raw until the live query
+        // streams the expanded version moments later
+        if (!displayed) return rawSection
 
-      // This is a content change - use the new data directly
-      // Note: This means live preview won't have GROQ-expanded references until refresh
-      // but at least the changes will be visible
-      return action.document.pageBuilder
+        // Global sections are bare `reference` items in the raw draft (the
+        // query remaps them to section shape) — keep the expanded version
+        if (rawSection._type === 'reference') return displayed
+
+        // Same nested _key structure at every depth = a field edit (the live
+        // query streams those) — keep the expanded section. Different = a
+        // nested reorder/insert/remove — show the raw section instantly and
+        // let the live query re-expand it right after.
+        return keySignature(rawSection) === keySignature(displayed) ? displayed : rawSection
+      })
     }
 
     // Otherwise keep the current sections
