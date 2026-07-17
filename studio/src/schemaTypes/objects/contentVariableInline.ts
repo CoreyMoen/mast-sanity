@@ -1,5 +1,5 @@
 import {defineType, defineField} from 'sanity'
-import {TagIcon} from '@sanity/icons'
+import {TagIcon} from '@sanity/icons/Tag'
 
 /**
  * Content Variable Inline Object

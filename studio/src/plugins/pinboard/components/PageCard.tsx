@@ -1,14 +1,12 @@
 import {useState, useRef, useEffect} from 'react'
 import {Card, Text, Flex, Button, Badge, Spinner, Menu, MenuButton, MenuItem} from '@sanity/ui'
-import {
-  LaunchIcon,
-  EditIcon,
-  CloseIcon,
-  EyeOpenIcon,
-  EllipsisVerticalIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-} from '@sanity/icons'
+import {LaunchIcon} from '@sanity/icons/Launch'
+import {EditIcon} from '@sanity/icons/Edit'
+import {CloseIcon} from '@sanity/icons/Close'
+import {EyeOpenIcon} from '@sanity/icons/EyeOpen'
+import {EllipsisVerticalIcon} from '@sanity/icons/EllipsisVertical'
+import {ChevronLeftIcon} from '@sanity/icons/ChevronLeft'
+import {ChevronRightIcon} from '@sanity/icons/ChevronRight'
 import type {PageDocument, PageStatus, PinboardComment, PendingComment} from '../types'
 import {CommentOverlay} from './CommentOverlay'
 import {CommentPopover} from './CommentPopover'

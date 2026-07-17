@@ -1,5 +1,5 @@
 import {defineField, defineType} from 'sanity'
-import {DoubleChevronRightIcon} from '@sanity/icons'
+import {DoubleChevronRightIcon} from '@sanity/icons/DoubleChevronRight'
 
 export const marqueeBlock = defineType({
   name: 'marqueeBlock',

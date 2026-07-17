@@ -1,4 +1,4 @@
-import {BookIcon} from '@sanity/icons'
+import {BookIcon} from '@sanity/icons/Book'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
 /**

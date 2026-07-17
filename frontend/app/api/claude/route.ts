@@ -69,13 +69,19 @@ function jsonResponse(data: object, status: number = 200, requestOrigin?: string
 }
 
 // Default model to use
-const DEFAULT_MODEL = 'claude-sonnet-4-20250514'
+const DEFAULT_MODEL = 'claude-sonnet-5'
 
 // Default maximum tokens for response
 const DEFAULT_MAX_TOKENS = 4096
 
-// Default temperature
+// Default temperature (only sent to models that still accept sampling params)
 const DEFAULT_TEMPERATURE = 0.7
+
+// Claude Fable 5 / Mythos, Sonnet 5, and Opus 4.7+ reject non-default sampling
+// parameters (temperature/top_p/top_k) with a 400 — omit temperature for them.
+function supportsTemperature(model: string): boolean {
+  return !/^claude-(fable|mythos|sonnet-5|opus-4-[789])/.test(model)
+}
 
 /**
  * Image content block for multimodal messages
@@ -337,7 +343,7 @@ export async function POST(request: NextRequest) {
     const stream = await anthropic.messages.stream({
       model: selectedModel,
       max_tokens: selectedMaxTokens,
-      temperature: selectedTemperature,
+      ...(supportsTemperature(selectedModel) ? {temperature: selectedTemperature} : {}),
       system: systemPrompt,
       messages: messages.map((m) => ({
         role: m.role,

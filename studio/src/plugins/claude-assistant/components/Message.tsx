@@ -16,7 +16,9 @@
 
 import React, {useMemo, useState} from 'react'
 import {Box, Card, Flex, Text, Stack, Code, Button} from '@sanity/ui'
-import {ChevronDownIcon, ChevronUpIcon, ChevronRightIcon} from '@sanity/icons'
+import {ChevronDownIcon} from '@sanity/icons/ChevronDown'
+import {ChevronUpIcon} from '@sanity/icons/ChevronUp'
+import {ChevronRightIcon} from '@sanity/icons/ChevronRight'
 import type {Message as MessageType, ParsedAction} from '../types'
 import {extractTextContent} from '../lib/actions'
 import {ActionCard} from './ActionCard'

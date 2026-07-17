@@ -1,4 +1,4 @@
-import {CogIcon} from '@sanity/icons'
+import {CogIcon} from '@sanity/icons/Cog'
 import {defineField, defineType} from 'sanity'
 
 /**
@@ -11,8 +11,8 @@ import {defineField, defineType} from 'sanity'
  * Available Claude models
  */
 const AVAILABLE_MODELS = [
-  {title: 'Claude Opus 4.5 (Most Capable)', value: 'claude-opus-4-5-20251101'},
-  {title: 'Claude Sonnet 4 (Recommended)', value: 'claude-sonnet-4-20250514'},
+  {title: 'Claude Opus 4.8 (Most Capable)', value: 'claude-opus-4-8'},
+  {title: 'Claude Sonnet 5 (Recommended)', value: 'claude-sonnet-5'},
 ]
 
 export const claudeApiSettings = defineType({
@@ -30,7 +30,7 @@ export const claudeApiSettings = defineType({
         list: AVAILABLE_MODELS,
         layout: 'dropdown',
       },
-      initialValue: 'claude-sonnet-4-20250514',
+      initialValue: 'claude-sonnet-5',
       validation: (rule) => rule.required(),
     }),
     defineField({

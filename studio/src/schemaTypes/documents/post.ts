@@ -1,4 +1,4 @@
-import {DocumentTextIcon} from '@sanity/icons'
+import {DocumentTextIcon} from '@sanity/icons/DocumentText'
 import {format, parseISO} from 'date-fns'
 import {defineField, defineType} from 'sanity'
 import {PostFormInput} from '../components/PostFormInput'

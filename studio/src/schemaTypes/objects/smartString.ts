@@ -1,5 +1,6 @@
 import {defineType, defineField} from 'sanity'
-import {TagIcon, EditIcon} from '@sanity/icons'
+import {TagIcon} from '@sanity/icons/Tag'
+import {EditIcon} from '@sanity/icons/Edit'
 
 /**
  * Smart String Object

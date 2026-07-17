@@ -66,6 +66,7 @@ export default function ModalBlock({
   // Check URL parameter for opening modal
   React.useEffect(() => {
     if (cleanModalId && searchParams.get('modal') === cleanModalId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- syncing modal state from the URL, an external system
       setIsOpen(true)
     }
   }, [searchParams, cleanModalId])

@@ -19,16 +19,14 @@
 
 import React, {useMemo, useState, useCallback, useRef, useEffect, KeyboardEvent} from 'react'
 import {Box, Button, Card, Flex, Stack, Text, Menu, MenuButton, MenuItem, Tooltip, TextInput} from '@sanity/ui'
-import {
-  AddIcon,
-  TrashIcon,
-  EllipsisVerticalIcon,
-  ClockIcon,
-  ArchiveIcon,
-  RestoreIcon,
-  CommentIcon,
-  EditIcon,
-} from '@sanity/icons'
+import {AddIcon} from '@sanity/icons/Add'
+import {TrashIcon} from '@sanity/icons/Trash'
+import {EllipsisVerticalIcon} from '@sanity/icons/EllipsisVertical'
+import {ClockIcon} from '@sanity/icons/Clock'
+import {ArchiveIcon} from '@sanity/icons/Archive'
+import {RestoreIcon} from '@sanity/icons/Restore'
+import {CommentIcon} from '@sanity/icons/Comment'
+import {EditIcon} from '@sanity/icons/Edit'
 import type {Conversation} from '../types'
 
 // Pagination constants

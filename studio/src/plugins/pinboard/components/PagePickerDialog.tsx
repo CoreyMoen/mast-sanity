@@ -1,7 +1,8 @@
 import {useState, useEffect, useCallback, useRef, useMemo} from 'react'
 import {useClient} from 'sanity'
 import {Layer, Card, Flex, Stack, Text, TextInput, Button, Checkbox, Spinner, Box, Badge} from '@sanity/ui'
-import {SearchIcon, CloseIcon} from '@sanity/icons'
+import {SearchIcon} from '@sanity/icons/Search'
+import {CloseIcon} from '@sanity/icons/Close'
 import {PINBOARD_DOC_TYPES} from '../types'
 
 /** GROQ type filter for all supported document types */

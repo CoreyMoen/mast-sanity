@@ -1,5 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {InlineIcon} from '@sanity/icons'
+import {InlineIcon} from '@sanity/icons/Inline'
 
 // Tab item with label and content
 const tabItem = defineArrayMember({

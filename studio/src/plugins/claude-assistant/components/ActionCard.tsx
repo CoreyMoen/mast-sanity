@@ -9,26 +9,24 @@
 
 import {useEffect, useRef, useCallback, useState} from 'react'
 import {Box, Button, Card, Flex, Stack, Text, Code, Spinner} from '@sanity/ui'
-import {
-  AddIcon,
-  EditIcon,
-  TrashIcon,
-  SearchIcon,
-  LinkIcon,
-  InfoOutlineIcon,
-  PlayIcon,
-  UploadIcon,
-  CloseIcon,
-  CheckmarkIcon,
-  WarningOutlineIcon,
-  LaunchIcon,
-  DocumentIcon,
-  RefreshIcon,
-  UndoIcon,
-  ImageIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
-} from '@sanity/icons'
+import {AddIcon} from '@sanity/icons/Add'
+import {EditIcon} from '@sanity/icons/Edit'
+import {TrashIcon} from '@sanity/icons/Trash'
+import {SearchIcon} from '@sanity/icons/Search'
+import {LinkIcon} from '@sanity/icons/Link'
+import {InfoOutlineIcon} from '@sanity/icons/InfoOutline'
+import {PlayIcon} from '@sanity/icons/Play'
+import {UploadIcon} from '@sanity/icons/Upload'
+import {CloseIcon} from '@sanity/icons/Close'
+import {CheckmarkIcon} from '@sanity/icons/Checkmark'
+import {WarningOutlineIcon} from '@sanity/icons/WarningOutline'
+import {LaunchIcon} from '@sanity/icons/Launch'
+import {DocumentIcon} from '@sanity/icons/Document'
+import {RefreshIcon} from '@sanity/icons/Refresh'
+import {UndoIcon} from '@sanity/icons/Undo'
+import {ImageIcon} from '@sanity/icons/Image'
+import {ChevronDownIcon} from '@sanity/icons/ChevronDown'
+import {ChevronRightIcon} from '@sanity/icons/ChevronRight'
 import type {ParsedAction, ActionType, ActionStatus} from '../types'
 import {isDestructiveAction, shouldAutoExecute} from '../lib/actions'
 

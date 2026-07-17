@@ -1,5 +1,5 @@
 import {defineField, defineType} from 'sanity'
-import {TextIcon} from '@sanity/icons'
+import {TextIcon} from '@sanity/icons/Text'
 
 /**
  * Eyebrow Block schema - Small label text with variant styling.

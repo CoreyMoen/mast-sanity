@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react'
-import {EyeOpenIcon, EarthGlobeIcon} from '@sanity/icons'
+import {EyeOpenIcon} from '@sanity/icons/EyeOpen'
+import {EarthGlobeIcon} from '@sanity/icons/EarthGlobe'
 import {Button, Card, Flex, Text, Stack, Box} from '@sanity/ui'
 import {useFormValue, type ObjectInputProps} from 'sanity'
 import {UsedOnPages} from './UsedOnPages'

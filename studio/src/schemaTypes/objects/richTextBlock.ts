@@ -1,5 +1,5 @@
 import {defineField, defineType} from 'sanity'
-import {DocumentTextIcon} from '@sanity/icons'
+import {DocumentTextIcon} from '@sanity/icons/DocumentText'
 
 /**
  * Rich Text Block schema - Portable text content block.

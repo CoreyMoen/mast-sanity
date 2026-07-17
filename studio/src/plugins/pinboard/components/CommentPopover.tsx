@@ -1,6 +1,10 @@
 import {useState, useRef, useEffect, useCallback} from 'react'
 import {Card, Text, Flex, Button, Stack, Box} from '@sanity/ui'
-import {CloseIcon, CheckmarkCircleIcon, TrashIcon, EnterRightIcon, UndoIcon} from '@sanity/icons'
+import {CloseIcon} from '@sanity/icons/Close'
+import {CheckmarkCircleIcon} from '@sanity/icons/CheckmarkCircle'
+import {TrashIcon} from '@sanity/icons/Trash'
+import {EnterRightIcon} from '@sanity/icons/EnterRight'
+import {UndoIcon} from '@sanity/icons/Undo'
 import type {PinboardComment} from '../types'
 import {formatRelativeTime} from '../utils'
 

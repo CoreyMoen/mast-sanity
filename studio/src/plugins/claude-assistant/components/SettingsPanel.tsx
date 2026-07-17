@@ -34,7 +34,11 @@ import {
   TextArea,
   TextInput,
 } from '@sanity/ui'
-import {BoltIcon, CogIcon, EditIcon, LockIcon, WarningOutlineIcon} from '@sanity/icons'
+import {BoltIcon} from '@sanity/icons/Bolt'
+import {CogIcon} from '@sanity/icons/Cog'
+import {EditIcon} from '@sanity/icons/Edit'
+import {LockIcon} from '@sanity/icons/Lock'
+import {WarningOutlineIcon} from '@sanity/icons/WarningOutline'
 import type {PluginSettings} from '../types'
 import {useFocusTrap} from '../hooks/useKeyboardShortcuts'
 import {useQuickActions} from '../hooks/useQuickActions'
@@ -91,8 +95,8 @@ interface InstructionFieldProps {
 const ADMIN_ROLES = ['administrator']
 
 const AVAILABLE_MODELS = [
-  {value: 'claude-opus-4-5-20251101', title: 'Claude Opus 4.5 (Most Capable)'},
-  {value: 'claude-sonnet-4-20250514', title: 'Claude Sonnet 4 (Recommended)'},
+  {value: 'claude-opus-4-8', title: 'Claude Opus 4.8 (Most Capable)'},
+  {value: 'claude-sonnet-5', title: 'Claude Sonnet 5 (Recommended)'},
 ]
 
 const DEBOUNCE_DELAY = 1000

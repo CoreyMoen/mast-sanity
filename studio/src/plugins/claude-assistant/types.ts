@@ -306,7 +306,7 @@ export interface PluginSettings {
 }
 
 export const DEFAULT_SETTINGS: PluginSettings = {
-  model: 'claude-sonnet-4-20250514',
+  model: 'claude-sonnet-5',
   maxTokens: 4096,
   temperature: 0.7,
   customInstructions: '',

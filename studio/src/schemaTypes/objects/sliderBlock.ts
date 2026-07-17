@@ -1,5 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {ImagesIcon} from '@sanity/icons'
+import {ImagesIcon} from '@sanity/icons/Images'
 
 /**
  * Image Slide - simplified slide structure with direct image field.

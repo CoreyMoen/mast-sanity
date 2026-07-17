@@ -60,9 +60,15 @@ const anthropic = new Anthropic({
 })
 
 // Default values
-const DEFAULT_MODEL = 'claude-sonnet-4-20250514'
+const DEFAULT_MODEL = 'claude-sonnet-5'
 const DEFAULT_MAX_TOKENS = 4096
 const DEFAULT_TEMPERATURE = 0.7
+
+// Claude Fable 5 / Mythos, Sonnet 5, and Opus 4.7+ reject non-default sampling
+// parameters (temperature/top_p/top_k) with a 400 — omit temperature for them.
+function supportsTemperature(model: string): boolean {
+  return !/^claude-(fable|mythos|sonnet-5|opus-4-[789])/.test(model)
+}
 
 // Input size limits
 const MAX_MESSAGE_LENGTH = 50000
@@ -480,7 +486,7 @@ export async function POST(request: NextRequest) {
     const claudeResponse = await anthropic.messages.create({
       model,
       max_tokens: maxTokens,
-      temperature,
+      ...(supportsTemperature(model) ? {temperature} : {}),
       system: systemPrompt,
       messages,
     })

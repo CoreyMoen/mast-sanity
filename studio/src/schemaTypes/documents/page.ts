@@ -1,5 +1,6 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {DocumentIcon, EarthGlobeIcon} from '@sanity/icons'
+import {DocumentIcon} from '@sanity/icons/Document'
+import {EarthGlobeIcon} from '@sanity/icons/EarthGlobe'
 import {PageFormInput} from '../components/PageFormInput'
 
 /**

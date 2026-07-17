@@ -1,5 +1,5 @@
 import {defineField, defineType} from 'sanity'
-import {TextIcon} from '@sanity/icons'
+import {TextIcon} from '@sanity/icons/Text'
 
 /**
  * Heading Block schema - Configurable heading element.

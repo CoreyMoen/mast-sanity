@@ -13,17 +13,15 @@
 
 import React, {useCallback, useState, useRef, useEffect, useMemo} from 'react'
 import {Box, Card, Flex, Stack, Text, Button, Tooltip, Spinner, Menu, MenuButton, MenuItem, Dialog, Label} from '@sanity/ui'
-import {
-  CogIcon,
-  TrashIcon,
-  ResetIcon,
-  MenuIcon,
-  AddIcon,
-  ChevronLeftIcon,
-  EllipsisVerticalIcon,
-  DesktopIcon,
-  DocumentsIcon,
-} from '@sanity/icons'
+import {CogIcon} from '@sanity/icons/Cog'
+import {TrashIcon} from '@sanity/icons/Trash'
+import {ResetIcon} from '@sanity/icons/Reset'
+import {MenuIcon} from '@sanity/icons/Menu'
+import {AddIcon} from '@sanity/icons/Add'
+import {ChevronLeftIcon} from '@sanity/icons/ChevronLeft'
+import {EllipsisVerticalIcon} from '@sanity/icons/EllipsisVertical'
+import {DesktopIcon} from '@sanity/icons/Desktop'
+import {DocumentsIcon} from '@sanity/icons/Documents'
 import type {SanityClient, Schema, CurrentUser} from 'sanity'
 import type {
   Conversation,

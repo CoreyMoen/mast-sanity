@@ -15,7 +15,12 @@
 
 import React, {useCallback, useState, useRef, useEffect} from 'react'
 import {Box, Card, Flex, Stack, Text, Button, Tooltip, useToast} from '@sanity/ui'
-import {CloseIcon, AddIcon, TrashIcon, ResetIcon, ExpandIcon, DragHandleIcon} from '@sanity/icons'
+import {CloseIcon} from '@sanity/icons/Close'
+import {AddIcon} from '@sanity/icons/Add'
+import {TrashIcon} from '@sanity/icons/Trash'
+import {ResetIcon} from '@sanity/icons/Reset'
+import {ExpandIcon} from '@sanity/icons/Expand'
+import {DragHandleIcon} from '@sanity/icons/DragHandle'
 import {useClient, useCurrentUser, useSchema} from 'sanity'
 import {MessageList} from './MessageList'
 import {MessageInput} from './MessageInput'

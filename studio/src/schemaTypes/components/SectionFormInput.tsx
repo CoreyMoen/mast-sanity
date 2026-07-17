@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useCallback} from 'react'
-import {BlockElementIcon, AddIcon} from '@sanity/icons'
+import {BlockElementIcon} from '@sanity/icons/BlockElement'
+import {AddIcon} from '@sanity/icons/Add'
 import {
   Button,
   Card,

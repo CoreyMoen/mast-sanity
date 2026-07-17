@@ -27,7 +27,10 @@ import {
   useClickOutside,
   Layer,
 } from '@sanity/ui'
-import {DocumentIcon, SearchIcon, CloseIcon, DocumentsIcon} from '@sanity/icons'
+import {DocumentIcon} from '@sanity/icons/Document'
+import {SearchIcon} from '@sanity/icons/Search'
+import {CloseIcon} from '@sanity/icons/Close'
+import {DocumentsIcon} from '@sanity/icons/Documents'
 import type {SanityClient} from 'sanity'
 import type {DocumentContext} from '../types'
 

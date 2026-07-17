@@ -22,7 +22,10 @@ import {
   TabPanel,
   Text,
 } from '@sanity/ui'
-import {UploadIcon, ImageIcon, CheckmarkIcon, SearchIcon} from '@sanity/icons'
+import {UploadIcon} from '@sanity/icons/Upload'
+import {ImageIcon} from '@sanity/icons/Image'
+import {CheckmarkIcon} from '@sanity/icons/Checkmark'
+import {SearchIcon} from '@sanity/icons/Search'
 import type {SanityClient} from 'sanity'
 import type {ImageAttachment} from '../types'
 

@@ -6,19 +6,17 @@
  */
 
 import React from 'react'
-import {
-  DocumentTextIcon,
-  BlockElementIcon,
-  SearchIcon,
-  EditIcon,
-  SparklesIcon,
-  BoltIcon,
-  CogIcon,
-  TrendUpwardIcon,
-  UsersIcon,
-  ImageIcon,
-  PlayIcon,
-} from '@sanity/icons'
+import {DocumentTextIcon} from '@sanity/icons/DocumentText'
+import {BlockElementIcon} from '@sanity/icons/BlockElement'
+import {SearchIcon} from '@sanity/icons/Search'
+import {EditIcon} from '@sanity/icons/Edit'
+import {SparklesIcon} from '@sanity/icons/Sparkles'
+import {BoltIcon} from '@sanity/icons/Bolt'
+import {CogIcon} from '@sanity/icons/Cog'
+import {TrendUpwardIcon} from '@sanity/icons/TrendUpward'
+import {UsersIcon} from '@sanity/icons/Users'
+import {ImageIcon} from '@sanity/icons/Image'
+import {PlayIcon} from '@sanity/icons/Play'
 import type {ComponentType} from 'react'
 
 /**

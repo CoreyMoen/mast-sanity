@@ -1,4 +1,4 @@
-import {BoltIcon} from '@sanity/icons'
+import {BoltIcon} from '@sanity/icons/Bolt'
 import {defineArrayMember, defineField, defineType} from 'sanity'
 
 /**

@@ -1,5 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {StackIcon} from '@sanity/icons'
+import {StackIcon} from '@sanity/icons/Stack'
 
 // Accordion item with title and content
 const accordionItem = defineArrayMember({

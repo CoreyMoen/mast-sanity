@@ -1,5 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {BlockElementIcon} from '@sanity/icons'
+import {BlockElementIcon} from '@sanity/icons/BlockElement'
 import {SectionFormInput} from '../components/SectionFormInput'
 
 /**

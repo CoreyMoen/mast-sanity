@@ -1,5 +1,5 @@
 import {defineField, defineType} from 'sanity'
-import {CircleIcon} from '@sanity/icons'
+import {CircleIcon} from '@sanity/icons/Circle'
 
 /**
  * Icon Block schema - Displays Phosphor icons.

@@ -1,5 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {InlineIcon} from '@sanity/icons'
+import {InlineIcon} from '@sanity/icons/Inline'
 
 /**
  * Row schema - Flex container within a section.

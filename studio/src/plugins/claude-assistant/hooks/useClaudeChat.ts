@@ -81,7 +81,7 @@ export interface UseClaudeChatOptions {
   enableStreaming?: boolean
 
   /**
-   * Claude model to use (e.g., 'claude-sonnet-4-20250514')
+   * Claude model to use (e.g., 'claude-sonnet-5')
    */
   model?: string
 

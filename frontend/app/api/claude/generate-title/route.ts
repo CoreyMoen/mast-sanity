@@ -69,7 +69,7 @@ function jsonResponse(data: object, status: number = 200, requestOrigin?: string
 }
 
 // Model to use for title generation (use faster, cheaper model)
-const MODEL = 'claude-3-5-haiku-20241022'
+const MODEL = 'claude-haiku-4-5'
 
 // Maximum tokens for title (keep it short)
 const MAX_TOKENS = 50

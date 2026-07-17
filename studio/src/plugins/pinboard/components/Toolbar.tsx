@@ -1,5 +1,9 @@
 import {Flex, Button, Text, Card, Badge} from '@sanity/ui'
-import {AddIcon, RemoveIcon, UndoIcon, CommentIcon, EyeOpenIcon} from '@sanity/icons'
+import {AddIcon} from '@sanity/icons/Add'
+import {RemoveIcon} from '@sanity/icons/Remove'
+import {UndoIcon} from '@sanity/icons/Undo'
+import {CommentIcon} from '@sanity/icons/Comment'
+import {EyeOpenIcon} from '@sanity/icons/EyeOpen'
 
 interface ToolbarProps {
   scale: number

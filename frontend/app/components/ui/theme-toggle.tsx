@@ -54,6 +54,7 @@ export function ThemeToggle({className, showLabels = false}: ThemeToggleProps) {
   // Initialize theme on mount
   React.useEffect(() => {
     const stored = getStoredTheme()
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reading persisted theme from localStorage after mount to avoid hydration mismatch
     setTheme(stored)
     setEffectiveTheme(stored === 'system' ? getSystemTheme() : stored)
     applyTheme(stored)
@@ -170,6 +171,7 @@ export function ThemeToggleCompact({className}: {className?: string}) {
 
   React.useEffect(() => {
     const stored = getStoredTheme()
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- reading persisted theme from localStorage after mount to avoid hydration mismatch
     setEffectiveTheme(stored === 'system' ? getSystemTheme() : stored)
     setMounted(true)
   }, [])

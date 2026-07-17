@@ -1,5 +1,5 @@
 import {defineField, defineType} from 'sanity'
-import {RemoveIcon} from '@sanity/icons'
+import {RemoveIcon} from '@sanity/icons/Remove'
 
 /**
  * Divider Block schema - Horizontal rule with spacing controls.

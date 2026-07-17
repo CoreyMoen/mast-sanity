@@ -1,5 +1,6 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {BlockElementIcon, EarthGlobeIcon} from '@sanity/icons'
+import {BlockElementIcon} from '@sanity/icons/BlockElement'
+import {EarthGlobeIcon} from '@sanity/icons/EarthGlobe'
 import {SectionTemplateFormInput} from '../components/SectionTemplateFormInput'
 
 /**

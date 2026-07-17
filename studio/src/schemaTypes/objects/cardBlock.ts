@@ -1,5 +1,5 @@
 import {defineField, defineType} from 'sanity'
-import {BlockElementIcon} from '@sanity/icons'
+import {BlockElementIcon} from '@sanity/icons/BlockElement'
 
 /**
  * Card Block schema - Flexible card container for content.

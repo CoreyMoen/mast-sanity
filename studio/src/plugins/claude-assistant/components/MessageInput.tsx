@@ -12,7 +12,11 @@
 
 import {useState, useCallback, useRef, useEffect, KeyboardEvent, forwardRef, useImperativeHandle} from 'react'
 import {Box, Flex, Button, Text, Tooltip, Card} from '@sanity/ui'
-import {ArrowUpIcon, ImageIcon, CloseIcon, DocumentIcon, BoltIcon} from '@sanity/icons'
+import {ArrowUpIcon} from '@sanity/icons/ArrowUp'
+import {ImageIcon} from '@sanity/icons/Image'
+import {CloseIcon} from '@sanity/icons/Close'
+import {DocumentIcon} from '@sanity/icons/Document'
+import {BoltIcon} from '@sanity/icons/Bolt'
 import type {ImageAttachment, DocumentContext, BlockContext} from '../types'
 import {WorkflowPills} from './WorkflowPicker'
 

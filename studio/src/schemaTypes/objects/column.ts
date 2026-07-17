@@ -1,5 +1,5 @@
 import {defineArrayMember, defineField, defineType} from 'sanity'
-import {SquareIcon} from '@sanity/icons'
+import {SquareIcon} from '@sanity/icons/Square'
 
 /**
  * Column schema - Container within a row using a 12-column grid system.

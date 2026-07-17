@@ -1,6 +1,9 @@
 import {useState, useMemo, useCallback} from 'react'
 import {Card, Text, Flex, Button, Stack, Box, TextInput, Badge} from '@sanity/ui'
-import {CloseIcon, SearchIcon, CommentIcon, CheckmarkCircleIcon} from '@sanity/icons'
+import {CloseIcon} from '@sanity/icons/Close'
+import {SearchIcon} from '@sanity/icons/Search'
+import {CommentIcon} from '@sanity/icons/Comment'
+import {CheckmarkCircleIcon} from '@sanity/icons/CheckmarkCircle'
 import type {PinboardComment, PageWithStatus} from '../types'
 import {formatRelativeTime} from '../utils'
 

@@ -6,17 +6,15 @@
  */
 
 import {Flex, Button, Spinner} from '@sanity/ui'
-import {
-  EditIcon,
-  SearchIcon,
-  DocumentIcon,
-  BulbOutlineIcon,
-  TrashIcon,
-  CopyIcon,
-  ImageIcon,
-  CogIcon,
-  CodeBlockIcon,
-} from '@sanity/icons'
+import {EditIcon} from '@sanity/icons/Edit'
+import {SearchIcon} from '@sanity/icons/Search'
+import {DocumentIcon} from '@sanity/icons/Document'
+import {BulbOutlineIcon} from '@sanity/icons/BulbOutline'
+import {TrashIcon} from '@sanity/icons/Trash'
+import {CopyIcon} from '@sanity/icons/Copy'
+import {ImageIcon} from '@sanity/icons/Image'
+import {CogIcon} from '@sanity/icons/Cog'
+import {CodeBlockIcon} from '@sanity/icons/CodeBlock'
 import type {QuickAction} from '../types'
 import {useQuickActions, DEFAULT_QUICK_ACTIONS} from '../hooks/useQuickActions'
 

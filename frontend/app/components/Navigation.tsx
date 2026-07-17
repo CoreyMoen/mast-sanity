@@ -162,6 +162,7 @@ export default function Navigation({data, siteTitle = 'Mast Sanity'}: Navigation
 
   // Prevent hydration mismatch with Radix NavigationMenu IDs
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional mount flag for SSR hydration safety
     setMounted(true)
   }, [])
 

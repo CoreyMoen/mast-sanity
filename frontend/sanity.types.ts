@@ -914,7 +914,7 @@ export type ClaudeApiSettings = {
   _createdAt: string
   _updatedAt: string
   _rev: string
-  model: 'claude-opus-4-5-20251101' | 'claude-sonnet-4-20250514'
+  model: 'claude-opus-4-8' | 'claude-sonnet-5'
   maxTokens: number
   temperature: 0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 | 0.6 | 0.7 | 0.8 | 0.9 | 1
   enableStreaming?: boolean

@@ -17,7 +17,10 @@ import {
   Layer,
   Stack,
 } from '@sanity/ui'
-import {CloseIcon, SearchIcon, BoltIcon, WarningOutlineIcon} from '@sanity/icons'
+import {CloseIcon} from '@sanity/icons/Close'
+import {SearchIcon} from '@sanity/icons/Search'
+import {BoltIcon} from '@sanity/icons/Bolt'
+import {WarningOutlineIcon} from '@sanity/icons/WarningOutline'
 import type {WorkflowOption} from './MessageInput'
 
 /**

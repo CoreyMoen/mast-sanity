@@ -6409,11 +6409,11 @@
           "of": [
             {
               "type": "string",
-              "value": "claude-opus-4-5-20251101"
+              "value": "claude-opus-4-8"
             },
             {
               "type": "string",
-              "value": "claude-sonnet-4-20250514"
+              "value": "claude-sonnet-5"
             }
           ]
         },

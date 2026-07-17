@@ -7,7 +7,9 @@ import {
   Text,
   Spinner,
 } from '@sanity/ui'
-import {SearchIcon, DocumentIcon, HomeIcon} from '@sanity/icons'
+import {SearchIcon} from '@sanity/icons/Search'
+import {DocumentIcon} from '@sanity/icons/Document'
+import {HomeIcon} from '@sanity/icons/Home'
 import {useClient} from 'sanity'
 import {
   type PreviewHeaderProps,
